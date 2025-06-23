@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { LoginRolePopup } from '@/components/auth/LoginRolePopup';
 
 export function Header() {
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isRolePopupOpen, setIsRolePopupOpen] = useState(false);
 
   return (
     <>
@@ -31,7 +31,7 @@ export function Header() {
               </svg>
             </div>
             <Button 
-              onClick={() => setIsPopupOpen(true)}
+              onClick={() => setIsRolePopupOpen(true)}
               className="bg-lime-500 text-black font-bold hover:bg-lime-600 rounded-lg text-base px-6 py-3"
             >
               Đăng nhập
@@ -39,7 +39,8 @@ export function Header() {
           </div>
         </div>
       </header>
-      {isPopupOpen && <LoginRolePopup onClose={() => setIsPopupOpen(false)} />}
+      
+      {isRolePopupOpen && <LoginRolePopup onClose={() => setIsRolePopupOpen(false)} />}
     </>
   );
 } 

@@ -22,7 +22,7 @@ export const LoginRolePopup: React.FC<LoginRolePopupProps> = ({ onClose }) => {
         </h2>
         <div className="my-6">
           <Image
-            src="/images/login-character.png" // NOTE: Add this image to public/images
+            src="/images/logoScoreLensBlack.png" // Using black logo on white background
             alt="Character"
             width={150}
             height={150}
@@ -30,14 +30,14 @@ export const LoginRolePopup: React.FC<LoginRolePopupProps> = ({ onClose }) => {
           />
         </div>
         <div className="flex justify-center gap-4">
-          <Link href="/admins">
-            <Button className="bg-lime-500 text-White font-semibold hover:bg-lime-600 rounded-lg text-lg px-12 py-3 transition-transform hover:scale-105">
-              Admin
+          <Link href="/admin/login" onClick={onClose}>
+            <Button className="bg-lime-500 text-gray-900 font-semibold hover:bg-lime-600 rounded-lg text-lg px-12 py-3 transition-transform hover:scale-105">
+              Quản trị viên
             </Button>
           </Link>
-          <Link href="#">
-             <Button className="bg-lime-500 text-White font-semibold hover:bg-lime-600 rounded-lg text-lg px-10 py-3 transition-transform hover:scale-105">
-              Manager
+          <Link href="/manager/login" onClick={onClose}>
+            <Button className="bg-lime-500 text-gray-900 font-semibold hover:bg-lime-600 rounded-lg text-lg px-10 py-3 transition-transform hover:scale-105">
+              Quản lý
             </Button>
           </Link>
         </div>
