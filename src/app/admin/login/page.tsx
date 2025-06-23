@@ -89,6 +89,21 @@ export default function AdminLoginPage() {
               >
                 Đăng nhập
               </Button>
+              <div className="text-center w-full mt-2">
+                <span className="text-gray-800 text-sm">Bạn chưa có tài khoản? </span>
+                <Link href="/admin/register" className="text-lime-600 font-semibold hover:underline text-sm">
+                  Đăng ký
+                </Link>
+              </div>
+              <div className="text-center mt-4">
+                <button
+                  type="button"
+                  onClick={() => window.location.href = '/'}
+                  className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors"
+                >
+                  ← Quay lại trang chủ
+                </button>
+              </div>
             </form>
           </div>
         </div>

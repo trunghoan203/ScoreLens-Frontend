@@ -7,7 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { LoginRolePopup } from '@/components/auth/LoginRolePopup';
 
-export function Header() {
+export function HeaderHome() {
   const [isRolePopupOpen, setIsRolePopupOpen] = useState(false);
 
   return (
@@ -36,10 +36,15 @@ export function Header() {
             >
               Đăng nhập
             </Button>
+            <Button
+              onClick={() => window.location.href = '/admin/register'}
+              className="bg-white text-lime-600 border border-lime-500 font-bold hover:bg-lime-100 rounded-lg text-base px-6 py-3 ml-2"
+            >
+              Đăng ký
+            </Button>
           </div>
         </div>
       </header>
-      
       {isRolePopupOpen && <LoginRolePopup onClose={() => setIsRolePopupOpen(false)} />}
     </>
   );

@@ -55,6 +55,15 @@ export default function ManagerLoginPage() {
               >
                 Đăng nhập
               </Button>
+              <div className="text-center mt-4">
+                <button
+                  type="button"
+                  onClick={() => window.location.href = '/'}
+                  className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors"
+                >
+                  ← Quay lại trang chủ
+                </button>
+              </div>
             </form>
           </div>
         </div>

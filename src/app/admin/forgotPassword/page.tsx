@@ -24,7 +24,7 @@ export default function AdminForgotPasswordPage() {
 
   return (
     <div className="flex items-center justify-center w-full min-h-screen">
-      <div className="flex flex-col md:flex-row bg-white rounded-lg shadow-xl overflow-hidden">
+      <div className="relative z-30 flex flex-col md:flex-row bg-white rounded-lg shadow-xl overflow-hidden">
         {/* FORM FORGOT PASSWORD */}
         <div className="flex flex-col justify-center p-8 md:p-12 w-[400px] h-[500px]">
           <div className="flex flex-col items-center">
