@@ -1,6 +1,6 @@
 'use client';
 
-import { ScoreLensLogo } from '@/components/icons/Logo';
+import { ScoreLensLogo } from '@/components/icons/LogoWhite';
 import Image from 'next/image';
 
 export function HeaderAdmin() {

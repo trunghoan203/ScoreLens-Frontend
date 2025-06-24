@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScoreLensLogo } from '@/components/icons/Logo';
+import { ScoreLensLogo } from '@/components/icons/LogoWhite';
 
 const FooterLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
   <a href={href} className="text-gray-400 hover:text-white transition-colors">{children}</a>

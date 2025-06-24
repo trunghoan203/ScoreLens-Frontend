@@ -8,7 +8,7 @@ export const ScoringSystemSection = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-12 items-center">
         <div className="rounded-lg overflow-hidden">
           <Image 
-            src="/images/people-playing.jpg" // Placeholder image
+            src="/images/hethongtinhdiem.png" // Placeholder image
             alt="People playing billiards" 
             width={600} 
             height={400} 

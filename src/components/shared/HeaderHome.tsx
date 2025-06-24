@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ScoreLensLogo } from '@/components/icons/Logo';
+import { ScoreLensLogo } from '@/components/icons/LogoWhite';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
