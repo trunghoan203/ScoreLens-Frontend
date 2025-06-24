@@ -3,82 +3,96 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { PasswordInput } from '@/components/ui/PasswordInput';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import { AuthLayout } from '@/components/shared/AuthLayout';
+import Link from 'next/link';
 
 export default function ManagerLoginPage() {
   const [clubCode, setClubCode] = useState('');
-  const router = useRouter();
+  const [errors, setErrors] = useState<{ clubCode?: string; general?: string }>({});
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validateForm = () => {
+    const newErrors: typeof errors = {};
+    if (!clubCode) {
+      newErrors.clubCode = 'Mã quản lý là bắt buộc';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Giả lập xác thực thành công, chuyển hướng sang trang verification
-    setTimeout(() => {
-      router.push(`/manager/verification?clubCode=${encodeURIComponent(clubCode)}`);
-    }, 1000);
+
+    if (!validateForm()) return;
+
+    setIsLoading(true);
+    setErrors({});
+
+    try {
+      // Giả lập xác thực
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      window.location.href = `/manager/verification?clubCode=${encodeURIComponent(clubCode)}`;
+    } catch {
+      setErrors({ general: 'Đăng nhập thất bại. Vui lòng thử lại.' });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="flex items-center justify-center w-full min-h-screen">
-      <div className="relative z-30 flex flex-col md:flex-row bg-white rounded-lg shadow-xl overflow-hidden">
-        {/* FORM LOGIN */}
-        <div className="flex flex-col justify-center p-8 md:p-12 w-[400px] h-[500px]">
-          <div className="flex flex-col items-center">
-            <Image
-              src="/images/logoScoreLensBlack.png"
-              alt="ScoreLens Logo"
-              width={200}
-              height={50}
-              priority
-            />
-          </div>
-          <div className="flex-1 flex flex-col justify-center">
-            
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label htmlFor="clubCode" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Mã quản lý
-                </label>
-                <PasswordInput
-                  id="clubCode"
-                  name="clubCode"
-                  value={clubCode}
-                  onChange={e => setClubCode(e.target.value)}
-                  className="w-full px-4 py-3 border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-400 focus:text-black focus:border-transparent"
-                  placeholder="Nhập mã quản lý"
-                  required
-                />
-              </div>
-              <Button
-                type="submit"
-                className="w-full bg-lime-400 text-gray-900 font-bold py-3 px-6 rounded-lg hover:bg-lime-500 transition-all hover:scale-105"
-              >
-                Đăng nhập
-              </Button>
-              <div className="text-center mt-4">
-                <button
-                  type="button"
-                  onClick={() => window.location.href = '/'}
-                  className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors"
-                >
-                  ← Quay lại trang chủ
-                </button>
-              </div>
-            </form>
-          </div>
+    <AuthLayout
+      title="Đăng nhập Quản lý"
+      description="Vui lòng nhập mã quản lý để tiếp tục"
+    >
+      {errors.general && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-600 text-sm">{errors.general}</p>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label htmlFor="clubCode" className="block text-sm font-semibold text-gray-700 mb-2">
+            Mã quản lý
+          </label>
+          <PasswordInput
+            id="clubCode"
+            name="clubCode"
+            value={clubCode}
+            onChange={(e) => setClubCode(e.target.value)}
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${
+              errors.clubCode ? 'border-red-500' : 'border-gray-300'
+            }`}
+            placeholder="Nhập mã quản lý"
+            required
+            disabled={isLoading}
+          />
+          {errors.clubCode && (
+            <p className="text-red-500 text-sm mt-1">{errors.clubCode}</p>
+          )}
         </div>
 
-        {/* IMAGE */}
-        <div className="hidden md:block w-[400px] h-[500px]">
-          <Image
-            src="/images/imgLogin.png"
-            alt="Billiards table"
-            width={400}
-            height={500}
-            className="w-full h-full object-cover"
-          />
+        <Button
+          type="submit"
+          variant="lime"
+          fullWidth
+          disabled={isLoading}
+        >
+          {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+        </Button>
+
+        <div className="text-center mt-6">
+          <Link
+            href="/"
+            className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Quay lại trang chủ
+          </Link>
         </div>
-      </div>
-    </div>
+      </form>
+    </AuthLayout>
   );
-} 
+}
