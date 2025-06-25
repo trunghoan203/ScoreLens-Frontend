@@ -1,38 +1,36 @@
-'use client'; // Cần 'use client' vì chúng ta sử dụng state và event handlers
+'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation'; // Dùng để chuyển trang
+import { useRouter } from 'next/navigation';
 import { ScoreLensLogo } from '@/components/icons/LogoBlack';
-import MemberIdForm from '@/components/auth/MemberIdForm'; // Component nhập mã hội viên
+import MemberIdForm from '@/components/auth/MemberIdForm';
 
 export default function StartSessionPage() {
-  const [memberId, setMemberId] = useState(''); // State để lưu mã hội viên
+  const [memberId, setMemberId] = useState('');
   const router = useRouter();
-
-  // Thông tin bàn chơi (có thể lấy từ URL params hoặc state)
   const tableNumber = '06';
 
   const handleCreateMatch = () => {
-    // Logic xử lý khi nhấn nút "Tạo trận đấu"
-    // 1. Kiểm tra mã hội viên (nếu cần)
-    // 2. Chuyển đến trang thiết lập trận đấu
     console.log('Creating match with Member ID:', memberId);
-    router.push('/user/creatematch'); // Chuyển đến trang tiếp theo
+    router.push('/user/creatematch');
   };
 
   return (
-    <div className="flex items-start justify-center min-h-screen bg-white px-4 pt-10">
-      <div className="flex-grow flex flex-col items-center justify-center text-center w-full max-w-sm">
-        {/* Phần Logo và lời chào */}
-        <div className='h-12 w-auto'></div>
-        <ScoreLensLogo />
-        <h1 className="mt-6 text-3xl font-bold text-gray-800">
+    <div className="min-h-screen flex items-center justify-center bg-white px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl flex flex-col items-center text-center space-y-6 py-10">
+        {/* Logo */}
+        <div className="sm:w-28 sm:h-28">
+          <ScoreLensLogo />
+        </div>
+
+        {/* Title */}
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">
           Chào mừng bạn đến với ScoreLens
         </h1>
-        <p className="mt-2 text-2xl text-gray-600">Bàn {tableNumber}</p>
+        <p className="text-lg sm:text-xl text-gray-600">Bàn {tableNumber}</p>
 
-        {/* Phần Form */}
-        <div className="w-full mt-10">
+        {/* Form */}
+        <div className="w-full px-2 sm:px-0">
           <MemberIdForm
             memberId={memberId}
             onMemberIdChange={setMemberId}
