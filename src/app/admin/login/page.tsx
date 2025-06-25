@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/PasswordInput';
 import { AuthLayout } from '@/components/shared/AuthLayout';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function AdminLoginPage() {
   const [formData, setFormData] = useState({
@@ -18,6 +19,7 @@ export default function AdminLoginPage() {
     general?: string;
   }>({});
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -45,13 +47,15 @@ export default function AdminLoginPage() {
     setErrors({});
 
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      console.log('Admin login attempt:', formData);
-      // Add your login logic here
-      // On success, redirect to admin dashboard
-      
+      if (
+        formData.email === "minhtuanqn2103@gmail.com" &&
+        formData.password === "Tuan@21032003"
+      ) {
+        router.push("/admin/branches");
+      } else {
+        setErrors({ general: "Email hoặc mật khẩu không đúng!" });
+      }
     } catch {
       setErrors({ general: 'Đăng nhập thất bại. Vui lòng thử lại.' });
     } finally {
