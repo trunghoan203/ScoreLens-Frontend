@@ -29,7 +29,7 @@ export default function SetupMatchPage() {
   };
 
   const handleRemovePlayer = (team: 'A' | 'B', index: number) => {
-    if (index === 0) return; // không xóa người đầu tiên
+    if (index === 0) return;
     const setter = team === 'A' ? setTeamA : setTeamB;
     const current = team === 'A' ? teamA : teamB;
     const updated = [...current];
@@ -38,12 +38,13 @@ export default function SetupMatchPage() {
   };
 
   const handleStart = () => {
+    // Sau này bạn có thể thêm validate trước khi start
     router.push('/user/screencontrol');
   };
 
   const renderTeam = (label: string, team: string[], teamKey: 'A' | 'B') => (
-    <div className="p-4 border border-gray-300 rounded-lg space-y-2">
-      <h2 className="text-left font-semibold text-sm text-black">{label}</h2>
+    <div className="w-full sm:w-[48%] p-4 border border-gray-300 rounded-lg space-y-2 bg-white shadow-sm">
+      <h2 className="text-left font-semibold text-base text-black">{label}</h2>
       {team.map((player, index) => (
         <div key={index} className="flex items-center gap-2">
           <Input
@@ -56,7 +57,7 @@ export default function SetupMatchPage() {
             <button
               type="button"
               onClick={() => handleAddPlayer(teamKey)}
-              className="p-2 bg-gray-100 rounded"
+              className="p-2 bg-gray-100 hover:bg-gray-200 rounded"
               title="Thêm người chơi"
             >
               <Plus size={18} className="text-black" />
@@ -65,10 +66,10 @@ export default function SetupMatchPage() {
             <button
               type="button"
               onClick={() => handleRemovePlayer(teamKey, index)}
-              className="p-2 bg-gray-100 rounded"
+              className="p-2 bg-gray-100 hover:bg-red-100 rounded"
               title="Xoá người chơi"
             >
-              <Trash2 size={18} className="text-black" />
+              <Trash2 size={18} className="text-red-600" />
             </button>
           )}
         </div>
@@ -77,24 +78,31 @@ export default function SetupMatchPage() {
   );
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-white px-4">
-      <div className="w-full max-w-sm space-y-6 text-center">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-white to-gray-100 px-4">
+      <div className="w-full max-w-4xl space-y-8 text-center py-10">
+        {/* Logo */}
         <div className="flex justify-center">
-          <ScoreLensLogo />
+          <div className="sm:w-28 sm:h-28">
+            <ScoreLensLogo />
+          </div>
         </div>
 
+        {/* Tiêu đề */}
         <div className="space-y-1">
-          <h1 className="text-xl font-bold text-black">Bàn {tableNumber} - Pool 8 Ball</h1>
-          <p className="text-sm text-black font-medium">TẠO ĐỘI CHƠI</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-black">Bàn {tableNumber} - Pool 8 Ball</h1>
+          <p className="text-base sm:text-lg text-black font-medium">TẠO ĐỘI CHƠI</p>
         </div>
 
-        {/* Khung đội A và B */}
-        {renderTeam('Đội A', teamA, 'A')}
-        {renderTeam('Đội B', teamB, 'B')}
+        {/* Đội A và B */}
+        <div className="flex flex-col sm:flex-row justify-between items-stretch gap-4">
+          {renderTeam('Đội A', teamA, 'A')}
+          {renderTeam('Đội B', teamB, 'B')}
+        </div>
 
+        {/* Nút bắt đầu */}
         <Button
           onClick={handleStart}
-          className="w-full bg-lime-500 hover:bg-lime-600 text-white font-semibold rounded-md py-3 text-lg"
+          className="w-full sm:w-1/2 bg-lime-500 hover:bg-lime-600 text-white font-semibold rounded-md py-3 text-lg"
         >
           Bắt đầu
         </Button>
