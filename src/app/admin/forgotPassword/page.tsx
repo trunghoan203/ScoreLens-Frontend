@@ -22,7 +22,8 @@ export default function AdminForgotPasswordPage() {
     }
   }, []);
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     setIsLoading(true);
     setError('');
 
