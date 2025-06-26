@@ -57,7 +57,7 @@ export function AdminFilters({
           id="status-filter"
           value={statusFilter}
           onChange={(e) => onStatusChange(e.target.value)}
-          className="w-full md:w-48"
+          className="w-full md:w-48 text-black"
         >
           <option value="">Tất cả</option>
           <option value="Đã duyệt">Đã duyệt</option>

@@ -50,7 +50,7 @@ export default function ManagerLoginPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6 overflow-hidden">
         <div>
           <label htmlFor="clubCode" className="block text-sm font-semibold text-gray-700 mb-2">
             Mã quản lý
