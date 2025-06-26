@@ -3,9 +3,9 @@
 import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { AuthLayout } from '@/components/shared/AuthLayout';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function AdminVerificationPage() {
   return (
@@ -26,6 +26,19 @@ function AdminVerificationPageInner() {
   const [canResend, setCanResend] = useState(false);
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const numberImages = [
+    '/images/numberBalls/ball_1.png',
+    '/images/numberBalls/ball_2.png',
+    '/images/numberBalls/ball_3.png',
+    '/images/numberBalls/ball_4.png',
+    '/images/numberBalls/ball_5.png',
+    '/images/numberBalls/ball_6.png',
+    '/images/numberBalls/ball_7.png',
+    '/images/numberBalls/ball_8.png',
+    '/images/numberBalls/ball_9.png',
+    // Có thể thêm ball_0.png nếu có
+  ];
 
   useEffect(() => {
     if (resendTimer > 0) {
@@ -54,10 +67,14 @@ function AdminVerificationPageInner() {
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData('text/plain').slice(0, 6);
+    const pastedData = e.clipboardData.getData('text/plain').replace(/\D/g, '').slice(0, 6);
     if (/^\d{6}$/.test(pastedData)) {
       const newOtp = pastedData.split('');
-      setOtp([...newOtp, ...Array(6 - newOtp.length).fill('')]);
+      setOtp(newOtp);
+      // Focus vào ô cuối cùng
+      setTimeout(() => {
+        inputRefs.current[5]?.focus();
+      }, 0);
     }
   };
 
@@ -106,24 +123,41 @@ function AdminVerificationPageInner() {
           <label className="block text-sm font-semibold text-gray-700 mb-4">
             Nhập mã xác minh 6 chữ số
           </label>
-          <div className="flex gap-3 justify-center">
+          <div className="flex gap-3 justify-center mb-4" onPaste={handlePaste}>
             {otp.map((digit, index) => (
-              <Input
+              <div
                 key={index}
-                ref={(el) => {
-                  inputRefs.current[index] = el;
-                }}
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength={1}
-                value={digit}
-                onChange={e => handleOtpChange(index, e.target.value)}
-                onKeyDown={e => handleKeyDown(index, e)}
-                onPaste={handlePaste}
-                className="w-12 h-12 text-center text-lg font-semibold border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all"
-                disabled={isLoading}
-              />
+                className={`relative w-12 h-12 flex items-center justify-center rounded-full border-2 transition-all duration-200 bg-white shadow-md cursor-pointer
+                  ${inputRefs.current[index] && document.activeElement === inputRefs.current[index] ? 'border-lime-500 shadow-lg' : digit ? 'border-lime-400' : 'border-gray-300'}
+                `}
+                onClick={() => inputRefs.current[index]?.focus()}
+              >
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={digit}
+                  ref={el => { inputRefs.current[index] = el; }}
+                  onChange={e => {
+                    const value = e.target.value.replace(/\D/g, '');
+                    handleOtpChange(index, value);
+                  }}
+                  onKeyDown={e => handleKeyDown(index, e)}
+                  className="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer"
+                  autoFocus={index === 0}
+                />
+                {digit ? (
+                  <Image
+                    src={numberImages[Number(digit)-1]}
+                    alt={`Số ${digit}`}
+                    width={36}
+                    height={36}
+                    className="drop-shadow"
+                  />
+                ) : (
+                  <span className="text-gray-300 text-2xl select-none">-</span>
+                )}
+              </div>
             ))}
           </div>
         </div>
