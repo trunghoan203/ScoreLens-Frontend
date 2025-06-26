@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 interface AuthLayoutProps {
   children: ReactNode;
-  title?: string;
+  title?: React.ReactNode;
   description?: string;
 }
 
