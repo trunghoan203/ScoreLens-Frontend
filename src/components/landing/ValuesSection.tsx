@@ -15,10 +15,10 @@ const ValueCard: React.FC<ValueCardProps> = ({ num, title, description }) => (
 );
 
 const values: ValueCardProps[] = [
-  { num: "01", title: "Giao diện trực quan", description: "Nội dung giá trị số 1" },
-  { num: "02", title: "Báo cáo điểm số chi tiết", description: "Nội dung giá trị số 2" },
-  { num: "03", title: "Hỗ trợ bảo mật tài khoản", description: "Nội dung giá trị số 3" },
-  { num: "04", title: "Hỗ trợ đa ngôn ngữ", description: "Nội dung giá trị số 4" },
+  { num: "01", title: "Giao diện trực quan", description: "" },
+  { num: "02", title: "Báo cáo điểm số chi tiết", description: "" },
+  { num: "03", title: "Hỗ trợ bảo mật tài khoản", description: "" },
+  { num: "04", title: "Hỗ trợ tận tâm", description: "" },
 ];
 
 export const ValuesSection = () => {
