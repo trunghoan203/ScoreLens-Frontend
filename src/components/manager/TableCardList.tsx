@@ -28,7 +28,7 @@ export default function TableCardList({ tables, onDetail }: TableCardListProps) 
           teamA={table.teamA}
           teamB={table.teamB}
           time={table.time}
-          onDetail={onDetail ? () => onDetail(table.id) : undefined}
+          onDetail={onDetail ? () => onDetail(table.id) : () => {}}
         />
       ))}
     </div>

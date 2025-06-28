@@ -6,6 +6,7 @@ import DashboardSummary from '@/components/manager/DashboardSummary';
 import TableFilterBar from '@/components/manager/TableFilterBar';
 import TableCardList from '@/components/manager/TableCardList';
 import ButtonXemThem from '@/components/manager/ButtonXemThem';
+import { useRouter } from 'next/navigation';
 
 const mockTables = [
   { id: '1', name: 'Bàn 01 - Bida Pool', type: 'pool', status: 'using' as const, teamA: 'Team A', teamB: 'Team B', time: '01:23:45' },
@@ -23,6 +24,7 @@ export default function ManagerDashboardPage() {
   const [search, setSearch] = useState('');
   const [type, setType] = useState('');
   const [status, setStatus] = useState('');
+  const router = useRouter();
 
   // Lọc dữ liệu theo filter
   const filteredTables = mockTables.filter(table => {
@@ -48,7 +50,10 @@ export default function ManagerDashboardPage() {
               status={status}
               onStatusChange={setStatus}
             />
-            <TableCardList tables={filteredTables} />
+            <TableCardList
+              tables={filteredTables}
+              onDetail={(id) => router.push(`/manager/matches/${id}`)}
+            />
             <ButtonXemThem />
           </div>
         </div>

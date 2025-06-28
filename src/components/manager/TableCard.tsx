@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import Image from 'next/image';
 
@@ -38,7 +39,7 @@ export default function TableCard({ name, type, status, teamA, teamB, time, onDe
       <div className="text-xs text-gray-500 mb-2">{time || '01:23:45'}</div>
       <button
         className="w-full py-2 rounded-xl font-bold bg-lime-400 text-black text-base mt-1 hover:bg-lime-500 transition"
-        onClick={onDetail}
+        onClick={onDetail || (() => {})}
       >
         {status === 'using' ? 'Xem chi tiết' : 'Sẵn sàng'}
       </button>
