@@ -19,7 +19,7 @@ export function HeaderHome() {
             <div className="hidden md:flex items-center gap-8 text-lg">
               <Link href="/" className="hover:text-lime-400 transition-colors">Trang chủ</Link>
               <Link href="#" className="hover:text-lime-400 transition-colors">Lịch sử đấu</Link>
-              <Link href="/guide" className="hover:text-lime-400 transition-colors">Hướng dẫn</Link>
+              <Link href="#" className="hover:text-lime-400 transition-colors">Hướng dẫn</Link>
             </div>
           </div>
           <div className="flex items-center gap-6">

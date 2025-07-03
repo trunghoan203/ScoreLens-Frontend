@@ -34,7 +34,7 @@ export default function MemberIdForm({ memberId, onMemberIdChange, onSubmit }: M
       <div className="pt-4">
   <Button
     type="submit"
-    className="w-full bg-lime-500 hover:bg-lime-600 text-white font-semibold rounded-md py-3 text-lg"
+    className="w-full bg-lime-400 hover:bg-lime-500 text-white font-semibold py-3 rounded-xl text-sm sm:text-base"
   >
     Tạo trận đấu
   </Button>
