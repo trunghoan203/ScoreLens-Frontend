@@ -34,10 +34,9 @@ const statusVariantMap: Record<AdminStatus, 'success' | 'danger' | 'default'> = 
 interface AdminTableProps {
   searchTerm: string;
   statusFilter: string;
-  onRowClick: (adminId: string) => void;
 }
 
-export function AdminTable({ searchTerm, statusFilter, onRowClick }: AdminTableProps) {
+export function AdminTable({ searchTerm, statusFilter }: AdminTableProps) {
   const [visibleCount, setVisibleCount] = React.useState(5);
 
   const filteredAdmins = allAdmins.filter((admin) => {
@@ -73,21 +72,15 @@ export function AdminTable({ searchTerm, statusFilter, onRowClick }: AdminTableP
           visibleAdmins.map((admin) => (
             <div
               key={admin.id}
-              onClick={() => onRowClick(admin.id)} // ✅ SỬA Ở ĐÂY
-              className="cursor-pointer grid grid-cols-1 items-center gap-4 rounded-lg bg-white p-4 text-center shadow transition hover:shadow-md md:grid-cols-4"
+              className="grid grid-cols-1 items-center gap-4 rounded-lg bg-white p-4 text-center shadow transition hover:shadow-md md:grid-cols-4"
             >
               <div className="md:col-span-1">
                 <span className="font-medium text-gray-900">{admin.name}</span>
               </div>
               <div className="text-gray-600 md:col-span-1">{admin.email}</div>
               <div className="text-gray-600 md:col-span-1">{admin.location}</div>
-              <div className="flex justify-center items-center h-full w-full md:col-span-1">
-                <Badge
-  variant={statusVariantMap[admin.status]}
-  className="justify-center text-center w-28 py-2 rounded-full"
->
-  {admin.status}
-</Badge>
+              <div className="flex justify-center md:col-span-1">
+                <Badge variant={statusVariantMap[admin.status]}>{admin.status}</Badge>
               </div>
             </div>
           ))
@@ -111,4 +104,4 @@ export function AdminTable({ searchTerm, statusFilter, onRowClick }: AdminTableP
       )}
     </div>
   );
-}
+} 

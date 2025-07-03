@@ -46,6 +46,12 @@ export default function SidebarManager() {
         >
           Quản lý bàn
         </Link>
+        <Link
+          href="/manager/feedbacks"
+          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname.startsWith('/manager/feedbacks') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
+        >
+          Phản hồi
+        </Link>
         <Button
           type="button"
           variant="lime"
