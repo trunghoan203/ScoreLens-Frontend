@@ -7,6 +7,7 @@ import { PasswordInput } from '@/components/ui/PasswordInput';
 import { AuthLayout } from '@/components/shared/AuthLayout';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
 
 export default function AdminLoginPage() {
   const [formData, setFormData] = useState({
@@ -47,17 +48,29 @@ export default function AdminLoginPage() {
     setErrors({});
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      if (
-        formData.email === "minhtuanqn2103@gmail.com" &&
-        formData.password === "Tuan@21032003"
-      ) {
-        router.push("/admin/branches");
+      const response = await axios.post('http://localhost:8000/api/admin/login', {
+        email: formData.email,
+        password: formData.password,
+      });
+      // Giả sử API trả về status 200 là thành công
+      if (response.status === 200) {
+        const data = response.data as { accessToken?: string };
+        const accessToken = data.accessToken;
+        if (accessToken) {
+          localStorage.setItem('adminAccessToken', accessToken);
+        }
+        router.push('/admin/branches');
       } else {
-        setErrors({ general: "Email hoặc mật khẩu không đúng!" });
+        setErrors({ general: 'Đăng nhập thất bại. Vui lòng thử lại.' });
       }
-    } catch {
-      setErrors({ general: 'Đăng nhập thất bại. Vui lòng thử lại.' });
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      const message = err.response?.data?.message;
+      if (message) {
+        setErrors({ general: message });
+      } else {
+        setErrors({ general: 'Đăng nhập thất bại. Vui lòng thử lại.' });
+      }
     } finally {
       setIsLoading(false);
     }
