@@ -1,6 +1,27 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 export default function HeaderAdminPage() {
+  const [adminName, setAdminName] = useState<string>('Admin');
+
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('adminAccessToken') : null;
+    if (token) {
+      axios.get('http://localhost:8000/api/admin/profile', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => {
+        const data = res.data as { fullName?: string; admin?: { fullName?: string } };
+        if (data.fullName) {
+          setAdminName(data.fullName);
+        } else if (data.admin && data.admin.fullName) {
+          setAdminName(data.admin.fullName);
+        }
+      })
+      .catch(() => setAdminName('Admin'));
+    }
+  }, []);
+
   return (
     <div className="flex items-center justify-between mb-8">
       <h1 className="text-2xl font-bold text-gray-900">Trang chủ</h1>
@@ -16,7 +37,7 @@ export default function HeaderAdminPage() {
         <span className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
           <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a7.5 7.5 0 0 1 13 0"/></svg>
         </span>
-        <span className="text-gray-700">Admin</span>
+        <span className="text-gray-700">Chào bạn, {adminName}</span>
       </div>
     </div>
   );
