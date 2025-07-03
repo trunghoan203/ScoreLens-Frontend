@@ -69,13 +69,13 @@ export default function ScoreboardPage() {
         <div className="flex flex-col sm:flex-row gap-4">
           <Button
             onClick={handleEditScore}
-            className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-md py-3 text-lg"
+            className="w-full bg-red-400 hover:bg-red-500 text-white font-semibold py-3 rounded-xl text-sm sm:text-base"
           >
             Sửa điểm
           </Button>
           <Button
             onClick={handleEndMatch}
-            className="flex-1 bg-lime-500 hover:bg-lime-600 text-white font-semibold rounded-md py-3 text-lg"
+            className="w-full bg-lime-400 hover:bg-lime-500 text-white font-semibold py-3 rounded-xl text-sm sm:text-base"
           >
             Kết thúc
           </Button>
