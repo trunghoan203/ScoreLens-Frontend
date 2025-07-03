@@ -22,7 +22,7 @@ export default function EndMatchPage() {
   };
 
   return (
-    <div className="flex flex-col justify-start min-h-screen pt-8 bg-gradient-to-b from-white to-gray-100 px-4">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-white to-gray-100 px-4">
       <div className="w-full max-w-md sm:max-w-lg md:max-w-xl text-center space-y-8 py-10">
         {/* Logo */}
         <div className="flex justify-center">
@@ -79,13 +79,13 @@ export default function EndMatchPage() {
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-xs mx-auto">
           <Button
             onClick={handleRate}
-            className="w-full bg-lime-400 hover:bg-lime-500 text-white font-semibold py-3 rounded-xl text-sm sm:text-base"
+            className="flex-1 bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3"
           >
             Đánh giá
           </Button>
           <Button
             onClick={handlePayment}
-            className="w-full bg-lime-400 hover:bg-lime-500 text-white font-semibold py-3 rounded-xl text-sm sm:text-base"
+            className="flex-1 bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3"
           >
             Thanh toán
           </Button>

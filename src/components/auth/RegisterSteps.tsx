@@ -1,18 +1,19 @@
 import React from 'react';
 
 interface RegisterStepsProps {
-  currentStep: number; // 1, 2, 3
+  currentStep: number; // 1, 2, 3, 4
 }
 
 const steps = [
   'Đăng ký tài khoản',
-  'Thông tin chi tiết',
+  'Thông tin thương hiệu',
+  'Thông tin chi nhánh',
   'Xác nhận',
 ];
 
 export function RegisterSteps({ currentStep }: RegisterStepsProps) {
   return (
-    <div className="flex flex-row justify-center mb-10 w-full max-w-2xl mx-auto">
+    <div className="flex flex-row justify-center mb-10 w-full max-w-4xl mx-auto">
       {steps.map((label, idx) => {
         const isActive = currentStep === idx + 1;
         const isFirst = idx === 0;
@@ -22,7 +23,7 @@ export function RegisterSteps({ currentStep }: RegisterStepsProps) {
             key={label}
             type="button"
             className={
-              'flex-1 py-3 font-semibold text-lg ' +
+              'flex-1 py-3 font-semibold text-sm md:text-lg ' +
               (isActive
                 ? 'bg-lime-400 text-black shadow-md '
                 : 'bg-black text-white ') +

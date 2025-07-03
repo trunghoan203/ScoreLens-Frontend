@@ -84,7 +84,7 @@ function AdminResetPasswordPageInner() {
       description={email ? `Đặt lại mật khẩu cho ${email}` : 'Vui lòng nhập mật khẩu mới.'}
     >
       <div className="flex-1 flex flex-col justify-center">
-        <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6 overflow-hidden">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
               Mật khẩu mới

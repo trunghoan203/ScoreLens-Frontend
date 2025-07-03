@@ -102,7 +102,7 @@ export default function SetupMatchPage() {
         {/* Nút bắt đầu */}
         <Button
           onClick={handleStart}
-          className="w-full bg-lime-400 hover:bg-lime-500 text-white font-semibold py-3 rounded-xl text-sm sm:text-base"
+          className="w-full sm:w-1/2 bg-lime-500 hover:bg-lime-600 text-white font-semibold rounded-md py-3 text-lg"
         >
           Bắt đầu
         </Button>

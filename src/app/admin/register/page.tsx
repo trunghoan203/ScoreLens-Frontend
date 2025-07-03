@@ -4,12 +4,22 @@ import React, { useState } from 'react';
 import { RegisterSteps } from '@/components/auth/RegisterSteps';
 import { RegisterForm } from '@/app/admin/register/RegisterForm';
 import { VerificationForm } from '@/app/admin/register/VerificationForm';
-import { RegisterDetailForm } from '@/app/admin/register/RegisterDetailForm';
+import { BrandInfoForm } from '@/app/admin/register/BrandInfoForm';
+import { BranchInfoForm } from '@/app/admin/register/BranchInfoForm';
+
+interface BrandInfo {
+  image: File | null;
+  shopName: string;
+  fullName: string;
+  cccd: string;
+  phone: string;
+}
 
 export default function AdminRegisterPage() {
-  const [step, setStep] = useState(1); // 1: đăng ký + xác thực, 2: thông tin chi tiết, 3: xác nhận
+  const [step, setStep] = useState(1); // 1: đăng ký + xác thực, 2: thông tin thương hiệu, 3: thông tin chi nhánh, 4: xác nhận
   const [showVerification, setShowVerification] = useState(false);
   const [email, setEmail] = useState('');
+  const [brandInfo, setBrandInfo] = useState<BrandInfo | null>(null);
 
   return (
     <div className="min-h-screen bg-white">
@@ -17,6 +27,8 @@ export default function AdminRegisterPage() {
         ĐĂNG KÝ TÀI KHOẢN ADMIN
       </h1>
       <RegisterSteps currentStep={step} />
+      
+      {/* Bước 1: Đăng ký và xác thực */}
       {step === 1 && !showVerification && (
         <RegisterForm
           onSuccess={(email) => {
@@ -35,14 +47,30 @@ export default function AdminRegisterPage() {
           }}
         />
       )}
+
+      {/* Bước 2: Thông tin thương hiệu */}
       {step === 2 && (
-        <RegisterDetailForm
-          onSuccess={() => {
+        <BrandInfoForm
+          onSuccess={(data) => {
+            setBrandInfo(data);
             setStep(3);
           }}
         />
       )}
+
+      {/* Bước 3: Thông tin chi nhánh */}
       {step === 3 && (
+        <BranchInfoForm
+          onSuccess={() => {
+            setStep(4);
+          }}
+          brandInfo={brandInfo}
+          onBack={() => setStep(2)}
+        />
+      )}
+
+      {/* Bước 4: Thông báo thành công */}
+      {step === 4 && (
         <div className="w-full max-w-lg mx-auto flex flex-col gap-6 items-center px-0 pb-8 animate-success-fade-in">
           <h2 className="text-2xl md:text-3xl font-bold text-center text-black mt-8 mb-2">BẠN ĐÃ ĐĂNG KÝ THÀNH CÔNG</h2>
           <p className="text-lg text-center text-gray-700 mb-2">Vui lòng chờ chúng tôi chấp nhận yêu cầu đăng ký của bạn!</p>

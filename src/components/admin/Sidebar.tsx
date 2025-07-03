@@ -40,6 +40,12 @@ export default function Sidebar() {
         >
           Thông tin câu lạc bộ
         </Link>
+        <Link
+          href="/admin/feedbacks"
+          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname.startsWith('/admin/feedbacks') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
+        >
+          Phản hồi
+        </Link>
         <Button
           type="button"
           variant="lime"

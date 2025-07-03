@@ -1,0 +1,277 @@
+import React, { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
+import Image from 'next/image';
+
+interface BrandInfo {
+  image: File | null;
+  shopName: string;
+  fullName: string;
+  cccd: string;
+  phone: string;
+}
+
+interface Branch {
+  name: string;
+  address: string;
+  deviceCount: string;
+  phone: string;
+}
+
+interface BranchInfoFormProps {
+  onSuccess: (data: Branch[]) => void;
+  brandInfo: BrandInfo | null;
+  onBack: () => void;
+}
+
+const InfoRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
+  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+    <span className="text-gray-500 font-medium">{label}</span>
+    <span className="text-gray-900 font-semibold text-right">{value}</span>
+  </div>
+);
+
+export function BranchInfoForm({ onSuccess, brandInfo, onBack }: BranchInfoFormProps) {
+  const [branches, setBranches] = useState<Branch[]>([
+    { name: '', address: '', deviceCount: '', phone: '' },
+  ]);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const handleBranchChange = (idx: number, field: keyof Branch, value: string) => {
+    setBranches(prev => prev.map((b, i) => i === idx ? { ...b, [field]: value } : b));
+  };
+
+  const handleAddBranch = () => {
+    setBranches(prev => [...prev, { name: '', address: '', deviceCount: '', phone: '' }]);
+  };
+
+  const handleRemoveBranch = (idx: number) => {
+    setBranches(prev => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setShowConfirm(true);
+  };
+
+  const handleConfirm = () => {
+    setShowConfirm(false);
+    onSuccess(branches);
+  };
+
+  const handleCancel = () => {
+    setShowConfirm(false);
+  };
+
+  const isFormValid = branches.every(branch => 
+    branch.name && branch.address && branch.deviceCount && branch.phone
+  );
+
+  return (
+    <>
+      <form className="w-full max-w-4xl mx-auto flex flex-col gap-8 items-start px-0 pb-8" onSubmit={handleSubmit}>
+        <div className="w-full">
+          {/* Nút quay lại bước trước */}
+          <div className="mb-4">
+            <Button
+              type="button"
+              style={{
+                background: '#ECFCCB',
+                border: '1.5px solid #A3E635',
+                color: '#365314',
+                fontWeight: 700,
+                transition: 'all 0.2s cubic-bezier(0.4,0,0.2,1)',
+                boxShadow: '0 1px 4px 0 rgba(163,230,53,0.10)'
+              }}
+              onMouseOver={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = '#D9F99D';
+                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.04)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 16px 0 rgba(163,230,53,0.18)';
+              }}
+              onMouseOut={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = '#ECFCCB';
+                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 1px 4px 0 rgba(163,230,53,0.10)';
+              }}
+              onClick={onBack}
+            >
+              ← Quay lại bước trước
+            </Button>
+          </div>
+          <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">Thông tin chi nhánh</h2>
+          <div className="space-y-6">
+            {branches.map((branch, idx) => (
+              <div
+                key={idx}
+                className="relative p-6 border rounded-xl bg-white shadow-md transition-shadow hover:shadow-lg"
+              >
+                {/* Action buttons */}
+                <div className="absolute top-4 right-4 flex gap-2">
+                  {branches.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveBranch(idx)}
+                      className="p-1.5 rounded-full bg-red-50 hover:bg-red-200 text-red-500 border border-red-200 shadow-sm transition"
+                      aria-label="Xóa chi nhánh"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                  {idx === branches.length - 1 && (
+                    <button
+                      type="button"
+                      onClick={handleAddBranch}
+                      className="p-1.5 rounded-full bg-lime-50 hover:bg-lime-200 text-lime-600 border border-lime-200 shadow-sm transition"
+                      aria-label="Thêm chi nhánh"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+                <div className="mb-4">
+                  <span className="text-base font-semibold text-lime-600">Chi nhánh {idx + 1}</span>
+                </div>
+                {/* Layout input 2 dòng 3 cột */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="col-span-3">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                      Tên Câu Lạc Bộ <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={branch.name}
+                      onChange={e => handleBranchChange(idx, 'name', e.target.value)}
+                      placeholder="Nhập Tên Chi Nhánh..."
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                      Số Bàn <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={branch.deviceCount}
+                      onChange={e => handleBranchChange(idx, 'deviceCount', e.target.value)}
+                      placeholder="Nhập Số Bàn..."
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                      Địa Chỉ <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={branch.address}
+                      onChange={e => handleBranchChange(idx, 'address', e.target.value)}
+                      placeholder="Nhập Địa Chỉ"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                      Số Điện Thoại <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={branch.phone}
+                      onChange={e => handleBranchChange(idx, 'phone', e.target.value)}
+                      placeholder="Nhập Số Điện Thoại..."
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                      Số Camera <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={branch.deviceCount}
+                      onChange={e => handleBranchChange(idx, 'deviceCount', e.target.value)}
+                      placeholder="Nhập Số Camera..."
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* Yêu cầu camera */}
+          <div className="text-xs text-red-600 mt-2 w-full">
+            <b>*YÊU CẦU:</b>
+            <ul className="list-disc ml-4 mt-1">
+              <li>Camera độ phân giải full HD.</li>
+              <li>Tốc độ khung hình tối thiểu 60 fps.</li>
+              <li>Camera được đặt tại trung tâm mặt bàn hướng từ trên xuống.</li>
+            </ul>
+          </div>
+          <div className="mt-8">
+            <Button 
+              type="submit" 
+              variant="lime" 
+              fullWidth
+              disabled={!isFormValid}
+            >
+              Tiếp tục
+            </Button>
+          </div>
+        </div>
+      </form>
+      {/* Popup xác nhận cả brandInfo và branchInfo */}
+      <ConfirmPopup
+        open={showConfirm}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+        title="Xác nhận thông tin đăng ký"
+      >
+        <div className="space-y-6 w-full">
+          {/* Thông tin thương hiệu */}
+          {brandInfo && (
+            <div className="p-4 border rounded-lg bg-gray-50">
+              <h3 className="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Thông tin thương hiệu</h3>
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                <div className="w-32 h-32 bg-gray-200 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden border">
+                  {brandInfo.image ? (
+                    <Image
+                      src={URL.createObjectURL(brandInfo.image)}
+                      alt="Preview"
+                      width={128}
+                      height={128}
+                      className="object-cover w-full h-full"
+                    />
+                  ) : (
+                    <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  )}
+                </div>
+                <div className="w-full space-y-2 text-sm">
+                  <InfoRow label="Tên Quán" value={brandInfo.shopName} />
+                  <InfoRow label="Họ và Tên" value={brandInfo.fullName} />
+                  <InfoRow label="CCCD" value={brandInfo.cccd} />
+                  <InfoRow label="Số Điện Thoại" value={brandInfo.phone || 'N/A'} />
+                </div>
+              </div>
+            </div>
+          )}
+          {/* Thông tin chi nhánh */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-gray-800 border-b pb-2">Thông tin chi nhánh</h3>
+            {branches.map((branch: Branch, idx: number) => (
+              <div key={idx} className="relative p-4 border rounded-lg bg-gray-50 text-sm mt-4">
+                <p className="font-bold text-base text-gray-900 mb-3">
+                  <span className="text-lime-600">●</span> Chi Nhánh {idx + 1}: {branch.name}
+                </p>
+                <div className="space-y-2">
+                  <InfoRow label="Địa chỉ" value={branch.address} />
+                  <InfoRow label="Số bàn" value={branch.deviceCount} />
+                  <InfoRow label="Số camera" value={branch.deviceCount} />
+                  <InfoRow label="Số điện thoại" value={branch.phone} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </ConfirmPopup>
+    </>
+  );
+} 
