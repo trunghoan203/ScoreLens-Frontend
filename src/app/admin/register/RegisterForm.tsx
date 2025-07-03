@@ -5,24 +5,32 @@ import { FormField } from '@/components/shared/FormField';
 import { AgreementCheckbox } from '@/components/shared/AgreementCheckbox';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import axios from '@/lib/axios';
 
 interface RegisterFormProps {
   onSuccess: (email: string) => void;
 }
 
 export function RegisterForm({ onSuccess }: RegisterFormProps) {
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [agree, setAgree] = useState(false);
   const [errors, setErrors] = useState<{
+    fullName?: string;
     email?: string;
     password?: string;
     confirmPassword?: string;
+    general?: string;
   }>({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
+    if (!fullName) {
+      newErrors.fullName = 'Họ tên là bắt buộc';
+    }
     if (!email) {
       newErrors.email = 'Email là bắt buộc';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
@@ -44,17 +52,52 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const isFormValid = email && password && confirmPassword && agree && password === confirmPassword;
+  const isFormValid = fullName && email && password && confirmPassword && agree && password === confirmPassword;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
+    if (!validateForm()) return;
+    setIsLoading(true);
+    setErrors({});
+    try {
+      await axios.post('/admin/register', {
+        fullName,
+        email,
+        password,
+      });
       onSuccess(email);
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      if (err.response && err.response.data && err.response.data.message) {
+        setErrors({ general: err.response.data.message });
+      } else {
+        setErrors({ general: 'Đăng ký thất bại. Vui lòng thử lại.' });
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <form className="w-full max-w-md mx-auto flex flex-col gap-6 items-center px-0 pb-8" autoComplete="off" onSubmit={handleSubmit}>
+      {errors.general && (
+        <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded-lg w-full">
+          <p className="text-red-600 text-sm">{errors.general}</p>
+        </div>
+      )}
+      <FormField label="Họ tên" htmlFor="fullName" error={errors.fullName}>
+        <Input
+          id="fullName"
+          type="text"
+          value={fullName}
+          onChange={e => {
+            setFullName(e.target.value);
+            if (errors.fullName) setErrors(prev => ({ ...prev, fullName: undefined }));
+          }}
+          placeholder="Nhập họ tên của bạn"
+          required
+        />
+      </FormField>
       <FormField label="Email" htmlFor="email" error={errors.email}>
         <Input
           id="email"
@@ -106,9 +149,9 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         type="submit"
         variant="lime"
         fullWidth
-        disabled={!isFormValid}
+        disabled={!isFormValid || isLoading}
       >
-        Tiếp tục
+        {isLoading ? 'Đang đăng ký...' : 'Tiếp tục'}
       </Button>
       <div className="text-center w-full mt-2">
         <span className="text-gray-800 text-sm">Đã có tài khoản? </span>
