@@ -1,0 +1,145 @@
+'use client';
+
+import React, { useState, useRef, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { AuthLayout } from '@/components/shared/AuthLayout';
+import Image from 'next/image';
+
+export default function SuperAdminVerificationPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SuperAdminVerificationPageInner />
+    </Suspense>
+  );
+}
+
+function SuperAdminVerificationPageInner() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const email = searchParams.get('email') || '';
+
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [isLoading, setIsLoading] = useState(false);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const numberImages = [
+    '/images/numberBalls/ball_0.png',
+    '/images/numberBalls/ball_1.png',
+    '/images/numberBalls/ball_2.png',
+    '/images/numberBalls/ball_3.png',
+    '/images/numberBalls/ball_4.png',
+    '/images/numberBalls/ball_5.png',
+    '/images/numberBalls/ball_6.png',
+    '/images/numberBalls/ball_7.png',
+    '/images/numberBalls/ball_8.png',
+    '/images/numberBalls/ball_9.png',
+  ];
+
+  const handleOtpChange = (index: number, value: string) => {
+    const digit = value.replace(/\D/g, '');
+    if (digit.length > 1) return;
+
+    const newOtp = [...otp];
+    newOtp[index] = digit;
+    setOtp(newOtp);
+
+    if (digit && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    if (pasted.length === 6) {
+      setOtp(pasted.split(''));
+      setTimeout(() => inputRefs.current[5]?.focus(), 0);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const otpString = otp.join('');
+    if (otpString.length !== 6) return;
+
+    setIsLoading(true);
+    try {
+      await new Promise(res => setTimeout(res, 1000));
+      router.push(`/superadmin/home?email=${encodeURIComponent(email)}&otp=${otpString}`);
+    } catch {
+      // Xử lý lỗi nếu cần
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <AuthLayout
+      title={
+        <div className="text-center space-y-2">
+          
+          <p className="text-lg font-semibold">Nhập mã xác minh</p>
+        </div>
+      }
+      //imageUrl="/images/billiards.png"
+    >
+      <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6" onPaste={handlePaste}>
+        <div className="flex justify-center gap-2">
+          {otp.map((digit, index) => (
+            <div
+              key={index}
+              className="relative w-12 h-12 rounded-full overflow-hidden cursor-pointer shadow-md border border-gray-200 hover:border-lime-400 transition"
+              onClick={() => inputRefs.current[index]?.focus()}
+            >
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={1}
+                value={digit}
+                ref={(el) => void (inputRefs.current[index] = el)}
+                onChange={(e) => handleOtpChange(index, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                autoFocus={index === 0}
+              />
+              {digit ? (
+                <Image
+                  src={numberImages[Number(digit)]}
+                  alt={`Ball ${digit}`}
+                  width={48}
+                  height={48}
+                  className="object-contain"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-2xl text-gray-300 select-none">-</div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <p className="text-sm text-gray-500 text-center">
+          Nếu bạn không nhận được mã,{' '}
+          <span className="text-green-600 hover:underline cursor-pointer">Hãy gửi lại</span>
+        </p>
+
+        <Button
+          type="submit"
+          variant="lime"
+          fullWidth
+          disabled={isLoading || otp.some(d => !d)}
+          className="mt-2"
+        >
+          {isLoading ? 'Đang gửi...' : 'Gửi'}
+        </Button>
+      </form>
+    </AuthLayout>
+  );
+}
+
