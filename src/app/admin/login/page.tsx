@@ -7,7 +7,7 @@ import { PasswordInput } from '@/components/ui/PasswordInput';
 import { AuthLayout } from '@/components/shared/AuthLayout';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
+import axios from '@/lib/axios';
 
 export default function AdminLoginPage() {
   const [formData, setFormData] = useState({
@@ -48,7 +48,7 @@ export default function AdminLoginPage() {
     setErrors({});
 
     try {
-      const response = await axios.post('http://localhost:8000/api/admin/login', {
+      const response = await axios.post('/admin/login', {
         email: formData.email,
         password: formData.password,
       });

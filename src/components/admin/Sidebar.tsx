@@ -4,15 +4,26 @@ import { usePathname, useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
 import { Button } from '@/components/ui/button';
+import axios from '@/lib/axios';
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [showLogout, setShowLogout] = useState(false);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setShowLogout(false);
-    // Thực hiện logout thực tế ở đây
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('adminAccessToken') : null;
+      if (token) {
+        await axios.post('/admin/logout', {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        localStorage.removeItem('adminAccessToken');
+      }
+    } catch {
+      localStorage.removeItem('adminAccessToken');
+    }
     router.push('/');
   };
 

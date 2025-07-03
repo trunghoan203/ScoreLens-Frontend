@@ -1,19 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
+import axios from '@/lib/axios';
 
-interface VerificationFormProps {
+interface VerifyCodeFormProps {
   email: string;
   onBack: () => void;
-  onSuccess: (token: string) => void;
+  onSuccess: (code: string) => void;
+  apiEndpoint: string;
+  codeField?: string;
 }
 
-export function VerificationForm({ email, onBack, onSuccess }: VerificationFormProps) {
+export default function VerifyCodeForm({ email, onBack, onSuccess, apiEndpoint, codeField = 'activationCode' }: VerifyCodeFormProps) {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
   const [canResend, setCanResend] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   const numberImages = [
     '/images/numberBalls/ball_1.png',
@@ -25,7 +29,6 @@ export function VerificationForm({ email, onBack, onSuccess }: VerificationFormP
     '/images/numberBalls/ball_7.png',
     '/images/numberBalls/ball_8.png',
     '/images/numberBalls/ball_9.png',
-    // Có thể thêm ball_0.png nếu có
   ];
 
   useEffect(() => {
@@ -69,12 +72,20 @@ export function VerificationForm({ email, onBack, onSuccess }: VerificationFormP
       return;
     }
     setIsLoading(true);
+    setError(null);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await axios.post(apiEndpoint, {
+        email,
+        [codeField]: otpString,
+      });
       onSuccess(otpString);
-    } catch {
-      // Handle error
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
+      } else {
+        setError('Xác thực thất bại. Vui lòng thử lại.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -99,6 +110,11 @@ export function VerificationForm({ email, onBack, onSuccess }: VerificationFormP
     <form onSubmit={handleSubmit} className="w-full max-w-md mx-auto flex flex-col gap-6 items-center px-0 pb-8">
       <h2 className="text-2xl font-bold text-center text-gray-900 mb-2">Xác thực tài khoản</h2>
       <p className="text-gray-600 text-center mb-4">Chúng tôi đã gửi mã xác thực đến <span className="font-semibold text-black">{email}</span></p>
+      {error && (
+        <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded-lg w-full">
+          <p className="text-red-600 text-sm">{error}</p>
+        </div>
+      )}
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-4">
           Nhập mã xác minh 6 chữ số

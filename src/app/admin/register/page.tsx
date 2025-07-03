@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { RegisterSteps } from '@/components/auth/RegisterSteps';
 import { RegisterForm } from '@/app/admin/register/RegisterForm';
-import { VerificationForm } from '@/app/admin/register/VerificationForm';
+import VerifyCodeForm from '@/components/auth/VerifyCodeForm';
 import { BrandInfoForm } from '@/app/admin/register/BrandInfoForm';
 import { BranchInfoForm } from '@/app/admin/register/BranchInfoForm';
 
@@ -38,8 +38,10 @@ export default function AdminRegisterPage() {
         />
       )}
       {step === 1 && showVerification && (
-        <VerificationForm
+        <VerifyCodeForm
           email={email}
+          apiEndpoint="/admin/verify"
+          codeField="activationCode"
           onBack={() => setShowVerification(false)}
           onSuccess={() => {
             setStep(2);
