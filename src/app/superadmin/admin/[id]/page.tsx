@@ -17,12 +17,12 @@ const allAdmins = [
 export default function AdminDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const admin = allAdmins.find((a) => a.id === params.id);
+  const admin = allAdmins.find((a) => a.id === params?.id);
 
   if (!admin) {
     return (
       <div className="p-4 text-center text-red-500">
-        Không tìm thấy admin với ID: {params.id}
+        Không tìm thấy admin với ID: {params?.id}
       </div>
     );
   }

@@ -51,7 +51,7 @@ const mockCameras = [
 export default function CameraDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const cameraId = params.cameraId as string;
+  const cameraId = params?.cameraId as string;
   const camera = mockCameras.find(c => c.id === cameraId) || mockCameras[0];
 
   const [table, setTable] = useState(camera.table);

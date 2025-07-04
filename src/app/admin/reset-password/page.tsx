@@ -9,7 +9,7 @@ import Link from 'next/link';
 
 function AdminResetPasswordPageInner() {
   const searchParams = useSearchParams();
-  const email = searchParams.get('email');
+  const email = searchParams?.get('email');
   const router = useRouter();
 
   const [password, setPassword] = useState('');

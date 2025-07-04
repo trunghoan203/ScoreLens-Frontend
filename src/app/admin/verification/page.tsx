@@ -18,7 +18,7 @@ export default function AdminVerificationPage() {
 function AdminVerificationPageInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const email = searchParams.get('email') || '';
+  const email = searchParams?.get('email') || '';
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);

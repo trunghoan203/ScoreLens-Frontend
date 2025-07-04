@@ -22,7 +22,7 @@ const mockManagers = [
 export default function ManagerDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const managerId = Number(params.managerId) || 0;
+  const managerId = Number(params?.managerId) || 0;
   const manager = mockManagers[managerId] || mockManagers[0];
 
   const [name, setName] = useState(manager.name);
