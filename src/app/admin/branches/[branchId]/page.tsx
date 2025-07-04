@@ -22,7 +22,7 @@ const mockBranches = [
 export default function BranchDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const branchId = Number(params.branchId) || 0;
+  const branchId = Number(params?.branchId) || 0;
   const branch = mockBranches[branchId] || mockBranches[0];
 
   const [name, setName] = useState(branch.name);

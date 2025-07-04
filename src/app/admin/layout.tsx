@@ -5,7 +5,7 @@ import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   // Chỉ render HeaderAdmin ở trang /admin/register (và các trang con nếu muốn)
-  const showHeader = pathname.startsWith('/admin/register');
+  const showHeader = pathname?.startsWith('/admin/register');
 
   return (
     <>

@@ -18,7 +18,7 @@ export default function ManagerVerificationPage() {
 function ManagerVerificationPageInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const clubCode = searchParams.get('clubCode') || '';
+  const clubCode = searchParams?.get('clubCode') || '';
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);

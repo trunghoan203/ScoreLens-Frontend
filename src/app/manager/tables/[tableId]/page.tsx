@@ -37,7 +37,7 @@ const mockTables = [
 export default function TableDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const tableId = params.tableId as string;
+  const tableId = params?.tableId as string;
   const table = mockTables.find(t => t.id === tableId) || mockTables[0];
 
   const [name, setName] = useState(table.name);

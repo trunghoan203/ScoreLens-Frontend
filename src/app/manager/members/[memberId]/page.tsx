@@ -37,7 +37,7 @@ const mockMembers = [
 export default function MemberDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const memberId = params.memberId as string;
+  const memberId = params?.memberId as string;
   const member = mockMembers.find(m => m.id === memberId) || mockMembers[0];
 
   const [name, setName] = useState(member.name);

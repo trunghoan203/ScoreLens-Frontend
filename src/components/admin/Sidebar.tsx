@@ -35,25 +35,25 @@ export default function Sidebar() {
       <nav className="flex-1 space-y-2">
         <Link
           href="/admin/branches"
-          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname.startsWith('/admin/branches') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
+          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/admin/branches') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
         >
           Chi nhánh
         </Link>
         <Link
           href="/admin/managers"
-          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname.startsWith('/admin/managers') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
+          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/admin/managers') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
         >
           Quản lý
         </Link>
         <Link
           href="/admin/club"
-          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname.startsWith('/admin/club') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
+          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/admin/club') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
         >
           Thông tin câu lạc bộ
         </Link>
         <Link
           href="/admin/feedbacks"
-          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname.startsWith('/admin/feedbacks') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
+          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/admin/feedbacks') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
         >
           Phản hồi
         </Link>

@@ -43,7 +43,7 @@ const feedbacksData = [
 export default function FeedbackDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const feedbackId = params.feedbackId as string;
+  const feedbackId = params?.feedbackId as string;
   const feedback = feedbacksData.find(f => f.id === feedbackId);
   const [isEditMode, setIsEditMode] = React.useState(false);
   const [status, setStatus] = React.useState(feedback?.status || "pending");

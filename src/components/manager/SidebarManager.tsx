@@ -24,31 +24,31 @@ export default function SidebarManager() {
       <nav className="flex-1 space-y-2">
         <Link
           href="/manager/dashboard"
-          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname.startsWith('/manager/dashboard') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
+          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/manager/dashboard') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
         >
           Trang chủ
         </Link>
         <Link
           href="/manager/camera"
-          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname.startsWith('/manager/camera') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
+          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/manager/camera') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
         >
           Quản lý camera
         </Link>
         <Link
           href="/manager/members"
-          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname.startsWith('/manager/members') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
+          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/manager/members') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
         >
           Quản lý hội viên
         </Link>
         <Link
           href="/manager/tables"
-          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname.startsWith('/manager/tables') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
+          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/manager/tables') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
         >
           Quản lý bàn
         </Link>
         <Link
           href="/manager/feedbacks"
-          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname.startsWith('/manager/feedbacks') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
+          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/manager/feedbacks') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
         >
           Phản hồi
         </Link>

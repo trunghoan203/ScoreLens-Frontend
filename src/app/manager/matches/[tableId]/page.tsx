@@ -15,7 +15,7 @@ const mockTables = [
 
 export default function TableDetailPage() {
   const params = useParams();
-  const tableId = params.tableId as string;
+  const tableId = params?.tableId as string;
   const table = mockTables.find(t => t.id === tableId) || mockTables[0];
 
   const [tableStatus, setTableStatus] = useState<'available' | 'using'>(table.status as 'available' | 'using');
