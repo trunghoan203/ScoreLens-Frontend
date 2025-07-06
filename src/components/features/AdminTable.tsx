@@ -15,20 +15,20 @@ interface Admin {
 }
 
 const allAdmins: Admin[] = [
-    { id: '1', name: 'Vũ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Đã duyệt' },
-    { id: '2', name: 'Vũ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Chưa duyệt' },
-    { id: '3', name: 'Vũ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Đã duyệt' },
-    { id: '4', name: 'Vũ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Bị từ chối' },
-    { id: '5', name: 'Vũ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Đã duyệt' },
-    { id: '6', name: 'Vũ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Đã duyệt' },
-    { id: '7', name: 'Vũ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Bị từ chối' },
-    { id: '8', name: 'Vũ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Chưa duyệt' },
+  { id: '1', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Đã duyệt' },
+  { id: '2', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Chưa duyệt' },
+  { id: '3', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Đã duyệt' },
+  { id: '4', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Bị từ chối' },
+  { id: '5', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Đã duyệt' },
+  { id: '6', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Đã duyệt' },
+  { id: '7', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Bị từ chối' },
+  { id: '8', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Chưa duyệt' },
 ];
 
 const statusVariantMap: Record<AdminStatus, 'success' | 'danger' | 'default'> = {
   'Đã duyệt': 'success',
-  'Chưa duyệt': 'danger',
-  'Bị từ chối': 'default',
+  'Chưa duyệt': 'default',
+  'Bị từ chối': 'danger',
 };
 
 interface AdminTableProps {
@@ -51,59 +51,53 @@ export function AdminTable({ searchTerm, statusFilter, onRowClick }: AdminTableP
   const visibleAdmins = filteredAdmins.slice(0, visibleCount);
 
   const handleLoadMore = () => {
-    setVisibleCount((prevCount) => prevCount + 5);
+    setVisibleCount((prev) => prev + 5);
   };
 
-  const headers = ['Tên', 'Email', 'Địa điểm', 'Trạng thái'];
-
   return (
-    <div className="space-y-4">
-      {/* Table Header */}
-      <div className="hidden rounded-lg bg-gray-900 text-white md:grid md:grid-cols-4 md:gap-4 md:px-6 md:py-3">
-        {headers.map((header) => (
-          <div key={header} className="text-center text-xs font-medium uppercase tracking-wider">
-            {header}
-          </div>
-        ))}
+    <div className="w-full space-y-2"> {/* Cách đều header và body */}
+
+      {/* Header */}
+      <div className="grid grid-cols-4 bg-black text-white text-center font-semibold text-sm rounded-lg">
+        <div className="py-3">Tên</div>
+        <div className="py-3">Email</div>
+        <div className="py-3">Địa điểm</div>
+        <div className="py-3">Trạng thái</div>
       </div>
 
-      {/* Table Body - Cards */}
-      <div className="space-y-3">
+      {/* Body */}
+      <div className="space-y-2"> {/* Cách đều từng hàng */}
         {visibleAdmins.length > 0 ? (
           visibleAdmins.map((admin) => (
             <div
               key={admin.id}
-              onClick={() => onRowClick(admin.id)} // ✅ SỬA Ở ĐÂY
-              className="cursor-pointer grid grid-cols-1 items-center gap-4 rounded-lg bg-white p-4 text-center shadow transition hover:shadow-md md:grid-cols-4"
+              onClick={() => onRowClick(admin.id)}
+              className="grid grid-cols-4 items-center text-center text-sm text-gray-800 bg-white border border-gray-300 rounded-lg shadow hover:bg-gray-50 cursor-pointer transition"
             >
-              <div className="md:col-span-1">
-                <span className="font-medium text-gray-900">{admin.name}</span>
-              </div>
-              <div className="text-gray-600 md:col-span-1">{admin.email}</div>
-              <div className="text-gray-600 md:col-span-1">{admin.location}</div>
-              <div className="flex justify-center items-center h-full w-full md:col-span-1">
+              <div className="py-4 font-medium">{admin.name}</div>
+              <div className="py-4">{admin.email}</div>
+              <div className="py-4">{admin.location}</div>
+              <div className="py-4 flex justify-center">
                 <Badge
-  variant={statusVariantMap[admin.status]}
-  className="justify-center text-center w-28 py-2 rounded-full"
->
-  {admin.status}
-</Badge>
+                  variant={statusVariantMap[admin.status]}
+                  className="rounded-full px-3 py-1 text-xs font-semibold"
+                >
+                  {admin.status}
+                </Badge>
               </div>
             </div>
           ))
         ) : (
-          <div className="py-12 text-center text-gray-500">
-            <p>Không tìm thấy admin nào.</p>
-          </div>
+          <div className="py-8 text-center text-gray-500">Không tìm thấy admin nào.</div>
         )}
       </div>
 
-      {/* Load More Button */}
+      {/* Load More */}
       {visibleCount < filteredAdmins.length && (
-        <div className="pt-4 text-center">
+        <div className="text-center pt-2">
           <Button
             onClick={handleLoadMore}
-            className="bg-lime-500 px-8 py-3 text-sm font-bold text-white transition hover:bg-lime-600"
+            className="bg-lime-500 hover:bg-lime-600 text-white font-semibold px-8 py-3 text-base rounded-xl shadow hover:shadow-md transition"
           >
             XEM THÊM
           </Button>

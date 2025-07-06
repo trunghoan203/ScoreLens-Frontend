@@ -6,11 +6,11 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: 'border-transparent bg-red-500 text-white',
-        success: 'border-transparent bg-green-500 text-white',
-        danger: 'border-transparent bg-gray-200 text-gray-700',
-        warning: 'border-transparent bg-yellow-500 text-white',
-        outline: 'text-gray-950',
+        default: 'border-transparent bg-gray-200 text-gray-700',          // Xám
+        success: 'border-transparent bg-green-500 text-white',            // Xanh
+        danger: 'border-transparent bg-red-500 text-white',               // Đỏ
+        warning: 'border-transparent bg-yellow-500 text-black',           // Vàng
+        outline: 'border border-gray-400 text-gray-950 bg-transparent',   // Viền đen, chữ đen
       },
     },
     defaultVariants: {
@@ -29,4 +29,4 @@ function Badge({ className, variant, ...props }: BadgeProps) {
   );
 }
 
-export { Badge, badgeVariants }; 
+export { Badge, badgeVariants };
