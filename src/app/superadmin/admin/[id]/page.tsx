@@ -8,10 +8,14 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
 const allAdmins = [
-  { id: '1', name: 'Nguyễn Văn A', email: 'a@gmail.com', location: 'Hà Nội', status: 'Đã duyệt' },
-  { id: '2', name: 'Nguyễn Văn B', email: 'b@gmail.com', location: 'HCM', status: 'Chưa duyệt' },
-  { id: '3', name: 'Nguyễn Văn C', email: 'c@gmail.com', location: 'Đà Nẵng', status: 'Bị từ chối' },
-  { id: '4', name: 'Nguyễn Văn D', email: 'd@gmail.com', location: 'Quy Nhơn', status: 'Đã duyệt' },
+  { id: '1', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Đã duyệt' },
+  { id: '2', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Chưa duyệt' },
+  { id: '3', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Đã duyệt' },
+  { id: '4', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Bị từ chối' },
+  { id: '5', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Đã duyệt' },
+  { id: '6', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Đã duyệt' },
+  { id: '7', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Bị từ chối' },
+  { id: '8', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Chưa duyệt' },
 ];
 
 export default function AdminDetailPage() {
@@ -113,14 +117,14 @@ export default function AdminDetailPage() {
         <div className="flex justify-center gap-4 mt-8">
           <Button
             variant="destructive"
-            className="px-8 py-3 text-base font-semibold"
+            className="px-8 py-3 text-base font-semibold rounded-xl"
             onClick={handleReject}
           >
             TỪ CHỐI
           </Button>
           <Button
             variant="lime"
-            className="px-8 py-3 text-base font-semibold"
+            className="px-8 py-3 text-base font-semibold rounded-xl"
             onClick={handleApprove}
           >
             DUYỆT
