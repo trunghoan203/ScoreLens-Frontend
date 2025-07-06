@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import Link from "next/link";
 import { AuthLayout } from "@/components/shared/AuthLayout";
 import axios from "@/lib/axios";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function AdminRegisterPage() {
   const [step, setStep] = useState(1);
@@ -27,6 +28,34 @@ export default function AdminRegisterPage() {
   }>({});
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  // OTP verification state
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
+  const [canResend, setCanResend] = useState(false);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const numberImages = [
+    '/images/numberBalls/ball_1.png',
+    '/images/numberBalls/ball_2.png',
+    '/images/numberBalls/ball_3.png',
+    '/images/numberBalls/ball_4.png',
+    '/images/numberBalls/ball_5.png',
+    '/images/numberBalls/ball_6.png',
+    '/images/numberBalls/ball_7.png',
+    '/images/numberBalls/ball_8.png',
+    '/images/numberBalls/ball_9.png',
+  ];
+
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+      return () => clearTimeout(timer);
+    } else {
+      setCanResend(true);
+    }
+  }, [resendTimer]);
 
   // Validate từng bước
   const validateStep1 = () => {
@@ -84,6 +113,83 @@ export default function AdminRegisterPage() {
     }
   };
 
+  // OTP handlers
+  const handleOtpChange = (index: number, value: string) => {
+    if (value.length > 1) return;
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text/plain').replace(/\D/g, '').slice(0, 6);
+    if (/^\d{6}$/.test(pastedData)) {
+      const newOtp = pastedData.split('');
+      setOtp(newOtp);
+      setTimeout(() => {
+        inputRefs.current[5]?.focus();
+      }, 0);
+    }
+  };
+
+  const handleVerifySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const otpString = otp.join('');
+    if (otpString.length !== 6) {
+      return;
+    }
+    setIsVerifying(true);
+    try {
+      await axios.post("/admin/verify", {
+        email: formData.email,
+        activationCode: otpString,
+      });
+      router.push("/admin/login");
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      if (err.response && err.response.data && err.response.data.message) {
+        setErrors({ general: err.response.data.message });
+      } else {
+        setErrors({ general: "Xác minh thất bại. Vui lòng thử lại." });
+      }
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    if (!canResend) return;
+    setIsVerifying(true);
+    try {
+      await axios.post("/admin/resend-verification", {
+        email: formData.email,
+      });
+      setResendTimer(60);
+      setCanResend(false);
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      if (err.response && err.response.data && err.response.data.message) {
+        setErrors({ general: err.response.data.message });
+      } else {
+        setErrors({ general: "Gửi lại mã thất bại. Vui lòng thử lại." });
+      }
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const isOtpValid = otp.every(digit => digit !== '') && !isVerifying;
+
   return (
     <AuthLayout
       title="Đăng ký tài khoản Admin"
@@ -135,17 +241,6 @@ export default function AdminRegisterPage() {
             <span className="text-gray-800 text-sm">Đã có tài khoản? </span>
             <Link href="/admin/login" className="text-lime-600 font-semibold hover:underline text-sm transition-colors">
               Đăng nhập
-            </Link>
-          </div>
-          <div className="text-center mt-6">
-            <Link
-              href="/"
-              className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Quay lại trang chủ
             </Link>
           </div>
         </form>
@@ -218,14 +313,96 @@ export default function AdminRegisterPage() {
               Quay lại
             </Link>
           </div> 
-                 </form>
+        </form>
       )}
       {step === 3 && (
-        <div className="w-full max-w-lg mx-auto flex flex-col gap-6 items-center px-0 pb-8 animate-success-fade-in min-h-[420px]">
-          <h2 className="text-2xl md:text-3xl font-bold text-center text-black mt-8 mb-2">Vui lòng xác minh tài khoản qua email!</h2>
-          <p className="text-lg text-center text-gray-700 mb-2">Chúng tôi đã gửi một email xác minh tới địa chỉ bạn vừa đăng ký. Vui lòng kiểm tra hộp thư và làm theo hướng dẫn để hoàn tất đăng ký.</p>
-          <Button variant="lime" onClick={() => router.push("/admin/login")}>Quay về đăng nhập</Button>
-        </div>
+        <form className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]" onSubmit={handleVerifySubmit}>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-4">
+              Nhập mã xác minh 6 chữ số
+            </label>
+            <p className="text-gray-600 text-sm mb-4">
+              Chúng tôi đã gửi mã xác thực đến {formData.email}
+            </p>
+            <div className="flex gap-3 justify-center mb-4" onPaste={handlePaste}>
+              {otp.map((digit, index) => (
+                <div
+                  key={index}
+                  className={`relative w-12 h-12 flex items-center justify-center rounded-full border-2 transition-all duration-200 bg-white shadow-md cursor-pointer
+                    ${inputRefs.current[index] && document.activeElement === inputRefs.current[index] ? 'border-lime-500 shadow-lg' : digit ? 'border-lime-400' : 'border-gray-300'}
+                  `}
+                  onClick={() => inputRefs.current[index]?.focus()}
+                >
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    ref={el => { inputRefs.current[index] = el; }}
+                    onChange={e => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      handleOtpChange(index, value);
+                    }}
+                    onKeyDown={e => handleKeyDown(index, e)}
+                    className="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer"
+                    autoFocus={index === 0}
+                  />
+                  {digit ? (
+                    <Image
+                      src={numberImages[Number(digit)-1]}
+                      alt={`Số ${digit}`}
+                      width={36}
+                      height={36}
+                      className="drop-shadow"
+                    />
+                  ) : (
+                    <span className="text-gray-300 text-2xl select-none">-</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <Button
+            type="submit"
+            className="w-full bg-lime-400 text-gray-900 font-bold py-3 px-6 rounded-lg hover:bg-lime-500 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!isOtpValid}
+          >
+            {isVerifying ? 'Đang xác minh...' : 'Xác minh'}
+          </Button>
+
+          <div className="text-center space-y-4">
+            <div>
+              <span className="text-gray-600 text-sm">Không nhận được mã? </span>
+              {canResend ? (
+                <button
+                  type="button"
+                  onClick={handleResendCode}
+                  disabled={isVerifying}
+                  className="text-lime-600 font-semibold hover:underline text-sm transition-colors disabled:opacity-50"
+                >
+                  Gửi lại mã
+                </button>
+              ) : (
+                <span className="text-gray-500 text-sm">
+                  Gửi lại sau {resendTimer}s
+                </span>
+              )}
+            </div>
+            <div>
+              <Link
+                href="#"
+                onClick={e => { e.preventDefault(); setStep(1); }}
+                className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1 cursor-pointer"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Quay lại
+              </Link>
+            </div>
+          </div>
+        </form>
       )}
     </AuthLayout>
   );
