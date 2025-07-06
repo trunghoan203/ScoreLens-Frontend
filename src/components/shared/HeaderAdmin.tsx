@@ -5,7 +5,7 @@ import Image from 'next/image';
 
 export function HeaderAdmin() {
   return (
-    <header className="w-full flex justify-between items-center py-6 px-8 bg-transparent">
+    <header className="w-full flex justify-between items-center py-6 px-8 bg-black">
       <div className="flex items-center">
         <ScoreLensLogo />
       </div>

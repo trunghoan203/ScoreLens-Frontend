@@ -5,7 +5,6 @@ interface RegisterStepsProps {
 }
 
 const steps = [
-  'Đăng ký tài khoản',
   'Thông tin thương hiệu',
   'Thông tin chi nhánh',
   'Xác nhận',
