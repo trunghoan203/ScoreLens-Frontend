@@ -59,7 +59,7 @@ export default function FeedbackTable({ feedbacks }: { feedbacks: Feedback[] }) 
           <div className="py-4 text-gray-700">{feedback.table}</div>
           <div className="py-4 text-gray-700">{feedback.time}</div>
           <div className="py-4 flex justify-center">
-            <span className={`px-2 py-1 rounded-full text-xs text-white ${getStatusColor(feedback.status)}`}>
+            <span className={`min-w-[110px] py-2 rounded-full text-sm font-bold text-white flex justify-center items-center ${getStatusColor(feedback.status)}`}>
               {getStatusText(feedback.status)}
             </span>
           </div>
