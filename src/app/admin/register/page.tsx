@@ -9,6 +9,7 @@ import { AuthLayout } from "@/components/shared/AuthLayout";
 import axios from "@/lib/axios";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import toast from 'react-hot-toast';
 
 export default function AdminRegisterPage() {
   const [step, setStep] = useState(1);
@@ -73,7 +74,10 @@ export default function AdminRegisterPage() {
     else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) newErrors.password = "Mật khẩu phải chứa chữ hoa, chữ thường và số";
     if (!formData.confirmPassword) newErrors.confirmPassword = "Xác nhận mật khẩu là bắt buộc";
     else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Mật khẩu xác nhận không khớp";
-    if (!formData.agree) newErrors.general = "Bạn phải đồng ý với điều khoản sử dụng";
+    if (!formData.agree) {
+      toast.error("Bạn phải đồng ý với điều khoản sử dụng");
+      return false;
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -91,23 +95,24 @@ export default function AdminRegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!validateStep2()) return;
+
     setIsLoading(true);
     setErrors({});
+
     try {
       await axios.post("/admin/register", {
         fullName: formData.fullName,
         email: formData.email,
         password: formData.password,
       });
+      toast.success('Đăng ký thành công! Vui lòng kiểm tra email để xác thực.');
       setStep(3); // sang bước xác minh
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      if (err.response && err.response.data && err.response.data.message) {
-        setErrors({ general: err.response.data.message });
-      } else {
-        setErrors({ general: "Đăng ký thất bại. Vui lòng thử lại." });
-      }
+      const errorMessage = err.response?.data?.message || "Đăng ký thất bại. Vui lòng thử lại.";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -157,11 +162,8 @@ export default function AdminRegisterPage() {
       router.push("/admin/login");
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      if (err.response && err.response.data && err.response.data.message) {
-        setErrors({ general: err.response.data.message });
-      } else {
-        setErrors({ general: "Xác minh thất bại. Vui lòng thử lại." });
-      }
+      const errorMessage = err.response?.data?.message || "Xác minh thất bại. Vui lòng thử lại.";
+      toast.error(errorMessage);
     } finally {
       setIsVerifying(false);
     }
@@ -178,11 +180,8 @@ export default function AdminRegisterPage() {
       setCanResend(false);
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      if (err.response && err.response.data && err.response.data.message) {
-        setErrors({ general: err.response.data.message });
-      } else {
-        setErrors({ general: "Gửi lại mã thất bại. Vui lòng thử lại." });
-      }
+      const errorMessage = err.response?.data?.message || "Gửi lại mã thất bại. Vui lòng thử lại.";
+      toast.error(errorMessage);
     } finally {
       setIsVerifying(false);
     }
@@ -195,11 +194,7 @@ export default function AdminRegisterPage() {
       title="Đăng ký tài khoản Admin"
       description="Vui lòng nhập thông tin để đăng ký tài khoản quản trị viên."
     >
-      {errors.general && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-600 text-sm">{errors.general}</p>
-        </div>
-      )}
+
       {step === 1 && (
         <form className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]" onSubmit={e => { e.preventDefault(); if (validateStep1()) setStep(2); }}>
           <div>
@@ -344,7 +339,7 @@ export default function AdminRegisterPage() {
                       handleOtpChange(index, value);
                     }}
                     onKeyDown={e => handleKeyDown(index, e)}
-                    className="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer"
+                    className="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer rounded-full"
                     autoFocus={index === 0}
                   />
                   {digit ? (

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AuthLayout } from '@/components/shared/AuthLayout';
+import toast from 'react-hot-toast';
 
 export default function SuperAdminAccessPage() {
   const [email, setEmail] = useState('');
@@ -29,9 +30,22 @@ export default function SuperAdminAccessPage() {
     try {
       // Giả lập xử lý gửi email
       await new Promise((resolve) => setTimeout(resolve, 1000));
+      toast.success('Email đã được gửi thành công!');
       window.location.href = `/superadmin/verification?email=${encodeURIComponent(email)}`;
-    } catch {
-      setErrors({ general: 'Đã xảy ra lỗi. Vui lòng thử lại.' });
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      const message = err.response?.data?.message;
+      if (message) {
+        // Xử lý trường hợp tài khoản chưa xác minh
+        if (message.includes('not verified') || message.includes('verification')) {
+          toast.error('Tài khoản chưa được xác minh. Vui lòng kiểm tra email để lấy mã xác thực.');
+        } else {
+          toast.error(message);
+        }
+      } else {
+        const errorMessage = 'Đã xảy ra lỗi. Vui lòng thử lại.';
+        toast.error(errorMessage);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -43,11 +57,7 @@ export default function SuperAdminAccessPage() {
       description=""
       //imageUrl="/images/billiards.png" // Đặt ảnh phù hợp
     >
-      {errors.general && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-600 text-sm">{errors.general}</p>
-        </div>
-      )}
+
 
       <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6 overflow-hidden">
         <div>

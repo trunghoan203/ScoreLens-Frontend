@@ -8,6 +8,7 @@ import { AuthLayout } from '@/components/shared/AuthLayout';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import axios from '@/lib/axios';
+import toast from 'react-hot-toast';
 
 export default function AdminLoginPage() {
   const [formData, setFormData] = useState({
@@ -59,17 +60,25 @@ export default function AdminLoginPage() {
         if (accessToken) {
           localStorage.setItem('adminAccessToken', accessToken);
         }
+        toast.success('Đăng nhập thành công!');
         router.push('/admin/branches');
       } else {
-        setErrors({ general: 'Đăng nhập thất bại. Vui lòng thử lại.' });
+        const errorMessage = 'Đăng nhập thất bại. Vui lòng thử lại.';
+        toast.error(errorMessage);
       }
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       const message = err.response?.data?.message;
       if (message) {
-        setErrors({ general: message });
+        // Xử lý trường hợp tài khoản chưa xác minh
+        if (message.includes('not verified') || message.includes('verification')) {
+          toast.error('Tài khoản chưa được xác minh. Vui lòng kiểm tra email để lấy mã xác thực.');
+        } else {
+          toast.error(message);
+        }
       } else {
-        setErrors({ general: 'Đăng nhập thất bại. Vui lòng thử lại.' });
+        const errorMessage = 'Đăng nhập thất bại. Vui lòng thử lại.';
+        toast.error(errorMessage);
       }
     } finally {
       setIsLoading(false);
@@ -91,11 +100,7 @@ export default function AdminLoginPage() {
       title="Đăng nhập Admin"
       description="Vui lòng đăng nhập để tiếp tục"
     >
-      {errors.general && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-600 text-sm">{errors.general}</p>
-        </div>
-      )}
+
 
       <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]">
         <div>

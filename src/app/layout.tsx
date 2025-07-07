@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "react-hot-toast";
+import { ToasterWrapper } from "@/components/ui/ToasterWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   title: "ScoreLens - Every Shot, Every Rule",
   description: "Hệ thống tính điểm và quản lý giải đấu bida chuyên nghiệp",
 };
+
+
 
 export default function RootLayout({
   children,
@@ -19,7 +21,7 @@ export default function RootLayout({
     <html lang="vi">
       <body className={`${inter.className} bg-black`}>
         {children}
-        <Toaster position="top-center" reverseOrder={false} />
+        <ToasterWrapper />
       </body>
     </html>
   );

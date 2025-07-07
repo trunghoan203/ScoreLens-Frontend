@@ -7,11 +7,11 @@ import { AuthLayout } from '@/components/shared/AuthLayout';
 import Link from 'next/link';
 import VerifyCodeForm from '@/components/auth/VerifyCodeForm';
 import axios from '@/lib/axios';
+import toast from 'react-hot-toast';
 
 export default function AdminForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
 
   // Ref and state for dynamic image height
   const formRef = useRef<HTMLDivElement>(null);
@@ -29,14 +29,14 @@ export default function AdminForgotPasswordPage() {
   const handleSubmitEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
     try {
       await axios.post('/admin/forgotPassword', { email });
+      toast.success('Email đã được gửi thành công! Vui lòng kiểm tra hộp thư.');
       setStep(2);
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
-      if (error.response?.data?.message) setError(error.response.data.message);
-      else setError('Có lỗi xảy ra. Vui lòng thử lại.');
+      const errorMessage = error.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.';
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -45,24 +45,26 @@ export default function AdminForgotPasswordPage() {
   const handleSubmitNewPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
     if (newPassword.length < 8) {
-      setError('Mật khẩu phải có ít nhất 8 ký tự.');
+      const errorMessage = 'Mật khẩu phải có ít nhất 8 ký tự.';
+      toast.error(errorMessage);
       setIsLoading(false);
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError('Mật khẩu xác nhận không khớp.');
+      const errorMessage = 'Mật khẩu xác nhận không khớp.';
+      toast.error(errorMessage);
       setIsLoading(false);
       return;
     }
     try {
       await axios.post('/admin/set-newPassword', { email, newPassword });
+      toast.success('Đặt lại mật khẩu thành công!');
       setStep(4);
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
-      if (error.response?.data?.message) setError(error.response.data.message);
-      else setError('Đặt lại mật khẩu thất bại.');
+      const errorMessage = error.response?.data?.message || 'Đặt lại mật khẩu thất bại.';
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -73,11 +75,7 @@ export default function AdminForgotPasswordPage() {
       title="Quên mật khẩu?"
       description="Nhập email để lấy lại mật khẩu"
     >
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-600 text-sm">{error}</p>
-        </div>
-      )}
+
       {step === 1 && (
         <form onSubmit={handleSubmitEmail} className="space-y-6 p-4 md:p-6 overflow-hidden">
           <div>

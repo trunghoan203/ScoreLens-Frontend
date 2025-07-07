@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { AuthLayout } from '@/components/shared/AuthLayout';
 import Link from 'next/link';
 import Image from 'next/image';
+import toast from 'react-hot-toast';
 
 export default function AdminVerificationPage() {
   return (
@@ -82,15 +83,17 @@ function AdminVerificationPageInner() {
     e.preventDefault();
     const otpString = otp.join('');
     if (otpString.length !== 6) {
+      toast.error('Vui lòng nhập đầy đủ 6 chữ số');
       return;
     }
+
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      router.push(`/admin/reset-password?token=${otpString}&email=${email}`);
+      await new Promise(res => setTimeout(res, 1000));
+      toast.success('Xác thực thành công!');
+      router.push(`/admin/branches?email=${encodeURIComponent(email)}&otp=${otpString}`);
     } catch {
-      // Handle error
+      toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);
     }
