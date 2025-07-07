@@ -5,6 +5,7 @@ import AddFormLayout from '@/components/shared/AddFormLayout';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 
 export default function AddMemberPage() {
   const [name, setName] = useState('');
@@ -14,7 +15,7 @@ export default function AddMemberPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Xử lý thêm hội viên ở đây
-    console.log('Thêm hội viên:', { name, phone });
+    toast.success('Đã thêm hội viên thành công!');
     router.push('/manager/members');
   };
 

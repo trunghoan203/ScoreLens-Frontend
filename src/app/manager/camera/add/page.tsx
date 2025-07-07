@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 
 const statusOptions = [
   { value: 'active', label: 'Hoạt động' },
@@ -23,7 +24,7 @@ export default function AddCameraPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Xử lý thêm camera ở đây
-    console.log('Thêm camera:', { table, ip, username, password, status });
+    toast.success('Đã thêm camera thành công!');
     router.push('/manager/camera');
   };
 

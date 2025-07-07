@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 
 const tableTypes = [
   { value: 'pool', label: 'Bida Pool' },
@@ -20,7 +21,7 @@ export default function AddTablePage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Xử lý thêm bàn ở đây
-    console.log('Thêm bàn:', { name, type });
+    toast.success('Đã thêm bàn thành công!');
     router.push('/manager/tables');
   };
 
