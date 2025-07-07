@@ -5,6 +5,7 @@ import SidebarManager from '@/components/manager/SidebarManager';
 import DashboardSummary from '@/components/manager/DashboardSummary';
 import TableAvailableView from '@/components/manager/TableAvailableView';
 import TableUsingView from '@/components/manager/TableUsingView';
+import toast from 'react-hot-toast';
 
 // Giả lập danh sách bàn
 const mockTables = [
@@ -46,7 +47,7 @@ export default function TableDetailPage() {
             <TableUsingView
               table={{ id: table.id, name: table.name, teamA, teamB, time: table.time }}
               onBack={() => setTableStatus('available')}
-              onEndMatch={() => alert('Kết thúc trận!')}
+              onEndMatch={() => toast.success('Kết thúc trận đấu thành công!')}
               onEdit={() => setIsEditing(true)}
             />
           )}

@@ -7,6 +7,7 @@ import { Select } from '@/components/ui/select';
 import { useRouter, useParams } from 'next/navigation';
 import React, { useState } from 'react';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
+import toast from 'react-hot-toast';
 
 const tableTypes = [
   { value: 'pool', label: 'Bida Pool' },
@@ -81,7 +82,7 @@ export default function TableDetailPage() {
             e.preventDefault();
             if (isEditMode) {
               // Lưu dữ liệu
-              console.log('Lưu bàn:', { name, type, status });
+              toast.success('Đã lưu bàn thành công!');
               setIsEditMode(false);
             } else {
               setIsEditMode(true);
@@ -94,7 +95,7 @@ export default function TableDetailPage() {
             onCancel={() => setShowConfirm(false)}
             onConfirm={() => { 
               setShowConfirm(false); 
-              console.log('Đã xóa bàn:', tableId);
+              toast.success('Đã xóa bàn thành công!');
               router.push('/manager/tables');
             }}
             confirmText="Xác nhận"

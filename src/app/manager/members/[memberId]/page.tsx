@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useRouter, useParams } from 'next/navigation';
 import React, { useState } from 'react';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
+import toast from 'react-hot-toast';
 
 const mockMembers = [
   {
@@ -76,7 +77,7 @@ export default function MemberDetailPage() {
             e.preventDefault();
             if (isEditMode) {
               // Lưu dữ liệu
-              console.log('Lưu hội viên:', { name, phone, playTime });
+              toast.success('Đã lưu hội viên thành công!');
               setIsEditMode(false);
             } else {
               setIsEditMode(true);
@@ -89,7 +90,7 @@ export default function MemberDetailPage() {
             onCancel={() => setShowConfirm(false)}
             onConfirm={() => { 
               setShowConfirm(false); 
-              console.log('Đã xóa hội viên:', memberId);
+              toast.success('Đã xóa hội viên thành công!');
               router.push('/manager/members');
             }}
             confirmText="Xác nhận"

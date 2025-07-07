@@ -7,6 +7,7 @@ import { Select } from '@/components/ui/select';
 import { useRouter, useParams } from 'next/navigation';
 import React, { useState } from 'react';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
+import toast from 'react-hot-toast';
 
 const statusOptions = [
   { value: 'active', label: 'Hoạt động' },
@@ -92,7 +93,7 @@ export default function CameraDetailPage() {
             e.preventDefault();
             if (isEditMode) {
               // Lưu dữ liệu
-              console.log('Lưu camera:', { table, ip, username, password, status });
+              toast.success('Đã lưu camera thành công!');
               setIsEditMode(false);
             } else {
               setIsEditMode(true);
@@ -105,7 +106,7 @@ export default function CameraDetailPage() {
             onCancel={() => setShowConfirm(false)}
             onConfirm={() => { 
               setShowConfirm(false); 
-              console.log('Đã xóa camera:', cameraId);
+              toast.success('Đã xóa camera thành công!');
               router.push('/manager/camera');
             }}
             confirmText="Xác nhận"
