@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
 import Image from 'next/image';
+import toast from 'react-hot-toast';
 
 interface BrandInfo {
   image: File | null;
@@ -57,6 +58,7 @@ export function BranchInfoForm({ onSuccess, brandInfo, onBack }: BranchInfoFormP
 
   const handleConfirm = () => {
     setShowConfirm(false);
+    toast.success('Đã lưu thông tin chi nhánh thành công!');
     onSuccess(branches);
   };
 

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
+import toast from 'react-hot-toast';
 
 interface Branch {
   name: string;
@@ -50,7 +51,7 @@ export default function ClubInfoPage() {
 
   const handleConfirm = () => {
     setShowConfirm(false);
-    alert('Đã lưu thông tin câu lạc bộ!');
+    toast.success('Đã lưu thông tin câu lạc bộ!');
   };
 
   const handleCancel = () => {
@@ -191,7 +192,7 @@ export default function ClubInfoPage() {
           confirmText="Lưu"
           cancelText="Hủy"
         >
-          <div className="text-center">Bạn có chắc chắn muốn lưu thông tin câu lạc bộ không?</div>
+          <div className="text-center text-black">Bạn có chắc chắn muốn lưu thông tin câu lạc bộ không?</div>
         </ConfirmPopup>
       </main>
     </div>
