@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { PasswordInput } from '@/components/ui/PasswordInput';
 import { AuthLayout } from '@/components/shared/AuthLayout';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 export default function ManagerLoginPage() {
   const [clubCode, setClubCode] = useState('');
@@ -29,11 +30,24 @@ export default function ManagerLoginPage() {
     setErrors({});
 
     try {
-      // Giả lập xác thực
+      // Giả lập xử lý gửi email
       await new Promise((resolve) => setTimeout(resolve, 1000));
+      toast.success('Email đã được gửi thành công!');
       window.location.href = `/manager/verification?clubCode=${encodeURIComponent(clubCode)}`;
-    } catch {
-      setErrors({ general: 'Đăng nhập thất bại. Vui lòng thử lại.' });
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      const message = err.response?.data?.message;
+      if (message) {
+        // Xử lý trường hợp tài khoản chưa xác minh
+        if (message.includes('not verified') || message.includes('verification')) {
+          toast.error('Tài khoản chưa được xác minh. Vui lòng kiểm tra email để lấy mã xác thực.');
+        } else {
+          toast.error(message);
+        }
+      } else {
+        const errorMessage = 'Đã xảy ra lỗi. Vui lòng thử lại.';
+        toast.error(errorMessage);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -44,11 +58,7 @@ export default function ManagerLoginPage() {
       title="Đăng nhập Quản lý"
       description="Vui lòng nhập mã quản lý để tiếp tục"
     >
-      {errors.general && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-600 text-sm">{errors.general}</p>
-        </div>
-      )}
+
 
       <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6 overflow-hidden">
         <div>

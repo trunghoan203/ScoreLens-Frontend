@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { PasswordInput } from '@/components/ui/PasswordInput';
 import { AuthLayout } from '@/components/shared/AuthLayout';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 function AdminResetPasswordPageInner() {
   const searchParams = useSearchParams();
@@ -16,27 +17,30 @@ function AdminResetPasswordPageInner() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState('');
 
   // Ref and state for dynamic image height
   // const formRef = useRef<HTMLDivElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     if (password.length < 6) {
-      setError('Mật khẩu phải có ít nhất 6 ký tự.');
+      toast.error('Mật khẩu phải có ít nhất 6 ký tự.');
       return;
     }
     if (password !== confirmPassword) {
-      setError('Mật khẩu xác nhận không khớp.');
+      toast.error('Mật khẩu xác nhận không khớp.');
       return;
     }
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      await new Promise(res => setTimeout(res, 1000));
+      toast.success('Đặt lại mật khẩu thành công!');
       setIsSuccess(true);
+    } catch {
+      toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
   };
 
   if (isSuccess) {
@@ -115,7 +119,7 @@ function AdminResetPasswordPageInner() {
               disabled={isLoading}
             />
           </div>
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+
           <Button
             type="submit"
             variant="lime"
