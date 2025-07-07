@@ -14,27 +14,35 @@ interface Feedback {
 
 export default function FeedbackTable({ feedbacks }: { feedbacks: Feedback[] }) {
   const router = useRouter();
-  
+
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-500';
-      case 'resolved': return 'bg-green-500';
-      case 'in_progress': return 'bg-blue-500';
-      default: return 'bg-gray-500';
+      case 'pending':
+        return 'bg-yellow-500';
+      case 'resolved':
+        return 'bg-green-500';
+      case 'in_progress':
+        return 'bg-blue-500';
+      default:
+        return 'bg-gray-500';
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending': return 'Chờ xử lý';
-      case 'resolved': return 'Đã giải quyết';
-      case 'in_progress': return 'Đang xử lý';
-      default: return 'Không xác định';
+      case 'pending':
+        return 'Chờ xử lý';
+      case 'resolved':
+        return 'Đã giải quyết';
+      case 'in_progress':
+        return 'Đang xử lý';
+      default:
+        return 'Không xác định';
     }
   };
 
   return (
-    <div className="rounded-lg overflow-hidden">
+    <div className="space-y-2 rounded-lg overflow-hidden">
       <div className="grid grid-cols-4 bg-black text-white font-semibold text-center">
         <div className="py-3">CHI NHÁNH</div>
         <div className="py-3">BÀN</div>
@@ -44,7 +52,7 @@ export default function FeedbackTable({ feedbacks }: { feedbacks: Feedback[] }) 
       {feedbacks.map((feedback) => (
         <div
           key={feedback.id}
-          className="grid grid-cols-4 items-center text-center bg-gray-200 mb-2 rounded-lg cursor-pointer hover:bg-lime-50 transition"
+          className="grid grid-cols-4 items-center text-center bg-gray-200 rounded-lg cursor-pointer hover:bg-lime-50 transition"
           onClick={() => router.push(`/admin/feedbacks/${feedback.id}`)}
         >
           <div className="py-4 font-semibold text-black">{feedback.branch}</div>
@@ -59,4 +67,4 @@ export default function FeedbackTable({ feedbacks }: { feedbacks: Feedback[] }) 
       ))}
     </div>
   );
-} 
+}
