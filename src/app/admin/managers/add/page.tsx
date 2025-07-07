@@ -6,6 +6,7 @@ import HeaderAdminPage from "@/components/admin/HeaderAdminPage";
 import AddFormLayout from "@/components/shared/AddFormLayout";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
+import toast from 'react-hot-toast';
 
 export default function AddManagerPage() {
   const [form, setForm] = useState({
@@ -25,7 +26,7 @@ export default function AddManagerPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Xử lý thêm quản lý ở đây
-    alert("Đã thêm quản lý thành công!");
+    toast.success("Đã thêm quản lý thành công!");
     router.push("/admin/managers");
   };
 

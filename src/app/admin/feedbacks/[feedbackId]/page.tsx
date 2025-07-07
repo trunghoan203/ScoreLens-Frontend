@@ -5,6 +5,7 @@ import HeaderAdminPage from "@/components/admin/HeaderAdminPage";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import AddFormLayout from "@/components/shared/AddFormLayout";
+import toast from 'react-hot-toast';
 
 // Dữ liệu mẫu cho phản hồi chi tiết
 const feedbacksData = [
@@ -124,6 +125,7 @@ export default function AdminFeedbackDetailPage() {
             e.preventDefault();
             if (isEditMode) {
               // Lưu trạng thái và ghi chú
+              toast.success('Đã lưu phản hồi thành công!');
               setIsEditMode(false);
             } else {
               setIsEditMode(true);
