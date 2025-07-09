@@ -55,10 +55,9 @@ export function AdminTable({ searchTerm, statusFilter, onRowClick }: AdminTableP
   };
 
   return (
-    <div className="w-full space-y-2"> {/* Cách đều header và body */}
-
+    <div className="w-full space-y-2">
       {/* Header */}
-      <div className="grid grid-cols-4 bg-black text-white text-center font-semibold text-sm rounded-lg">
+      <div className="grid grid-cols-4 bg-black text-white text-center font-semibold text-sm rounded-t-lg">
         <div className="py-3">Tên</div>
         <div className="py-3">Email</div>
         <div className="py-3">Địa điểm</div>
@@ -66,21 +65,21 @@ export function AdminTable({ searchTerm, statusFilter, onRowClick }: AdminTableP
       </div>
 
       {/* Body */}
-      <div className="space-y-2"> {/* Cách đều từng hàng */}
+      <div className="space-y-2">
         {visibleAdmins.length > 0 ? (
           visibleAdmins.map((admin) => (
             <div
               key={admin.id}
               onClick={() => onRowClick(admin.id)}
-              className="grid grid-cols-4 items-center text-center text-sm text-gray-800 bg-white border border-gray-300 rounded-lg shadow hover:bg-gray-50 cursor-pointer transition"
+              className="grid grid-cols-4 items-center text-center text-sm text-gray-800 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition"
             >
-              <div className="py-4 font-medium">{admin.name}</div>
+              <div className="pcol-span-4 py-4 font-semibold text-black text-lg">{admin.name}</div>
               <div className="py-4">{admin.email}</div>
               <div className="py-4">{admin.location}</div>
               <div className="py-4 flex justify-center">
                 <Badge
                   variant={statusVariantMap[admin.status]}
-                  className="rounded-full px-3 py-1 text-xs font-semibold"
+                  className="rounded-full px-5 py-2 text-base font-semibold"
                 >
                   {admin.status}
                 </Badge>
@@ -94,10 +93,10 @@ export function AdminTable({ searchTerm, statusFilter, onRowClick }: AdminTableP
 
       {/* Load More */}
       {visibleCount < filteredAdmins.length && (
-        <div className="text-center pt-2">
+        <div className="text-center pt-4">
           <Button
             onClick={handleLoadMore}
-            className="bg-lime-500 hover:bg-lime-600 text-white font-semibold px-8 py-3 text-base rounded-xl shadow hover:shadow-md transition"
+            className="bg-lime-500 hover:bg-lime-600 text-white font-semibold px-8 py-3 text-base rounded-xl hover:shadow-md transition"
           >
             XEM THÊM
           </Button>

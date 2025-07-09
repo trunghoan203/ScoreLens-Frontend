@@ -20,24 +20,25 @@ export function AdminFilters({
   return (
     <div className="w-full mb-8">
       <div
-        className="backdrop-blur-md bg-white/60 border border-gray-200 rounded-2xl shadow-lg px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 transition-all duration-300"
+        className="backdrop-blur-md border-lime-400 bg-white/60 border border-gray-200 rounded-2xl shadow-lg px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 transition-all duration-300"
         style={{ boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.10)' }}
       >
         <h2 className="text-2xl font-extrabold text-black tracking-tight mb-2 sm:mb-0">
           Quản lý Admin
         </h2>
 
-        <div className="flex flex-col sm:flex-row items-stretch gap-4 w-full sm:w-auto">
+        {/* Search & Filter Containers */}
+        <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
           {/* Search Input */}
-          <div className="relative flex items-center w-full sm:w-80 bg-white/80 rounded-xl border border-gray-200 shadow-sm focus-within:border-blue-400 transition-all">
+          <div className="relative w-full sm:w-50 h-12 bg-white rounded-xl border-2 border-gray-200 focus-within:border-green-500 transition-all">
             <Input
               type="text"
               placeholder="Tìm kiếm admin..."
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="bg-transparent outline-none flex-1 text-black text-base px-4 py-2 rounded-xl placeholder-gray-400 font-medium"
+              className="h-full w-full bg-transparent px-4 pr-10 rounded-xl placeholder-gray-400 focus:outline-none"
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-500 pointer-events-none">
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8ADB10] pointer-events-none">
               <svg
                 className="w-6 h-6"
                 fill="none"
@@ -52,18 +53,18 @@ export function AdminFilters({
           </div>
 
           {/* Status Filter */}
-          <div className="relative w-full sm:w-44">
+          <div className="relative w-full sm:w-50 h-12 bg-white rounded-xl border-2 border-gray-200 text-black focus-within:border-green-500 transition-all">
             <Select
               value={statusFilter}
               onChange={(e) => onStatusChange(e.target.value)}
-              className="w-full text-base font-bold text-black bg-white/80 border border-gray-200 rounded-xl py-2 pl-4 pr-10 shadow-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-100 appearance-none cursor-pointer transition-all"
+              className="h-full w-full bg-transparent px-4 pr-10 rounded-xl appearance-none focus:outline-none"
             >
               <option value="">Tất cả</option>
               <option value="Đã duyệt">Đã duyệt</option>
               <option value="Chưa duyệt">Chưa duyệt</option>
               <option value="Bị từ chối">Bị từ chối</option>
             </Select>
-            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-blue-500">
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8ADB10] pointer-events-none">
               <svg
                 width="22"
                 height="22"
