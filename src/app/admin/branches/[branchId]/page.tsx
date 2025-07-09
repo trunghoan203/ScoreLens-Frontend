@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useRouter, useParams } from 'next/navigation';
 import React, { useState } from 'react';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
+import toast from 'react-hot-toast';
 
 const mockBranches = [
   {
@@ -74,7 +75,7 @@ export default function BranchDetailPage() {
             open={showConfirm}
             title="Bạn có chắc chắn muốn xóa không?"
             onCancel={() => setShowConfirm(false)}
-            onConfirm={() => { setShowConfirm(false); alert('Đã xóa!'); }}
+            onConfirm={() => { setShowConfirm(false); toast.success('Đã xóa chi nhánh thành công!'); }}
             confirmText="Xác nhận"
             cancelText="Hủy"
           >

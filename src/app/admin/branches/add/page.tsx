@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 
 const managers = [
   { value: 'tran-minh-tuan', label: 'Trần Minh Tuấn' },
@@ -22,6 +23,7 @@ export default function AddBranchPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Xử lý thêm chi nhánh ở đây
+    toast.success('Đã thêm chi nhánh thành công!');
     router.push('/admin/branches');
   };
 
