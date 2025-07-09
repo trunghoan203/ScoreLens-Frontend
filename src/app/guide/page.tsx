@@ -44,7 +44,7 @@ const GUIDE_CONTENT: Record<string, React.ReactNode> = {
           <li>
             <span className="font-semibold text-lime-700">Quên Mật Khẩu:</span>
             <ul className="list-disc ml-6">
-              <li>Vào trang đăng nhập và nhấn vào link &quot;Quên mật khẩu&quot; (Forgot Password).</li>
+              <li>Vào trang đăng nhập và nhấn vào link "Quên mật khẩu" (Forgot Password).</li>
               <li>Nhập email, hệ thống sẽ gửi một đường link hoặc mã xác thực để đặt lại mật khẩu mới.</li>
             </ul>
           </li>
@@ -63,14 +63,14 @@ const GUIDE_CONTENT: Record<string, React.ReactNode> = {
             <ul className="list-disc ml-6">
               <li>Thống kê nhanh: Số lượng Câu lạc bộ (Clubs), số lượng Quản lý (Managers) bạn đang phụ trách.</li>
               <li>Trạng thái hoạt động: Số trận đấu đang diễn ra, các yêu cầu hỗ trợ mới.</li>
-              <li>Lối tắt: Các nút truy cập nhanh đến các mục quản lý chính như &quot;Quản lý Câu lạc bộ&quot;, &quot;Quản lý Manager&quot;.</li>
+              <li>Lối tắt: Các nút truy cập nhanh đến các mục quản lý chính như "Quản lý Câu lạc bộ", "Quản lý Manager".</li>
             </ul>
           </li>
           <li>
             <span className="font-semibold text-lime-700">Quản Lý Câu Lạc Bộ (Manage Clubs):</span>
             <ul className="list-disc ml-6">
               <li>Thêm mới, chỉnh sửa, giám sát các câu lạc bộ trong khu vực của bạn.</li>
-              <li>Điền đầy đủ thông tin, chọn thương hiệu, tên, địa chỉ, liên hệ, nhấn &quot;Lưu&quot; để hoàn tất.</li>
+              <li>Điền đầy đủ thông tin, chọn thương hiệu, tên, địa chỉ, liên hệ, nhấn "Lưu" để hoàn tất.</li>
             </ul>
           </li>
           <li>
@@ -123,7 +123,7 @@ const GUIDE_CONTENT: Record<string, React.ReactNode> = {
           <li>
             <span className="font-semibold text-lime-700">Quên Mật Khẩu:</span>
             <ul className="list-disc ml-6">
-              <li>Trên trang đăng nhập, sử dụng chức năng &quot;Quên mật khẩu&quot; (Forgot Password).</li>
+              <li>Trên trang đăng nhập, sử dụng chức năng "Quên mật khẩu" (Forgot Password).</li>
               <li>Nhập email của bạn và làm theo hướng dẫn để đặt lại mật khẩu mới.</li>
             </ul>
           </li>
@@ -153,7 +153,7 @@ const GUIDE_CONTENT: Record<string, React.ReactNode> = {
             <ul className="list-disc ml-6">
               <li><span className="font-semibold">Quản lý Bàn chơi (Manage Tables):</span>
                 <ul className="list-disc ml-6">
-                  <li>Vào mục &quot;Quản lý Bàn&quot;.</li>
+                  <li>Vào mục "Quản lý Bàn".</li>
                   <li>Thêm Bàn mới (Add Table): Nhập số bàn, loại bàn (ví dụ: bida, bóng bàn) và lưu lại.</li>
                   <li>Sửa thông tin Bàn (Edit Table): Cập nhật số bàn hoặc trạng thái.</li>
                   <li>Xem trạng thái: Biết bàn nào đang trống, bàn nào đang có trận đấu.</li>
@@ -161,7 +161,7 @@ const GUIDE_CONTENT: Record<string, React.ReactNode> = {
               </li>
               <li><span className="font-semibold">Quản lý Camera (Manage Cameras):</span>
                 <ul className="list-disc ml-6">
-                  <li>Vào mục &quot;Quản lý Camera&quot;.</li>
+                  <li>Vào mục "Quản lý Camera".</li>
                   <li>Thêm Camera mới (Add Camera): Nhập thông tin của camera AI mới lắp đặt (địa chỉ IP, thông tin đăng nhập của camera,...).</li>
                   <li>Sửa thông tin Camera (Edit Camera): Cập nhật cấu hình khi cần.</li>
                 </ul>
@@ -170,7 +170,7 @@ const GUIDE_CONTENT: Record<string, React.ReactNode> = {
                 <ul className="list-disc ml-6">
                   <li>Sau khi thêm Bàn và Camera, bạn phải liên kết chúng với nhau.</li>
                   <li>Vào phần chỉnh sửa thông tin của một Bàn chơi.</li>
-                  <li>Tìm mục &quot;Gán Camera&quot; (Assign Camera) và chọn đúng Camera AI đang theo dõi bàn đó.</li>
+                  <li>Tìm mục "Gán Camera" (Assign Camera) và chọn đúng Camera AI đang theo dõi bàn đó.</li>
                   <li>Lưu lại. Nếu không thực hiện bước này, hệ thống sẽ không thể tự động ghi điểm.</li>
                 </ul>
               </li>
@@ -194,7 +194,7 @@ const GUIDE_CONTENT: Record<string, React.ReactNode> = {
           <li>
             <span className="font-semibold text-lime-700">Quản Lý Thành Viên (Manage Membership):</span>
             <ul className="list-disc ml-6">
-              <li>Vào mục &quot;Quản lý Thành viên&quot;.</li>
+              <li>Vào mục "Quản lý Thành viên".</li>
               <li>Thêm thành viên mới (Add Membership): Nhập thông tin người chơi mới đăng ký tại câu lạc bộ.</li>
               <li>Chỉnh sửa thông tin thành viên (Edit Membership): Cập nhật số điện thoại, tên, hoặc gia hạn tư cách thành viên.</li>
             </ul>
@@ -203,10 +203,10 @@ const GUIDE_CONTENT: Record<string, React.ReactNode> = {
             <span className="font-semibold text-lime-700">Xử Lý Yêu Cầu Hỗ Trợ (Handle Support Requests):</span>
             <ul className="list-disc ml-6">
               <li>Khi người chơi tại một bàn gặp sự cố và gửi yêu cầu hỗ trợ qua hệ thống, bạn sẽ nhận được thông báo.</li>
-              <li>Vào mục &quot;Thông báo&quot; (Notifications) hoặc xem trên Bảng điều khiển.</li>
+              <li>Vào mục "Thông báo" (Notifications) hoặc xem trên Bảng điều khiển.</li>
               <li>Xem chi tiết yêu cầu: Bàn số mấy đang cần hỗ trợ, lý do là gì.</li>
               <li>Đến trực tiếp để hỗ trợ người chơi.</li>
-              <li>Sau khi giải quyết xong, đánh dấu yêu cầu là &quot;Đã hoàn thành&quot;.</li>
+              <li>Sau khi giải quyết xong, đánh dấu yêu cầu là "Đã hoàn thành".</li>
             </ul>
           </li>
         </ol>
@@ -243,14 +243,14 @@ const GUIDE_CONTENT: Record<string, React.ReactNode> = {
             <span className="font-semibold text-lime-700">Tải ứng dụng và tạo tài khoản</span>:
             <ul className="list-disc ml-6">
               <li>Tải ứng dụng Scorelens từ App Store hoặc Google Play.</li>
-              <li>Mở ứng dụng và chọn &quot;Đăng ký&quot; (Sign Up) để tạo một tài khoản người dùng mới bằng email của bạn.</li>
+              <li>Mở ứng dụng và chọn "Đăng ký" (Sign Up) để tạo một tài khoản người dùng mới bằng email của bạn.</li>
             </ul>
           </li>
           <li>
             <span className="font-semibold text-lime-700">Liên kết tài khoản với tư cách thành viên</span>:
             <ul className="list-disc ml-6">
               <li>Đăng nhập vào ứng dụng.</li>
-              <li>Đi đến mục &quot;Hồ sơ&quot; (Profile) hoặc tìm nút &quot;Xác thực thành viên&quot; (Verify Membership).</li>
+              <li>Đi đến mục "Hồ sơ" (Profile) hoặc tìm nút "Xác thực thành viên" (Verify Membership).</li>
               <li>Nhập <span className="font-semibold">số điện thoại</span> mà bạn đã dùng để đăng ký tại câu lạc bộ.</li>
               <li>Hệ thống sẽ gửi một <span className="font-semibold">mã xác thực (verify code)</span> đến số điện thoại đó.</li>
               <li>Nhập mã này vào ứng dụng để hoàn tất việc liên kết.</li>
@@ -266,7 +266,7 @@ const GUIDE_CONTENT: Record<string, React.ReactNode> = {
         <ol className="list-decimal ml-6 space-y-2 text-base md:text-lg text-gray-800">
             <li>
               <span className="font-semibold text-lime-700">Tạo hoặc Tham gia một trận đấu mới:</span><br />
-              Đến bàn chơi, mở ứng dụng và nhấn &quot;Chơi ngay&quot; (Play Now) hoặc &quot;Tạo trận đấu&quot; (Create Match). Ứng dụng có thể yêu cầu bạn <span className="font-semibold">quét mã QR</span> được đặt tại bàn chơi để tự động xác định vị trí và camera.
+              Đến bàn chơi, mở ứng dụng và nhấn "Chơi ngay" (Play Now) hoặc "Tạo trận đấu" (Create Match). Ứng dụng có thể yêu cầu bạn <span className="font-semibold">quét mã QR</span> được đặt tại bàn chơi để tự động xác định vị trí và camera.
             </li>
             <li>
               <span className="font-semibold text-lime-700">Theo dõi trận đấu trực tiếp:</span><br />
@@ -274,7 +274,7 @@ const GUIDE_CONTENT: Record<string, React.ReactNode> = {
             </li>
             <li>
               <span className="font-semibold text-lime-700">Gửi Yêu Cầu Hỗ Trợ (Support Request):</span><br />
-              Nếu có sự cố tại bàn chơi (ví dụ: camera nhận diện sai, cần sự giúp đỡ của nhân viên), bạn có thể nhấn nút &quot;Hỗ trợ&quot; trên màn hình trận đấu để gửi yêu cầu trực tiếp đến Quản lý (Manager) của câu lạc bộ.
+              Nếu có sự cố tại bàn chơi (ví dụ: camera nhận diện sai, cần sự giúp đỡ của nhân viên), bạn có thể nhấn nút "Hỗ trợ" trên màn hình trận đấu để gửi yêu cầu trực tiếp đến Quản lý (Manager) của câu lạc bộ.
             </li>
           </ol>
         </section>
@@ -286,7 +286,7 @@ const GUIDE_CONTENT: Record<string, React.ReactNode> = {
             <li>
               <span className="font-semibold text-lime-700">Xem Lịch Sử Trận Đấu (View Match History):</span>
               <ul className="list-disc ml-6">
-                <li>Từ menu chính, chọn mục &quot;Lịch sử&quot; (History).</li>
+                <li>Từ menu chính, chọn mục "Lịch sử" (History).</li>
                 <li>Xem lại toàn bộ các trận đấu mình đã tham gia: danh sách các trận đấu theo thời gian, kết quả thắng/thua, tỷ số chi tiết, đối thủ, thời gian và địa điểm.</li>
               </ul>
             </li>
@@ -310,7 +310,7 @@ const GUIDE_CONTENT: Record<string, React.ReactNode> = {
           <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Phần 4: Quản Lý Tài Khoản và Gửi Phản Hồi</h2>
           <ul className="list-disc ml-6 text-base md:text-lg text-gray-800">
             <li><span className="font-semibold">Hồ sơ cá nhân (Profile):</span> Bạn có thể vào mục này để thay đổi ảnh đại diện, tên hiển thị và mật khẩu.</li>
-            <li><span className="font-semibold">Gửi Phản Hồi (Send Feedback):</span> Nếu bạn có góp ý về ứng dụng hoặc phát hiện lỗi, hãy sử dụng chức năng &quot;Phản hồi&quot;. Đội ngũ phát triển sẽ tiếp nhận và cải thiện hệ thống.</li>
+            <li><span className="font-semibold">Gửi Phản Hồi (Send Feedback):</span> Nếu bạn có góp ý về ứng dụng hoặc phát hiện lỗi, hãy sử dụng chức năng "Phản hồi". Đội ngũ phát triển sẽ tiếp nhận và cải thiện hệ thống.</li>
           </ul>
         </section>
       </div>
@@ -357,7 +357,7 @@ const GUIDE_CONTENT: Record<string, React.ReactNode> = {
           </li>
           <li>
             <span className="font-semibold text-lime-700">Yêu Cầu Hỗ Trợ (Nếu cần):</span><br />
-            Nếu có sự cố tại bàn chơi, hãy tìm nút &quot;Hỗ trợ&quot; (Support) trên trang web. Nhấn vào đó sẽ gửi thông báo ngay lập tức đến Quản lý câu lạc bộ.
+            Nếu có sự cố tại bàn chơi, hãy tìm nút "Hỗ trợ" (Support) trên trang web. Nhấn vào đó sẽ gửi thông báo ngay lập tức đến Quản lý câu lạc bộ.
           </li>
         </ol>
       </section>
@@ -404,32 +404,26 @@ export default function GuidePage() {
           <aside className="w-full md:w-64 flex-shrink-0 mb-8 md:mb-0">
             <nav className="bg-white rounded-xl shadow p-4 text-black sticky top-28">
               <ul className="space-y-2">
-                {/* Tiêu đề sidebar */}
-                <li>
-                  <div className="uppercase font-extrabold text-lime-600 text-base md:text-lg mb-2 tracking-wide pl-2 select-none">
-                    CHỦ DOANH NGHIỆP
-                  </div>
-                </li>
-                {ROLES.filter(r => r.key !== 'business').map(r => (
+                {ROLES.map(r => (
                   <li key={r.key}>
                     <button
                       className={`w-full text-left px-4 py-2 rounded-lg font-bold transition-colors ${role === r.key ? 'bg-lime-100 text-lime-600' : 'text-black hover:bg-gray-100'}`}
-                      onClick={() => setRole(r.key as 'manager' | 'member' | 'user')}
+                      onClick={() => setRole(r.key as 'business' | 'manager' | 'member' | 'user')}
                     >
                       {r.label}
                     </button>
                   </li>
-                ))}
-              </ul>
+                      ))}
+                    </ul>
             </nav>
           </aside>
           {/* Main Content */}
           <main className="flex-1 bg-white rounded-xl shadow p-8 text-black min-h-[600px]">
             {GUIDE_CONTENT[role]}
           </main>
-        </div>
+          </div>
       </div>
       <Footer />
     </>
   );
-}
+} 
