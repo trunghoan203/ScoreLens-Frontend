@@ -238,6 +238,17 @@ export default function AdminRegisterPage() {
               Đăng nhập
             </Link>
           </div>
+          <div className="text-center mt-6">
+          <Link
+            href="/"
+            className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Quay lại trang chủ
+          </Link>
+        </div>
         </form>
       )}
       {step === 2 && (
