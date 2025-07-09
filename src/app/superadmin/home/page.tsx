@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AdminTable } from '@/components/features/AdminTable';
-import { AdminFilters } from '@/components/features/AdminFilters';
-import { FeedbackTable } from '@/components/features/FeedbackTable';
+import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
 import { PageBanner } from '@/components/shared/PageBanner';
+import { AdminFilters } from '@/components/features/AdminFilters';
+import { AdminTable } from '@/components/features/AdminTable';
+import { FeedbackTable } from '@/components/features/FeedbackTable';
 
 export default function AdminsPage() {
   const router = useRouter();
@@ -16,9 +17,7 @@ export default function AdminsPage() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const tab = params.get('tab');
-    if (tab === 'phanhoi') setActiveTab('phanhoi');
-    else setActiveTab('duyet');
+    setActiveTab(params.get('tab') === 'phanhoi' ? 'phanhoi' : 'duyet');
   }, []);
 
   const handleRowClick = (adminId: string) => {
@@ -33,34 +32,51 @@ export default function AdminsPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <div className="max-w-6xl mx-auto space-y-6 md:space-y-8">
-        <PageBanner title={activeTab === 'duyet' ? 'DANH SÁCH ADMIN' : 'DANH SÁCH PHẢN HỒI'} />
+    <>
+      {/* 1. Header full-width at the very top */}
+      <HeaderAdmin />
 
-        <div className="flex justify-center">
-          <div className="relative flex items-center bg-gray-200 rounded-full p-1 shadow">
-            <motion.div
-              layout
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="absolute h-[40px] w-[140px] rounded-full bg-lime-500 shadow"
-              style={{ left: activeTab === 'duyet' ? '4px' : 'calc(50% + 4px)' }}
-            />
-            <button
-              onClick={() => handleTabChange('duyet')}
-              className={`relative z-10 w-[140px] h-[40px] flex items-center justify-center font-semibold rounded-full transition-colors duration-300 ${activeTab === 'duyet' ? 'text-white' : 'text-gray-700'}`}
-            >
-              Đơn duyệt
-            </button>
-            <button
-              onClick={() => handleTabChange('phanhoi')}
-              className={`relative z-10 w-[140px] h-[40px] flex items-center justify-center font-semibold rounded-full transition-colors duration-300 ${activeTab === 'phanhoi' ? 'text-white' : 'text-gray-700'}`}
-            >
-              Phản hồi
-            </button>
+      {/* 2. Banner sits directly under header */}
+      <PageBanner title={activeTab === 'duyet' ? 'DANH SÁCH ADMIN' : 'DANH SÁCH PHẢN HỒI'} />
+
+      {/* 3. Container frame for the rest of the page */}
+      <div className="bg-[#EEEDED] w-full px-4 md:px-8 py-8">
+        <div className="max-w-6xl mx-auto space-y-6 md:space-y-8">
+          {/* Toggle Tabs */}
+          <div className="flex justify-center">
+            <div className="relative flex w-[280px] h-[42px] shadow-md rounded overflow-hidden">
+              <motion.div
+                layout
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                className="absolute w-1/2 h-full bg-[#8ADB10]"
+                style={{
+                  left: activeTab === 'duyet' ? '0%' : '50%',
+                  borderTopLeftRadius: activeTab === 'duyet' ? '0.375rem' : '0',
+                  borderBottomLeftRadius: activeTab === 'duyet' ? '0.375rem' : '0',
+                  borderTopRightRadius: activeTab === 'phanhoi' ? '0.375rem' : '0',
+                  borderBottomRightRadius: activeTab === 'phanhoi' ? '0.375rem' : '0',
+                }}
+              />
+              <button
+                onClick={() => handleTabChange('duyet')}
+                className={`relative z-10 w-1/2 h-full flex items-center justify-center font-semibold transition-colors duration-300 ${
+                  activeTab === 'duyet' ? 'text-white' : 'text-white bg-black'
+                } rounded-l`}
+              >
+                Đơn duyệt
+              </button>
+              <button
+                onClick={() => handleTabChange('phanhoi')}
+                className={`relative z-10 w-1/2 h-full flex items-center justify-center font-semibold transition-colors duration-300 ${
+                  activeTab === 'phanhoi' ? 'text-white' : 'text-white bg-black'
+                } rounded-r`}
+              >
+                Phản hồi
+              </button>
+            </div>
           </div>
-        </div>
 
-        <div className="bg-white rounded-2xl shadow p-4 md:p-6">
+          {/* Dynamic Content */}
           <AnimatePresence mode="wait">
             {activeTab === 'duyet' ? (
               <motion.div
@@ -98,6 +114,6 @@ export default function AdminsPage() {
           </AnimatePresence>
         </div>
       </div>
-    </main>
+    </>
   );
 }

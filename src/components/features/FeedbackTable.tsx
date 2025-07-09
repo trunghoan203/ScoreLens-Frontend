@@ -48,21 +48,21 @@ export function FeedbackTable() {
   return (
     <div className="space-y-6">
       {/* Filter Bar */}
-      <div className="backdrop-blur-md bg-white/60 border border-gray-200 rounded-2xl shadow-lg px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h2 className="text-2xl font-extrabold text-black">Quản lí phản hồi</h2>
+      <div className="backdrop-blur-md border-lime-400 bg-white/60 border border-gray-200 rounded-2xl shadow-lg px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 transition-all duration-300">
+        <h2 className="text-2xl font-extrabold text-black">Danh sách phản hồi</h2>
 
         <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
           {/* Search */}
-          <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-lime-500 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Tìm kiếm phản hồi..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 pl-10 pr-4 text-base font-medium text-black placeholder-gray-400 shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none"
-            />
-          </div>
+          <div className="relative w-full sm:w-60">
+  <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-lime-500 w-5 h-5" />
+  <input
+    type="text"
+    placeholder="Tìm kiếm phản hồi..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 pl-4 pr-10 text-base font-medium text-black placeholder-gray-400 shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none"
+  />
+</div>
 
           {/* Date Picker */}
           <div className="relative w-full sm:w-60">
@@ -95,13 +95,13 @@ export function FeedbackTable() {
                 onClick={() => router.push(`/superadmin/feedback/${fb.id}`)}
                 className="grid grid-cols-4 items-center text-center bg-white border border-gray-300 rounded-lg shadow hover:bg-gray-50 cursor-pointer transition"
               >
-                <div className="py-4 font-medium text-sm text-gray-800">{fb.branch}</div>
+                <div className="pcol-span-4 py-4 font-semibold text-black text-lg">{fb.branch}</div>
                 <div className="py-4 text-sm text-gray-800">{fb.table}</div>
                 <div className="py-4 text-sm text-gray-800">{fb.date}</div>
                 <div className="flex justify-center py-4">
                   <Badge
                     variant={fb.status === 'Đã xử lý' ? 'success' : 'danger'}
-                    className="text-xs font-semibold px-3 py-1 rounded-full"
+                    className="text-sm font-semibold px-4 py-1.5 rounded-full"
                   >
                     {fb.status}
                   </Badge>
