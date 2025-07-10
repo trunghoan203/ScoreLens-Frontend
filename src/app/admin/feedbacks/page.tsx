@@ -5,6 +5,8 @@ import Sidebar from "@/components/admin/Sidebar";
 import HeaderAdminPage from "@/components/admin/HeaderAdminPage";
 import FeedbackTable from "@/components/admin/FeedbackTable";
 import FeedbackSearchBar from "@/components/admin/FeedbackSearchBar";
+import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
+import { TableSkeleton, LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 
 // Dữ liệu mẫu cho phản hồi
 const feedbacksData = [
@@ -52,29 +54,51 @@ const feedbacksData = [
 
 export default function AdminFeedbacksPage() {
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [tableLoading, setTableLoading] = useState(false);
   const filteredFeedbacks = feedbacksData.filter(f => 
     f.branch.toLowerCase().includes(search.toLowerCase()) ||
     f.table.toLowerCase().includes(search.toLowerCase()) ||
     f.feedback.toLowerCase().includes(search.toLowerCase())
   );
 
+  React.useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1200);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleSearch = (val: string) => {
+    setSearch(val);
+    setTableLoading(true);
+    setTimeout(() => setTableLoading(false), 900);
+  };
+
   return (
-    <div className="min-h-screen flex bg-[#18191A]">
-      <Sidebar />
-      <main className="flex-1 bg-white p-10 min-h-screen">
-        <HeaderAdminPage />
-        <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-          <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
-            PHẢN HỒI
-          </span>
-        </div>
-        {/* Thanh tìm kiếm */}
-        <FeedbackSearchBar
-          search={search}
-          setSearch={setSearch}
-        />
-        <FeedbackTable feedbacks={filteredFeedbacks} />
-      </main>
-    </div>
+    <>
+      {loading && <ScoreLensLoading text="Đang tải..." />}
+      <div className="min-h-screen flex bg-[#18191A]">
+        <Sidebar />
+        <main className="flex-1 bg-white p-10 min-h-screen">
+          <HeaderAdminPage />
+          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
+            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+              PHẢN HỒI
+            </span>
+          </div>
+          {/* Thanh tìm kiếm */}
+          <FeedbackSearchBar
+            search={search}
+            setSearch={handleSearch}
+          />
+          {tableLoading ? (
+            <div className="mt-6"><TableSkeleton rows={5} /></div>
+          ) : filteredFeedbacks.length === 0 ? (
+            <div className="mt-6"><LoadingSkeleton type="card" lines={1} className="w-full max-w-md mx-auto" /></div>
+          ) : (
+            <FeedbackTable feedbacks={filteredFeedbacks} />
+          )}
+        </main>
+      </div>
+    </>
   );
 } 
