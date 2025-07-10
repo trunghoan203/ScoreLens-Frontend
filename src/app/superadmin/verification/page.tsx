@@ -89,31 +89,33 @@ function SuperAdminVerificationPageInner() {
     <AuthLayout
       title={
         <div className="text-center space-y-2">
-          
           <p className="text-lg font-semibold">Nhập mã xác minh</p>
         </div>
       }
-      //imageUrl="/images/billiards.png"
     >
       <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6" onPaste={handlePaste}>
         <div className="flex gap-3 justify-center mb-4">
           {otp.map((digit, index) => (
             <div
-                key={index}
-                className={`relative w-12 aspect-square flex items-center justify-center rounded-full border-2 transition-all duration-200 bg-white shadow-md cursor-pointer
-                  ${inputRefs.current[index] && document.activeElement === inputRefs.current[index] ? 'border-lime-500 shadow-lg' : digit ? 'border-lime-400' : 'border-gray-300'}
-                `}
-                onClick={() => inputRefs.current[index]?.focus()}
-              >
+              key={index}
+              className={`relative w-12 aspect-square flex items-center justify-center rounded-full border-2 transition-all duration-200 bg-white shadow-md cursor-pointer
+                ${inputRefs.current[index] && document.activeElement === inputRefs.current[index]
+                  ? 'border-lime-500 shadow-lg'
+                  : digit
+                  ? 'border-lime-400'
+                  : 'border-gray-300'}
+              `}
+              onClick={() => inputRefs.current[index]?.focus()}
+            >
               <input
                 type="text"
                 inputMode="numeric"
                 maxLength={1}
                 value={digit}
-                ref={(el) => void (inputRefs.current[index] = el)}
+                ref={el => { inputRefs.current[index] = el; }}
                 onChange={(e) => handleOtpChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                className="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer"
                 autoFocus={index === 0}
               />
               {digit ? (
@@ -145,8 +147,18 @@ function SuperAdminVerificationPageInner() {
         >
           {isLoading ? 'Đang gửi...' : 'Gửi'}
         </Button>
+
+        {/* Nút quay lại trang chủ */}
+        <div className="flex justify-center">
+  <div
+    onClick={() => router.push('/superadmin/login')}
+    className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-gray-700 hover:text-lime-600 cursor-pointer transition-colors"
+  >
+    <span className="text-base">←</span>
+    <span>Quay lại trang chủ</span>
+  </div>
+</div>
       </form>
     </AuthLayout>
   );
 }
-
