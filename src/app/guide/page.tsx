@@ -18,7 +18,7 @@ const GUIDE_CONTENT: Record<string, React.ReactNode> = {
       <h1 className="text-2xl md:text-3xl font-extrabold text-lime-600 mb-2">
         Hướng Dẫn Sử Dụng Hệ Thống Scorelens - Vai Trò CHỦ DOANH NGHIỆP
       </h1>
-
+ 
       {/* PHẦN 1 */}
       <section>
         <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Phần 1: Đăng Ký và Truy Cập Hệ Thống</h2>
