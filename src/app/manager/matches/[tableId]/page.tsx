@@ -6,6 +6,8 @@ import DashboardSummary from '@/components/manager/DashboardSummary';
 import TableAvailableView from '@/components/manager/TableAvailableView';
 import TableUsingView from '@/components/manager/TableUsingView';
 import toast from 'react-hot-toast';
+import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
+import React from 'react';
 
 // Giả lập danh sách bàn
 const mockTables = [
@@ -18,6 +20,11 @@ export default function TableDetailPage() {
   const params = useParams();
   const tableId = params?.tableId as string;
   const table = mockTables.find(t => t.id === tableId) || mockTables[0];
+  const [loading, setLoading] = useState(true);
+  React.useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1200);
+    return () => clearTimeout(timer);
+  }, []);
 
   const [tableStatus, setTableStatus] = useState<'available' | 'using'>(table.status as 'available' | 'using');
   const [teamA, setTeamA] = useState<string[]>(table.teamA);
@@ -25,34 +32,37 @@ export default function TableDetailPage() {
   const [isEditing, setIsEditing] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <SidebarManager />
-      <main className="flex-1 bg-white p-10 min-h-screen">
-        <div className="text-xl font-bold mb-4">Trang chủ</div>
-        <DashboardSummary totalTables={20} inUse={12} available={8} members={156} />
-        <div className="mt-6">
-          {tableStatus === 'available' || isEditing ? (
-            <TableAvailableView
-              table={{ id: table.id, name: table.name }}
-              onReady={(a, b) => {
-                setTeamA(a);
-                setTeamB(b);
-                setTableStatus('using');
-                setIsEditing(false);
-              }}
-              // Truyền dữ liệu hiện tại khi chỉnh sửa
-              {...(isEditing ? { teamA, teamB } : {})}
-            />
-          ) : (
-            <TableUsingView
-              table={{ id: table.id, name: table.name, teamA, teamB, time: table.time }}
-              onBack={() => setTableStatus('available')}
-              onEndMatch={() => toast.success('Kết thúc trận đấu thành công!')}
-              onEdit={() => setIsEditing(true)}
-            />
-          )}
-        </div>
-      </main>
-    </div>
+    <>
+      {loading && <ScoreLensLoading text="Đang tải..." />}
+      <div className="flex min-h-screen bg-gray-50">
+        <SidebarManager />
+        <main className="flex-1 bg-white p-10 min-h-screen">
+          <div className="text-xl font-bold mb-4">Trang chủ</div>
+          <DashboardSummary totalTables={20} inUse={12} available={8} members={156} />
+          <div className="mt-6">
+            {tableStatus === 'available' || isEditing ? (
+              <TableAvailableView
+                table={{ id: table.id, name: table.name }}
+                onReady={(a, b) => {
+                  setTeamA(a);
+                  setTeamB(b);
+                  setTableStatus('using');
+                  setIsEditing(false);
+                }}
+                // Truyền dữ liệu hiện tại khi chỉnh sửa
+                {...(isEditing ? { teamA, teamB } : {})}
+              />
+            ) : (
+              <TableUsingView
+                table={{ id: table.id, name: table.name, teamA, teamB, time: table.time }}
+                onBack={() => setTableStatus('available')}
+                onEndMatch={() => toast.success('Kết thúc trận đấu thành công!')}
+                onEdit={() => setIsEditing(true)}
+              />
+            )}
+          </div>
+        </main>
+      </div>
+    </>
   );
 } 

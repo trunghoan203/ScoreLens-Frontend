@@ -6,6 +6,7 @@ import CameraSearchBar from "@/components/manager/CameraSearchBar";
 import CameraGrid from "@/components/manager/CameraGrid";
 import CameraPageBanner from "@/components/manager/CameraPageBanner";
 import { useRouter } from "next/navigation";
+import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 
 // Dữ liệu mẫu cho camera
 const camerasData = [
@@ -17,6 +18,11 @@ const camerasData = [
 
 export default function CameraPage() {
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  React.useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1200);
+    return () => clearTimeout(timer);
+  }, []);
   const router = useRouter();
   const filteredCameras = camerasData.filter(c => c.table.toLowerCase().includes(search.toLowerCase()));
 
@@ -31,21 +37,24 @@ export default function CameraPage() {
   };
 
   return (
-    <div className="min-h-screen flex bg-[#18191A]">
-      <SidebarManager />
-      <main className="flex-1 bg-white p-10 min-h-screen">
-        <HeaderManager />
-        <CameraPageBanner />
-        <CameraSearchBar
-          search={search}
-          setSearch={setSearch}
-          onAddCamera={handleAddCamera}
-        />
-        <CameraGrid
-          cameras={filteredCameras}
-          onCameraClick={handleCameraClick}
-        />
-      </main>
-    </div>
+    <>
+      {loading && <ScoreLensLoading text="Đang tải..." />}
+      <div className="min-h-screen flex bg-[#18191A]">
+        <SidebarManager />
+        <main className="flex-1 bg-white p-10 min-h-screen">
+          <HeaderManager />
+          <CameraPageBanner />
+          <CameraSearchBar
+            search={search}
+            setSearch={setSearch}
+            onAddCamera={handleAddCamera}
+          />
+          <CameraGrid
+            cameras={filteredCameras}
+            onCameraClick={handleCameraClick}
+          />
+        </main>
+      </div>
+    </>
   );
 } 

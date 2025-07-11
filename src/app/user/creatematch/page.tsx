@@ -6,9 +6,16 @@ import { ScoreLensLogo } from '@/components/icons/LogoBlack';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
+import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
+import React from 'react';
 
 export default function SetupMatchPage() {
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  React.useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1200);
+    return () => clearTimeout(timer);
+  }, []);
 
   const [teamA, setTeamA] = useState(['']);
   const [teamB, setTeamB] = useState(['']);
@@ -78,35 +85,38 @@ export default function SetupMatchPage() {
   );
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-white to-gray-100 px-4">
-      <div className="w-full max-w-4xl space-y-8 text-center py-10">
-        {/* Logo */}
-        <div className="flex justify-center">
-          <div className="sm:w-28 sm:h-28">
-            <ScoreLensLogo />
+    <>
+      {loading && <ScoreLensLoading text="Đang tải..." />}
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-white to-gray-100 px-4">
+        <div className="w-full max-w-4xl space-y-8 text-center py-10">
+          {/* Logo */}
+          <div className="flex justify-center">
+            <div className="sm:w-28 sm:h-28">
+              <ScoreLensLogo />
+            </div>
           </div>
-        </div>
 
-        {/* Tiêu đề */}
-        <div className="space-y-1">
-          <h1 className="text-2xl sm:text-3xl font-bold text-black">Bàn {tableNumber} - Pool 8 Ball</h1>
-          <p className="text-base sm:text-lg text-black font-medium">TẠO ĐỘI CHƠI</p>
-        </div>
+          {/* Tiêu đề */}
+          <div className="space-y-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-black">Bàn {tableNumber} - Pool 8 Ball</h1>
+            <p className="text-base sm:text-lg text-black font-medium">TẠO ĐỘI CHƠI</p>
+          </div>
 
-        {/* Đội A và B */}
-        <div className="flex flex-col sm:flex-row justify-between items-stretch gap-4">
-          {renderTeam('Đội A', teamA, 'A')}
-          {renderTeam('Đội B', teamB, 'B')}
-        </div>
+          {/* Đội A và B */}
+          <div className="flex flex-col sm:flex-row justify-between items-stretch gap-4">
+            {renderTeam('Đội A', teamA, 'A')}
+            {renderTeam('Đội B', teamB, 'B')}
+          </div>
 
-        {/* Nút bắt đầu */}
-        <Button
-          onClick={handleStart}
-          className="w-full bg-lime-400 hover:bg-lime-500 text-white font-semibold py-3 rounded-xl text-sm sm:text-base"
-        >
-          Bắt đầu
-        </Button>
+          {/* Nút bắt đầu */}
+          <Button
+            onClick={handleStart}
+            className="w-full bg-lime-400 hover:bg-lime-500 text-white font-semibold py-3 rounded-xl text-sm sm:text-base"
+          >
+            Bắt đầu
+          </Button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

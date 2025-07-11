@@ -6,6 +6,9 @@ import TableSearchBar from "@/components/manager/TableSearchBar";
 import TableGrid from "@/components/manager/TableGrid";
 import TablePageBanner from "@/components/manager/TablePageBanner";
 import { useRouter } from "next/navigation";
+import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 
 // Dữ liệu mẫu cho bàn
 const tablesData = [
@@ -15,12 +18,22 @@ const tablesData = [
 
 export default function TablesPage() {
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [tableLoading, setTableLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+  React.useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1200);
+    return () => clearTimeout(timer);
+  }, []);
   const router = useRouter();
   const filteredTables = tablesData.filter(t => t.name.toLowerCase().includes(search.toLowerCase()));
 
   const handleAddTable = () => {
-    // Logic thêm bàn mới
-    router.push('/manager/tables/add');
+    setActionLoading(true);
+    setTimeout(() => {
+      setActionLoading(false);
+      router.push('/manager/tables/add');
+    }, 1000);
   };
 
   const handleTableClick = (tableId: string) => {
@@ -29,21 +42,38 @@ export default function TablesPage() {
   };
 
   return (
-    <div className="min-h-screen flex bg-[#18191A]">
-      <SidebarManager />
-      <main className="flex-1 bg-white p-10 min-h-screen">
-        <HeaderManager />
-        <TablePageBanner />
-        <TableSearchBar
-          search={search}
-          setSearch={setSearch}
-          onAddTable={handleAddTable}
-        />
-        <TableGrid
-          tables={filteredTables}
-          onTableClick={handleTableClick}
-        />
-      </main>
-    </div>
+    <>
+      {loading && <ScoreLensLoading text="Đang tải..." />}
+      <div className="min-h-screen flex bg-[#18191A]">
+        <SidebarManager />
+        <main className="flex-1 bg-white p-10 min-h-screen">
+          <HeaderManager />
+          <TablePageBanner />
+          <TableSearchBar
+            search={search}
+            setSearch={setSearch}
+            onAddTable={handleAddTable}
+          />
+          {tableLoading ? (
+            <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>
+          ) : filteredTables.length === 0 ? (
+            <div className="py-8 text-center text-gray-400">
+              <LoadingSkeleton type="text" lines={2} />
+              <div>Không có dữ liệu</div>
+            </div>
+          ) : (
+            <TableGrid
+              tables={filteredTables}
+              onTableClick={handleTableClick}
+            />
+          )}
+          <div className="flex justify-end mt-6">
+            <button className="bg-lime-500 hover:bg-lime-600 text-white font-bold py-2 px-6 rounded-lg flex items-center gap-2" onClick={handleAddTable} disabled={actionLoading}>
+              {actionLoading ? <LoadingSpinner size="sm" /> : 'Thêm bàn'}
+            </button>
+          </div>
+        </main>
+      </div>
+    </>
   );
 } 

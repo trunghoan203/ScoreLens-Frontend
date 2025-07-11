@@ -6,6 +6,9 @@ import FeedbackSearchBar from "@/components/manager/FeedbackSearchBar";
 import FeedbackGrid from "@/components/manager/FeedbackGrid";
 import FeedbackPageBanner from "@/components/manager/FeedbackPageBanner";
 import { useRouter } from "next/navigation";
+import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 
 // Dữ liệu mẫu cho phản hồi
 const feedbacksData = [
@@ -43,6 +46,13 @@ const feedbacksData = [
 
 export default function FeedbacksPage() {
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [listLoading, setListLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+  React.useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1200);
+    return () => clearTimeout(timer);
+  }, []);
   const router = useRouter();
   const filteredFeedbacks = feedbacksData.filter(f => 
     f.branch.toLowerCase().includes(search.toLowerCase()) ||
@@ -55,21 +65,46 @@ export default function FeedbacksPage() {
     router.push(`/manager/feedbacks/${feedbackId}`);
   };
 
+  const handleAddFeedback = () => {
+    setActionLoading(true);
+    setTimeout(() => {
+      setActionLoading(false);
+      // router.push('/manager/feedbacks/add');
+    }, 1000);
+  };
+
   return (
-    <div className="min-h-screen flex bg-[#18191A]">
-      <SidebarManager />
-      <main className="flex-1 bg-white p-10 min-h-screen">
-        <HeaderManager />
-        <FeedbackPageBanner />
-        <FeedbackSearchBar
-          search={search}
-          setSearch={setSearch}
-        />
-        <FeedbackGrid
-          feedbacks={filteredFeedbacks}
-          onFeedbackClick={handleFeedbackClick}
-        />
-      </main>
-    </div>
+    <>
+      {loading && <ScoreLensLoading text="Đang tải..." />}
+      <div className="min-h-screen flex bg-[#18191A]">
+        <SidebarManager />
+        <main className="flex-1 bg-white p-10 min-h-screen">
+          <HeaderManager />
+          <FeedbackPageBanner />
+          <FeedbackSearchBar
+            search={search}
+            setSearch={setSearch}
+          />
+          {listLoading ? (
+            <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>
+          ) : filteredFeedbacks.length === 0 ? (
+            <div className="py-8 text-center text-gray-400">
+              <LoadingSkeleton type="text" lines={2} />
+              <div>Không có dữ liệu</div>
+            </div>
+          ) : (
+            <FeedbackGrid
+              feedbacks={filteredFeedbacks}
+              onFeedbackClick={handleFeedbackClick}
+            />
+          )}
+          <div className="flex justify-end mt-6">
+            <button className="bg-lime-500 hover:bg-lime-600 text-white font-bold py-2 px-6 rounded-lg flex items-center gap-2" onClick={handleAddFeedback} disabled={actionLoading}>
+              {actionLoading ? <LoadingSpinner size="sm" /> : 'Thêm phản hồi'}
+            </button>
+          </div>
+        </main>
+      </div>
+    </>
   );
 } 
