@@ -216,7 +216,7 @@ export default function ClubInfoPage() {
             confirmText="Lưu"
             cancelText="Hủy"
           >
-            <div className="text-center">Bạn có chắc chắn muốn lưu thông tin câu lạc bộ không?</div>
+            <div className="text-center text-black">Bạn có chắc chắn muốn lưu thông tin câu lạc bộ không?</div>
           </ConfirmPopup>
         </main>
       </div>

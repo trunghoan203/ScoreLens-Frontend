@@ -75,11 +75,11 @@ export default function BranchesPage() {
           isSearching={isSearching}
         />
         {/* 4. LoadingSpinner nhỏ khi thêm chi nhánh (demo) */}
-        {isAdding && (
+        {/* {isAdding && (
           <div className="flex justify-center py-4">
             <LoadingSpinner size="md" text="Đang thêm chi nhánh..." color="lime" />
           </div>
-        )}
+        )} */}
         {/* 2. TableSkeleton khi search */}
         {isSearching && (
           <div className="py-8">
