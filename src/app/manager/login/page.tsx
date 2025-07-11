@@ -30,7 +30,6 @@ export default function ManagerLoginPage() {
     setErrors({});
 
     try {
-      // Giả lập xử lý gửi email
       await new Promise((resolve) => setTimeout(resolve, 1000));
       toast.success('Email đã được gửi thành công!');
       window.location.href = `/manager/verification?clubCode=${encodeURIComponent(clubCode)}`;
