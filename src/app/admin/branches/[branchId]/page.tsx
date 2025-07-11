@@ -65,6 +65,7 @@ export default function BranchDetailPage() {
             e.preventDefault();
             if (isEditMode) {
               // Lưu dữ liệu
+              toast.success('Lưu chi nhánh thành công!');
               setIsEditMode(false);
             } else {
               setIsEditMode(true);
