@@ -8,12 +8,12 @@ export const ScoringSystemSection = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-12 items-center">
         <div className="rounded-lg overflow-hidden">
           <Image 
-            src="/images/bida.jpg" // Placeholder image
-            alt="People playing billiards" 
-            width={600} 
-            height={400} 
-            className="w-full h-auto object-cover"
-          />
+  src="/images/bida.jpg"
+  alt="People playing billiards" 
+  width={600} 
+  height={400} 
+  className="w-full h-auto object-cover filter brightness-75 transition duration-300"
+/>
         </div>
         <div>
           <h2 className="text-4xl font-bold mb-6">Hệ thống tính điểm Bida là gì?</h2>
