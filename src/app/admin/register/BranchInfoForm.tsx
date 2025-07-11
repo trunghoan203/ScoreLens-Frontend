@@ -4,13 +4,15 @@ import { Button } from '@/components/ui/button';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
+import axios from '@/lib/axios';
 
 interface BrandInfo {
-  image: File | null;
-  shopName: string;
-  fullName: string;
-  cccd: string;
-  phone: string;
+  brandId: string;
+  brandName: string;
+  numberPhone: string;
+  website?: string;
+  logo_url?: string;
+  citizenCode: string;
 }
 
 interface Branch {
@@ -38,6 +40,7 @@ export function BranchInfoForm({ onSuccess, brandInfo, onBack }: BranchInfoFormP
     { name: '', address: '', deviceCount: '', phone: '' },
   ]);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleBranchChange = (idx: number, field: keyof Branch, value: string) => {
     setBranches(prev => prev.map((b, i) => i === idx ? { ...b, [field]: value } : b));
@@ -56,10 +59,32 @@ export function BranchInfoForm({ onSuccess, brandInfo, onBack }: BranchInfoFormP
     setShowConfirm(true);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     setShowConfirm(false);
-    toast.success('Đã lưu thông tin chi nhánh thành công!');
-    onSuccess(branches);
+    setIsLoading(true);
+    
+    try {
+      // Chuyển đổi branches thành format API clubs
+      const clubsData = branches.map(branch => ({
+        clubName: branch.name,
+        address: branch.address,
+        phoneNumber: branch.phone,
+        tableNumber: parseInt(branch.deviceCount) || 0,
+        status: 'open' // Mặc định status open
+      }));
+
+      // Gọi API tạo clubs
+      await axios.post('/admin/clubs', clubsData);
+      
+      toast.success('Tạo câu lạc bộ thành công!');
+      onSuccess(branches);
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      const message = err.response?.data?.message || 'Tạo câu lạc bộ thất bại. Vui lòng thử lại.';
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -213,9 +238,9 @@ export function BranchInfoForm({ onSuccess, brandInfo, onBack }: BranchInfoFormP
               type="submit" 
               variant="lime" 
               fullWidth
-              disabled={!isFormValid}
+              disabled={!isFormValid || isLoading}
             >
-              Tiếp tục
+              {isLoading ? 'Đang tạo câu lạc bộ...' : 'Tiếp tục'}
             </Button>
           </div>
         </div>
@@ -226,6 +251,8 @@ export function BranchInfoForm({ onSuccess, brandInfo, onBack }: BranchInfoFormP
         onConfirm={handleConfirm}
         onCancel={handleCancel}
         title="Xác nhận thông tin đăng ký"
+        confirmText={isLoading ? 'Đang tạo...' : 'Xác nhận'}
+        cancelText="Hủy"
       >
         <div className="space-y-6 w-full">
           {/* Thông tin thương hiệu */}
@@ -234,10 +261,10 @@ export function BranchInfoForm({ onSuccess, brandInfo, onBack }: BranchInfoFormP
               <h3 className="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Thông tin thương hiệu</h3>
               <div className="flex flex-col md:flex-row items-center gap-6">
                 <div className="w-32 h-32 bg-gray-200 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden border">
-                  {brandInfo.image ? (
+                  {brandInfo.logo_url ? (
                     <Image
-                      src={URL.createObjectURL(brandInfo.image)}
-                      alt="Preview"
+                      src={brandInfo.logo_url}
+                      alt="Logo"
                       width={128}
                       height={128}
                       className="object-cover w-full h-full"
@@ -247,10 +274,10 @@ export function BranchInfoForm({ onSuccess, brandInfo, onBack }: BranchInfoFormP
                   )}
                 </div>
                 <div className="w-full space-y-2 text-sm">
-                  <InfoRow label="Tên Quán" value={brandInfo.shopName} />
-                  <InfoRow label="Họ và Tên" value={brandInfo.fullName} />
-                  <InfoRow label="CCCD" value={brandInfo.cccd} />
-                  <InfoRow label="Số Điện Thoại" value={brandInfo.phone || 'N/A'} />
+                  <InfoRow label="Tên thương hiệu" value={brandInfo.brandName} />
+                  <InfoRow label="Số điện thoại" value={brandInfo.numberPhone} />
+                  <InfoRow label="Website" value={brandInfo.website || 'N/A'} />
+                  <InfoRow label="CCCD" value={brandInfo.citizenCode} />
                 </div>
               </div>
             </div>

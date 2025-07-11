@@ -2,13 +2,16 @@ import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
+import axios from '@/lib/axios';
+import toast from 'react-hot-toast';
 
 interface BrandInfo {
-  image: File | null;
-  shopName: string;
-  fullName: string;
-  cccd: string;
-  phone: string;
+  brandId: string;
+  brandName: string;
+  numberPhone: string;
+  website?: string;
+  logo_url?: string;
+  citizenCode: string;
 }
 
 interface BrandInfoFormProps {
@@ -17,10 +20,11 @@ interface BrandInfoFormProps {
 
 export function BrandInfoForm({ onSuccess }: BrandInfoFormProps) {
   const [image, setImage] = useState<File | null>(null);
-  const [shopName, setShopName] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [cccd, setCccd] = useState('');
-  const [phone, setPhone] = useState('');
+  const [brandName, setBrandName] = useState('');
+  const [numberPhone, setNumberPhone] = useState('');
+  const [website, setWebsite] = useState('');
+  const [citizenCode, setCitizenCode] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -28,12 +32,49 @@ export function BrandInfoForm({ onSuccess }: BrandInfoFormProps) {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSuccess({ image, shopName, fullName, cccd, phone });
+    setIsLoading(true);
+    
+    try {
+      // Upload logo nếu có
+      let logo_url = '';
+      if (image) {
+        const formData = new FormData();
+        formData.append('logo', image);
+        logo_url = 'https://example.com/logo.png';
+      }
+
+      // Gọi API tạo brand
+      const response = await axios.post('/admin/brands', {
+        brandName,
+        numberPhone,
+        website: website || undefined,
+        logo_url: logo_url || undefined,
+        citizenCode,
+      });
+
+      const brandData = response.data as { brandId?: string; _id?: string };
+      toast.success('Tạo thương hiệu thành công!');
+      
+      onSuccess({
+        brandId: brandData.brandId || brandData._id || '',
+        brandName,
+        numberPhone,
+        website,
+        logo_url,
+        citizenCode,
+      });
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      const message = err.response?.data?.message || 'Tạo thương hiệu thất bại. Vui lòng thử lại.';
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const isFormValid = shopName && fullName && cccd;
+  const isFormValid = brandName && numberPhone && citizenCode;
 
   return (
     <form className="w-full max-w-2xl mx-auto flex flex-col gap-6 items-center px-0 pb-8" onSubmit={handleSubmit}>
@@ -41,12 +82,12 @@ export function BrandInfoForm({ onSuccess }: BrandInfoFormProps) {
       
       {/* Image upload */}
       <div className="flex flex-col items-center w-full">
-        <label className="block text-lg font-semibold mb-4 w-full text-center">Hình ảnh thương hiệu</label>
+        <label className="block text-lg font-semibold mb-4 w-full text-center">Logo thương hiệu</label>
         <div className="relative w-60 h-60 bg-gray-100 rounded-xl flex items-center justify-center mb-4 border border-gray-200 overflow-hidden">
           {image ? (
             <Image src={URL.createObjectURL(image)} alt="Preview" fill className="object-cover w-full h-full" />
           ) : (
-            <span className="text-gray-400">Chưa chọn hình</span>
+            <span className="text-gray-400">Chưa chọn logo</span>
           )}
           <input
             type="file"
@@ -65,38 +106,38 @@ export function BrandInfoForm({ onSuccess }: BrandInfoFormProps) {
       {/* Form fields */}
       <div className="w-full space-y-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Tên Quán <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">Tên thương hiệu <span className="text-red-500">*</span></label>
           <Input 
-            value={shopName} 
-            onChange={e => setShopName(e.target.value)} 
-            placeholder="Nhập Tên Giả Đấu..." 
+            value={brandName} 
+            onChange={e => setBrandName(e.target.value)} 
+            placeholder="Nhập tên thương hiệu..." 
             required 
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Họ và Tên <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">Số điện thoại <span className="text-red-500">*</span></label>
           <Input 
-            value={fullName} 
-            onChange={e => setFullName(e.target.value)} 
-            placeholder="Nhập Tên..." 
+            value={numberPhone} 
+            onChange={e => setNumberPhone(e.target.value)} 
+            placeholder="Nhập số điện thoại..." 
             required 
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">Website</label>
+          <Input 
+            value={website} 
+            onChange={e => setWebsite(e.target.value)} 
+            placeholder="https://example.com" 
           />
         </div>
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">CCCD <span className="text-red-500">*</span></label>
           <Input 
-            value={cccd} 
-            onChange={e => setCccd(e.target.value)} 
-            placeholder="Nhập CCCD ..." 
+            value={citizenCode} 
+            onChange={e => setCitizenCode(e.target.value)} 
+            placeholder="Nhập CCCD..." 
             required 
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Số Điện Thoại</label>
-          <Input 
-            value={phone} 
-            onChange={e => setPhone(e.target.value)} 
-            placeholder="Nhập SĐT ..." 
           />
         </div>
       </div>
@@ -105,9 +146,9 @@ export function BrandInfoForm({ onSuccess }: BrandInfoFormProps) {
         type="submit"
         variant="lime"
         fullWidth
-        disabled={!isFormValid}
+        disabled={!isFormValid || isLoading}
       >
-        Tiếp tục
+        {isLoading ? 'Đang tạo thương hiệu...' : 'Tiếp tục'}
       </Button>
     </form>
   );
