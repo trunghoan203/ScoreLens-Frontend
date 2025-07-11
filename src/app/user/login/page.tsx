@@ -22,7 +22,7 @@ export default function StartSessionPage() {
         <div className="sm:w-28 sm:h-28">
           <ScoreLensLogo />
         </div>
-
+ 
         {/* Title */}
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">
           Chào mừng bạn đến với ScoreLens
