@@ -28,7 +28,6 @@ export default function SuperAdminAccessPage() {
     setErrors({});
 
     try {
-      // Giả lập xử lý gửi email
       await new Promise((resolve) => setTimeout(resolve, 1000));
       toast.success('Email đã được gửi thành công!');
       window.location.href = `/superadmin/verification?email=${encodeURIComponent(email)}`;

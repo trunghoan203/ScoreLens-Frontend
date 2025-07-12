@@ -6,7 +6,7 @@ import { HeroSection } from '@/components/landing/HeroSection';
 import { Footer } from '@/components/landing/Footer';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { MemberIdForm } from '@/components/history/MemberIdForm';
-import { MatchHistorySection } from '@/components/history/MatchHistorySection';
+
 
 export default function HistoryPage() {
     const router = useRouter();
@@ -87,19 +87,11 @@ export default function HistoryPage() {
             <HeroSection />
             <div id="main-content" className="bg-white min-h-screen pt-24 flex flex-col items-center justify-start">
                 <div className="w-full max-w-3xl mx-auto mt-8">
-                    {!memberId ? (
-                        <MemberIdForm 
-                            memberId={memberId}
-                            setMemberId={setMemberId}
-                            onSubmit={handleSubmit}
-                        />
-                    ) : (
-                        <MatchHistorySection 
-                            search={search}
-                            setSearch={setSearch}
-                            matches={filteredMatches}
-                        />
-                    )}
+                    <MemberIdForm 
+                        memberId={memberId}
+                        setMemberId={setMemberId}
+                        onSubmit={handleSubmit}
+                    />
                 </div>
             </div>
             <Footer />
