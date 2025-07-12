@@ -7,7 +7,6 @@ import MemberGrid from "@/components/manager/MemberGrid";
 import MemberPageBanner from "@/components/manager/MemberPageBanner";
 import { useRouter } from "next/navigation";
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 
 // Dữ liệu mẫu cho hội viên
@@ -21,8 +20,6 @@ const membersData = [
 export default function MembersPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-  const [listLoading, setListLoading] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
   React.useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
@@ -31,11 +28,7 @@ export default function MembersPage() {
   const filteredMembers = membersData.filter(m => m.name.toLowerCase().includes(search.toLowerCase()));
 
   const handleAddMember = () => {
-    setActionLoading(true);
-    setTimeout(() => {
-      setActionLoading(false);
-      router.push('/manager/members/add');
-    }, 1000);
+    router.push('/manager/members/add');
   };
 
   const handleMemberClick = (memberId: string) => {
@@ -56,7 +49,7 @@ export default function MembersPage() {
             setSearch={setSearch}
             onAddMember={handleAddMember}
           />
-          {listLoading ? (
+          {loading ? (
             <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>
           ) : filteredMembers.length === 0 ? (
             <div className="py-8 text-center text-gray-400">

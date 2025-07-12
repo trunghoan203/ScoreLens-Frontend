@@ -7,7 +7,6 @@ import TableGrid from "@/components/manager/TableGrid";
 import TablePageBanner from "@/components/manager/TablePageBanner";
 import { useRouter } from "next/navigation";
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 
 // Dữ liệu mẫu cho bàn
@@ -19,8 +18,6 @@ const tablesData = [
 export default function TablesPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-  const [tableLoading, setTableLoading] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
   React.useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
@@ -29,11 +26,7 @@ export default function TablesPage() {
   const filteredTables = tablesData.filter(t => t.name.toLowerCase().includes(search.toLowerCase()));
 
   const handleAddTable = () => {
-    setActionLoading(true);
-    setTimeout(() => {
-      setActionLoading(false);
-      router.push('/manager/tables/add');
-    }, 1000);
+    router.push('/manager/tables/add');
   };
 
   const handleTableClick = (tableId: string) => {
@@ -54,7 +47,7 @@ export default function TablesPage() {
             setSearch={setSearch}
             onAddTable={handleAddTable}
           />
-          {tableLoading ? (
+          {loading ? (
             <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>
           ) : filteredTables.length === 0 ? (
             <div className="py-8 text-center text-gray-400">

@@ -29,7 +29,6 @@ export default function ManagerDashboardPage() {
   const [status, setStatus] = useState('');
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [tableLoading, setTableLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
   React.useEffect(() => {
@@ -71,7 +70,7 @@ export default function ManagerDashboardPage() {
                 status={status}
                 onStatusChange={setStatus}
               />
-              {tableLoading ? (
+              {loading ? (
                 <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>
               ) : filteredTables.length === 0 ? (
                 <div className="py-8 text-center text-gray-400">
