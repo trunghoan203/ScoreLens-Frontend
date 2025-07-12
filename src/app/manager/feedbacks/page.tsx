@@ -87,6 +87,11 @@ export default function FeedbacksPage() {
               onFeedbackClick={handleFeedbackClick}
             />
           )}
+          <div className="flex justify-end mt-6">
+            <button className="bg-lime-500 hover:bg-lime-600 text-white font-bold py-2 px-6 rounded-lg flex items-center gap-2" onClick={() => {}} disabled={false}>
+              {'Thêm phản hồi'}
+            </button>
+          </div>
         </main>
       </div>
     </>
