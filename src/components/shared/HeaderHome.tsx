@@ -12,13 +12,13 @@ export function HeaderHome() {
 
   return (
     <>
-      <header className="absolute top-0 left-0 right-0 z-20 bg-transparent text-white">
+      <header className="fixed top-0 left-0 right-0 z-30 bg-black/60 backdrop-blur-md text-white shadow-md">
         <div className="container mx-auto flex h-24 items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-10">
             <ScoreLensLogo />
             <div className="hidden md:flex items-center gap-8 text-lg">
               <Link href="/" className="hover:text-lime-400 transition-colors">Trang chủ</Link>
-              <Link href="#" className="hover:text-lime-400 transition-colors">Lịch sử đấu</Link>
+              <Link href="/history" className="hover:text-lime-400 transition-colors">Lịch sử đấu</Link>
               <Link href="/guide" className="hover:text-lime-400 transition-colors">Hướng dẫn</Link>
             </div>
           </div>

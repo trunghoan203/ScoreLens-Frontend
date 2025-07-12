@@ -103,7 +103,8 @@ const allAdmins: Admin[] = [
 ];
 
 export default function AdminDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams();
+  const id = typeof params?.id === 'string' ? params.id : '';
   const router = useRouter();
   const admin = allAdmins.find(a => a.id === id);
 
