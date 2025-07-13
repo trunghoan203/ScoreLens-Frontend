@@ -2,6 +2,8 @@ import StatusBadge from './StatusBadge';
 import { useRouter } from 'next/navigation';
 
 interface Branch {
+  _id?: string;
+  clubId?: string;
   name: string;
   address: string;
   status: 'open' | 'closed';
@@ -20,7 +22,7 @@ export default function BranchTable({ branches }: { branches: Branch[] }) {
         <div
           key={idx}
           className="grid grid-cols-12 items-center text-center bg-gray-200 rounded-lg cursor-pointer hover:bg-lime-50 transition"
-          onClick={() => router.push(`/admin/branches/${idx}`)}
+          onClick={() => router.push(`/admin/branches/${b.clubId || b._id || idx}`)}
         >
           <div className="col-span-3 py-4 font-semibold text-black">{b.name}</div>
           <div className="col-span-6 py-4 text-gray-700">{b.address}</div>
