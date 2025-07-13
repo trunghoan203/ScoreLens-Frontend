@@ -4,36 +4,143 @@ import HeaderAdminPage from '@/components/admin/HeaderAdminPage';
 import AddFormLayout from '@/components/shared/AddFormLayout';
 import { Input } from '@/components/ui/input';
 import { useRouter, useParams } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
+import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import toast from 'react-hot-toast';
-
-const mockBranches = [
-  {
-    name: 'WOW Billiard 1',
-    manager: 'Trần Minh Tuấn',
-    email: 'Tuannt@gmail.com',
-    address: '225 Ngô Mây, Phường Quang Trung, Thành Phố Quy Nhơn, Bình Định',
-    tables: 1,
-    cameras: 1,
-  },
-  // ... thêm các chi nhánh khác nếu cần
-];
+import clubsService, { ClubResponse } from '@/lib/clubsService';
 
 export default function BranchDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const branchId = Number(params?.branchId) || 0;
-  const branch = mockBranches[branchId] || mockBranches[0];
-
-  const [name, setName] = useState(branch.name);
-  const [manager, setManager] = useState(branch.manager);
-  const [email, setEmail] = useState(branch.email);
-  const [address, setAddress] = useState(branch.address);
-  const [tables, setTables] = useState(branch.tables);
-  const [cameras, setCameras] = useState(branch.cameras);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const clubId = params?.branchId as string;
+  
+  const [club, setClub] = useState<ClubResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Form data
+  const [name, setName] = useState('');
+  const [address, setAddress] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [tableNumber, setTableNumber] = useState(0);
+  const [status, setStatus] = useState<'open' | 'closed' | 'maintenance'>('open');
+
+  // Load club data
+  useEffect(() => {
+    const loadClub = async () => {
+      if (!clubId) {
+        toast.error('Club ID không hợp lệ');
+        router.push('/admin/branches');
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const clubData = await clubsService.getClubDetails(clubId);
+        setClub(clubData);
+        setName(clubData.clubName);
+        setAddress(clubData.address);
+        setPhoneNumber(clubData.phoneNumber);
+        setTableNumber(clubData.tableNumber);
+        setStatus(clubData.status);
+      } catch (error) {
+        console.error('Error loading club:', error);
+        toast.error('Không thể tải thông tin chi nhánh');
+        router.push('/admin/branches');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadClub();
+  }, [clubId, router]);
+
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (isEditMode) {
+      try {
+        setIsSaving(true);
+        await clubsService.updateClub(clubId, {
+          clubName: name,
+          address,
+          phoneNumber,
+          tableNumber,
+          status
+        });
+        toast.success('Cập nhật chi nhánh thành công!');
+        setIsEditMode(false);
+      } catch (error) {
+        console.error('Error updating club:', error);
+        toast.error('Cập nhật chi nhánh thất bại');
+      } finally {
+        setIsSaving(false);
+      }
+    } else {
+      setIsEditMode(true);
+    }
+  };
+
+  // Handle delete
+  const handleDelete = async () => {
+    try {
+      setIsDeleting(true);
+      await clubsService.deleteClub(clubId);
+      toast.success('Xóa chi nhánh thành công!');
+      router.push('/admin/branches');
+    } catch (error) {
+      console.error('Error deleting club:', error);
+      toast.error('Xóa chi nhánh thất bại');
+    } finally {
+      setIsDeleting(false);
+      setShowConfirm(false);
+    }
+  };
+
+  // Show loading
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex bg-[#18191A]">
+        <Sidebar />
+        <main className="flex-1 bg-white p-10 min-h-screen">
+          <HeaderAdminPage />
+          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
+            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+              CHI NHÁNH
+            </span>
+          </div>
+          <div className="py-8">
+            <ScoreLensLoading text="Đang tải thông tin chi nhánh..." />
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // Show error if no club found
+  if (!club) {
+    return (
+      <div className="min-h-screen flex bg-[#18191A]">
+        <Sidebar />
+        <main className="flex-1 bg-white p-10 min-h-screen">
+          <HeaderAdminPage />
+          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
+            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+              CHI NHÁNH
+            </span>
+          </div>
+          <div className="py-8 text-center">
+            <div className="text-gray-500">Không tìm thấy thông tin chi nhánh</div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex bg-[#18191A]">
@@ -49,64 +156,106 @@ export default function BranchDetailPage() {
           title={isEditMode ? "CHỈNH SỬA CHI NHÁNH" : "CHI TIẾT CHI NHÁNH"}
           onBack={() => router.push('/admin/branches')}
           backLabel="Quay lại"
-          submitLabel={isEditMode ? "Lưu" : "Chỉnh sửa"}
+          submitLabel={isEditMode ? (isSaving ? "Đang lưu..." : "Lưu") : "Chỉnh sửa"}
           extraActions={
             !isEditMode && (
               <button
                 type="button"
-                className="w-40 bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded-lg transition text-lg"
+                className="w-40 bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded-lg transition text-lg disabled:opacity-50"
                 onClick={() => setShowConfirm(true)}
+                disabled={isDeleting}
               >
-                Xóa
+                {isDeleting ? "Đang xóa..." : "Xóa"}
               </button>
             )
           }
-          onSubmit={e => {
-            e.preventDefault();
-            if (isEditMode) {
-              // Lưu dữ liệu
-              toast.success('Lưu chi nhánh thành công!');
-              setIsEditMode(false);
-            } else {
-              setIsEditMode(true);
-            }
-          }}
+          onSubmit={handleSubmit}
         >
           <ConfirmPopup
             open={showConfirm}
             title="Bạn có chắc chắn muốn xóa không?"
             onCancel={() => setShowConfirm(false)}
-            onConfirm={() => { setShowConfirm(false); toast.success('Đã xóa chi nhánh thành công!'); }}
-            confirmText="Xác nhận"
+            onConfirm={handleDelete}
+            confirmText={isDeleting ? "Đang xóa..." : "Xác nhận"}
             cancelText="Hủy"
           >
-            <></>
+            <div className="text-center text-black">
+              Bạn có chắc chắn muốn xóa chi nhánh &quot;{club.clubName}&quot; không?
+            </div>
           </ConfirmPopup>
+          
+          {/* Thông tin chỉ đọc */}
+          <div className="w-full mb-6">
+            <label className="block text-sm font-semibold mb-2 text-black">Club ID</label>
+            <Input 
+              value={club?.clubId || ''} 
+              disabled={true}
+              className="bg-gray-100"
+            />
+          </div>
+          
+          <div className="w-full mb-6">
+            <label className="block text-sm font-semibold mb-2 text-black">Brand ID</label>
+            <Input 
+              value={club?.brandId || ''} 
+              disabled={true}
+              className="bg-gray-100"
+            />
+          </div>
+          
           <div className="w-full mb-6">
             <label className="block text-sm font-semibold mb-2 text-black">Tên Chi Nhánh<span className="text-red-500">*</span></label>
-            <Input value={name} onChange={e => setName(e.target.value)} required />
+            <Input 
+              value={name} 
+              onChange={e => setName(e.target.value)} 
+              required 
+              disabled={!isEditMode}
+            />
           </div>
+          
           <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Tên Quản Lý<span className="text-red-500">*</span></label>
-            <Input value={manager} onChange={e => setManager(e.target.value)} required />
+            <label className="block text-sm font-semibold mb-2 text-black">Địa chỉ<span className="text-red-500">*</span></label>
+            <Input 
+              value={address} 
+              onChange={e => setAddress(e.target.value)} 
+              required 
+              disabled={!isEditMode}
+            />
           </div>
+          
           <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Email</label>
-            <Input value={email} onChange={e => setEmail(e.target.value)} required />
+            <label className="block text-sm font-semibold mb-2 text-black">Số điện thoại<span className="text-red-500">*</span></label>
+            <Input 
+              value={phoneNumber} 
+              onChange={e => setPhoneNumber(e.target.value)} 
+              required 
+              disabled={!isEditMode}
+            />
           </div>
+          
           <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Địa chỉ</label>
-            <Input value={address} onChange={e => setAddress(e.target.value)} required />
+            <label className="block text-sm font-semibold mb-2 text-black">Số bàn<span className="text-red-500">*</span></label>
+            <Input 
+              type="number" 
+              value={tableNumber} 
+              onChange={e => setTableNumber(Number(e.target.value))} 
+              required 
+              disabled={!isEditMode}
+            />
           </div>
-          <div className="w-full mb-10 grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold mb-2 text-black">Số Bàn <span className="text-red-500">*</span></label>
-              <Input type="number" value={tables} onChange={e => setTables(Number(e.target.value))} required />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold mb-2 text-black">Số Lượng Camera <span className="text-red-500">*</span></label>
-              <Input type="number" value={cameras} onChange={e => setCameras(Number(e.target.value))} required />
-            </div>
+          
+          <div className="w-full mb-10">
+            <label className="block text-sm font-semibold mb-2 text-black">Trạng thái</label>
+            <select 
+              value={status} 
+              onChange={e => setStatus(e.target.value as 'open' | 'closed' | 'maintenance')}
+              disabled={!isEditMode}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-500 disabled:bg-gray-100"
+            >
+              <option value="open">Mở cửa</option>
+              <option value="closed">Đóng cửa</option>
+              <option value="maintenance">Bảo trì</option>
+            </select>
           </div>
         </AddFormLayout>
       </main>
