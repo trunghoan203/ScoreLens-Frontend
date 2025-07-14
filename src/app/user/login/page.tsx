@@ -1,41 +1,87 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ScoreLensLogo } from '@/components/icons/LogoBlack';
-import MemberIdForm from '@/components/auth/MemberIdForm';
 
 export default function StartSessionPage() {
   const [memberId, setMemberId] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [tableNumber, setTableNumber] = useState('');
   const router = useRouter();
-  const tableNumber = '06';
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const table = searchParams.get('table');
+    if (table) setTableNumber(table);
+  }, [searchParams]);
+
+  const handleJoin = () => {
+    router.push(`/user/guestlogin?table=${tableNumber}`);
+  };
 
   const handleCreateMatch = () => {
-    console.log('Creating match with Member ID:', memberId);
-    router.push('/user/creatematch');
+    router.push(`/user/hostlogin?table=${tableNumber}`);
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl flex flex-col items-center text-center space-y-6 py-10">
-        {/* Logo */}
-        <div className="sm:w-28 sm:h-28">
+      <div className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl flex flex-col items-center text-center space-y-6 py-10">
+        {/* Logo lớn hơn */}
+        <div className="w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40">
           <ScoreLensLogo />
         </div>
 
         {/* Title */}
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
           Chào mừng bạn đến với ScoreLens
         </h1>
-        <p className="text-lg sm:text-xl text-gray-600">Bàn {tableNumber}</p>
+        <p className="text-base sm:text-lg md:text-xl text-gray-600">
+          Bàn {tableNumber || '...'}
+        </p>
 
         {/* Form */}
-        <div className="w-full px-2 sm:px-0">
-          <MemberIdForm
-            memberId={memberId}
-            onMemberIdChange={setMemberId}
-            onSubmit={handleCreateMatch}
+        <div className="w-full flex flex-col space-y-4 text-left">
+          {/* Full name */}
+          <label className="text-sm font-semibold text-gray-700">Họ và Tên</label>
+          <input
+            type="text"
+            placeholder="Nhập họ và tên ..."
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            className="border border-gray-300 rounded-md px-4 py-2 text-base w-full text-black font-medium placeholder-black/70"
           />
+
+          {/* Member ID */}
+          <label className="text-sm font-semibold text-gray-700">Mã Hội Viên (Nếu Có)</label>
+          <input
+            type="text"
+            placeholder="Nhập mã hội viên ..."
+            value={memberId}
+            onChange={(e) => setMemberId(e.target.value)}
+            className="border border-gray-300 rounded-md px-4 py-2 text-base w-full text-black font-medium placeholder-black/70"
+          />
+
+          {/* Warning */}
+          <p className="text-sm text-red-500 font-medium">
+            * Nếu chưa có mã Hội viên, hãy liên hệ với nhân viên để đăng ký!
+          </p>
+        </div>
+
+        {/* Buttons */}
+        <div className="w-full flex flex-col sm:flex-row gap-4 pt-4">
+          <button
+            onClick={handleJoin}
+            className="w-full bg-lime-500 text-white font-semibold py-2 rounded-md hover:bg-lime-600"
+          >
+            Tham gia
+          </button>
+          <button
+            onClick={handleCreateMatch}
+            className="w-full bg-lime-500 text-white font-semibold py-2 rounded-md hover:bg-lime-600"
+          >
+            Tạo trận đấu
+          </button>
         </div>
       </div>
     </div>

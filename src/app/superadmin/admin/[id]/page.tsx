@@ -10,7 +10,8 @@ import { toast } from 'sonner';
 import { getAdminDetail, approveAdmin, rejectAdmin } from '@/lib/superAdminService';
 
 export default function AdminDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams();
+  const id = typeof params?.id === 'string' ? params.id : '';
   const router = useRouter();
   const [admin, setAdmin] = useState<any>(null);
   const [loading, setLoading] = useState(true);
