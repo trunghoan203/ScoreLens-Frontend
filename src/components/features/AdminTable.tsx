@@ -14,17 +14,6 @@ interface Admin {
   status: AdminStatus;
 }
 
-const allAdmins: Admin[] = [
-  { id: '1', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Đã duyệt' },
-  { id: '2', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Chưa duyệt' },
-  { id: '3', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Đã duyệt' },
-  { id: '4', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Bị từ chối' },
-  { id: '5', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Đã duyệt' },
-  { id: '6', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Đã duyệt' },
-  { id: '7', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Bị từ chối' },
-  { id: '8', name: 'Võ Nguyễn Kim Ngân', email: 'nv20181@gmail.com', location: 'Quy Nhơn', status: 'Chưa duyệt' },
-];
-
 const statusVariantMap: Record<AdminStatus, 'success' | 'danger' | 'default'> = {
   'Đã duyệt': 'success',
   'Chưa duyệt': 'default',
@@ -32,15 +21,16 @@ const statusVariantMap: Record<AdminStatus, 'success' | 'danger' | 'default'> = 
 };
 
 interface AdminTableProps {
+  admins: Admin[];
   searchTerm: string;
   statusFilter: string;
   onRowClick: (adminId: string) => void;
 }
 
-export function AdminTable({ searchTerm, statusFilter, onRowClick }: AdminTableProps) {
+export function AdminTable({ admins, searchTerm, statusFilter, onRowClick }: AdminTableProps) {
   const [visibleCount, setVisibleCount] = React.useState(5);
 
-  const filteredAdmins = allAdmins.filter((admin) => {
+  const filteredAdmins = admins.filter((admin) => {
     const matchesSearch =
       admin.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       admin.email.toLowerCase().includes(searchTerm.toLowerCase());
