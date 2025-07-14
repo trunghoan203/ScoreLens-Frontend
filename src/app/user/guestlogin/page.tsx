@@ -39,9 +39,12 @@ export default function GuestLoginPage() {
 
   const handleChange = (index: number, value: string) => {
     const digit = value.replace(/\D/g, '');
+    if (digit === '0') return; // ❌ Không cho nhập số 0
+
     const newCode = [...roomCode];
     newCode[index] = digit;
     setRoomCode(newCode);
+
     if (digit && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
