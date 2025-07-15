@@ -4,7 +4,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
 import { Button } from '@/components/ui/button';
-import { managerService } from '@/lib/managerService';
 import toast from 'react-hot-toast';
 import axios from '@/lib/axios';
 

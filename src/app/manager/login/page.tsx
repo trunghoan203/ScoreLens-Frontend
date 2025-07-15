@@ -2,21 +2,21 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { PasswordInput } from '@/components/ui/PasswordInput';
+import { Input } from '@/components/ui/input';
 import { AuthLayout } from '@/components/shared/AuthLayout';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { managerService } from '@/lib/managerService';
 
 export default function ManagerLoginPage() {
-  const [citizenCode, setcitizenCode] = useState('');
-  const [errors, setErrors] = useState<{ citizenCode?: string; general?: string }>({});
+  const [email, setemail] = useState('');
+  const [errors, setErrors] = useState<{ email?: string; general?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
-    if (!citizenCode) {
-      newErrors.citizenCode = 'Mã quản lý là bắt buộc';
+    if (!email) {
+      newErrors.email = 'Mã quản lý là bắt buộc';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -30,11 +30,12 @@ export default function ManagerLoginPage() {
     setErrors({});
 
     try {
-      await managerService.login(citizenCode);
+      await managerService.login(email);
+      window.location.href = `/manager/verification?email=${encodeURIComponent(email)}`;
       toast.success('Mã xác thực đã được gửi!');
-      window.location.href = `/manager/verification?citizenCode=${encodeURIComponent(citizenCode)}`;
-    } catch (error: any) {
-      toast.error(error.message || 'Đã xảy ra lỗi. Vui lòng thử lại.');
+    } catch (error) {
+      const err = error as { message?: string };
+      toast.error(err.message || 'Đã xảy ra lỗi. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);
     }
@@ -43,29 +44,29 @@ export default function ManagerLoginPage() {
   return (
     <AuthLayout
       title="Đăng nhập Quản lý"
-      description="Vui lòng nhập mã quản lý để tiếp tục"
+      description="Vui lòng nhập email để tiếp tục"
     >
 
 
       <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6 overflow-hidden">
         <div>
-          <label htmlFor="citizenCode" className="block text-sm font-semibold text-gray-700 mb-2">
-            Mã quản lý
+          <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+            Email
           </label>
-          <PasswordInput
-            id="citizenCode"
-            name="citizenCode"
-            value={citizenCode}
-            onChange={(e) => setcitizenCode(e.target.value)}
+          <Input
+            id="email"
+            name="email"
+            value={email}
+            onChange={(e) => setemail(e.target.value)}
             className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${
-              errors.citizenCode ? 'border-red-500' : 'border-gray-300'
+              errors.email ? 'border-red-500' : 'border-gray-300'
             }`}
-            placeholder="Nhập mã quản lý"
+            placeholder="Nhập email của bạn"
             required
             disabled={isLoading}
           />
-          {errors.citizenCode && (
-            <p className="text-red-500 text-sm mt-1">{errors.citizenCode}</p>
+          {errors.email && (
+            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
           )}
         </div>
 
