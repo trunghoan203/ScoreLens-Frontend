@@ -2,20 +2,21 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { PasswordInput } from '@/components/ui/PasswordInput';
+import { Input } from '@/components/ui/input';
 import { AuthLayout } from '@/components/shared/AuthLayout';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+import { managerService } from '@/lib/managerService';
 
 export default function ManagerLoginPage() {
-  const [clubCode, setClubCode] = useState('');
-  const [errors, setErrors] = useState<{ clubCode?: string; general?: string }>({});
+  const [email, setemail] = useState('');
+  const [errors, setErrors] = useState<{ email?: string; general?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
-    if (!clubCode) {
-      newErrors.clubCode = 'Mã quản lý là bắt buộc';
+    if (!email) {
+      newErrors.email = 'Mã quản lý là bắt buộc';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -23,30 +24,18 @@ export default function ManagerLoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) return;
 
     setIsLoading(true);
     setErrors({});
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success('Email đã được gửi thành công!');
-      window.location.href = `/manager/verification?clubCode=${encodeURIComponent(clubCode)}`;
-    } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      const message = err.response?.data?.message;
-      if (message) {
-        // Xử lý trường hợp tài khoản chưa xác minh
-        if (message.includes('not verified') || message.includes('verification')) {
-          toast.error('Tài khoản chưa được xác minh. Vui lòng kiểm tra email để lấy mã xác thực.');
-        } else {
-          toast.error(message);
-        }
-      } else {
-        const errorMessage = 'Đã xảy ra lỗi. Vui lòng thử lại.';
-        toast.error(errorMessage);
-      }
+      await managerService.login(email);
+      window.location.href = `/manager/verification?email=${encodeURIComponent(email)}`;
+      toast.success('Mã xác thực đã được gửi!');
+    } catch (error) {
+      const err = error as { message?: string };
+      toast.error(err.message || 'Đã xảy ra lỗi. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);
     }
@@ -55,29 +44,29 @@ export default function ManagerLoginPage() {
   return (
     <AuthLayout
       title="Đăng nhập Quản lý"
-      description="Vui lòng nhập mã quản lý để tiếp tục"
+      description="Vui lòng nhập email để tiếp tục"
     >
 
 
       <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6 overflow-hidden">
         <div>
-          <label htmlFor="clubCode" className="block text-sm font-semibold text-gray-700 mb-2">
-            Mã quản lý
+          <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+            Email
           </label>
-          <PasswordInput
-            id="clubCode"
-            name="clubCode"
-            value={clubCode}
-            onChange={(e) => setClubCode(e.target.value)}
+          <Input
+            id="email"
+            name="email"
+            value={email}
+            onChange={(e) => setemail(e.target.value)}
             className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${
-              errors.clubCode ? 'border-red-500' : 'border-gray-300'
+              errors.email ? 'border-red-500' : 'border-gray-300'
             }`}
-            placeholder="Nhập mã quản lý"
+            placeholder="Nhập email của bạn"
             required
             disabled={isLoading}
           />
-          {errors.clubCode && (
-            <p className="text-red-500 text-sm mt-1">{errors.clubCode}</p>
+          {errors.email && (
+            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
           )}
         </div>
 
