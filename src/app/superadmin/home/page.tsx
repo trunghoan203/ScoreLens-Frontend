@@ -13,14 +13,14 @@ import toast from 'react-hot-toast';
 
 export default function AdminsPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'duyet' | 'phanhoi'>('duyet');
+  const [activeTab, setActiveTab] = useState<'approval' | 'feedback'>('approval');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [admins, setAdmins] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (activeTab === 'duyet') {
+    if (activeTab === 'approval') {
       setLoading(true);
       getAdminList({
         search: searchTerm,
@@ -82,7 +82,7 @@ export default function AdminsPage() {
     router.push(`/superadmin/admin/${adminId}`);
   };
 
-  const handleTabChange = (tab: 'duyet' | 'phanhoi') => {
+  const handleTabChange = (tab: 'approval' | 'feedback') => {
     setActiveTab(tab);
     const params = new URLSearchParams(window.location.search);
     params.set('tab', tab);
@@ -92,16 +92,44 @@ export default function AdminsPage() {
   return (
     <>
       <HeaderAdmin />
-      <PageBanner title={activeTab === 'duyet' ? 'DANH SÁCH ADMIN' : 'DANH SÁCH PHẢN HỒI'} />
+      <PageBanner title={activeTab === 'approval' ? 'DANH SÁCH ADMIN' : 'DANH SÁCH PHẢN HỒI'} />
       <div className="bg-[#EEEDED] w-full px-4 md:px-8 py-8">
         <div className="max-w-6xl mx-auto space-y-6 md:space-y-8">
+          {/* Toggle Tabs */}
           <div className="flex justify-center">
-            {/* ...tab code giữ nguyên... */}
+            <div className="relative flex w-[280px] h-[42px] shadow-md rounded overflow-hidden">
+              <motion.div
+                layout
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                className="absolute w-1/2 h-full bg-[#8ADB10]"
+                style={{
+                  left: activeTab === 'approval' ? '0%' : '50%',
+                  borderTopLeftRadius: activeTab === 'approval' ? '0.375rem' : '0',
+                  borderBottomLeftRadius: activeTab === 'approval' ? '0.375rem' : '0',
+                  borderTopRightRadius: activeTab === 'feedback' ? '0.375rem' : '0',
+                  borderBottomRightRadius: activeTab === 'feedback' ? '0.375rem' : '0',
+                }}
+              />
+              <button
+                onClick={() => handleTabChange('approval')}
+                className={`relative z-10 w-1/2 h-full flex items-center justify-center font-semibold transition-colors duration-300 ${activeTab === 'approval' ? 'text-white' : 'text-white bg-black'
+                  } rounded-l`}
+              >
+                Đơn duyệt
+              </button>
+              <button
+                onClick={() => handleTabChange('feedback')}
+                className={`relative z-10 w-1/2 h-full flex items-center justify-center font-semibold transition-colors duration-300 ${activeTab === 'feedback' ? 'text-white' : 'text-white bg-black'
+                  } rounded-r`}
+              >
+                Phản hồi
+              </button>
+            </div>
           </div>
           <AnimatePresence mode="wait">
-            {activeTab === 'duyet' ? (
+            {activeTab === 'approval' ? (
               <motion.div
-                key="duyet"
+                key="approval"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
@@ -127,7 +155,7 @@ export default function AdminsPage() {
               </motion.div>
             ) : (
               <motion.div
-                key="phanhoi"
+                key="feedback"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}

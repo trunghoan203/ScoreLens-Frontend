@@ -41,14 +41,14 @@ export default function FeedbackDetailPage() {
         needSupport,
       });
       toast.success('Cập nhật thành công');
-      router.push('/superadmin/home?tab=phanhoi');
+      router.push('/superadmin/home?tab=feedback');
     } catch {
       toast.error('Cập nhật thất bại');
     }
   };
 
   const handleCancel = () => {
-    router.push('/superadmin/home?tab=phanhoi');
+    router.push('/superadmin/home?tab=feedback');
   };
 
   if (loading) return <div className="p-4 text-center">Đang tải...</div>;

@@ -33,7 +33,7 @@ export default function AdminDetailPage() {
     try {
       await approveAdmin(id as string);
       toast.success('Admin đã được duyệt.');
-      router.push('/superadmin/home?tab=duyet');
+      router.push('/superadmin/home?tab=approval');
     } catch {
       toast.error('Duyệt thất bại');
     }
@@ -43,7 +43,7 @@ export default function AdminDetailPage() {
     try {
       await rejectAdmin(id as string);
       toast.success('Admin đã bị từ chối.');
-      router.push('/superadmin/home?tab=duyet');
+      router.push('/superadmin/home?tab=approval');
     } catch {
       toast.error('Từ chối thất bại');
     }

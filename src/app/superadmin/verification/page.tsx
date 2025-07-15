@@ -83,7 +83,7 @@ function SuperAdminVerificationPageInner() {
         localStorage.setItem('adminAccessToken', data.accessToken);
       }
       toast.success('Xác thực thành công!');
-      router.push(`/superadmin/home?email=${encodeURIComponent(email)}&otp=${otpString}`);
+      router.push(`/superadmin/home`);
     } catch {
       toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
