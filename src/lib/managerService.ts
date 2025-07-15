@@ -1,18 +1,18 @@
 import axios from './axios';
 
 class ManagerService {
-  async login(citizenCode: string) {
+  async login(email: string) {
     try {
-      const res = await axios.post('/manager/login', { citizenCode });
+      const res = await axios.post('/manager/login', { email });
       return res.data;
     } catch (error) {
       throw this.handleError(error);
     }
   }
 
-  async verifyLogin(citizenCode: string, activationCode: string) {
+  async verifyLogin(email: string, activationCode: string) {
     try {
-      const res = await axios.post('/manager/login/verify', { citizenCode, activationCode });
+      const res = await axios.post('/manager/login/verify', { email, activationCode });
       return res.data;
     } catch (error) {
       throw this.handleError(error);
@@ -28,9 +28,9 @@ class ManagerService {
     }
   }
 
-  async resendLoginCode(citizenCode: string) {
+  async resendLoginCode(email: string) {
     try {
-      const res = await axios.post('/manager/resend-login-code', { citizenCode });
+      const res = await axios.post('/manager/resend-login-code', { email });
       return res.data;
     } catch (error) {
       throw this.handleError(error);
