@@ -3,17 +3,22 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ScoreLensLogo } from '@/components/icons/LogoBlack';
+import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 
 export default function HostLoginPage() {
   const [teamAPlayers, setTeamAPlayers] = useState(2);
   const [teamBPlayers, setTeamBPlayers] = useState(2);
   const [tableNumber, setTableNumber] = useState('');
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const searchParams = useSearchParams();
 
   useEffect(() => {
     const table = searchParams.get('table');
     if (table) setTableNumber(table);
+
+    const timer = setTimeout(() => setLoading(false), 1200);
+    return () => clearTimeout(timer);
   }, [searchParams]);
 
   const handleNext = () => {
@@ -36,12 +41,10 @@ export default function HostLoginPage() {
     value: number
   ) => (
     <div className="flex items-center justify-between w-full gap-2">
-      {/* Tên đội */}
       <div className="text-left w-1/2">
         <span className="font-bold text-xl text-black whitespace-nowrap">{teamName}</span>
       </div>
 
-      {/* Bộ chọn số lượng */}
       <div className="flex flex-col w-1/2 items-end">
         <label className="text-sm font-semibold text-black mb-1">
           Số Lượng Người Chơi
@@ -65,15 +68,17 @@ export default function HostLoginPage() {
     </div>
   );
 
+  if (loading) return <ScoreLensLoading text="Đang tải..." />;
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4">
       <div className="w-full max-w-md flex flex-col items-center text-center space-y-6 py-10">
         {/* Logo */}
-                  <div className="flex justify-center">
-                    <div className="sm:w-28 sm:h-28">
-                      <ScoreLensLogo />
-                    </div>
-                  </div>
+        <div className="flex justify-center">
+          <div className="sm:w-28 sm:h-28">
+            <ScoreLensLogo />
+          </div>
+        </div>
 
         {/* Title */}
         <h2 className="text-xl font-bold text-black">

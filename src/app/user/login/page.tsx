@@ -3,17 +3,22 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ScoreLensLogo } from '@/components/icons/LogoBlack';
+import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 
 export default function StartSessionPage() {
   const [memberId, setMemberId] = useState('');
   const [fullName, setFullName] = useState('');
   const [tableNumber, setTableNumber] = useState('');
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const searchParams = useSearchParams();
 
   useEffect(() => {
     const table = searchParams.get('table');
     if (table) setTableNumber(table);
+
+    const timer = setTimeout(() => setLoading(false), 1200);
+    return () => clearTimeout(timer);
   }, [searchParams]);
 
   const handleJoin = () => {
@@ -23,6 +28,10 @@ export default function StartSessionPage() {
   const handleCreateMatch = () => {
     router.push(`/user/hostlogin?table=${tableNumber}`);
   };
+
+  if (loading) {
+    return <ScoreLensLoading text="Đang tải..." />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4 sm:px-6 lg:px-8">
