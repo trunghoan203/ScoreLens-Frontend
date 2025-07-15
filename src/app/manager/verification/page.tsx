@@ -7,6 +7,7 @@ import { AuthLayout } from '@/components/shared/AuthLayout';
 import Link from 'next/link';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
+import { managerService } from '@/lib/managerService';
 
 export default function ManagerVerificationPage() {
   return (
@@ -19,7 +20,7 @@ export default function ManagerVerificationPage() {
 function ManagerVerificationPageInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const clubCode = searchParams?.get('clubCode') || '';
+  const citizenCode = searchParams?.get('citizenCode') || '';
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
@@ -85,14 +86,16 @@ function ManagerVerificationPageInner() {
       toast.error('Vui lòng nhập đầy đủ 6 chữ số');
       return;
     }
-
     setIsLoading(true);
     try {
-      await new Promise(res => setTimeout(res, 1000));
+      const data: any = await managerService.verifyLogin(citizenCode, otpString);
+      if (data && data.accessToken) {
+        localStorage.setItem('managerAccessToken', data.accessToken);
+      }
       toast.success('Xác thực thành công!');
-      router.push(`/manager/dashboard?clubCode=${encodeURIComponent(clubCode)}&otp=${otpString}`);
-    } catch {
-      toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
+      window.location.href = `/manager/dashboard`;
+    } catch (error: any) {
+      toast.error(error.message || 'Xác thực thất bại. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);
     }
@@ -102,12 +105,12 @@ function ManagerVerificationPageInner() {
     if (!canResend) return;
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await managerService.resendLoginCode(citizenCode);
+      toast.success('Mã xác thực đã được gửi lại!');
       setResendTimer(60);
       setCanResend(false);
-    } catch {
-      // Handle error
+    } catch (error: any) {
+      toast.error(error.message || 'Gửi lại mã thất bại.');
     } finally {
       setIsLoading(false);
     }
@@ -118,7 +121,7 @@ function ManagerVerificationPageInner() {
   return (
     <AuthLayout
       title="Xác minh mã quản lý"
-      description={`Chúng tôi đã gửi mã xác minh đến ${clubCode}`}
+      description={`Chúng tôi đã gửi mã xác minh đến ${citizenCode}`}
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
