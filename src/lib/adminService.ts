@@ -17,10 +17,7 @@ class AdminService {
   async getProfile(): Promise<AdminProfile> {
     try {
       const response = await axios.get('/admin/profile');
-      if (response.data && typeof response.data === 'object' && 'admin' in response.data) {
-        return (response.data as { admin: AdminProfile }).admin;
-      }
-      throw new Error('Dữ liệu trả về không hợp lệ');
+      return response.data as AdminProfile;
     } catch (error) {
       throw this.handleError(error);
     }

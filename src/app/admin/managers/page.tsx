@@ -8,66 +8,26 @@ import { useRouter } from "next/navigation";
 import ManagerSearchBar from "@/components/admin/ManagerSearchBar";
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { TableSkeleton, LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
-import managerService from '@/lib/managerService';
-import adminService from '@/lib/adminService';
-import toast from 'react-hot-toast';
 
-interface Manager {
-  name: string;
-  phone: string;
-  email: string;
-  status: 'active' | 'inactive';
-  managerId?: string;
-  _id?: string;
-}
+// Dữ liệu mẫu cho managers
+const managersData = [
+  { name: 'Võ Nguyễn Kim Ngân (người Hon iu chụt chụt)', phone: '0927323726', email: 'hagaoan@gmail.com', status: 'active' },
+  { name: 'Võ Nguyễn Kim Ngân (người Hon iu chụt chụt)', phone: '0927323726', email: 'hagaoan@gmail.com', status: 'active' },
+  { name: 'Võ Nguyễn Kim Ngân (người Hon iu chụt chụt)', phone: '0927323726', email: 'hagaoan@gmail.com', status: 'inactive' },
+  { name: 'Võ Nguyễn Kim Ngân (người Hon iu chụt chụt)', phone: '0927323726', email: 'hagaoan@gmail.com', status: 'active' },
+];
 
 export default function ManagersPage() {
   const [search, setSearch] = useState("");
   const router = useRouter();
-  const [managers, setManagers] = useState<Manager[]>([]);
+  const filteredManagers = managersData.filter(m => m.name.toLowerCase().includes(search.toLowerCase()));
   const [loading, setLoading] = useState(true);
   const [tableLoading, setTableLoading] = useState(false);
 
   React.useEffect(() => {
-    const fetchManagers = async () => {
-      setLoading(true);
-      try {
-        const profile = await adminService.getProfile();
-        let apiRes: unknown = null;
-        if (profile.brandId) {
-          apiRes = await managerService.getManagers(profile.brandId);
-        } else {
-          toast.error('Tài khoản admin của bạn không được liên kết với thương hiệu nào.');
-        }
-        const data = apiRes && typeof apiRes === 'object' && apiRes !== null && Array.isArray((apiRes as Record<string, unknown>).data)
-          ? (apiRes as Record<string, unknown>).data as unknown[]
-          : [];
-        const mapped: Manager[] = data.map((m) => {
-          const obj = m as Record<string, unknown>;
-          return {
-            name: typeof obj.fullName === 'string' ? obj.fullName : '',
-            phone: typeof obj.phoneNumber === 'string' ? obj.phoneNumber : '',
-            email: typeof obj.email === 'string' ? obj.email : '',
-            status: obj.isActive ? 'active' : 'inactive',
-            managerId: typeof obj.managerId === 'string' ? obj.managerId : undefined,
-            _id: typeof obj._id === 'string' ? obj._id : undefined,
-          };
-        });
-        setManagers(mapped);
-      } catch (error: unknown) {
-        const errMsg = (typeof error === 'object' && error && 'message' in error) ? (error as { message?: string }).message : undefined;
-        toast.error(errMsg || 'Không thể tải danh sách quản lý');
-        setManagers([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchManagers();
+    const timer = setTimeout(() => setLoading(false), 1200);
+    return () => clearTimeout(timer);
   }, []);
-
-  const filteredManagers = managers.filter((m) =>
-    m.name?.toLowerCase().includes(search.toLowerCase())
-  );
 
   const handleSearch = (val: string) => {
     setSearch(val);
@@ -98,7 +58,7 @@ export default function ManagersPage() {
           ) : filteredManagers.length === 0 ? (
             <div className="mt-6"><LoadingSkeleton type="card" lines={1} className="w-full max-w-md mx-auto" /></div>
           ) : (
-            <ManagerTable managers={filteredManagers} />
+            <ManagerTable managers={filteredManagers.map(m => ({ ...m, status: m.status as 'active' | 'inactive' }))} />
           )}
         </main>
       </div>

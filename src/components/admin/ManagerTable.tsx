@@ -6,7 +6,6 @@ interface Manager {
   phone: string;
   email: string;
   status: 'active' | 'inactive';
-  managerId?: string;
 }
 
 export default function ManagerTable({ managers }: { managers: Manager[] }) {
@@ -21,9 +20,9 @@ export default function ManagerTable({ managers }: { managers: Manager[] }) {
       </div>
       {managers.map((m, idx) => (
         <div
-          key={m.managerId || idx}
+          key={idx}
           className="grid grid-cols-12 items-center text-center bg-gray-200 rounded-lg cursor-pointer hover:bg-lime-50 transition"
-          onClick={() => router.push(`/admin/managers/${m.managerId}`)}
+          onClick={() => router.push(`/admin/managers/${idx}`)}
         >
           <div className="col-span-3 py-4 font-semibold text-black">{m.name}</div>
           <div className="col-span-3 py-4 text-gray-700">{m.phone}</div>
