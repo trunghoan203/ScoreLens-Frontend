@@ -5,52 +5,101 @@ import AddFormLayout from '@/components/shared/AddFormLayout';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { useRouter, useParams } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
 import toast from 'react-hot-toast';
+import { managerTableService } from '@/lib/managerTableService';
 
 const tableTypes = [
   { value: 'pool', label: 'Bida Pool' },
   { value: 'carom', label: 'Bida Carom' },
 ];
 
-const mockTables = [
-  {
-    id: '1',
-    name: '01',
-    type: 'pool',
-    status: 'using',
-    teamA: ['Nguyễn Văn A', 'Trần Thị B'],
-    teamB: ['Lê Văn C', 'Phạm Thị D'],
-    time: '01:23:45',
-  },
-  {
-    id: '2',
-    name: '02',
-    type: 'carom',
-    status: 'available',
-    teamA: [],
-    teamB: [],
-    time: '00:00:00',
-  },
-];
+interface Table {
+  _id: string;
+  tableId: string;
+  number: number;
+  category: string;
+  status: string;
+  [key: string]: unknown;
+}
 
 export default function TableDetailPage() {
   const router = useRouter();
   const params = useParams();
   const tableId = params?.tableId as string;
-  const table = mockTables.find(t => t.id === tableId) || mockTables[0];
 
-  const [name, setName] = useState(table.name);
-  const [type, setType] = useState(table.type);
-  const [status, setStatus] = useState(table.status);
+  const [loading, setLoading] = useState(true);
+  const [table, setTable] = useState<Table | null>(null);
+
+  const [name, setName] = useState('');
+  const [type, setType] = useState('');
+  const [status, setStatus] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
+  useEffect(() => {
+    setLoading(true);
+    managerTableService.getAllTables()
+      .then((data: unknown) => {
+        let tablesArr: unknown[] = [];
+        if (Array.isArray(data)) tablesArr = data;
+        else if (data && typeof data === 'object' && Array.isArray((data as { tables?: unknown[] }).tables)) tablesArr = (data as { tables: unknown[] }).tables;
+        else if (data && typeof data === 'object' && Array.isArray((data as { data?: unknown[] }).data)) tablesArr = (data as { data: unknown[] }).data;
+        const found = tablesArr.find((t) => {
+          const obj = t as Partial<Table>;
+          return obj.tableId === tableId || obj._id === tableId;
+        });
+        if (found) {
+          const tableObj = found as Table;
+          setTable(tableObj);
+          setName(String(tableObj.number));
+          setType(tableObj.category);
+          setStatus(tableObj.status);
+        } else {
+          // setError('Không tìm thấy bàn'); // Original line commented out
+        }
+      })
+      .catch(() => {
+        // setError('Không thể tải dữ liệu bàn'); // Original line commented out
+      })
+      .finally(() => setLoading(false));
+  }, [tableId]);
+
   const statusOptions = [
-    { value: 'available', label: 'Bàn trống' },
-    { value: 'using', label: 'Đang sử dụng' },
+    { value: 'empty', label: 'Trống' },
+    { value: 'inuse', label: 'Đang sử dụng' },
+    { value: 'maintenance', label: 'Bảo trì' },
   ];
+
+  const handleSave = async () => {
+    try {
+      await managerTableService.updateTable(tableId, { number: Number(name), category: type, status });
+      toast.success('Đã lưu bàn thành công!');
+      setIsEditMode(false);
+    } catch (error) {
+      console.error(error);
+      toast.error('Lưu bàn thất bại.');
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await managerTableService.deleteTable(tableId);
+      toast.success('Đã xóa bàn thành công!');
+      router.push('/manager/tables');
+    } catch (error) {
+      console.error(error);
+      toast.error('Xóa bàn thất bại.');
+    }
+  };
+
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen text-lg">Đang tải dữ liệu...</div>;
+  }
+  if (!table) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex bg-[#18191A]">
@@ -81,9 +130,7 @@ export default function TableDetailPage() {
           onSubmit={e => {
             e.preventDefault();
             if (isEditMode) {
-              // Lưu dữ liệu
-              toast.success('Đã lưu bàn thành công!');
-              setIsEditMode(false);
+              handleSave();
             } else {
               setIsEditMode(true);
             }
@@ -93,10 +140,9 @@ export default function TableDetailPage() {
             open={showConfirm}
             title="Bạn có chắc chắn muốn xóa bàn này không?"
             onCancel={() => setShowConfirm(false)}
-            onConfirm={() => { 
+            onConfirm={async () => { 
               setShowConfirm(false); 
-              toast.success('Đã xóa bàn thành công!');
-              router.push('/manager/tables');
+              await handleDelete();
             }}
             confirmText="Xác nhận"
             cancelText="Hủy"
