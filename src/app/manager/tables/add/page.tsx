@@ -10,7 +10,7 @@ import toast from 'react-hot-toast';
 import { managerTableService } from '@/lib/managerTableService';
 
 const tableTypes = [
-  { value: 'pool', label: 'Bida Pool' },
+  { value: 'pool-8', label: 'Bida Pool' },
   { value: 'carom', label: 'Bida Carom' },
 ];
 
