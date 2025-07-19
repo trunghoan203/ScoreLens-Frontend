@@ -1,20 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ScoreLensLogo } from '@/components/icons/LogoBlack';
 import { Button } from '@/components/ui/button';
 import PopupFeedback from '@/app/user/popup/popupFeedback';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
-import React from 'react';
+import { MessageCircleHeart } from 'lucide-react';
 
 export default function RatePage() {
   const router = useRouter();
   const [feedback, setFeedback] = useState('');
   const [showPopup, setShowPopup] = useState(false);
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
   }, []);
@@ -29,59 +29,61 @@ export default function RatePage() {
     router.push('/user/thanh-toan');
   };
 
+  if (loading) return <ScoreLensLoading text="Đang tải..." />;
+
   return (
-    <>
-      {loading && <ScoreLensLoading text="Đang tải..." />}
-      <div className="relative flex flex-col items-center justify-start min-h-screen pt-10 bg-gradient-to-b from-white to-gray-100 px-4">
-        {/* Nội dung bị mờ khi hiện popup */}
-        <div
-          className={`w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg text-center space-y-8 py-10 transition-all duration-300 ${
-            showPopup ? 'blur-sm backdrop-brightness-95' : ''
-          }`}
-        >
-          {/* Logo */}
-          <div className="flex justify-center">
-            <div className="sm:w-28 sm:h-28">
-              <ScoreLensLogo />
-            </div>
-          </div>
-
-          {/* Tiêu đề */}
-          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-black">ĐÁNH GIÁ</h1>
-
-          {/* Khung phản hồi */}
-          <div className="bg-lime-400 rounded-xl px-4 py-3 text-left space-y-2">
-            <p className="text-white font-semibold text-sm">PHẢN HỒI:</p>
-            <div className="bg-white rounded-xl p-2">
-              <textarea
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                rows={5}
-                className="w-full rounded-lg p-2 outline-none text-black text-sm resize-none bg-transparent"
-                placeholder="Nhập phản hồi của bạn..."
-              />
-            </div>
-          </div>
-
-          {/* Nút đánh giá */}
-          <div className="w-full">
-            <Button
-              onClick={handleSubmit}
-              className="w-full bg-lime-400 hover:bg-lime-500 text-white font-semibold py-3 rounded-xl text-sm sm:text-base"
-            >
-              Đánh giá
-            </Button>
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-100 px-4">
+      {/* Nội dung chính */}
+      <div
+        className={`flex-1 flex flex-col items-center text-center space-y-8 py-10 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto transition-all duration-300 ${
+          showPopup ? 'blur-sm backdrop-brightness-95' : ''
+        }`}
+      >
+        {/* Logo */}
+        <div className="flex justify-center">
+          <div className="sm:w-28 sm:h-28">
+            <ScoreLensLogo />
           </div>
         </div>
 
-        {/* Popup Feedback */}
-        {showPopup && (
-          <PopupFeedback
-            onClose={() => setShowPopup(false)}
-            onConfirm={handleConfirmPayment}
-          />
-        )}
+        {/* Tiêu đề */}
+        <h1 className="text-2xl sm:text-3xl font-bold text-black">ĐÁNH GIÁ</h1>
+
+        {/* Khung phản hồi */}
+        <div className="bg-lime-400 rounded-xl px-4 py-3 text-left space-y-2 w-full">
+          <p className="text-white font-semibold text-sm">PHẢN HỒI:</p>
+          <div className="bg-white rounded-xl p-2">
+            <textarea
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
+              rows={5}
+              className="w-full rounded-lg p-2 outline-none text-black text-sm resize-none bg-transparent"
+              placeholder="Nhập phản hồi của bạn..."
+            />
+          </div>
+        </div>
       </div>
-    </>
+
+      {/* Nút dưới cùng */}
+      <div className="w-full p-4 bg-white shadow-inner">
+        <div className="flex flex-row gap-4 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
+          <Button
+            onClick={handleSubmit}
+            className="w-full bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center gap-2"
+          >
+            <MessageCircleHeart size={18} />
+            Gửi đánh giá
+          </Button>
+        </div>
+      </div>
+
+      {/* Popup */}
+      {showPopup && (
+        <PopupFeedback
+          onClose={() => setShowPopup(false)}
+          onConfirm={handleConfirmPayment}
+        />
+      )}
+    </div>
   );
 }

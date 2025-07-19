@@ -15,10 +15,8 @@ export default function HomeRandomPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Loading delay
     const timer = setTimeout(() => setLoading(false), 1000);
 
-    // Tạo mã phòng 6 chữ số, không có số 0
     const digits = '123456789';
     let code = '';
     for (let i = 0; i < 6; i++) {
@@ -39,8 +37,8 @@ export default function HomeRandomPage() {
   if (loading) return <ScoreLensLoading text="Đang tạo mã phòng..." />;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-4">
-      <div className="w-full max-w-md flex flex-col items-center text-center space-y-6 py-10">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-100 px-4">
+      <div className="flex-1 flex flex-col items-center text-center space-y-8 py-10 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
         {/* Logo */}
         <div className="flex justify-center">
           <div className="sm:w-28 sm:h-28">
@@ -49,30 +47,37 @@ export default function HomeRandomPage() {
         </div>
 
         {/* Tiêu đề */}
-        <h2 className="text-2xl font-bold text-black">
-          Bàn {tableNumber} - Pool 8 Ball
-        </h2>
+        <div className="space-y-1">
+          <h2 className="text-2xl sm:text-3xl font-bold text-black">
+            Bàn {tableNumber} - Pool 8 Ball
+          </h2>
+          <p className="text-sm sm:text-base text-black font-medium">
+            Quét mã hoặc nhập mã bên dưới để tham gia
+          </p>
+        </div>
 
-        {/* Mã phòng */}
+        {/* Mã tham gia */}
         <div className="space-y-1">
           <p className="text-base font-medium text-black">Mã Tham Gia</p>
-          <div className="border border-black rounded-md px-4 py-2 text-lg font-bold text-black inline-block tracking-widest">
+          <div className="border border-black rounded-md px-4 py-2 text-lg font-bold text-black inline-block tracking-widest bg-white">
             {roomCode}
           </div>
         </div>
 
-        {/* Mã QR */}
+        {/* QR Code */}
         <div className="space-y-1">
           <p className="text-base font-medium text-black">Mã QR</p>
-          <div className="p-2 bg-white border rounded-md">
+          <div className="p-2 bg-white border rounded-md inline-block">
             <QRCodeCanvas value={qrJoinUrl} size={180} />
           </div>
         </div>
+      </div>
 
-        {/* Nút bắt đầu */}
+      {/* Nút bắt đầu ở dưới */}
+      <div className="w-full p-4 bg-white shadow-inner">
         <button
           onClick={handleStart}
-          className="w-full mt-6 bg-lime-500 text-white font-semibold py-2 rounded-md hover:bg-lime-600"
+          className="w-full bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-base sm:text-lg transition"
         >
           Bắt đầu
         </button>

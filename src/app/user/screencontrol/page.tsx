@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ScoreLensLogo } from '@/components/icons/LogoBlack';
 import { Button } from '@/components/ui/button';
 import PopupEditScore from '@/app/user/popup/popupEditScore';
 import PopupEndMatch from '@/app/user/popup/popupEndMatch';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
-import React from 'react';
+import { Pencil, Flag } from 'lucide-react';
 
 export default function ScoreboardPage() {
   const router = useRouter();
@@ -16,26 +16,36 @@ export default function ScoreboardPage() {
   const [scoreB, setScoreB] = useState(3);
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [showEndPopup, setShowEndPopup] = useState(false);
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
+  const [aiResults, setAiResults] = useState<string[]>([]);
+
+  // Ví dụ mẫu khi chưa có dữ liệu từ backend
+  const exampleResults = [
+    'Team A - Bi số 5 vào đúng lỗ giữa.',
+    'Team B - Lỗi, đánh bi trắng vào lỗ.',
+    'Không xác định được tình huống – vui lòng kiểm tra lại video.',
+  ];
+
+  useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
+
+    // TODO: Gọi API từ backend và gán kết quả thật vào setAiResults()
+    // fetch('/api/ai-results')
+    //   .then(res => res.json())
+    //   .then(data => setAiResults(data));
+
     return () => clearTimeout(timer);
   }, []);
 
-  const handleEditScore = () => {
-    setShowEditPopup(true);
-  };
-
-  const handleEndMatch = () => {
-    setShowEndPopup(true);
-  };
+  const handleEditScore = () => setShowEditPopup(true);
+  const handleEndMatch = () => setShowEndPopup(true);
 
   return (
     <>
       {loading && <ScoreLensLoading text="Đang tải..." />}
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-white to-gray-100 px-4">
-        <div className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl space-y-8 text-center py-10">
+      <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-100 px-4">
+        <div className="flex-1 flex flex-col items-center text-center space-y-8 py-10 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
           {/* Logo */}
           <div className="flex justify-center">
             <div className="sm:w-28 sm:h-28">
@@ -50,7 +60,7 @@ export default function ScoreboardPage() {
           </div>
 
           {/* Khung điểm số */}
-          <div className="bg-lime-400 text-white rounded-2xl px-6 py-6 space-y-2 shadow-md">
+          <div className="bg-lime-400 text-white rounded-2xl px-8 py-8 space-y-2 shadow-md w-full">
             <div className="flex items-center justify-between gap-4">
               <div className="text-center flex flex-col items-center w-20">
                 <p className="text-sm font-semibold">Team A</p>
@@ -68,25 +78,31 @@ export default function ScoreboardPage() {
           </div>
 
           {/* Kết quả AI */}
-          <div className="text-left">
-            <p className="text-sm font-semibold text-black mb-1">Kết Quả</p>
-            <div className="border border-gray-400 rounded-md p-3 text-sm text-black bg-white shadow-sm">
-              [AI]: The Sharks - Lỗi, Bi chủ rơi vào lỗ.
-            </div>
-          </div>
+<div className="text-left w-full space-y-2">
+  <p className="text-sm font-semibold text-black mb-1">Kết Quả</p>
+  <div className="border border-gray-300 rounded-md p-3 text-sm text-black bg-white shadow-sm space-y-1">
+    {(aiResults.length > 0 ? aiResults : exampleResults).map((item, index) => (
+      <p key={index}>[AI]: {item}</p>
+    ))}
+  </div>
+</div>
+        </div>
 
-          {/* Nút hành động */}
-          <div className="flex flex-col sm:flex-row gap-4">
+        {/* Nút hành động dưới cùng */}
+        <div className="w-full p-4 bg-white shadow-inner">
+          <div className="flex flex-row gap-4 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
             <Button
               onClick={handleEditScore}
-              className="w-full bg-red-400 hover:bg-red-500 text-white font-semibold py-3 rounded-xl text-sm sm:text-base"
+              className="w-1/2 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center gap-2"
             >
+              <Pencil size={18} />
               Sửa điểm
             </Button>
             <Button
               onClick={handleEndMatch}
-              className="w-full bg-lime-400 hover:bg-lime-500 text-white font-semibold py-3 rounded-xl text-sm sm:text-base"
+              className="w-1/2 bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center gap-2"
             >
+              <Flag size={18} />
               Kết thúc
             </Button>
           </div>
@@ -100,7 +116,6 @@ export default function ScoreboardPage() {
               setScoreA(newScoreA);
               setScoreB(newScoreB);
               setShowEditPopup(false);
-              // Có thể lưu ghi chú hoặc hiển thị dưới kết quả nếu cần
             }}
           />
         )}
