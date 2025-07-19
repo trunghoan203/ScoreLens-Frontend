@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 
 interface Props {
@@ -12,24 +12,66 @@ export default function PopupEditScore({ onClose, onSave }: Props) {
   const [scoreA, setScoreA] = useState(0);
   const [scoreB, setScoreB] = useState(0);
   const [note, setNote] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  // Giả lập gọi API để lấy điểm số hiện tại từ BE
+  useEffect(() => {
+    const fetchScores = async () => {
+      try {
+        // TODO: Replace bằng gọi API thật
+        const response = await fetch('/api/get-score'); // Ví dụ endpoint
+        const data = await response.json();
+        setScoreA(data.scoreA);
+        setScoreB(data.scoreB);
+        setNote(data.note || '');
+      } catch (error) {
+        console.error('Không thể lấy điểm số:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchScores();
+  }, []);
 
   const handleScoreChange = (team: 'A' | 'B', delta: number) => {
     if (team === 'A') setScoreA((prev) => Math.max(0, prev + delta));
     else setScoreB((prev) => Math.max(0, prev + delta));
   };
 
-  const handleSave = () => {
-    onSave(scoreA, scoreB, note);
-    onClose();
+  const handleSave = async () => {
+    try {
+      // TODO: Replace bằng gọi API thật
+      await fetch('/api/update-score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scoreA, scoreB, note }),
+      });
+
+      onSave(scoreA, scoreB, note); // Gọi callback cập nhật giao diện chính
+      onClose(); // Đóng popup
+    } catch (error) {
+      console.error('Lỗi khi lưu điểm:', error);
+      alert('Không thể lưu điểm. Vui lòng thử lại.');
+    }
   };
 
+  if (loading) {
+    return (
+      <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4">
+        <div className="bg-white rounded-2xl p-6 w-full max-w-md sm:max-w-lg shadow-lg">
+          <p className="text-center text-black text-sm">Đang tải điểm số...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-  <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4">
-    <div className="bg-white rounded-2xl p-6 w-full max-w-md sm:max-w-lg shadow-lg max-h-[90vh] overflow-y-auto">
-        {/* Tiêu đề */}
-      <h2 className="text-xl sm:text-2xl font-bold text-center text-black mb-6">
-        Sửa điểm trận đấu
-      </h2>
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4">
+      <div className="bg-white rounded-2xl p-6 w-full max-w-md sm:max-w-lg shadow-lg max-h-[90vh] overflow-y-auto">
+        <h2 className="text-xl sm:text-2xl font-bold text-center text-black mb-6">
+          Sửa điểm trận đấu
+        </h2>
 
         {/* Hiển thị điểm */}
         <div className="flex justify-between items-center mb-5">

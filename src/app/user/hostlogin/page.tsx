@@ -71,8 +71,8 @@ export default function HostLoginPage() {
   if (loading) return <ScoreLensLoading text="Đang tải..." />;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-4">
-      <div className="w-full max-w-md flex flex-col items-center text-center space-y-6 py-10">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-100 px-4">
+      <div className="flex-1 flex flex-col items-center text-center space-y-8 py-10 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
         {/* Logo */}
         <div className="flex justify-center">
           <div className="sm:w-28 sm:h-28">
@@ -80,22 +80,26 @@ export default function HostLoginPage() {
           </div>
         </div>
 
-        {/* Title */}
-        <h2 className="text-xl font-bold text-black">
-          Bàn {tableNumber} - Pool 8 Ball
-        </h2>
-        <p className="text-sm text-black font-semibold">TẠO ĐỘI CHƠI</p>
+        {/* Tiêu đề */}
+        <div className="space-y-1">
+          <h2 className="text-2xl sm:text-3xl font-bold text-black">
+            Bàn {tableNumber || '...'} - Pool 8 Ball
+          </h2>
+          <p className="text-sm sm:text-base text-black font-medium">TẠO ĐỘI CHƠI</p>
+        </div>
 
-        {/* Team setup */}
-        <div className="space-y-6 w-full text-left">
+        {/* Cài đặt đội */}
+        <div className="space-y-6 w-full">
           {renderTeamRow('Đội A', 'A', teamAPlayers)}
           {renderTeamRow('Đội B', 'B', teamBPlayers)}
         </div>
+      </div>
 
-        {/* Button */}
+      {/* Nút tiếp tục dưới cùng */}
+      <div className="w-full p-4 bg-white shadow-inner">
         <button
           onClick={handleNext}
-          className="w-full mt-6 bg-lime-500 text-white font-semibold py-2 rounded-md hover:bg-lime-600"
+          className="w-full bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-base sm:text-lg transition"
         >
           Tiếp tục
         </button>
