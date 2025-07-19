@@ -24,54 +24,59 @@ export default function GuestJoinPage() {
   }, [searchParams]);
 
   const handleSubmit = () => {
-    console.log(`Joining room ${roomCode} as ${fullName}`);
+    if (!fullName.trim()) {
+      alert('Vui lòng nhập họ và tên.');
+      return;
+    }
     router.push(`/user/screencontrol?table=${tableNumber}&room=${roomCode}&name=${encodeURIComponent(fullName)}`);
   };
 
   if (loading) return <ScoreLensLoading text="Đang tải..." />;
 
   return (
-  <div className="min-h-screen flex flex-col bg-white px-4 pt-6 pb-safe">
-    {/* Phần nội dung chính */}
-    <div className="flex-1 flex flex-col justify-center items-center text-center space-y-6 px-2 sm:px-4">
-      {/* Logo */}
-      <div className="flex justify-center">
-        <div className="w-24 h-24 sm:w-28 sm:h-28">
-          <ScoreLensLogo />
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-100 px-4">
+      <div className="flex-1 flex flex-col items-center text-center space-y-8 py-10 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
+        {/* Logo */}
+        <div className="flex justify-center">
+          <div className="sm:w-28 sm:h-28">
+            <ScoreLensLogo />
+          </div>
         </div>
+
+        {/* Tiêu đề */}
+        <div className="space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-black">
+            Bàn {tableNumber || '...'} - Pool 8 Ball
+          </h1>
+          <p className="text-sm sm:text-base text-black font-medium">
+            Nhập tên để tham gia phòng {roomCode || '...'}
+          </p>
+        </div>
+
+        {/* Input Họ và Tên */}
+        <div className="w-full max-w-sm">
+  <label className="block text-base sm:text-lg font-semibold text-black mb-2 text-center">
+    Họ và Tên
+  </label>
+  <input
+    type="text"
+    value={fullName}
+    onChange={(e) => setFullName(e.target.value)}
+    placeholder="Nhập tên của bạn..."
+    className="border border-black rounded-xl px-5 py-3 text-base w-full text-black placeholder-black/60 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all duration-200 text-center"
+  />
+</div>
       </div>
 
-      {/* Title */}
-      <h2 className="text-2xl sm:text-3xl font-bold text-black">
-        Bàn {tableNumber} - Pool 8 Ball
-      </h2>
-
-      {/* Input Họ và Tên */}
-      <div className="w-full flex flex-col items-center">
-        <label className="text-base sm:text-lg font-semibold text-black mb-1">
-          Họ Và Tên
-        </label>
-        <input
-          type="text"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          placeholder="Nhập tên ..."
-          className="border border-black rounded-full px-5 py-2 text-base font-medium w-full max-w-sm text-center placeholder-black/60 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all duration-200"
-        />
+      {/* Nút submit ở dưới cùng */}
+      <div className="w-full p-4 bg-white shadow-inner">
+        <button
+          onClick={handleSubmit}
+          className="w-full bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-base sm:text-lg transition"
+        >
+          Tiếp tục
+        </button>
       </div>
     </div>
-
-    {/* Nút cố định dưới cùng */}
-    <div className="w-full p-4 sm:p-6">
-      <button
-        onClick={handleSubmit}
-        className="w-full bg-lime-500 text-white font-semibold py-3 rounded-xl hover:bg-lime-600 text-base sm:text-lg"
-      >
-        Tiếp tục
-      </button>
-    </div>
-  </div>
-);
-
-
+  );
 }
