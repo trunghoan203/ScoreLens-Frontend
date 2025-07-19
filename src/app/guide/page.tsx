@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { HeaderHome } from '@/components/shared/HeaderHome';
 import { Footer } from '@/components/landing/Footer';
 import { HeroSection } from '@/components/landing/HeroSection';
@@ -18,7 +18,7 @@ const GUIDE_CONTENT: Record<string, React.ReactNode> = {
       <h1 className="text-2xl md:text-3xl font-extrabold text-lime-600 mb-2">
         Hướng Dẫn Sử Dụng Hệ Thống Scorelens - Vai Trò CHỦ DOANH NGHIỆP
       </h1>
-
+ 
       {/* PHẦN 1 */}
       <section>
         <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Phần 1: Đăng Ký và Truy Cập Hệ Thống</h2>
@@ -400,12 +400,20 @@ export default function GuidePage() {
     const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    const el = document.getElementById('main-content');
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  }, []);
+
   return (
     <>
       {loading && <ScoreLensLoading text="Đang tải..." />}
       <HeaderHome />
       <HeroSection />
-      <div className="bg-white text-black min-h-screen pt-24">
+      <div id="main-content" className="bg-white text-black min-h-screen pt-24">
         <div className="container mx-auto flex flex-col md:flex-row gap-8 px-4 pb-16">
           {/* Sidebar */}
           <aside className="w-full md:w-64 flex-shrink-0 mb-8 md:mb-0">
@@ -420,15 +428,15 @@ export default function GuidePage() {
                       {r.label}
                     </button>
                   </li>
-                      ))}
-                    </ul>
+                ))}
+              </ul>
             </nav>
           </aside>
           {/* Main Content */}
           <main className="flex-1 bg-white rounded-xl shadow p-8 text-black min-h-[600px]">
             {GUIDE_CONTENT[role]}
           </main>
-          </div>
+        </div>
       </div>
       <Footer />
     </>

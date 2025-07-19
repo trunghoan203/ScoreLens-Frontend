@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Search, Calendar } from 'lucide-react';
+import { getAllFeedback } from '@/lib/superAdminService';
+import toast from 'react-hot-toast';
 
 interface Feedback {
   id: string;
@@ -14,26 +16,35 @@ interface Feedback {
   status: 'Chưa xử lý' | 'Đã xử lý';
 }
 
-const feedbacks: Feedback[] = [
-  { id: '1', branch: 'Chi nhánh 1', table: 'Bàn 1', date: '2025-06-11', status: 'Chưa xử lý' },
-  { id: '2', branch: 'Chi nhánh 1', table: 'Bàn 4', date: '2025-06-11', status: 'Đã xử lý' },
-  { id: '3', branch: 'Chi nhánh 2', table: 'Bàn 2', date: '2025-06-10', status: 'Chưa xử lý' },
-  { id: '4', branch: 'Chi nhánh 2', table: 'Bàn 3', date: '2025-06-09', status: 'Đã xử lý' },
-  { id: '5', branch: 'Chi nhánh 3', table: 'Bàn 5', date: '2025-06-08', status: 'Chưa xử lý' },
-  { id: '6', branch: 'Chi nhánh 3', table: 'Bàn 6', date: '2025-06-07', status: 'Đã xử lý' },
-  { id: '7', branch: 'Chi nhánh 1', table: 'Bàn 7', date: '2025-06-06', status: 'Chưa xử lý' },
-  { id: '8', branch: 'Chi nhánh 1', table: 'Bàn 8', date: '2025-06-05', status: 'Đã xử lý' },
-  { id: '9', branch: 'Chi nhánh 2', table: 'Bàn 9', date: '2025-06-04', status: 'Chưa xử lý' },
-  { id: '10', branch: 'Chi nhánh 2', table: 'Bàn 10', date: '2025-06-03', status: 'Đã xử lý' },
-  { id: '11', branch: 'Chi nhánh 3', table: 'Bàn 11', date: '2025-06-02', status: 'Chưa xử lý' },
-  { id: '12', branch: 'Chi nhánh 3', table: 'Bàn 12', date: '2025-06-01', status: 'Đã xử lý' },
-];
-
 export function FeedbackTable() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [showAll, setShowAll] = useState(false);
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    getAllFeedback()
+      .then((res) => {
+        const data = res.data as { feedbacks: any[] };
+        setFeedbacks(
+          data.feedbacks.map((fb: any) => ({
+            id: fb.feedbackId,
+            branch: fb.createdBy?.clubId || '', // hoặc map sang tên chi nhánh nếu có
+            table: fb.createdBy?.tableId || '',
+            date: fb.history?.[0]?.createdAt?.slice(0, 10) || '',
+            status: fb.status === 'resolved' ? 'Đã xử lý' : 'Chưa xử lý',
+          }))
+        );
+        setLoading(false);
+      })
+      .catch(() => {
+        toast.error('Không lấy được danh sách phản hồi');
+        setLoading(false);
+      });
+  }, []);
 
   const filteredFeedbacks = feedbacks.filter((fb) => {
     const matchesSearch =
@@ -54,15 +65,15 @@ export function FeedbackTable() {
         <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
           {/* Search */}
           <div className="relative w-full sm:w-60">
-  <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-lime-500 w-5 h-5" />
-  <input
-    type="text"
-    placeholder="Tìm kiếm phản hồi..."
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-    className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 pl-4 pr-10 text-base font-medium text-black placeholder-gray-400 shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none"
-  />
-</div>
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-lime-500 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Tìm kiếm phản hồi..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 pl-4 pr-10 text-base font-medium text-black placeholder-gray-400 shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none"
+            />
+          </div>
 
           {/* Date Picker */}
           <div className="relative w-full sm:w-60">
@@ -87,7 +98,9 @@ export function FeedbackTable() {
         </div>
 
         {/* Feedback Cards */}
-        {displayedFeedbacks.length > 0 ? (
+        {loading ? (
+          <div className="py-8 text-center text-gray-500">Đang tải...</div>
+        ) : displayedFeedbacks.length > 0 ? (
           <div className="space-y-2">
             {displayedFeedbacks.map((fb) => (
               <div

@@ -53,7 +53,7 @@ export default function AdminLoginPage() {
         email: formData.email,
         password: formData.password,
       });
-      // Giả sử API trả về status 200 là thành công
+
       if (response.status === 200) {
         const data = response.data as { accessToken?: string };
         const accessToken = data.accessToken;
@@ -61,7 +61,26 @@ export default function AdminLoginPage() {
           localStorage.setItem('adminAccessToken', accessToken);
         }
         toast.success('Đăng nhập thành công!');
-        router.push('/admin/branches');
+        
+        try {
+          const profileResponse = await axios.get('/admin/profile', {
+            headers: { Authorization: `Bearer ${accessToken}` }
+          });
+          
+          const profileData = profileResponse.data as { 
+            admin?: { brandId?: string | null } 
+          };
+          
+          if (profileData.admin?.brandId) {
+            router.push('/admin/branches');
+          } else {
+            router.push('/admin/confirm');
+          }
+          
+        } catch (profileError) {
+          console.log('Không thể lấy thông tin profile:', profileError);
+          router.push('/admin/confirm');
+        }
       } else {
         const errorMessage = 'Đăng nhập thất bại. Vui lòng thử lại.';
         toast.error(errorMessage);
@@ -70,7 +89,6 @@ export default function AdminLoginPage() {
       const err = error as { response?: { data?: { message?: string } } };
       const message = err.response?.data?.message;
       if (message) {
-        // Xử lý trường hợp tài khoản chưa xác minh
         if (message.includes('not verified') || message.includes('verification')) {
           toast.error('Tài khoản chưa được xác minh. Vui lòng kiểm tra email để lấy mã xác thực.');
         } else {
@@ -89,7 +107,7 @@ export default function AdminLoginPage() {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Clear error when user starts typing
+
     if (errors[name as keyof typeof errors]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
     }
