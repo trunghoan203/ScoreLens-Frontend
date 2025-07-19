@@ -29,7 +29,9 @@ export default function TableDetailPage() {
   const params = useParams();
   const tableId = params?.tableId as string;
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loading, setLoading] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [table, setTable] = useState<Table | null>(null);
 
   const [name, setName] = useState('');
@@ -93,13 +95,6 @@ export default function TableDetailPage() {
       toast.error('Xóa bàn thất bại.');
     }
   };
-
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-screen text-lg">Đang tải dữ liệu...</div>;
-  }
-  if (!table) {
-    return null;
-  }
 
   return (
     <div className="min-h-screen flex bg-[#18191A]">
