@@ -10,8 +10,10 @@ interface Admin {
   id: string;
   name: string;
   email: string;
-  location: string;
   status: AdminStatus;
+  brand?: {
+    address: string;
+  };
 }
 
 const statusVariantMap: Record<AdminStatus, 'success' | 'danger' | 'default'> = {
@@ -47,10 +49,9 @@ export function AdminTable({ admins, searchTerm, statusFilter, onRowClick }: Adm
   return (
     <div className="w-full space-y-2">
       {/* Header */}
-      <div className="grid grid-cols-4 bg-black text-white text-center font-semibold text-sm rounded-t-lg">
+      <div className="grid grid-cols-3 bg-black text-white text-center font-semibold text-sm rounded-t-lg">
         <div className="py-3">Tên</div>
         <div className="py-3">Email</div>
-        <div className="py-3">Địa điểm</div>
         <div className="py-3">Trạng thái</div>
       </div>
 
@@ -61,11 +62,10 @@ export function AdminTable({ admins, searchTerm, statusFilter, onRowClick }: Adm
             <div
               key={admin.id}
               onClick={() => onRowClick(admin.id)}
-              className="grid grid-cols-4 items-center text-center text-sm text-gray-800 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition"
+              className="grid grid-cols-3 items-center text-center text-sm text-gray-800 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition"
             >
-              <div className="pcol-span-4 py-4 font-semibold text-black text-lg">{admin.name}</div>
+              <div className="pcol-span-3 py-4 font-semibold text-black text-lg">{admin.name}</div>
               <div className="py-4">{admin.email}</div>
-              <div className="py-4">{admin.location}</div>
               <div className="py-4 flex justify-center">
                 <Badge
                   variant={statusVariantMap[admin.status]}

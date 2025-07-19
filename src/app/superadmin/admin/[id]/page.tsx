@@ -17,9 +17,15 @@ export default function AdminDetailPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     getAdminDetail(id as string)
       .then((res) => {
-        const data = res.data as { admin: any };
+        const data = res.data as { admin?: any };
+        if (!data.admin) {
+          toast.error('Không tìm thấy admin');
+          setLoading(false);
+          return;
+        }
         setAdmin(data.admin);
         setLoading(false);
       })
@@ -71,7 +77,7 @@ export default function AdminDetailPage() {
             <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">
               <div>
                 <label className="block text-sm font-medium text-black mb-1">Tên Quán</label>
-                <Input value={admin.clubName || ''} disabled />
+                <Input value={admin.brand?.brandName || ''} disabled />
               </div>
               <div>
                 <label className="block text-sm font-medium text-black mb-1">Họ và Tên</label>
@@ -79,11 +85,11 @@ export default function AdminDetailPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-black mb-1">CCCD</label>
-                <Input value={admin.citizenCode || ''} disabled />
+                <Input value={admin.brand?.citizenCode || ''} disabled />
               </div>
               <div>
                 <label className="block text-sm font-medium text-black mb-1">Số Điện Thoại</label>
-                <Input value={admin.phoneNumber || ''} disabled />
+                <Input value={admin.brand?.numberPhone || ''} disabled />
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-black mb-1">Email</label>
@@ -91,26 +97,124 @@ export default function AdminDetailPage() {
               </div>
             </div>
           </div>
+          {/* Danh sách chi nhánh */}
+          {admin.clubs && admin.clubs.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div />
+              <div className="md:col-span-2 space-y-4">
+                {admin.clubs.map((club: any, idx: number) => (
+                  <div
+                    key={club.clubId}
+                    className="relative p-6 border rounded-xl bg-white shadow-md mb-6 transition-shadow hover:shadow-lg"
+                  >
+                    <div className="mb-4">
+                      <span className="text-base font-semibold text-lime-600">Chi nhánh {idx + 1}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">Tên chi nhánh</label>
+                        <div className="font-medium text-gray-800">{club.clubName || ''}</div>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">Địa chỉ</label>
+                        <div className="font-medium text-gray-800">{club.address || ''}</div>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">Số bàn</label>
+                        <div className="font-medium text-gray-800">{club.tableNumber || ''}</div>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">Số lượng camera</label>
+                        <div className="font-medium text-gray-800">{club.cameraNumber || ''}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           {/* Nút Hành Động */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-            <div />
-            <div className="md:col-span-2 flex justify-center gap-4">
+          {admin.status === 'pending' ? (
+            <div className="md:col-span-2 flex flex-col items-center gap-6">
+              <div className="flex justify-center gap-8">
+                <Button
+                  className="w-44 h-12 text-base font-semibold rounded-xl flex items-center justify-center"
+                  onClick={handleReject}
+                  style={{
+                    backgroundColor: '#FF0000',
+                    color: '#fff',
+                    border: 'none',
+                    transition: 'background 0.2s',
+                  }}
+                  onMouseOver={e => (e.currentTarget.style.backgroundColor = '#cc0000')}
+                  onMouseOut={e => (e.currentTarget.style.backgroundColor = '#FF0000')}
+                >
+                  TỪ CHỐI
+                </Button>
+                <Button
+                  className="w-44 h-12 text-base font-semibold rounded-xl flex items-center justify-center"
+                  onClick={handleApprove}
+                  style={{
+                    backgroundColor: '#8ADB10',
+                    color: '#fff',
+                    border: 'none',
+                    transition: 'background 0.2s',
+                  }}
+                  onMouseOver={e => (e.currentTarget.style.backgroundColor = '#6bb80c')}
+                  onMouseOut={e => (e.currentTarget.style.backgroundColor = '#8ADB10')}
+                >
+                  DUYỆT
+                </Button>
+              </div>
               <Button
-                variant="destructive"
-                className="px-8 py-3 text-base font-semibold rounded-xl"
-                onClick={handleReject}
+                className="w-44 h-12 text-base font-semibold rounded-xl border border-black bg-white text-black flex items-center justify-center"
+                onClick={() => router.push('/superadmin/home')}
+                style={{
+                  boxShadow: 'none',
+                  borderWidth: '1.5px',
+                  borderColor: '#000',
+                  backgroundColor: '#fff',
+                  color: '#000',
+                  transition: 'background 0.2s, color 0.2s',
+                }}
+                onMouseOver={e => {
+                  e.currentTarget.style.backgroundColor = '#000';
+                  e.currentTarget.style.color = '#fff';
+                }}
+                onMouseOut={e => {
+                  e.currentTarget.style.backgroundColor = '#fff';
+                  e.currentTarget.style.color = '#000';
+                }}
               >
-                TỪ CHỐI
-              </Button>
-              <Button
-                variant="lime"
-                className="px-8 py-3 text-base font-semibold rounded-xl"
-                onClick={handleApprove}
-              >
-                DUYỆT
+                QUAY LẠI
               </Button>
             </div>
-          </div>
+          ) : (
+            <div className="md:col-span-2 flex justify-center">
+              <Button
+                className="w-44 h-12 text-base font-semibold rounded-xl border border-black bg-white text-black flex items-center justify-center"
+                onClick={() => router.push('/superadmin/home')}
+                style={{
+                  boxShadow: 'none',
+                  borderWidth: '1.5px',
+                  borderColor: '#000',
+                  backgroundColor: '#fff',
+                  color: '#000',
+                  transition: 'background 0.2s, color 0.2s',
+                }}
+                onMouseOver={e => {
+                  e.currentTarget.style.backgroundColor = '#000';
+                  e.currentTarget.style.color = '#fff';
+                }}
+                onMouseOut={e => {
+                  e.currentTarget.style.backgroundColor = '#fff';
+                  e.currentTarget.style.color = '#000';
+                }}
+              >
+                QUAY LẠI
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </>

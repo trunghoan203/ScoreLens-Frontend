@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
 import { PageBanner } from '@/components/shared/PageBanner';
-import { AdminFilters } from '@/components/features/AdminFilters';
-import { AdminTable } from '@/components/features/AdminTable';
-import { FeedbackTable } from '@/components/features/FeedbackTable';
+import { AdminFilters } from '@/components/superadmin-features/AdminFilters';
+import { AdminTable } from '@/components/superadmin-features/AdminTable';
+import { FeedbackTable } from '@/components/superadmin-features/FeedbackTable';
 import { getAdminList } from '@/lib/superAdminService';
 import toast from 'react-hot-toast';
 
