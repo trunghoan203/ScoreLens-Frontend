@@ -71,7 +71,6 @@ export default function HostLoginPage() {
             </button>
             <div className="mx-6 text-center">
               <span className="text-gray-900 font-bold text-2xl">{value}</span>
-              <div className="text-gray-500 text-xs mt-1">người</div>
             </div>
             <button
               onClick={() => handleChange(team, 1)}
