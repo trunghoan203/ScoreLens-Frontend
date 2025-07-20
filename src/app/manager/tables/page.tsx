@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SidebarManager from "@/components/manager/SidebarManager";
 import HeaderManager from "@/components/manager/HeaderManager";
 import TableSearchBar from "@/components/manager/TableSearchBar";
@@ -7,37 +7,63 @@ import TableGrid from "@/components/manager/TableGrid";
 import TablePageBanner from "@/components/manager/TablePageBanner";
 import { useRouter } from "next/navigation";
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
+import { managerTableService } from '@/lib/managerTableService';
+import toast from 'react-hot-toast';
 
-// Dữ liệu mẫu cho bàn
-const tablesData = [
-  { id: '1', name: '01', type: 'pool', status: 'using' as const },
-  { id: '2', name: '02', type: 'carom', status: 'available' as const },
-];
+export interface Table {
+  tableId: string;
+  clubId: string;
+  number: number;
+  category: 'pool-8' | 'carom';
+  status: 'empty' | 'inuse' | 'maintenance';
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 export default function TablesPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-  const [tableLoading, setTableLoading] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
-  React.useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1200);
-    return () => clearTimeout(timer);
+  const [tables, setTables] = useState<Table[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    setLoading(true);
+    managerTableService.getAllTables()
+      .then((data: unknown) => {
+        let tablesArr: unknown[] = [];
+        if (Array.isArray(data)) tablesArr = data;
+        else if (data && typeof data === 'object' && Array.isArray((data as { tables?: unknown[] }).tables)) tablesArr = (data as { tables: unknown[] }).tables;
+        else if (data && typeof data === 'object' && Array.isArray((data as { data?: unknown[] }).data)) tablesArr = (data as { data: unknown[] }).data;
+        const mappedTables: Table[] = tablesArr.map(t => {
+          const obj = t as Partial<Table>;
+          return {
+            tableId: obj.tableId || '',
+            clubId: obj.clubId || '',
+            number: obj.number ?? 0,
+            category: obj.category ?? 'pool-8',
+            status: obj.status ?? 'empty',
+            createdAt: obj.createdAt,
+            updatedAt: obj.updatedAt,
+          };
+        });
+        setTables(mappedTables);
+      })
+      .catch(() => {
+        setError('Không thể tải danh sách bàn');
+        toast.error('Không thể tải danh sách bàn');
+      })
+      .finally(() => setLoading(false));
   }, []);
   const router = useRouter();
-  const filteredTables = tablesData.filter(t => t.name.toLowerCase().includes(search.toLowerCase()));
+  const filteredTables = tables.filter(
+    t => typeof t.number === 'number' && t.number.toString().includes(search)
+  );
 
   const handleAddTable = () => {
-    setActionLoading(true);
-    setTimeout(() => {
-      setActionLoading(false);
-      router.push('/manager/tables/add');
-    }, 1000);
+    router.push('/manager/tables/add');
   };
 
   const handleTableClick = (tableId: string) => {
-    // Logic xử lý khi click vào bàn
     router.push(`/manager/tables/${tableId}`);
   };
 
@@ -54,8 +80,10 @@ export default function TablesPage() {
             setSearch={setSearch}
             onAddTable={handleAddTable}
           />
-          {tableLoading ? (
+          {loading ? (
             <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>
+          ) : error ? (
+            <div className="py-8 text-center text-red-500">{error}</div>
           ) : filteredTables.length === 0 ? (
             <div className="py-8 text-center text-gray-400">
               <LoadingSkeleton type="text" lines={2} />
@@ -63,15 +91,15 @@ export default function TablesPage() {
             </div>
           ) : (
             <TableGrid
-              tables={filteredTables}
+              tables={filteredTables.map(t => ({
+                id: t.tableId,
+                name: t.number.toString(),
+                type: t.category,
+                status: t.status,
+              }))}
               onTableClick={handleTableClick}
             />
           )}
-          <div className="flex justify-end mt-6">
-            <button className="bg-lime-500 hover:bg-lime-600 text-white font-bold py-2 px-6 rounded-lg flex items-center gap-2" onClick={handleAddTable} disabled={actionLoading}>
-              {actionLoading ? <LoadingSpinner size="sm" /> : 'Thêm bàn'}
-            </button>
-          </div>
         </main>
       </div>
     </>

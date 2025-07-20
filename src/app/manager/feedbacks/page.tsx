@@ -7,7 +7,6 @@ import FeedbackGrid from "@/components/manager/FeedbackGrid";
 import FeedbackPageBanner from "@/components/manager/FeedbackPageBanner";
 import { useRouter } from "next/navigation";
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 
 // Dữ liệu mẫu cho phản hồi
@@ -47,8 +46,6 @@ const feedbacksData = [
 export default function FeedbacksPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-  const [listLoading, setListLoading] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
   React.useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
@@ -65,14 +62,6 @@ export default function FeedbacksPage() {
     router.push(`/manager/feedbacks/${feedbackId}`);
   };
 
-  const handleAddFeedback = () => {
-    setActionLoading(true);
-    setTimeout(() => {
-      setActionLoading(false);
-      // router.push('/manager/feedbacks/add');
-    }, 1000);
-  };
-
   return (
     <>
       {loading && <ScoreLensLoading text="Đang tải..." />}
@@ -85,7 +74,7 @@ export default function FeedbacksPage() {
             search={search}
             setSearch={setSearch}
           />
-          {listLoading ? (
+          {loading ? (
             <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>
           ) : filteredFeedbacks.length === 0 ? (
             <div className="py-8 text-center text-gray-400">
@@ -98,11 +87,6 @@ export default function FeedbacksPage() {
               onFeedbackClick={handleFeedbackClick}
             />
           )}
-          <div className="flex justify-end mt-6">
-            <button className="bg-lime-500 hover:bg-lime-600 text-white font-bold py-2 px-6 rounded-lg flex items-center gap-2" onClick={handleAddFeedback} disabled={actionLoading}>
-              {actionLoading ? <LoadingSpinner size="sm" /> : 'Thêm phản hồi'}
-            </button>
-          </div>
         </main>
       </div>
     </>

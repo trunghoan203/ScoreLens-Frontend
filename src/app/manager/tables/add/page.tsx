@@ -7,9 +7,10 @@ import { Select } from '@/components/ui/select';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
+import { managerTableService } from '@/lib/managerTableService';
 
 const tableTypes = [
-  { value: 'pool', label: 'Bida Pool' },
+  { value: 'pool-8', label: 'Bida Pool' },
   { value: 'carom', label: 'Bida Carom' },
 ];
 
@@ -18,11 +19,16 @@ export default function AddTablePage() {
   const [type, setType] = useState(tableTypes[0].value);
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Xử lý thêm bàn ở đây
-    toast.success('Đã thêm bàn thành công!');
-    router.push('/manager/tables');
+    try {
+      await managerTableService.createTable({ number: Number(name), category: type });
+      toast.success('Đã thêm bàn thành công!');
+      router.push('/manager/tables');
+    } catch (error) {
+      console.error(error);
+      toast.error('Thêm bàn thất bại.');
+    }
   };
 
   return (

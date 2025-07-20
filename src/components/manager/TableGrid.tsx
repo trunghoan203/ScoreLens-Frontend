@@ -4,7 +4,7 @@ interface Table {
   id: string;
   name: string;
   type: string;
-  status: 'using' | 'available';
+  status: 'empty' | 'inuse' | 'maintenance';
 }
 
 interface TableGridProps {
@@ -32,11 +32,14 @@ export default function TableGrid({ tables, onTableClick }: TableGridProps) {
           >
             <div className="col-span-4 py-4 font-semibold text-black text-lg">{table.name}</div>
             <div className="col-span-4 py-4 uppercase text-gray-700 text-base">{table.type}</div>
-            <div className="col-span-4 py-4 flex justify-center">
+            <div className="col-span-4 py-4 flex justify-center items-center gap-2">
               <span
-                className={`w-4 h-4 rounded-full inline-block ${
-                  table.status === 'using' ? 'bg-green-500' : 'bg-red-500'
-                }`}
+                className={`w-4 h-4 rounded-full inline-block mr-2
+                  ${table.status === 'empty' ? 'bg-red-400'
+                    : table.status === 'inuse' ? 'bg-green-500'
+                    : table.status === 'maintenance' ? 'bg-yellow-400'
+                    : 'bg-gray-200'}
+                `}
               ></span>
             </div>
           </div>

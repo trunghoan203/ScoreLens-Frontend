@@ -113,7 +113,6 @@ class ManagerService {
       throw this.handleError(error);
     }
   }
-
   private handleError(error: unknown): Error {
     if (typeof error === 'object' && error !== null && 'response' in error) {
       const axiosError = error as { response?: { data?: { message?: string } } };

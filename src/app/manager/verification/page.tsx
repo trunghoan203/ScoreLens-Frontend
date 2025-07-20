@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState, useRef, useEffect, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { AuthLayout } from '@/components/shared/AuthLayout';
 import Link from 'next/link';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
+import { managerService } from '@/lib/managerService';
 
 export default function ManagerVerificationPage() {
   return (
@@ -18,8 +19,8 @@ export default function ManagerVerificationPage() {
 
 function ManagerVerificationPageInner() {
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const clubCode = searchParams?.get('clubCode') || '';
+  // const router = useRouter(); // Xóa nếu không dùng
+  const email = searchParams?.get('email') || '';
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
@@ -85,14 +86,17 @@ function ManagerVerificationPageInner() {
       toast.error('Vui lòng nhập đầy đủ 6 chữ số');
       return;
     }
-
     setIsLoading(true);
     try {
-      await new Promise(res => setTimeout(res, 1000));
+      const data = await managerService.verifyLogin(email, otpString);
+      if (data && typeof data === 'object' && 'accessToken' in data && typeof data.accessToken === 'string') {
+        localStorage.setItem('managerAccessToken', data.accessToken);
+      }
       toast.success('Xác thực thành công!');
-      router.push(`/manager/dashboard?clubCode=${encodeURIComponent(clubCode)}&otp=${otpString}`);
-    } catch {
-      toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
+      window.location.href = `/manager/dashboard`;
+    } catch (error) {
+      const err = error as { message?: string };
+      toast.error(err.message || 'Xác thực thất bại. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);
     }
@@ -102,12 +106,13 @@ function ManagerVerificationPageInner() {
     if (!canResend) return;
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await managerService.resendLoginCode(email);
+      toast.success('Mã xác thực đã được gửi lại!');
       setResendTimer(60);
       setCanResend(false);
-    } catch {
-      // Handle error
+    } catch (error) {
+      const err = error as { message?: string };
+      toast.error(err.message || 'Gửi lại mã thất bại.');
     } finally {
       setIsLoading(false);
     }
@@ -118,7 +123,7 @@ function ManagerVerificationPageInner() {
   return (
     <AuthLayout
       title="Xác minh mã quản lý"
-      description={`Chúng tôi đã gửi mã xác minh đến ${clubCode}`}
+      description={`Chúng tôi đã gửi mã xác minh đến ${email}`}
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
