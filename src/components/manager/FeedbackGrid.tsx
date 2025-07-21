@@ -57,7 +57,10 @@ export default function FeedbackGrid({ feedbacks, onFeedbackClick }: FeedbackGri
             <div className="py-4 text-gray-700">{feedback.table}</div>
             <div className="py-4 text-gray-700">{feedback.time}</div>
             <div className="py-4 flex justify-center">
-              <span className={`px-2 py-1 rounded-full text-xs text-white ${getStatusColor(feedback.status)}`}>
+              <span className={
+                `inline-flex items-center justify-center rounded-full text-sm font-bold text-white px-4 py-2 ` +
+                `w-50 ${getStatusColor(feedback.status)}`
+              }>
                 {getStatusText(feedback.status)}
               </span>
             </div>
