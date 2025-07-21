@@ -5,7 +5,7 @@ interface Feedback {
   branch: string;
   table: string;
   time: string;
-  status: 'pending' | 'resolved' | 'in_progress';
+  status: 'pending' | 'manager_processing' | 'admin_processing' | 'superadmin_processing' | 'resolved';
   cameraReliability: number;
   feedback: string;
   notes: string;
@@ -21,7 +21,9 @@ export default function FeedbackGrid({ feedbacks, onFeedbackClick }: FeedbackGri
     switch (status) {
       case 'pending': return 'bg-yellow-500';
       case 'resolved': return 'bg-green-500';
-      case 'in_progress': return 'bg-blue-500';
+      case 'manager_processing': return 'bg-blue-500';
+      case 'admin_processing': return 'bg-purple-500';
+      case 'superadmin_processing': return 'bg-indigo-500';
       default: return 'bg-gray-500';
     }
   };
@@ -30,7 +32,9 @@ export default function FeedbackGrid({ feedbacks, onFeedbackClick }: FeedbackGri
     switch (status) {
       case 'pending': return 'Chờ xử lý';
       case 'resolved': return 'Đã giải quyết';
-      case 'in_progress': return 'Đang xử lý';
+      case 'manager_processing': return 'Manager đang xử lý';
+      case 'admin_processing': return 'Admin đang xử lý';
+      case 'superadmin_processing': return 'Super Admin đang xử lý';
       default: return 'Không xác định';
     }
   };
