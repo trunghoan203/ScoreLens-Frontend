@@ -1,21 +1,68 @@
 'use client';
 
+import { useState, useRef, useEffect } from 'react';
 import { ScoreLensLogo } from '@/components/icons/LogoWhite';
 import Image from 'next/image';
 
 export function HeaderAdmin() {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [lang, setLang] = useState<'vi' | 'en'>('vi');
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Đóng dropdown khi click ra ngoài
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    if (dropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [dropdownOpen]);
+
+  const handleSelectLang = (selected: 'vi' | 'en') => {
+    setLang(selected);
+    setDropdownOpen(false);
+    // Nếu muốn lưu vào localStorage: localStorage.setItem('lang', selected);
+  };
+
   return (
-    <header className="w-full flex justify-between items-center py-6 px-8 bg-black">
+    <header className="w-full flex justify-between items-center py-4 px-8 bg-black">
       <div className="flex items-center">
         <ScoreLensLogo />
       </div>
-      <div className="hidden sm:flex items-center gap-2 cursor-pointer">
-        <Image src="/images/vietNam.png" alt="Vietnam Flag" width={28} height={20} className="rounded-sm" />
-        <span className="text-lg font-medium">VI</span>
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-        </svg>
+      <div className="hidden sm:flex items-center gap-2 cursor-pointer relative mr-6" ref={dropdownRef}>
+        <div
+          className="flex items-center gap-2"
+          onClick={() => setDropdownOpen((open) => !open)}
+        >
+          <Image src="/images/vietNam.png" alt="Vietnam Flag" width={30} height={20} className="rounded-sm" />
+          <span className="text-lg font-medium text-[#FFFFFF]">VI</span>
+          <Image src="/icon/chevron-down.svg" alt="Chevron Down" width={26} height={26} />
+        </div>
+        {dropdownOpen && (
+          <div className="absolute right-0 top-full mt-2 w-42 bg-white rounded-lg shadow-lg z-50 py-2">
+            <div
+              className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() => handleSelectLang('vi')}
+            >
+              <Image src="/images/vietNam.png" alt="Vietnam Flag" width={28} height={20} className="rounded-sm" />
+              <span className="text-base text-gray-900">Tiếng Việt</span>
+            </div>
+            <div
+              className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() => handleSelectLang('en')}
+            >
+              <Image src="/images/english.png" alt="English Flag" width={28} height={20} className="rounded-sm" />
+              <span className="text-base text-gray-900">Tiếng Anh</span>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );
-} 
+}
