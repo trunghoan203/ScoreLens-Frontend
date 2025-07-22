@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { AuthLayout } from '@/components/shared/AuthLayout';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
-import { verifySuperAdminLogin, resendLoginCode } from '@/lib/superAdminService';
+import { verifySuperAdminLogin } from '@/lib/superAdminService';
 
 export default function SuperAdminVerificationPage() {
   return (
@@ -92,14 +92,14 @@ function SuperAdminVerificationPageInner() {
   };
 
   // Gửi lại mã
-  const handleResend = async () => {
-    try {
-      await resendLoginCode(email);
-      toast.success('Đã gửi lại mã xác thực!');
-    } catch {
-      toast.error('Không gửi lại được mã xác thực');
-    }
-  };
+  // const handleResend = async () => {
+  //   try {
+  //     await resendLoginCode(email);
+  //     toast.success('Đã gửi lại mã xác thực!');
+  //   } catch {
+  //     toast.error('Không gửi lại được mã xác thực');
+  //   }
+  // };
 
   return (
     <AuthLayout

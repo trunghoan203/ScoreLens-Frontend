@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 export function HeaderAdmin() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [lang, setLang] = useState<'vi' | 'en'>('vi');
+  const [, setLang] = useState<'vi' | 'en'>('vi');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Đóng dropdown khi click ra ngoài

@@ -8,19 +8,36 @@ import { Button } from '@/components/ui/button';
 import { getFeedbackDetail, updateFeedback } from '@/lib/superAdminService';
 import toast from 'react-hot-toast';
 
+interface Feedback {
+  id: string;
+  content: string;
+  note?: string;
+  status: 'resolved' | 'pending';
+  needSupport?: boolean;
+  createdBy?: {
+    clubId: string;
+    tableId: string;
+  };
+  history?: {
+    createdAt: string;
+  }[];
+}
+
 export default function FeedbackDetailPage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
-  const [feedback, setFeedback] = useState<any>(null);
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [note, setNote] = useState('');
   const [status, setStatus] = useState('Chưa xử lý');
   const [needSupport, setNeedSupport] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getFeedbackDetail(id as string)
+    if (!id) return;
+
+    getFeedbackDetail(id)
       .then((res) => {
-        const data = res.data as { feedback: any };
+        const data = res.data as { feedback: Feedback };
         setFeedback(data.feedback);
         setNote(data.feedback.note || '');
         setStatus(data.feedback.status === 'resolved' ? 'Đã xử lý' : 'Chưa xử lý');
@@ -35,7 +52,8 @@ export default function FeedbackDetailPage() {
 
   const handleSave = async () => {
     try {
-      await updateFeedback(id as string, {
+      if (!id) return;
+      await updateFeedback(id, {
         note,
         status: status === 'Đã xử lý' ? 'resolved' : 'pending',
         needSupport,

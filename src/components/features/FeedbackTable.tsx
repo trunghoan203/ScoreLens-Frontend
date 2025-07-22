@@ -16,6 +16,18 @@ interface Feedback {
   status: 'Chưa xử lý' | 'Đã xử lý';
 }
 
+interface ApiFeedback {
+  feedbackId: string;
+  status: 'resolved' | 'pending';
+  createdBy?: {
+    clubId: string;
+    tableId: string;
+  };
+  history?: {
+    createdAt: string;
+  }[];
+}
+
 export function FeedbackTable() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
@@ -28,20 +40,20 @@ export function FeedbackTable() {
     setLoading(true);
     getAllFeedback()
       .then((res) => {
-        const data = res.data as { feedbacks: any[] };
-        setFeedbacks(
-          data.feedbacks.map((fb: any) => ({
-            id: fb.feedbackId,
-            branch: fb.createdBy?.clubId || '', // hoặc map sang tên chi nhánh nếu có
-            table: fb.createdBy?.tableId || '',
-            date: fb.history?.[0]?.createdAt?.slice(0, 10) || '',
-            status: fb.status === 'resolved' ? 'Đã xử lý' : 'Chưa xử lý',
-          }))
-        );
+        const data = res.data as { feedbacks: ApiFeedback[] };
+        const mappedFeedbacks: Feedback[] = data.feedbacks.map((fb: ApiFeedback) => ({
+          id: fb.feedbackId,
+          branch: fb.createdBy?.clubId || 'N/A',
+          table: fb.createdBy?.tableId || 'N/A',
+          date: fb.history?.[0]?.createdAt?.slice(0, 10) || 'N/A',
+          status: fb.status === 'resolved' ? 'Đã xử lý' : 'Chưa xử lý',
+        }));
+        setFeedbacks(mappedFeedbacks);
         setLoading(false);
       })
       .catch(() => {
         toast.error('Không lấy được danh sách phản hồi');
+        setFeedbacks([]);
         setLoading(false);
       });
   }, []);
@@ -108,7 +120,7 @@ export function FeedbackTable() {
                 onClick={() => router.push(`/superadmin/feedback/${fb.id}`)}
                 className="grid grid-cols-4 items-center text-center bg-white border border-gray-300 rounded-lg shadow hover:bg-gray-50 cursor-pointer transition"
               >
-                <div className="pcol-span-4 py-4 font-semibold text-black text-lg">{fb.branch}</div>
+                <div className="p-4 font-semibold text-black text-base">{fb.branch}</div>
                 <div className="py-4 text-sm text-gray-800">{fb.table}</div>
                 <div className="py-4 text-sm text-gray-800">{fb.date}</div>
                 <div className="flex justify-center py-4">
