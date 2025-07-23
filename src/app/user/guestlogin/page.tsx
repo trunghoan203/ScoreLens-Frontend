@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { ScoreLensLogo } from '@/components/icons/LogoBlack';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import Image from 'next/image';
+import { BackButton } from '@/components/ui/BackButton';
 
 export default function GuestLoginPage() {
   const [roomCode, setRoomCode] = useState<string[]>(['', '', '', '', '', '']);
@@ -71,7 +72,11 @@ export default function GuestLoginPage() {
   if (loading) return <ScoreLensLoading text="Đang tải..." />;
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-100 px-4">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-100 px-4 relative">
+      {/* Nút Back ở góc trên bên trái */}
+      <div className="absolute top-4 left-4 z-20">
+        <BackButton onClick={() => router.back()} />
+      </div>
       <div className="flex-1 flex flex-col items-center text-center space-y-8 py-10 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
         {/* Logo */}
         <div className="flex justify-center">

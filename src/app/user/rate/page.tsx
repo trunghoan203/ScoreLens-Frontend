@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import PopupFeedback from '@/app/user/popup/popupFeedback';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { MessageCircleHeart } from 'lucide-react';
+import { BackButton } from '@/components/ui/BackButton';
 
 export default function RatePage() {
   const router = useRouter();
@@ -32,7 +33,11 @@ export default function RatePage() {
   if (loading) return <ScoreLensLoading text="Đang tải..." />;
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-100 px-4">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-100 px-4 relative">
+      {/* Nút Back ở góc trên bên trái */}
+      <div className="absolute top-4 left-4 z-20">
+        <BackButton onClick={() => router.back()} />
+      </div>
       {/* Nội dung chính */}
       <div
         className={`flex-1 flex flex-col items-center text-center space-y-8 py-10 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto transition-all duration-300 ${

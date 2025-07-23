@@ -30,6 +30,19 @@ export default function ScoreboardPage() {
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
 
+    // Chặn thao tác back của trình duyệt
+    if (typeof window !== 'undefined') {
+      const handlePopState = (e: PopStateEvent) => {
+        e.preventDefault();
+        window.history.pushState(null, '', window.location.href);
+      };
+      window.history.pushState(null, '', window.location.href);
+      window.addEventListener('popstate', handlePopState);
+      return () => {
+        window.removeEventListener('popstate', handlePopState);
+      };
+    }
+
     // TODO: Gọi API từ backend và gán kết quả thật vào setAiResults()
     // fetch('/api/ai-results')
     //   .then(res => res.json())
