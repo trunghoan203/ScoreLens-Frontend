@@ -1,9 +1,39 @@
-import { Suspense } from 'react';
-import { GuestJoinPageClient } from './GuestJoinPageClient';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { ScoreLensLogo } from '@/components/icons/LogoBlack';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { BackButton } from '@/components/ui/BackButton';
 
-export default function GuestPage() {
+export default function GuestJoinPage() {
+  const [fullName, setFullName] = useState('');
+  const [tableNumber, setTableNumber] = useState('');
+  const [roomCode, setRoomCode] = useState('');
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const table = searchParams.get('table');
+    const room = searchParams.get('room');
+    if (table) setTableNumber(table);
+    if (room) setRoomCode(room);
+
+    const timer = setTimeout(() => setLoading(false), 1200);
+    return () => clearTimeout(timer);
+  }, [searchParams]);
+
+  const handleSubmit = () => {
+    if (!fullName.trim()) {
+      alert('Vui lòng nhập họ và tên.');
+      return;
+    }
+    router.push(`/user/screencontrol?table=${tableNumber}&room=${roomCode}&name=${encodeURIComponent(fullName)}`);
+  };
+
+  if (loading) return <ScoreLensLoading text="Đang tải..." />;
+
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-100 px-4 relative">
       {/* Nút Back ở góc trên bên trái */}
@@ -54,8 +84,5 @@ export default function GuestPage() {
         </button>
       </div>
     </div>
-    <Suspense fallback={<ScoreLensLoading text="Đang vào phòng..." />}>
-      <GuestJoinPageClient />
-    </Suspense>
   );
 }
