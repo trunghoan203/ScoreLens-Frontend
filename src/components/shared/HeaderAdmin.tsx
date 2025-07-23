@@ -9,7 +9,6 @@ export function HeaderAdmin() {
   const [, setLang] = useState<'vi' | 'en'>('vi');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Đóng dropdown khi click ra ngoài
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -27,7 +26,6 @@ export function HeaderAdmin() {
   const handleSelectLang = (selected: 'vi' | 'en') => {
     setLang(selected);
     setDropdownOpen(false);
-    // Nếu muốn lưu vào localStorage: localStorage.setItem('lang', selected);
   };
 
   return (
