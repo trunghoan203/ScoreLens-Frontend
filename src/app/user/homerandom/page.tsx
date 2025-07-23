@@ -1,42 +1,9 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { QRCodeCanvas } from 'qrcode.react';
-import { ScoreLensLogo } from '@/components/icons/LogoBlack';
+import { Suspense } from 'react';
+import { HomeRandomPageClient } from './HomeRandomPageClient';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { BackButton } from '@/components/ui/BackButton';
 
 export default function HomeRandomPage() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const tableNumber = searchParams.get('table') || '??';
-
-  const [roomCode, setRoomCode] = useState('');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1000);
-
-    const digits = '123456789';
-    let code = '';
-    for (let i = 0; i < 6; i++) {
-      const randomDigit = digits[Math.floor(Math.random() * digits.length)];
-      code += randomDigit;
-    }
-    setRoomCode(code);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  const qrJoinUrl = `https://yourdomain.com/user/login?table=${tableNumber}&room=${roomCode}`;
-
-  const handleStart = () => {
-    router.push(`/user/screencontrol?table=${tableNumber}&room=${roomCode}`);
-  };
-
-  if (loading) return <ScoreLensLoading text="Đang tạo mã phòng..." />;
-
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-100 px-4 relative">
       {/* Nút Back ở góc trên bên trái */}
@@ -89,5 +56,8 @@ export default function HomeRandomPage() {
         </button>
       </div>
     </div>
+    <Suspense fallback={<ScoreLensLoading text="Đang khởi tạo phòng..." />}>
+      <HomeRandomPageClient />
+    </Suspense>
   );
 }

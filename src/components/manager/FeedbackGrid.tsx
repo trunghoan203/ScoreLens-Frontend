@@ -5,7 +5,7 @@ interface Feedback {
   branch: string;
   table: string;
   time: string;
-  status: 'pending' | 'resolved' | 'in_progress';
+  status: 'pending' | 'manager_processing' | 'admin_processing' | 'superadmin_processing' | 'resolved';
   cameraReliability: number;
   feedback: string;
   notes: string;
@@ -21,7 +21,9 @@ export default function FeedbackGrid({ feedbacks, onFeedbackClick }: FeedbackGri
     switch (status) {
       case 'pending': return 'bg-yellow-500';
       case 'resolved': return 'bg-green-500';
-      case 'in_progress': return 'bg-blue-500';
+      case 'manager_processing': return 'bg-blue-500';
+      case 'admin_processing': return 'bg-purple-500';
+      case 'superadmin_processing': return 'bg-indigo-500';
       default: return 'bg-gray-500';
     }
   };
@@ -30,7 +32,9 @@ export default function FeedbackGrid({ feedbacks, onFeedbackClick }: FeedbackGri
     switch (status) {
       case 'pending': return 'Chờ xử lý';
       case 'resolved': return 'Đã giải quyết';
-      case 'in_progress': return 'Đang xử lý';
+      case 'manager_processing': return 'Manager đang xử lý';
+      case 'admin_processing': return 'Admin đang xử lý';
+      case 'superadmin_processing': return 'Super Admin đang xử lý';
       default: return 'Không xác định';
     }
   };
@@ -38,7 +42,7 @@ export default function FeedbackGrid({ feedbacks, onFeedbackClick }: FeedbackGri
   return (
     <div className="rounded-lg overflow-hidden space-y-2"> {/* Cách đều header và body */}
       {/* Header */}
-      <div className="grid grid-cols-4 bg-black text-white font-semibold text-center">
+      <div className="grid grid-cols-4 bg-[#181818] text-[#FFFFFF] font-semibold text-center">
         <div className="py-3">CHI NHÁNH</div>
         <div className="py-3">BÀN</div>
         <div className="py-3">THỜI GIAN</div>
@@ -53,11 +57,11 @@ export default function FeedbackGrid({ feedbacks, onFeedbackClick }: FeedbackGri
             className="grid grid-cols-4 items-center text-center bg-gray-200 rounded-lg cursor-pointer hover:bg-lime-50 transition"
             onClick={() => onFeedbackClick && onFeedbackClick(feedback.id)}
           >
-            <div className="py-4 font-semibold text-black">{feedback.branch}</div>
+            <div className="py-4 font-semibold text-[#000000]">{feedback.branch}</div>
             <div className="py-4 text-gray-700">{feedback.table}</div>
             <div className="py-4 text-gray-700">{feedback.time}</div>
             <div className="py-4 flex justify-center">
-              <span className={`px-2 py-1 rounded-full text-xs text-white ${getStatusColor(feedback.status)}`}>
+              <span className={`px-2 py-1 rounded-full text-xs text-[#FFFFFF] ${getStatusColor(feedback.status)}`}>
                 {getStatusText(feedback.status)}
               </span>
             </div>

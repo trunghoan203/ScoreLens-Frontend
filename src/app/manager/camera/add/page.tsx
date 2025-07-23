@@ -5,27 +5,72 @@ import AddFormLayout from '@/components/shared/AddFormLayout';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import { managerCameraService } from '@/lib/managerCameraService';
+import { managerTableService } from '@/lib/managerTableService';
 
-const statusOptions = [
-  { value: 'active', label: 'Hoạt động' },
-  { value: 'inactive', label: 'Không hoạt động' },
-];
+interface Table {
+  tableId: string;
+  number: number;
+  category: string;
+  status: string;
+}
 
 export default function AddCameraPage() {
-  const [table, setTable] = useState('');
+  const [tableId, setTableId] = useState('');
   const [ip, setIp] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [status, setStatus] = useState(statusOptions[0].value);
+  const [tables, setTables] = useState<Table[]>([]);
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    // Load available tables for selection
+    managerTableService.getAllTables()
+      .then((data: unknown) => {
+        let tablesArr: unknown[] = [];
+        if (Array.isArray(data)) tablesArr = data;
+        else if (data && typeof data === 'object' && Array.isArray((data as { tables?: unknown[] }).tables)) tablesArr = (data as { tables: unknown[] }).tables;
+        else if (data && typeof data === 'object' && Array.isArray((data as { data?: unknown[] }).data)) tablesArr = (data as { data: unknown[] }).data;
+        const mappedTables: Table[] = tablesArr.map(t => {
+          const obj = t as Partial<Table>;
+          return {
+            tableId: obj.tableId || '',
+            number: obj.number ?? 0,
+            category: obj.category ?? 'pool-8',
+            status: obj.status ?? 'empty',
+          };
+        });
+        setTables(mappedTables);
+      })
+      .catch(() => {
+        toast.error('Không thể tải danh sách bàn');
+      });
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Xử lý thêm camera ở đây
-    toast.success('Đã thêm camera thành công!');
-    router.push('/manager/camera');
+    if (!tableId || !ip || !username || !password) {
+      toast.error('Vui lòng điền đầy đủ thông tin');
+      return;
+    }
+
+    try {
+      await managerCameraService.createCamera({
+        tableId,
+        IPAddress: ip,
+        username,
+        password,
+      });
+      toast.success('Đã thêm camera thành công!');
+      router.push('/manager/camera');
+    } catch (error) {
+      console.error(error);
+      toast.error('Thêm camera thất bại.');
+    } finally {
+      // setLoading(false);
+    }
   };
 
   return (
@@ -45,7 +90,19 @@ export default function AddCameraPage() {
         >
           <div className="w-full mb-6">
             <label className="block text-sm font-semibold mb-2 text-black">Bàn<span className="text-red-500">*</span></label>
-            <Input value={table} onChange={e => setTable(e.target.value)} required placeholder="Nhập tên bàn" />
+            <Select 
+              className="text-black" 
+              value={tableId} 
+              onChange={e => setTableId(e.target.value)} 
+              required
+            >
+              <option className="text-black" value="">Chọn bàn</option>
+              {tables.map(table => (
+                <option className="text-black" key={table.tableId} value={table.tableId}>
+                  Bàn {table.number} - {table.category}
+                </option>
+              ))}
+            </Select>
           </div>
           <div className="w-full mb-6">
             <label className="block text-sm font-semibold mb-2 text-black">IP<span className="text-red-500">*</span></label>
@@ -55,17 +112,9 @@ export default function AddCameraPage() {
             <label className="block text-sm font-semibold mb-2 text-black">Username<span className="text-red-500">*</span></label>
             <Input value={username} onChange={e => setUsername(e.target.value)} required placeholder="Nhập username" />
           </div>
-          <div className="w-full mb-6">
+          <div className="w-full mb-10">
             <label className="block text-sm font-semibold mb-2 text-black">Mật khẩu<span className="text-red-500">*</span></label>
             <Input type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="Nhập mật khẩu" />
-          </div>
-          <div className="w-full mb-10">
-            <label className="block text-sm font-semibold mb-2 text-black">Trạng thái<span className="text-red-500">*</span></label>
-            <Select className="text-black" value={status} onChange={e => setStatus(e.target.value)} required>
-              {statusOptions.map(s => (
-                <option className="text-black" key={s.value} value={s.value}>{s.label}</option>
-              ))}
-            </Select>
           </div>
         </AddFormLayout>
       </main>
