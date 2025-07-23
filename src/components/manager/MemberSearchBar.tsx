@@ -13,7 +13,7 @@ export default function MemberSearchBar({ search, setSearch, onAddMember }: Memb
         <input
           type="text"
           placeholder="Nhập tên tìm kiếm"
-          className="bg-transparent outline-none flex-1 text-gray-700"
+          className="bg-transparent outline-none flex-1 text-[#000000]"
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
@@ -22,7 +22,7 @@ export default function MemberSearchBar({ search, setSearch, onAddMember }: Memb
           <path d="M21 21l-4.35-4.35" strokeWidth="2" strokeLinecap="round" />
         </svg>
       </div>
-      <button onClick={onAddMember} className="bg-lime-400 hover:bg-lime-500 text-white font-bold px-6 py-2 rounded-lg transition">Thêm hội viên</button>
+      <button onClick={onAddMember} className="bg-[#8ADB10] hover:bg-lime-500 text-[#FFFFFF] font-bold px-6 py-2 rounded-lg transition">Thêm hội viên</button>
     </div>
   );
 } 
