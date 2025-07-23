@@ -1,11 +1,76 @@
-import { Suspense } from 'react';
-import { GuestLoginPageClient } from './GuestLoginPageClient';
+'use client';
+
+import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { ScoreLensLogo } from '@/components/icons/LogoBlack';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import Image from 'next/image';
 import { BackButton } from '@/components/ui/BackButton';
 
-
 export default function GuestLoginPage() {
+  const [roomCode, setRoomCode] = useState<string[]>(['', '', '', '', '', '']);
+  const [tableNumber, setTableNumber] = useState('');
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+
+  const numberImages = [
+    '/images/numberBalls/ball_0.png',
+    '/images/numberBalls/ball_1.png',
+    '/images/numberBalls/ball_2.png',
+    '/images/numberBalls/ball_3.png',
+    '/images/numberBalls/ball_4.png',
+    '/images/numberBalls/ball_5.png',
+    '/images/numberBalls/ball_6.png',
+    '/images/numberBalls/ball_7.png',
+    '/images/numberBalls/ball_8.png',
+    '/images/numberBalls/ball_9.png',
+  ];
+
+  useEffect(() => {
+    const room = searchParams.get('room');
+    const table = searchParams.get('table');
+    if (room) setRoomCode(room.slice(0, 6).split(''));
+    if (table) setTableNumber(table);
+
+    const timer = setTimeout(() => setLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, [searchParams]);
+
+  const handleChange = (index: number, value: string) => {
+    const digit = value.replace(/\D/g, '');
+    if (digit === '0') return;
+
+    const newCode = [...roomCode];
+    newCode[index] = digit;
+    setRoomCode(newCode);
+
+    if (digit && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace') {
+      if (roomCode[index]) {
+        const newCode = [...roomCode];
+        newCode[index] = '';
+        setRoomCode(newCode);
+      } else if (index > 0) {
+        inputRefs.current[index - 1]?.focus();
+      }
+    }
+  };
+
+  const handleContinue = () => {
+    const code = roomCode.join('');
+    if (code.length < 6) return;
+    router.push(`/user/guest?table=${tableNumber}&room=${code}`);
+  };
+
+  if (loading) return <ScoreLensLoading text="Đang tải..." />;
+
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-100 px-4 relative">
       {/* Nút Back ở góc trên bên trái */}
@@ -82,8 +147,5 @@ export default function GuestLoginPage() {
         </button>
       </div>
     </div>
-    <Suspense fallback={<ScoreLensLoading text="Đang tải trang..." />}>
-      <GuestLoginPageClient />
-    </Suspense>
   );
 }
