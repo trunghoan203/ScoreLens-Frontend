@@ -38,7 +38,7 @@ export default function FeedbackGrid({ feedbacks, onFeedbackClick }: FeedbackGri
   return (
     <div className="rounded-lg overflow-hidden space-y-2"> {/* Cách đều header và body */}
       {/* Header */}
-      <div className="grid grid-cols-4 bg-black text-white font-semibold text-center">
+      <div className="grid grid-cols-4 bg-[#181818] text-[#FFFFFF] font-semibold text-center">
         <div className="py-3">CHI NHÁNH</div>
         <div className="py-3">BÀN</div>
         <div className="py-3">THỜI GIAN</div>
@@ -53,11 +53,11 @@ export default function FeedbackGrid({ feedbacks, onFeedbackClick }: FeedbackGri
             className="grid grid-cols-4 items-center text-center bg-gray-200 rounded-lg cursor-pointer hover:bg-lime-50 transition"
             onClick={() => onFeedbackClick && onFeedbackClick(feedback.id)}
           >
-            <div className="py-4 font-semibold text-black">{feedback.branch}</div>
+            <div className="py-4 font-semibold text-[#000000]">{feedback.branch}</div>
             <div className="py-4 text-gray-700">{feedback.table}</div>
             <div className="py-4 text-gray-700">{feedback.time}</div>
             <div className="py-4 flex justify-center">
-              <span className={`px-2 py-1 rounded-full text-xs text-white ${getStatusColor(feedback.status)}`}>
+              <span className={`px-2 py-1 rounded-full text-xs text-[#FFFFFF] ${getStatusColor(feedback.status)}`}>
                 {getStatusText(feedback.status)}
               </span>
             </div>

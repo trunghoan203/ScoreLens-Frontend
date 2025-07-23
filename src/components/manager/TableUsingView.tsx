@@ -16,7 +16,7 @@ interface TableUsingViewProps {
 
 export default function TableUsingView({ table, onBack, onEndMatch, onEdit }: TableUsingViewProps) {
   return (
-    <div className="border border-lime-200 rounded-lg p-8 bg-white mx-auto text-black">
+    <div className="border border-lime-200 rounded-lg p-8 bg-[#FFFFFF] mx-auto text-[#000000]">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg font-semibold">Quản lí bàn</h2>
         <TableStatusBadge status="using" />
