@@ -43,14 +43,14 @@ export default function DashboardSummary({ totalTables, inUse, available, member
   ];
   return (
     <section className="my-6">
-      <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-        <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">BẢNG ĐIỀU KHIỂN - TỔNG QUAN</span>
+      <div className="w-full rounded-xl bg-[#8ADB10] shadow-lg py-6 flex items-center justify-center mb-8">
+        <span className="text-2xl font-extrabold text-[#FFFFFF] tracking-widest flex items-center gap-3">BẢNG ĐIỀU KHIỂN - TỔNG QUAN</span>
       </div>
       <div className="grid grid-cols-4 gap-4">
         {items.map((item, idx) => (
-          <div key={item.label} className={`rounded-2xl shadow border-2 flex flex-col items-center py-6 px-2 bg-white border-lime-400`}>
+          <div key={item.label} className={`rounded-2xl shadow border-2 flex flex-col items-center py-6 px-2 bg-[#FFFFFF] border-[#8ADB10]`}>
             {icons[idx]}
-            <span className="text-3xl font-bold text-black mb-1">{item.value}</span>
+            <span className="text-3xl font-bold text-[#000000] mb-1">{item.value}</span>
             <span className="text-gray-700 text-sm font-semibold uppercase tracking-wide">{item.label}</span>
           </div>
         ))}
