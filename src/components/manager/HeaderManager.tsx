@@ -1,9 +1,30 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from '@/lib/axios';
 
 export default function HeaderManager() {
+  const [managerName, setManagerName] = useState<string>('Chưa đăng nhập');
+
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('managerAccessToken') : null;
+    if (token) {
+      axios.get('/manager/profile', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => {
+        const data = res.data as { fullName?: string; manager?: { fullName?: string } };
+        if (data.fullName) {
+          setManagerName(data.fullName);
+        } else if (data.manager && data.manager.fullName) {
+          setManagerName(data.manager.fullName);
+        }
+      })
+      .catch(() => setManagerName('Manager'));
+    }
+  }, []);
+
   return (
     <div className="flex items-center justify-between mb-8">
-      <h1 className="text-2xl font-bold text-gray-900">Trang chủ</h1>
+      <h1 className="text-2xl font-bold text-[#000000]">Trang chủ</h1>
       <div className="flex items-center gap-4">
         {/* Icon thông báo */}
         <button className="relative focus:outline-none">
@@ -16,7 +37,7 @@ export default function HeaderManager() {
         <span className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
           <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a7.5 7.5 0 0 1 13 0"/></svg>
         </span>
-        <span className="text-gray-700">Manager</span>
+        <span className="text-[#000000]">{managerName}</span>
       </div>
     </div>
   );

@@ -14,9 +14,9 @@ interface TableCardProps {
 
 export default function TableCard({ name, type, status, teamA, teamB, time, onDetail }: TableCardProps) {
   return (
-    <div className="border-2 border-lime-400 rounded-2xl shadow bg-white p-4 flex flex-col items-center min-w-[220px]">
+    <div className="border-2 border-[#8ADB10] rounded-2xl shadow bg-[#FFFFFF] p-4 flex flex-col items-center min-w-[220px]">
       <div className="flex w-full justify-between items-center mb-2">
-        <span className={`text-xs font-bold px-3 py-1 rounded-full ${status === 'using' ? 'bg-lime-400 text-black' : 'bg-blue-100 text-blue-700'} uppercase tracking-wide`}>{status === 'using' ? 'Đang sử dụng' : 'Bàn trống'}</span>
+        <span className={`text-xs font-bold px-3 py-1 rounded-full ${status === 'using' ? 'bg-[#8ADB10] text-[#000000]' : 'bg-blue-100 text-blue-700'} uppercase tracking-wide`}>{status === 'using' ? 'Đang sử dụng' : 'Bàn trống'}</span>
         <span className="text-xs text-gray-500 font-semibold">{type === 'pool' ? 'Bida Pool' : 'Bida Carom'}</span>
       </div>
       <div className="font-bold text-base mb-2 text-center text-gray-700">{name}</div>
@@ -38,7 +38,7 @@ export default function TableCard({ name, type, status, teamA, teamB, time, onDe
       </div>
       <div className="text-xs text-gray-500 mb-2">{time || '01:23:45'}</div>
       <button
-        className="w-full py-2 rounded-xl font-bold bg-lime-400 text-black text-base mt-1 hover:bg-lime-500 transition"
+        className="w-full py-2 rounded-xl font-bold bg-[#8ADB10] text-[#000000] text-base mt-1 hover:bg-lime-500 transition"
         onClick={onDetail || (() => {})}
       >
         {status === 'using' ? 'Xem chi tiết' : 'Sẵn sàng'}

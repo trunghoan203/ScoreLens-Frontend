@@ -1,43 +1,16 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { QRCodeCanvas } from 'qrcode.react';
-import { ScoreLensLogo } from '@/components/icons/LogoBlack';
+import { Suspense } from 'react';
+import { HomeRandomPageClient } from './HomeRandomPageClient';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
+import { BackButton } from '@/components/ui/BackButton';
 
 export default function HomeRandomPage() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const tableNumber = searchParams.get('table') || '??';
-
-  const [roomCode, setRoomCode] = useState('');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1000);
-
-    const digits = '123456789';
-    let code = '';
-    for (let i = 0; i < 6; i++) {
-      const randomDigit = digits[Math.floor(Math.random() * digits.length)];
-      code += randomDigit;
-    }
-    setRoomCode(code);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  const qrJoinUrl = `https://yourdomain.com/user/login?table=${tableNumber}&room=${roomCode}`;
-
-  const handleStart = () => {
-    router.push(`/user/screencontrol?table=${tableNumber}&room=${roomCode}`);
-  };
-
-  if (loading) return <ScoreLensLoading text="Đang tạo mã phòng..." />;
-
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-100 px-4">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-100 px-4 relative">
+      {/* Nút Back ở góc trên bên trái */}
+      <div className="absolute top-4 left-4 z-20">
+        <BackButton onClick={() => router.back()} />
+      </div>
+      {/* Nội dung chính */}
       <div className="flex-1 flex flex-col items-center text-center space-y-8 py-10 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
         {/* Logo */}
         <div className="flex justify-center">
@@ -83,5 +56,8 @@ export default function HomeRandomPage() {
         </button>
       </div>
     </div>
+    <Suspense fallback={<ScoreLensLoading text="Đang khởi tạo phòng..." />}>
+      <HomeRandomPageClient />
+    </Suspense>
   );
 }
