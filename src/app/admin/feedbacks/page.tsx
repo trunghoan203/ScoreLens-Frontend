@@ -1,83 +1,72 @@
 "use client";
-import React, { useState, useEffect } from "react";
+
+import React, { useState } from "react";
 import Sidebar from "@/components/admin/Sidebar";
 import HeaderAdminPage from "@/components/admin/HeaderAdminPage";
 import FeedbackTable from "@/components/admin/FeedbackTable";
 import FeedbackSearchBar from "@/components/admin/FeedbackSearchBar";
-import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { TableSkeleton, LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
-import { adminFeedbackService } from '@/lib/adminFeedbackService';
-import toast from 'react-hot-toast';
+import { useAdminAuthGuard } from '@/lib/hooks/useAdminAuthGuard';
 
-export interface Feedback {
-  feedbackId: string;
-  _id?: string;
-  createdBy: {
-    userId: string;
-    type: 'guest' | 'membership';
-  };
-  clubId: string;
-  tableId: string;
-  content: string;
-  status: 'pending' | 'manager_processing' | 'admin_processing' | 'superadmin_processing' | 'resolved';
-  needSupport: boolean;
-  note?: string;
-  history: Array<{
-    by: string;
-    role: string;
-    action: string;
-    note?: string;
-    date: Date;
-  }>;
-  createdAt: Date;
-  updatedAt: Date;
-}
+// Dữ liệu mẫu cho phản hồi
+const feedbacksData = [
+  { 
+    id: '1', 
+    branch: 'Chi nhánh 1', 
+    table: 'Bàn 01', 
+    time: '15:30 20/12/2024', 
+    status: 'pending' as const, 
+    cameraReliability: 85, 
+    feedback: 'Camera không hoạt động tốt, cần kiểm tra lại', 
+    notes: 'Đã báo cáo cho kỹ thuật viên' 
+  },
+  { 
+    id: '2', 
+    branch: 'Chi nhánh 2', 
+    table: 'Bàn 03', 
+    time: '14:15 20/12/2024', 
+    status: 'resolved' as const, 
+    cameraReliability: 95, 
+    feedback: 'Hệ thống hoạt động tốt, không có vấn đề gì', 
+    notes: 'Khách hàng hài lòng' 
+  },
+  { 
+    id: '3', 
+    branch: 'Chi nhánh 1', 
+    table: 'Bàn 05', 
+    time: '16:45 20/12/2024', 
+    status: 'in_progress' as const, 
+    cameraReliability: 70, 
+    feedback: 'Có vấn đề với việc ghi điểm, cần khắc phục', 
+    notes: 'Đang xử lý bởi đội kỹ thuật' 
+  },
+  { 
+    id: '4', 
+    branch: 'Chi nhánh 3', 
+    table: 'Bàn 02', 
+    time: '13:20 20/12/2024', 
+    status: 'resolved' as const, 
+    cameraReliability: 90, 
+    feedback: 'Cải thiện tốt, hệ thống hoạt động ổn định', 
+    notes: 'Khách hàng phản hồi tích cực' 
+  },
+];
 
 export default function AdminFeedbacksPage() {
+  const { isChecking } = useAdminAuthGuard();
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setLoading(true);
-    adminFeedbackService.getAllFeedbacks()
-      .then((data: unknown) => {
-        let feedbacksArr: unknown[] = [];
-        if (Array.isArray(data)) feedbacksArr = data;
-        else if (data && typeof data === 'object' && Array.isArray((data as { feedbacks?: unknown[] }).feedbacks)) feedbacksArr = (data as { feedbacks: unknown[] }).feedbacks;
-        else if (data && typeof data === 'object' && Array.isArray((data as { data?: unknown[] }).data)) feedbacksArr = (data as { data: unknown[] }).data;
-        const mappedFeedbacks: Feedback[] = feedbacksArr.map(f => {
-          const obj = f as Partial<Feedback>;
-          return {
-            feedbackId: obj.feedbackId || obj._id || '',
-            createdBy: obj.createdBy || { userId: '', type: 'guest' },
-            clubId: obj.clubId || '',
-            tableId: obj.tableId || '',
-            content: obj.content || '',
-            status: obj.status || 'pending',
-            needSupport: obj.needSupport || false,
-            note: obj.note || '',
-            history: obj.history || [],
-            createdAt: obj.createdAt || new Date(),
-            updatedAt: obj.updatedAt || new Date(),
-          };
-        });
-        setFeedbacks(mappedFeedbacks);
-      })
-      .catch(() => {
-        setError('Không thể tải danh sách phản hồi');
-        toast.error('Không thể tải danh sách phản hồi');
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
   const [tableLoading, setTableLoading] = useState(false);
-  const filteredFeedbacks = feedbacks.filter(f => 
-    f.clubId.toLowerCase().includes(search.toLowerCase()) ||
-    f.tableId.toLowerCase().includes(search.toLowerCase()) ||
-    f.content.toLowerCase().includes(search.toLowerCase())
+  const filteredFeedbacks = feedbacksData.filter(f => 
+    f.branch.toLowerCase().includes(search.toLowerCase()) ||
+    f.table.toLowerCase().includes(search.toLowerCase()) ||
+    f.feedback.toLowerCase().includes(search.toLowerCase())
   );
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1200);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSearch = (val: string) => {
     setSearch(val);
@@ -85,9 +74,11 @@ export default function AdminFeedbacksPage() {
     setTimeout(() => setTableLoading(false), 900);
   };
 
+  if (isChecking) return null;
+
   return (
     <>
-      {loading && <ScoreLensLoading text="Đang tải..." />}
+      {/* Đã loại bỏ ScoreLensLoading toàn trang để tránh loading dư thừa */}
       <div className="min-h-screen flex bg-[#18191A]">
         <Sidebar />
         <main className="flex-1 bg-white p-10 min-h-screen">
@@ -97,28 +88,16 @@ export default function AdminFeedbacksPage() {
               PHẢN HỒI
             </span>
           </div>
-          {/* Thanh tìm kiếm */}
           <FeedbackSearchBar
             search={search}
             setSearch={handleSearch}
           />
           {tableLoading ? (
             <div className="mt-6"><TableSkeleton rows={5} /></div>
-          ) : error ? (
-            <div className="mt-6 text-center text-red-500">{error}</div>
           ) : filteredFeedbacks.length === 0 ? (
             <div className="mt-6"><LoadingSkeleton type="card" lines={1} className="w-full max-w-md mx-auto" /></div>
           ) : (
-            <FeedbackTable feedbacks={filteredFeedbacks.map(f => ({
-              id: f.feedbackId,
-              branch: f.clubId,
-              table: f.tableId,
-              time: new Date(f.createdAt).toLocaleString('vi-VN'),
-              status: f.status,
-              cameraReliability: 85, // Mock data
-              feedback: f.content,
-              notes: f.note || '',
-            }))} />
+            <FeedbackTable feedbacks={filteredFeedbacks} />
           )}
         </main>
       </div>

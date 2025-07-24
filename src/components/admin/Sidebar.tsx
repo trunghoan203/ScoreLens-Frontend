@@ -30,7 +30,7 @@ export default function Sidebar() {
   return (
     <aside className="w-64 bg-[#18191A] text-white flex flex-col py-8 px-4 min-h-screen">
       <div className="flex flex-col items-center mb-10">
-        <ScoreLensLogo />
+        <ScoreLensLogo href="/admin/branches" />
       </div>
       <nav className="flex-1 space-y-2">
         <Link

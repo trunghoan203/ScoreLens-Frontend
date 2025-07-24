@@ -10,6 +10,7 @@ import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import toast from 'react-hot-toast';
+import { useAdminAuthGuard } from '@/lib/hooks/useAdminAuthGuard';
 
 interface Branch {
   name: string;
@@ -19,6 +20,7 @@ interface Branch {
 }
 
 export default function ClubInfoPage() {
+  const { isChecking } = useAdminAuthGuard();
   const [image, setImage] = useState<File | null>(null);
   const [clubName, setClubName] = useState('');
   const [ownerName, setOwnerName] = useState('');
@@ -72,9 +74,11 @@ export default function ClubInfoPage() {
     setShowConfirm(false);
   };
 
+  if (isChecking) return null;
+
   return (
     <>
-      {loading && <ScoreLensLoading text="Đang tải..." />}
+      {/* Đã loại bỏ ScoreLensLoading toàn trang để tránh loading dư thừa */}
       <div className="min-h-screen flex bg-[#18191A]">
         <Sidebar />
         <main className="flex-1 bg-white p-10 min-h-screen">
@@ -202,7 +206,6 @@ export default function ClubInfoPage() {
               </div>
             </div>
           </form>
-          {/* Empty state demo: nếu không có chi nhánh */}
           {branches.length === 0 && (
             <div className="w-full flex justify-center mt-8">
               <LoadingSkeleton type="card" lines={1} className="w-full max-w-md" />
@@ -216,7 +219,7 @@ export default function ClubInfoPage() {
             confirmText="Lưu"
             cancelText="Hủy"
           >
-            <div className="text-center text-black">Bạn có chắc chắn muốn lưu thông tin câu lạc bộ không?</div>
+            <div className="text-center">Bạn có chắc chắn muốn lưu thông tin câu lạc bộ không?</div>
           </ConfirmPopup>
         </main>
       </div>
