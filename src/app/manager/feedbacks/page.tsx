@@ -6,10 +6,10 @@ import FeedbackSearchBar from "@/components/manager/FeedbackSearchBar";
 import FeedbackGrid from "@/components/manager/FeedbackGrid";
 import FeedbackPageBanner from "@/components/manager/FeedbackPageBanner";
 import { useRouter } from "next/navigation";
-import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { managerFeedbackService } from '@/lib/managerFeedbackService';
 import toast from 'react-hot-toast';
+import { useManagerAuthGuard } from '@/lib/hooks/useManagerAuthGuard';
 
 export interface Feedback {
   feedbackId: string;
@@ -36,10 +36,12 @@ export interface Feedback {
 }
 
 export default function FeedbacksPage() {
+  const { isChecking } = useManagerAuthGuard();
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     setLoading(true);
@@ -75,7 +77,6 @@ export default function FeedbacksPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const router = useRouter();
   const filteredFeedbacks = feedbacks.filter(f => 
     f.content.toLowerCase().includes(search.toLowerCase()) ||
     f.tableId.toLowerCase().includes(search.toLowerCase()) ||
@@ -86,9 +87,11 @@ export default function FeedbacksPage() {
     router.push(`/manager/feedbacks/${feedbackId}`);
   };
 
+  if (isChecking) return null;
+
   return (
     <>
-      {loading && <ScoreLensLoading text="Đang tải..." />}
+      {/* Đã loại bỏ ScoreLensLoading toàn trang để tránh loading dư thừa */}
       <div className="min-h-screen flex bg-[#18191A]">
         <SidebarManager />
         <main className="flex-1 bg-white p-10 min-h-screen">

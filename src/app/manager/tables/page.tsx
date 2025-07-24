@@ -6,10 +6,10 @@ import TableSearchBar from "@/components/manager/TableSearchBar";
 import TableGrid from "@/components/manager/TableGrid";
 import TablePageBanner from "@/components/manager/TablePageBanner";
 import { useRouter } from "next/navigation";
-import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { managerTableService } from '@/lib/managerTableService';
 import toast from 'react-hot-toast';
+import { useManagerAuthGuard } from '@/lib/hooks/useManagerAuthGuard';
 
 export interface Table {
   tableId: string;
@@ -22,6 +22,7 @@ export interface Table {
 }
 
 export default function TablesPage() {
+  const { isChecking } = useManagerAuthGuard();
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [tables, setTables] = useState<Table[]>([]);
@@ -55,6 +56,7 @@ export default function TablesPage() {
       .finally(() => setLoading(false));
   }, []);
   const router = useRouter();
+  if (isChecking) return null;
   const filteredTables = tables.filter(
     t => typeof t.number === 'number' && t.number.toString().includes(search)
   );
@@ -69,7 +71,7 @@ export default function TablesPage() {
 
   return (
     <>
-      {loading && <ScoreLensLoading text="Đang tải..." />}
+      {/* Đã loại bỏ ScoreLensLoading toàn trang để tránh loading dư thừa */}
       <div className="min-h-screen flex bg-[#18191A]">
         <SidebarManager />
         <main className="flex-1 bg-white p-10 min-h-screen">

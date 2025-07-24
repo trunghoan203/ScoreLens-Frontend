@@ -6,11 +6,11 @@ import CameraSearchBar from "@/components/manager/CameraSearchBar";
 import CameraGrid from "@/components/manager/CameraGrid";
 import CameraPageBanner from "@/components/manager/CameraPageBanner";
 import { useRouter } from "next/navigation";
-import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { managerCameraService } from '@/lib/managerCameraService';
 import { managerTableService } from '@/lib/managerTableService';
 import toast from 'react-hot-toast';
+import { useManagerAuthGuard } from '@/lib/hooks/useManagerAuthGuard';
 
 export interface Camera {
   cameraId: string;
@@ -31,11 +31,13 @@ interface Table {
 }
 
 export default function CameraPage() {
+  const { isChecking } = useManagerAuthGuard();
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [cameras, setCameras] = useState<Camera[]>([]);
   const [tables, setTables] = useState<Table[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     setLoading(true);
@@ -86,7 +88,7 @@ export default function CameraPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const router = useRouter();
+  if (isChecking) return null;
 
   // Tìm tên bàn theo tableId
   const getTableDisplay = (tableId: string) => {
@@ -110,7 +112,7 @@ export default function CameraPage() {
 
   return (
     <>
-      {loading && <ScoreLensLoading text="Đang tải..." />}
+      {/* Đã loại bỏ ScoreLensLoading toàn trang để tránh loading dư thừa */}
       <div className="min-h-screen flex bg-[#18191A]">
         <SidebarManager />
         <main className="flex-1 bg-white p-10 min-h-screen">
