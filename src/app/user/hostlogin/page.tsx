@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ScoreLensLogo } from '@/components/icons/LogoBlack';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
+import { BackButton } from '@/components/ui/BackButton';
 
 export default function HostLoginPage() {
   const [teamAPlayers, setTeamAPlayers] = useState(2);
@@ -88,6 +89,10 @@ export default function HostLoginPage() {
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
+      {/* Nút Back ở góc trên bên trái */}
+      <div className="absolute top-4 left-4 z-20">
+        <BackButton onClick={() => router.back()} />
+      </div>
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#8ADB10] rounded-full mix-blend-multiply filter blur-xl opacity-5 animate-blob"></div>
@@ -101,7 +106,7 @@ export default function HostLoginPage() {
           <div className="w-full max-w-md mx-auto space-y-8">
             {/* Logo */}
             <div className="flex justify-center mb-8">
-              <div className="w-24 h-24 sm:w-28 sm:h-28">
+              <div className="sm:w-28 sm:h-28">
                 <ScoreLensLogo />
               </div>
             </div>

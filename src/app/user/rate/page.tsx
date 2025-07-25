@@ -7,21 +7,44 @@ import { Button } from '@/components/ui/button';
 import PopupFeedback from '@/app/user/popup/popupFeedback';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { MessageCircleHeart } from 'lucide-react';
+import { userFeedbackService } from '@/lib/userFeedbackService';
+import toast from 'react-hot-toast';
+import { BackButton } from '@/components/ui/BackButton';
 
 export default function RatePage() {
   const router = useRouter();
   const [feedback, setFeedback] = useState('');
   const [showPopup, setShowPopup] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
   }, []);
 
-  const handleSubmit = () => {
-    console.log('Feedback:', feedback);
-    setShowPopup(true);
+  const handleSubmit = async () => {
+    if (!feedback.trim()) {
+      toast.error('Vui lòng nhập phản hồi!');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      // TODO: Lấy clubId, tableId động nếu cần
+      await userFeedbackService.createFeedback({
+        clubId: 'CLB-1751950292581-3267',
+        tableId: 'TB-1752296882416',
+        content: feedback,
+        createdBy: { type: 'guest' },
+      });
+      setShowPopup(true);
+      setFeedback('');
+      toast.success('Gửi phản hồi thành công!');
+    } catch (error) {
+      toast.error('Gửi phản hồi thất bại!');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleConfirmPayment = () => {
@@ -32,7 +55,11 @@ export default function RatePage() {
   if (loading) return <ScoreLensLoading text="Đang tải..." />;
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-100 px-4">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-100 px-4 relative">
+      {/* Nút Back ở góc trên bên trái */}
+      <div className="absolute top-4 left-4 z-20">
+        <BackButton onClick={() => router.back()} />
+      </div>
       {/* Nội dung chính */}
       <div
         className={`flex-1 flex flex-col items-center text-center space-y-8 py-10 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto transition-all duration-300 ${
@@ -59,6 +86,7 @@ export default function RatePage() {
               rows={5}
               className="w-full rounded-lg p-2 outline-none text-black text-sm resize-none bg-transparent"
               placeholder="Nhập phản hồi của bạn..."
+              disabled={submitting}
             />
           </div>
         </div>
@@ -70,9 +98,10 @@ export default function RatePage() {
           <Button
             onClick={handleSubmit}
             className="w-full bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center gap-2"
+            disabled={submitting}
           >
             <MessageCircleHeart size={18} />
-            Gửi đánh giá
+            {submitting ? 'Đang gửi...' : 'Gửi đánh giá'}
           </Button>
         </div>
       </div>

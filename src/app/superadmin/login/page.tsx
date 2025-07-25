@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AuthLayout } from '@/components/shared/AuthLayout';
 import toast from 'react-hot-toast';
+import { loginSuperAdmin } from '@/lib/superAdminService';
 
 export default function SuperAdminAccessPage() {
   const [email, setEmail] = useState('');
@@ -28,6 +29,7 @@ export default function SuperAdminAccessPage() {
     setErrors({});
 
     try {
+      await loginSuperAdmin(email);
       await new Promise((resolve) => setTimeout(resolve, 1000));
       toast.success('Email đã được gửi thành công!');
       window.location.href = `/superadmin/verification?email=${encodeURIComponent(email)}`;
@@ -54,7 +56,7 @@ export default function SuperAdminAccessPage() {
     <AuthLayout
       title="Truy cập vào ScoreLens dành cho Super Admin"
       description=""
-      //imageUrl="/images/billiards.png" // Đặt ảnh phù hợp
+    //imageUrl="/images/billiards.png" // Đặt ảnh phù hợp
     >
 
 
@@ -71,9 +73,8 @@ export default function SuperAdminAccessPage() {
             placeholder="ScoreLens"
             required
             disabled={isLoading}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${
-              errors.email ? 'border-red-500' : 'border-gray-300'
-            }`}
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${errors.email ? 'border-red-500' : 'border-gray-300'
+              }`}
           />
           {errors.email && (
             <p className="text-red-500 text-sm mt-1">{errors.email}</p>
