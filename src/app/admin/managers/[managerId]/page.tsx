@@ -11,6 +11,7 @@ import managerService from '@/lib/managerService';
 import { Select } from '@/components/ui/select';
 import clubsService, { ClubResponse } from '@/lib/clubsService';
 import adminService from '@/lib/adminService';
+import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 
 export default function ManagerDetailPage() {
   const router = useRouter();
@@ -98,8 +99,19 @@ export default function ManagerDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex bg-[#18191A] items-center justify-center">
-        <span className="text-lg text-white">Đang tải chi tiết quản lý...</span>
+      <div className="min-h-screen flex bg-[#18191A]">
+        <Sidebar />
+        <main className="flex-1 bg-white p-10 min-h-screen">
+          <HeaderAdminPage />
+          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
+            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+              QUẢN LÝ
+            </span>
+          </div>
+          <div className="py-8">
+            <LoadingSkeleton type="card" lines={6} className="w-full max-w-2xl mx-auto" />
+          </div>
+        </main>
       </div>
     );
   }
