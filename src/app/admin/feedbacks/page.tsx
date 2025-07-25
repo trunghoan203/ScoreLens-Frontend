@@ -4,10 +4,10 @@ import Sidebar from "@/components/admin/Sidebar";
 import HeaderAdminPage from "@/components/admin/HeaderAdminPage";
 import FeedbackTable from "@/components/admin/FeedbackTable";
 import FeedbackSearchBar from "@/components/admin/FeedbackSearchBar";
-import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { TableSkeleton, LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { adminFeedbackService } from '@/lib/adminFeedbackService';
 import toast from 'react-hot-toast';
+import { useAdminAuthGuard } from '@/lib/hooks/useAdminAuthGuard';
 
 export interface Feedback {
   feedbackId: string;
@@ -34,12 +34,15 @@ export interface Feedback {
 }
 
 export default function AdminFeedbacksPage() {
+  const { isChecking } = useAdminAuthGuard();
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [tableLoading, setTableLoading] = useState(false);
 
   useEffect(() => {
+    if (isChecking) return;
     setLoading(true);
     adminFeedbackService.getAllFeedbacks()
       .then((data: unknown) => {
@@ -70,9 +73,8 @@ export default function AdminFeedbacksPage() {
         toast.error('Không thể tải danh sách phản hồi');
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [isChecking]);
 
-  const [tableLoading, setTableLoading] = useState(false);
   const filteredFeedbacks = feedbacks.filter(f => 
     f.clubId.toLowerCase().includes(search.toLowerCase()) ||
     f.tableId.toLowerCase().includes(search.toLowerCase()) ||
@@ -85,9 +87,10 @@ export default function AdminFeedbacksPage() {
     setTimeout(() => setTableLoading(false), 900);
   };
 
+  if (isChecking) return null;
+
   return (
     <>
-      {loading && <ScoreLensLoading text="Đang tải..." />}
       <div className="min-h-screen flex bg-[#18191A]">
         <Sidebar />
         <main className="flex-1 bg-white p-10 min-h-screen">
@@ -97,17 +100,20 @@ export default function AdminFeedbacksPage() {
               PHẢN HỒI
             </span>
           </div>
-          {/* Thanh tìm kiếm */}
           <FeedbackSearchBar
             search={search}
             setSearch={handleSearch}
           />
-          {tableLoading ? (
+          {loading ? (
+            <div className="mt-6"><TableSkeleton rows={5} /></div>
+          ) : tableLoading ? (
             <div className="mt-6"><TableSkeleton rows={5} /></div>
           ) : error ? (
             <div className="mt-6 text-center text-red-500">{error}</div>
           ) : filteredFeedbacks.length === 0 ? (
-            <div className="mt-6"><LoadingSkeleton type="card" lines={1} className="w-full max-w-md mx-auto" /></div>
+            <div className="mt-6"><LoadingSkeleton type="card" lines={1} className="w-full max-w-md mx-auto" />
+              <div className="text-center text-gray-500 mt-4">Không tìm thấy phản hồi nào</div>
+            </div>
           ) : (
             <FeedbackTable feedbacks={filteredFeedbacks.map(f => ({
               id: f.feedbackId,

@@ -6,11 +6,11 @@ import HeaderAdminPage from "@/components/admin/HeaderAdminPage";
 import ManagerTable from "@/components/admin/ManagerTable";
 import { useRouter } from "next/navigation";
 import ManagerSearchBar from "@/components/admin/ManagerSearchBar";
-import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { TableSkeleton, LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import managerService from '@/lib/managerService';
 import adminService from '@/lib/adminService';
 import toast from 'react-hot-toast';
+import { useAdminAuthGuard } from '@/lib/hooks/useAdminAuthGuard';
 
 interface Manager {
   name: string;
@@ -22,6 +22,7 @@ interface Manager {
 }
 
 export default function ManagersPage() {
+  const { isChecking } = useAdminAuthGuard();
   const [search, setSearch] = useState("");
   const router = useRouter();
   const [managers, setManagers] = useState<Manager[]>([]);
@@ -29,6 +30,7 @@ export default function ManagersPage() {
   const [tableLoading, setTableLoading] = useState(false);
 
   React.useEffect(() => {
+    if (isChecking) return;
     const fetchManagers = async () => {
       setLoading(true);
       try {
@@ -63,7 +65,7 @@ export default function ManagersPage() {
       }
     };
     fetchManagers();
-  }, []);
+  }, [isChecking]);
 
   const filteredManagers = managers.filter((m) =>
     m.name?.toLowerCase().includes(search.toLowerCase())
@@ -75,9 +77,10 @@ export default function ManagersPage() {
     setTimeout(() => setTableLoading(false), 900);
   };
 
+  if (isChecking) return null;
+
   return (
     <>
-      {loading && <ScoreLensLoading text="Đang tải..." />}
       <div className="min-h-screen flex bg-[#18191A]">
         <Sidebar />
         <main className="flex-1 bg-white p-10 min-h-screen">
@@ -87,16 +90,19 @@ export default function ManagersPage() {
               QUẢN LÝ
             </span>
           </div>
-          {/* Thanh tìm kiếm và nút thêm quản lý */}
           <ManagerSearchBar
             search={search}
             setSearch={handleSearch}
             onAddManager={() => router.push('/admin/managers/add')}
           />
-          {tableLoading ? (
+          {loading ? (
+            <div className="mt-6"><TableSkeleton rows={5} /></div>
+          ) : tableLoading ? (
             <div className="mt-6"><TableSkeleton rows={5} /></div>
           ) : filteredManagers.length === 0 ? (
-            <div className="mt-6"><LoadingSkeleton type="card" lines={1} className="w-full max-w-md mx-auto" /></div>
+            <div className="mt-6"><LoadingSkeleton type="card" lines={1} className="w-full max-w-md mx-auto" />
+              <div className="text-center text-gray-500 mt-4">Không tìm thấy quản lý nào</div>
+            </div>
           ) : (
             <ManagerTable managers={filteredManagers} />
           )}

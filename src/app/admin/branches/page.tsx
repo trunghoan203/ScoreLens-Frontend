@@ -4,15 +4,15 @@ import Sidebar from '@/components/admin/Sidebar';
 import HeaderAdminPage from '@/components/admin/HeaderAdminPage';
 import BranchSearchBar from '@/components/admin/BranchSearchBar';
 import BranchTable from '@/components/admin/BranchTable';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { LoadingSkeleton, TableSkeleton } from '@/components/ui/LoadingSkeleton';
-import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { useRouter } from 'next/navigation';
 import clubsService, { ClubResponse } from '@/lib/clubsService';
 import adminService from '@/lib/adminService';
 import toast from 'react-hot-toast';
+import { useAdminAuthGuard } from '@/lib/hooks/useAdminAuthGuard';
 
 export default function BranchesPage() {
+  const { isChecking } = useAdminAuthGuard();
   const [search, setSearch] = useState("");
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
@@ -21,22 +21,17 @@ export default function BranchesPage() {
   const [isAdding, setIsAdding] = useState(false);
   const router = useRouter();
 
-  // Load clubs data from API
   useEffect(() => {
+    if (isChecking) return;
     const loadClubs = async () => {
       try {
         setIsPageLoading(true);
-        
-        // Lấy brandId của admin đang đăng nhập
         const brandId = await adminService.getBrandId();
-        
         if (brandId) {
-          // Lấy clubs theo brandId
           const clubs = await clubsService.getClubsByBrandId(brandId);
           setAllBranches(clubs);
           setBranches(clubs);
         } else {
-          // Fallback: lấy tất cả clubs nếu không có brandId
           const clubs = await clubsService.getAllClubs();
           setAllBranches(clubs);
           setBranches(clubs);
@@ -48,19 +43,14 @@ export default function BranchesPage() {
         setIsPageLoading(false);
       }
     };
-
     loadClubs();
-  }, []);
+  }, [isChecking]);
 
-  // Search functionality
   const handleSearch = async (searchTerm: string) => {
     setSearch(searchTerm);
     setIsSearching(true);
-    
     try {
-      // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 300));
-      
       const filtered = allBranches.filter(b =>
         b.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
         b.clubName.toLowerCase().includes(searchTerm.toLowerCase())
@@ -74,7 +64,6 @@ export default function BranchesPage() {
     }
   };
 
-  // Handle add branch
   const handleAddBranch = async () => {
     setIsAdding(true);
     try {
@@ -87,9 +76,10 @@ export default function BranchesPage() {
     }
   };
 
+  if (isChecking) return null;
+
   return (
     <>
-      {isPageLoading && <ScoreLensLoading text="Đang tải..." />}
       <div className="min-h-screen flex bg-[#18191A]">
         <Sidebar />
         <main className="flex-1 bg-white p-10 min-h-screen">
@@ -102,30 +92,22 @@ export default function BranchesPage() {
           <BranchSearchBar
             search={search}
             setSearch={handleSearch}
-            onAddBranch={handleAddBranch}
-            isSearching={isSearching}
+            onAddBranch={isAdding ? () => {} : handleAddBranch}
           />
-          {/* LoadingSpinner khi thêm chi nhánh */}
-          {isAdding && (
-            <div className="flex justify-center py-4">
-              <LoadingSpinner size="md" text="Đang chuyển hướng..." color="lime" />
-            </div>
-          )}
-          {/* TableSkeleton khi search */}
-          {isSearching && (
+          {isPageLoading ? (
             <div className="py-8">
               <TableSkeleton rows={5} />
             </div>
-          )}
-          {/* LoadingSkeleton cho từng dòng nếu không có dữ liệu */}
-          {!isSearching && branches.length === 0 && (
+          ) : isSearching ? (
+            <div className="py-8">
+              <TableSkeleton rows={5} />
+            </div>
+          ) : branches.length === 0 ? (
             <div className="py-8">
               <LoadingSkeleton type="text" lines={2} />
               <div className="text-center text-gray-500 mt-4">Không tìm thấy chi nhánh nào</div>
             </div>
-          )}
-          {/* Hiển thị bảng khi có dữ liệu */}
-          {!isSearching && branches.length > 0 && (
+          ) : (
             <BranchTable 
               branches={branches.map(b => ({ 
                 _id: b._id,
