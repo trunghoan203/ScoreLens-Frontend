@@ -6,10 +6,10 @@ import MemberSearchBar from "@/components/manager/MemberSearchBar";
 import MemberGrid from "@/components/manager/MemberGrid";
 import MemberPageBanner from "@/components/manager/MemberPageBanner";
 import { useRouter } from "next/navigation";
-import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { managerMemberService } from '@/lib/managerMemberService';
 import toast from 'react-hot-toast';
+import { useManagerAuthGuard } from '@/lib/hooks/useManagerAuthGuard';
 
 export interface Member {
   membershipId: string;
@@ -20,10 +20,12 @@ export interface Member {
 }
 
 export default function MembersPage() {
+  const { isChecking } = useManagerAuthGuard();
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState<Member[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     setLoading(true);
@@ -51,7 +53,6 @@ export default function MembersPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const router = useRouter();
   const filteredMembers = members.filter(m => m.fullName.toLowerCase().includes(search.toLowerCase()));
 
   const handleAddMember = () => {
@@ -62,9 +63,11 @@ export default function MembersPage() {
     router.push(`/manager/members/${membershipId}`);
   };
 
+  if (isChecking) return null;
+
   return (
     <>
-      {loading && <ScoreLensLoading text="Đang tải..." />}
+      {/* Đã loại bỏ ScoreLensLoading toàn trang để tránh loading dư thừa */}
       <div className="min-h-screen flex bg-[#18191A]">
         <SidebarManager />
         <main className="flex-1 bg-white p-10 min-h-screen">

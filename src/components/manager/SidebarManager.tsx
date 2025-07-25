@@ -33,7 +33,7 @@ export default function SidebarManager() {
   return (
     <aside className="w-64 bg-[#181818] text-white flex flex-col py-8 px-4 min-h-screen sticky top-0 h-screen z-30">
       <div className="flex flex-col items-center mb-10">
-        <ScoreLensLogo />
+        <ScoreLensLogo href="/manager/dashboard" />
       </div>
       <nav className="flex-1 space-y-2">
         <Link
