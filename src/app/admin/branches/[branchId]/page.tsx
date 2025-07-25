@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useRouter, useParams } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
-import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
+import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import toast from 'react-hot-toast';
 import clubsService, { ClubResponse } from '@/lib/clubsService';
 
@@ -115,7 +115,7 @@ export default function BranchDetailPage() {
             </span>
           </div>
           <div className="py-8">
-            <ScoreLensLoading text="Đang tải thông tin chi nhánh..." />
+            <LoadingSkeleton type="card" lines={6} className="w-full max-w-2xl mx-auto" />
           </div>
         </main>
       </div>
