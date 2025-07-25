@@ -9,7 +9,7 @@ import axios from '@/lib/axios';
 interface BrandInfo {
   brandId: string;
   brandName: string;
-  numberPhone: string;
+  phoneNumber: string;
   website?: string;
   logo_url?: string;
   citizenCode: string;
@@ -275,7 +275,7 @@ export function BranchInfoForm({ onSuccess, brandInfo, onBack }: BranchInfoFormP
                 </div>
                 <div className="w-full space-y-2 text-sm">
                   <InfoRow label="Tên thương hiệu" value={brandInfo.brandName} />
-                  <InfoRow label="Số điện thoại" value={brandInfo.numberPhone} />
+                  <InfoRow label="Số điện thoại" value={brandInfo.phoneNumber} />
                   <InfoRow label="Website" value={brandInfo.website || 'N/A'} />
                   <InfoRow label="CCCD" value={brandInfo.citizenCode} />
                 </div>
