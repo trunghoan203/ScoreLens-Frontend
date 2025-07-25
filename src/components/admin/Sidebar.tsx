@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
 import { Button } from '@/components/ui/button';
 import axios from '@/lib/axios';
+import toast from 'react-hot-toast';
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -21,39 +22,41 @@ export default function Sidebar() {
         });
         localStorage.removeItem('adminAccessToken');
       }
+      toast.success('Đăng xuất thành công!');
     } catch {
       localStorage.removeItem('adminAccessToken');
+      toast.error('Đăng xuất thất bại.');
     }
     router.push('/');
   };
 
   return (
-    <aside className="w-64 bg-[#18191A] text-white flex flex-col py-8 px-4 min-h-screen">
+    <aside className="w-64 bg-[#181818] text-white flex flex-col py-8 px-4 min-h-screen sticky top-0 h-screen z-30">
       <div className="flex flex-col items-center mb-10">
-        <ScoreLensLogo />
+        <ScoreLensLogo href="/admin/branches" />
       </div>
       <nav className="flex-1 space-y-2">
         <Link
           href="/admin/branches"
-          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/admin/branches') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
+          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/admin/branches') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
         >
           Chi nhánh
         </Link>
         <Link
           href="/admin/managers"
-          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/admin/managers') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
+          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/admin/managers') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
         >
           Quản lý
         </Link>
         <Link
           href="/admin/club"
-          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/admin/club') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
+          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/admin/club') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
         >
           Thông tin câu lạc bộ
         </Link>
         <Link
           href="/admin/feedbacks"
-          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/admin/feedbacks') ? 'bg-lime-400 text-black' : 'hover:bg-lime-100 hover:text-black'}`}
+          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/admin/feedbacks') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
         >
           Phản hồi
         </Link>
