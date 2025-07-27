@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { AuthLayout } from '@/components/shared/AuthLayout';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
-import { verifySuperAdminLogin } from '@/lib/superAdminService';
+import { verifySuperAdminLogin } from '@/lib/superadminService';
 
 export default function SuperAdminVerificationPage() {
   return (

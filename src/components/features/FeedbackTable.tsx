@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Search, Calendar } from 'lucide-react';
-import { getAllFeedback } from '@/lib/superAdminService';
+import { getAllFeedback } from '@/lib/superadminFeedbackService';
 import toast from 'react-hot-toast';
 
 interface Feedback {
@@ -18,14 +18,18 @@ interface Feedback {
 
 interface ApiFeedback {
   feedbackId: string;
-  status: 'resolved' | 'pending';
-  createdBy?: {
-    clubId: string;
-    tableId: string;
+  status: 'resolved' | 'pending' | 'managerP' | 'adminP' | 'superadminP';
+  content: string;
+  createdAt: string;
+  clubInfo?: {
+    clubName: string;
+    address: string;
+    phoneNumber: string;
   };
-  history?: {
-    createdAt: string;
-  }[];
+  tableInfo?: {
+    name: string;
+    category: string;
+  };
 }
 
 export function FeedbackTable() {
@@ -43,9 +47,9 @@ export function FeedbackTable() {
         const data = res.data as { feedbacks: ApiFeedback[] };
         const mappedFeedbacks: Feedback[] = data.feedbacks.map((fb: ApiFeedback) => ({
           id: fb.feedbackId,
-          branch: fb.createdBy?.clubId || 'N/A',
-          table: fb.createdBy?.tableId || 'N/A',
-          date: fb.history?.[0]?.createdAt?.slice(0, 10) || 'N/A',
+          branch: fb.clubInfo?.clubName || 'N/A',
+          table: fb.tableInfo?.name || 'N/A',
+          date: fb.createdAt ? new Date(fb.createdAt).toISOString().slice(0, 10) : 'N/A',
           status: fb.status === 'resolved' ? 'Đã xử lý' : 'Chưa xử lý',
         }));
         setFeedbacks(mappedFeedbacks);

@@ -5,22 +5,34 @@ import { useRouter, useParams } from 'next/navigation';
 import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
 import { PageBanner } from '@/components/shared/PageBanner';
 import { Button } from '@/components/ui/button';
-import { getFeedbackDetail, updateFeedback } from '@/lib/superAdminService';
+import { getFeedbackDetail, updateFeedback } from '@/lib/superadminFeedbackService';
 import toast from 'react-hot-toast';
 
 interface Feedback {
-  id: string;
+  feedbackId: string;
   content: string;
   note?: string;
-  status: 'resolved' | 'pending';
+  status: 'resolved' | 'pending' | 'managerP' | 'adminP' | 'superadminP';
   needSupport?: boolean;
-  createdBy?: {
-    clubId: string;
-    tableId: string;
+  createdAt: string;
+  updatedAt: string;
+  clubInfo?: {
+    clubName: string;
+    address: string;
+    phoneNumber: string;
   };
-  history?: {
-    createdAt: string;
-  }[];
+  tableInfo?: {
+    name: string;
+    category: string;
+  };
+  history?: Array<{
+    byId: string;
+    byName: string;
+    byRole: string;
+    action: string;
+    note?: string;
+    date: string;
+  }>;
 }
 
 export default function FeedbackDetailPage() {
@@ -84,13 +96,13 @@ export default function FeedbackDetailPage() {
           <div className="grid grid-cols-2 gap-4 text-sm text-gray-900">
             <div className="space-y-1">
               <p>
-                <span className="font-semibold">Chi nhánh:</span> {feedback.createdBy?.clubId}
+                <span className="font-semibold">Chi nhánh:</span> {feedback.clubInfo?.clubName || 'N/A'}
               </p>
               <p>
-                <span className="font-semibold">Bàn:</span> {feedback.createdBy?.tableId}
+                <span className="font-semibold">Bàn:</span> {feedback.tableInfo?.name || 'N/A'}
               </p>
               <p>
-                <span className="font-semibold">Ngày:</span> {feedback.history?.[0]?.createdAt?.slice(0, 10)}
+                <span className="font-semibold">Ngày:</span> {feedback.createdAt ? new Date(feedback.createdAt).toISOString().slice(0, 10) : 'N/A'}
               </p>
             </div>
             <div className="space-y-1">
