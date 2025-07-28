@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { ScoreLensLogo } from '@/components/icons/LogoWhite';
 import Image from 'next/image';
-import { logoutSuperAdmin } from '@/lib/superadminService';
+import { logoutSuperAdmin } from '@/lib/saService';
 
 export function HeaderAdmin() {
   const [dropdownOpen, setDropdownOpen] = useState(false);

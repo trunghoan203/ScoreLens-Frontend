@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
 import { PageBanner } from '@/components/shared/PageBanner';
 import { Button } from '@/components/ui/button';
-import { getFeedbackDetail, updateFeedback } from '@/lib/superadminFeedbackService';
+import { getFeedbackDetail, updateFeedback } from '@/lib/saFeedbackService';
 import toast from 'react-hot-toast';
 
 interface Feedback {
