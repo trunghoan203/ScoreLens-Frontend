@@ -7,26 +7,54 @@ import { PageBanner } from '@/components/shared/PageBanner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { getAdminDetail, approveAdmin, rejectAdmin } from '@/lib/superAdminService';
+import { getAdminDetail, approveAdmin, rejectAdmin } from '@/lib/superadminAdminService';
+
+interface Club {
+  clubId: string;
+  clubName: string;
+  address: string;
+  tableNumber: number;
+  cameraNumber: number;
+}
+
+interface Brand {
+  brandName: string;
+  citizenCode: string;
+  numberPhone: string;
+}
+
+interface Admin {
+  id: string;
+  fullName: string;
+  email: string;
+  status: 'pending' | 'approved' | 'rejected';
+  brand?: Brand;
+  clubs?: Club[];
+}
 
 export default function AdminDetailPage() {
   const params = useParams();
   const id = typeof params?.id === 'string' ? params.id : '';
   const router = useRouter();
-  const [admin, setAdmin] = useState<any>(null);
+  const [admin, setAdmin] = useState<Admin | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!id) {
+      setLoading(false);
+      toast.error('ID không hợp lệ');
+      return;
+    }
     setLoading(true);
-    getAdminDetail(id as string)
+    getAdminDetail(id)
       .then((res) => {
-        const data = res.data as { admin?: any };
+        const data = res.data as { admin?: Admin };
         if (!data.admin) {
           toast.error('Không tìm thấy admin');
-          setLoading(false);
-          return;
+          setAdmin(null);
+        } else {
+          setAdmin(data.admin);
         }
-        setAdmin(data.admin);
         setLoading(false);
       })
       .catch(() => {
@@ -37,7 +65,7 @@ export default function AdminDetailPage() {
 
   const handleApprove = async () => {
     try {
-      await approveAdmin(id as string);
+      await approveAdmin(id);
       toast.success('Admin đã được duyệt.');
       router.push('/superadmin/home?tab=approval');
     } catch {
@@ -47,7 +75,7 @@ export default function AdminDetailPage() {
 
   const handleReject = async () => {
     try {
-      await rejectAdmin(id as string);
+      await rejectAdmin(id);
       toast.success('Admin đã bị từ chối.');
       router.push('/superadmin/home?tab=approval');
     } catch {
@@ -102,7 +130,7 @@ export default function AdminDetailPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div />
               <div className="md:col-span-2 space-y-4">
-                {admin.clubs.map((club: any, idx: number) => (
+                {admin.clubs.map((club: Club, idx: number) => (
                   <div
                     key={club.clubId}
                     className="relative p-6 border rounded-xl bg-white shadow-md mb-6 transition-shadow hover:shadow-lg"
@@ -135,81 +163,36 @@ export default function AdminDetailPage() {
           )}
           {/* Nút Hành Động */}
           {admin.status === 'pending' ? (
-            <div className="md:col-span-2 flex flex-col items-center gap-6">
+            <div className="flex flex-col items-center gap-6 pt-4">
               <div className="flex justify-center gap-8">
                 <Button
-                  className="w-44 h-12 text-base font-semibold rounded-xl flex items-center justify-center"
+                  className="w-44 h-12 text-base font-semibold rounded-xl"
                   onClick={handleReject}
-                  style={{
-                    backgroundColor: '#FF0000',
-                    color: '#fff',
-                    border: 'none',
-                    transition: 'background 0.2s',
-                  }}
-                  onMouseOver={e => (e.currentTarget.style.backgroundColor = '#cc0000')}
-                  onMouseOut={e => (e.currentTarget.style.backgroundColor = '#FF0000')}
+                  variant="destructive"
                 >
                   TỪ CHỐI
                 </Button>
                 <Button
-                  className="w-44 h-12 text-base font-semibold rounded-xl flex items-center justify-center"
+                  className="w-44 h-12 text-base font-semibold rounded-xl bg-lime-500 hover:bg-lime-600 text-white"
                   onClick={handleApprove}
-                  style={{
-                    backgroundColor: '#8ADB10',
-                    color: '#fff',
-                    border: 'none',
-                    transition: 'background 0.2s',
-                  }}
-                  onMouseOver={e => (e.currentTarget.style.backgroundColor = '#6bb80c')}
-                  onMouseOut={e => (e.currentTarget.style.backgroundColor = '#8ADB10')}
                 >
                   DUYỆT
                 </Button>
               </div>
               <Button
-                className="w-44 h-12 text-base font-semibold rounded-xl border border-black bg-white text-black flex items-center justify-center"
+                className="w-44 h-12 text-base font-semibold rounded-xl"
                 onClick={() => router.push('/superadmin/home')}
-                style={{
-                  boxShadow: 'none',
-                  borderWidth: '1.5px',
-                  borderColor: '#000',
-                  backgroundColor: '#fff',
-                  color: '#000',
-                  transition: 'background 0.2s, color 0.2s',
-                }}
-                onMouseOver={e => {
-                  e.currentTarget.style.backgroundColor = '#000';
-                  e.currentTarget.style.color = '#fff';
-                }}
-                onMouseOut={e => {
-                  e.currentTarget.style.backgroundColor = '#fff';
-                  e.currentTarget.style.color = '#000';
-                }}
+                variant="outline"
               >
                 QUAY LẠI
               </Button>
             </div>
           ) : (
-            <div className="md:col-span-2 flex justify-center">
+            <div className="flex justify-center pt-4">
               <Button
-                className="w-44 h-12 text-base font-semibold rounded-xl border border-black bg-white text-black flex items-center justify-center"
+                className="w-44 h-12 text-base font-semibold rounded-xl"
                 onClick={() => router.push('/superadmin/home')}
-                style={{
-                  boxShadow: 'none',
-                  borderWidth: '1.5px',
-                  borderColor: '#000',
-                  backgroundColor: '#fff',
-                  color: '#000',
-                  transition: 'background 0.2s, color 0.2s',
-                }}
-                onMouseOver={e => {
-                  e.currentTarget.style.backgroundColor = '#000';
-                  e.currentTarget.style.color = '#fff';
-                }}
-                onMouseOut={e => {
-                  e.currentTarget.style.backgroundColor = '#fff';
-                  e.currentTarget.style.color = '#000';
-                }}
+                variant="outline"
               >
                 QUAY LẠI
               </Button>

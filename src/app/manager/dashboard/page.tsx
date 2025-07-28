@@ -7,9 +7,9 @@ import TableFilterBar from '@/components/manager/TableFilterBar';
 import TableCardList from '@/components/manager/TableCardList';
 import ButtonXemThem from '@/components/manager/ButtonXemThem';
 import { useRouter } from 'next/navigation';
-import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
+import { useManagerAuthGuard } from '@/lib/hooks/useManagerAuthGuard';
 
 const mockTables = [
   { id: '1', name: 'Bàn 01 - Bida Pool', type: 'pool', status: 'using' as const, teamA: 'Team A', teamB: 'Team B', time: '01:23:45' },
@@ -24,15 +24,18 @@ const mockTables = [
 ];
 
 export default function ManagerDashboardPage() {
+  const { isChecking } = useManagerAuthGuard();
   const [search, setSearch] = useState('');
   const [type, setType] = useState('');
   const [status, setStatus] = useState('');
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  // Đã xoá loading và tableLoading vì không còn sử dụng
   const [actionLoading, setActionLoading] = useState(false);
 
   React.useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1200);
+    const timer = setTimeout(() => {
+      // setLoading(false); // This line is removed
+    }, 1200);
     return () => clearTimeout(timer);
   }, []);
 
@@ -52,9 +55,11 @@ export default function ManagerDashboardPage() {
     return matchSearch && matchType && matchStatus;
   }) as typeof mockTables;
 
+  if (isChecking) return null;
+
   return (
     <>
-      {loading && <ScoreLensLoading text="Đang tải..." />}
+      {/* Đã loại bỏ ScoreLensLoading toàn trang để tránh loading dư thừa */}
       <div className="flex min-h-screen bg-gray-50">
         <SidebarManager />
         <main className="flex-1 bg-white p-10 min-h-screen">
@@ -70,9 +75,10 @@ export default function ManagerDashboardPage() {
                 status={status}
                 onStatusChange={setStatus}
               />
-              {loading ? (
+              {/* tableLoading ? ( // This line is removed
                 <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>
-              ) : filteredTables.length === 0 ? (
+              ) : */}
+              {filteredTables.length === 0 ? (
                 <div className="py-8 text-center text-gray-400">
                   <LoadingSkeleton type="text" lines={2} />
                   <div>Không có dữ liệu</div>

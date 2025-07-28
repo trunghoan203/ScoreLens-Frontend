@@ -6,17 +6,27 @@ import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
+import { managerMemberService } from '@/lib/managerMemberService';
 
 export default function AddMemberPage() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Xử lý thêm hội viên ở đây
-    toast.success('Đã thêm hội viên thành công!');
-    router.push('/manager/members');
+    if (!name || !phone) {
+      toast.error('Vui lòng điền đầy đủ thông tin');
+      return;
+    }
+    try {
+      await managerMemberService.createMember({ fullName: name, phoneNumber: phone });
+      toast.success('Đã thêm hội viên thành công!');
+      router.push('/manager/members');
+    } catch (error) {
+      console.error(error);
+      toast.error('Thêm hội viên thất bại.');
+    }
   };
 
   return (

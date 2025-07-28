@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 interface BrandInfo {
   brandId: string;
   brandName: string;
-  numberPhone: string;
+  phoneNumber: string;
   website?: string;
   logo_url?: string;
   citizenCode: string;
@@ -20,49 +20,68 @@ interface BrandInfoFormProps {
 
 export function BrandInfoForm({ onSuccess }: BrandInfoFormProps) {
   const [image, setImage] = useState<File | null>(null);
+  const [logoUrl, setLogoUrl] = useState('');
   const [brandName, setBrandName] = useState('');
-  const [numberPhone, setNumberPhone] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [website, setWebsite] = useState('');
   const [citizenCode, setCitizenCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
+      const file = e.target.files[0];
+      setImage(file);
+      uploadLogo(file);
+    }
+  };
+
+  const uploadLogo = async (file: File) => {
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const token = localStorage.getItem('token');
+      const res = await axios.post(
+        '/admin/upload-image',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+        }
+      );
+      const data = res.data as { success: boolean; url: string };
+      setLogoUrl(data.url);
+      toast.success('Upload logo thành công!');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      toast.error('Upload thất bại: ' + (error.response?.data?.message || (error as Error).message));
+    } finally {
+      setUploading(false);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
     try {
-      // Upload logo nếu có
-      let logo_url = '';
-      if (image) {
-        const formData = new FormData();
-        formData.append('logo', image);
-        logo_url = 'https://example.com/logo.png';
-      }
-
-      // Gọi API tạo brand
       const response = await axios.post('/admin/brands', {
         brandName,
-        numberPhone,
+        phoneNumber,
         website: website || undefined,
-        logo_url: logo_url || undefined,
+        logo_url: logoUrl,
         citizenCode,
       });
-
       const brandData = response.data as { brandId?: string; _id?: string };
       toast.success('Tạo thương hiệu thành công!');
-      
       onSuccess({
         brandId: brandData.brandId || brandData._id || '',
         brandName,
-        numberPhone,
+        phoneNumber,
         website,
-        logo_url,
+        logo_url: logoUrl,
         citizenCode,
       });
     } catch (error: unknown) {
@@ -74,17 +93,18 @@ export function BrandInfoForm({ onSuccess }: BrandInfoFormProps) {
     }
   };
 
-  const isFormValid = brandName && numberPhone && citizenCode;
+  const isFormValid = brandName && phoneNumber && citizenCode && logoUrl;
 
   return (
     <form className="w-full max-w-2xl mx-auto flex flex-col gap-6 items-center px-0 pb-8" onSubmit={handleSubmit}>
       <h2 className="text-2xl font-bold text-center text-gray-900 mb-4">Thông tin thương hiệu</h2>
-      
       {/* Image upload */}
       <div className="flex flex-col items-center w-full">
         <label className="block text-lg font-semibold mb-4 w-full text-center">Logo thương hiệu</label>
         <div className="relative w-60 h-60 bg-gray-100 rounded-xl flex items-center justify-center mb-4 border border-gray-200 overflow-hidden">
-          {image ? (
+          {logoUrl ? (
+            <Image src={logoUrl} alt="Logo" fill className="object-cover w-full h-full" />
+          ) : image ? (
             <Image src={URL.createObjectURL(image)} alt="Preview" fill className="object-cover w-full h-full" />
           ) : (
             <span className="text-gray-400">Chưa chọn logo</span>
@@ -101,8 +121,9 @@ export function BrandInfoForm({ onSuccess }: BrandInfoFormProps) {
             </svg>
           </div>
         </div>
+        {uploading}
+        {logoUrl && !uploading}
       </div>
-
       {/* Form fields */}
       <div className="w-full space-y-4">
         <div>
@@ -117,8 +138,8 @@ export function BrandInfoForm({ onSuccess }: BrandInfoFormProps) {
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">Số điện thoại <span className="text-red-500">*</span></label>
           <Input 
-            value={numberPhone} 
-            onChange={e => setNumberPhone(e.target.value)} 
+            value={phoneNumber} 
+            onChange={e => setPhoneNumber(e.target.value)} 
             placeholder="Nhập số điện thoại..." 
             required 
           />
@@ -141,7 +162,6 @@ export function BrandInfoForm({ onSuccess }: BrandInfoFormProps) {
           />
         </div>
       </div>
-
       <Button
         type="submit"
         variant="lime"

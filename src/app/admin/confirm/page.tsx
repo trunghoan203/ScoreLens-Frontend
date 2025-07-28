@@ -9,7 +9,7 @@ import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 interface BrandInfo {
   brandId: string;
   brandName: string;
-  numberPhone: string;
+  phoneNumber: string;
   website?: string;
   logo_url?: string;
   citizenCode: string;

@@ -6,7 +6,7 @@ interface Feedback {
   branch: string;
   table: string;
   time: string;
-  status: 'pending' | 'resolved' | 'in_progress';
+  status: 'pending' | 'manager_processing' | 'admin_processing' | 'superadmin_processing' | 'resolved';
   cameraReliability: number;
   feedback: string;
   notes: string;
@@ -17,27 +17,23 @@ export default function FeedbackTable({ feedbacks }: { feedbacks: Feedback[] }) 
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'bg-yellow-500';
-      case 'resolved':
-        return 'bg-green-500';
-      case 'in_progress':
-        return 'bg-blue-500';
-      default:
-        return 'bg-gray-500';
+      case 'pending': return 'bg-yellow-500';
+      case 'resolved': return 'bg-green-500';
+      case 'manager_processing': return 'bg-blue-500';
+      case 'admin_processing': return 'bg-purple-500';
+      case 'superadmin_processing': return 'bg-indigo-500';
+      default: return 'bg-gray-500';
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'Chờ xử lý';
-      case 'resolved':
-        return 'Đã giải quyết';
-      case 'in_progress':
-        return 'Đang xử lý';
-      default:
-        return 'Không xác định';
+      case 'pending': return 'Chờ xử lý';
+      case 'resolved': return 'Đã giải quyết';
+      case 'manager_processing': return 'Manager đang xử lý';
+      case 'admin_processing': return 'Admin đang xử lý';
+      case 'superadmin_processing': return 'Super Admin đang xử lý';
+      default: return 'Không xác định';
     }
   };
 
@@ -59,7 +55,10 @@ export default function FeedbackTable({ feedbacks }: { feedbacks: Feedback[] }) 
           <div className="py-4 text-gray-700">{feedback.table}</div>
           <div className="py-4 text-gray-700">{feedback.time}</div>
           <div className="py-4 flex justify-center">
-            <span className={`min-w-[110px] py-2 rounded-full text-sm font-bold text-white flex justify-center items-center ${getStatusColor(feedback.status)}`}>
+            <span className={
+              `inline-flex items-center justify-center rounded-full text-sm font-bold text-white px-4 py-2 ` +
+              `w-50 ${getStatusColor(feedback.status)}`
+            }>
               {getStatusText(feedback.status)}
             </span>
           </div>

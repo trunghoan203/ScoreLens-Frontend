@@ -12,7 +12,7 @@ export default function FeedbackSearchBar({ search, setSearch }: FeedbackSearchB
         <input
           type="text"
           placeholder="Tìm kiếm phản hồi..."
-          className="bg-transparent outline-none flex-1 text-gray-700"
+          className="bg-transparent outline-none flex-1 text-[#000000]"
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
