@@ -36,10 +36,7 @@ export function HeaderAdmin() {
     setDropdownOpen(false);
   };
   const handleLogout = async () => {
-    try {
-      await logoutSuperAdmin();
-    } catch (e) {
-    }
+    await logoutSuperAdmin();
     localStorage.removeItem('superAdminAccessToken');
     window.location.href = '/superadmin/login';
   };
