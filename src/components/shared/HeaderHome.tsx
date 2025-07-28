@@ -30,6 +30,7 @@ export function HeaderHome() {
   const handleSelectLang = (selected: 'vi' | 'en') => {
     setLang(selected);
     setDropdownOpen(false);
+
   };
 
   return (
@@ -70,6 +71,7 @@ export function HeaderHome() {
                     <Image src="/images/english.png" alt="English Flag" width={28} height={20} className="rounded-sm" />
                     <span className="text-base text-gray-900">Tiếng Anh</span>
                   </div>
+
                 </div>
               )}
             </div>
