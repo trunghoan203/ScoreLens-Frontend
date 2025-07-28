@@ -11,14 +11,14 @@ import toast from 'react-hot-toast';
 import { managerTableService } from '@/lib/managerTableService';
 
 const tableTypes = [
-  { value: 'pool', label: 'Bida Pool' },
+  { value: 'pool-8', label: 'Bida Pool' },
   { value: 'carom', label: 'Bida Carom' },
 ];
 
 interface Table {
   _id: string;
   tableId: string;
-  number: number;
+  name: string;
   category: string;
   status: string;
   [key: string]: unknown;
@@ -55,7 +55,7 @@ export default function TableDetailPage() {
         if (found) {
           const tableObj = found as Table;
           setTable(tableObj);
-          setName(String(tableObj.number));
+          setName(String(tableObj.name));
           setType(tableObj.category);
           setStatus(tableObj.status);
         } else {
@@ -76,7 +76,7 @@ export default function TableDetailPage() {
 
   const handleSave = async () => {
     try {
-      await managerTableService.updateTable(tableId, { number: Number(name), category: type, status });
+      await managerTableService.updateTable(tableId, { name: name, category: type, status });
       toast.success('Đã lưu bàn thành công!');
       setIsEditMode(false);
     } catch (error) {
