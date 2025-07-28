@@ -14,14 +14,14 @@ interface MemberGridProps {
 
 export default function MemberGrid({ members, onMemberClick }: MemberGridProps) {
   return (
-    <div className="rounded-lg overflow-hidden space-y-2"> {/* Thêm space-y-2 để cách đều */}
+    <div className="rounded-lg overflow-hidden space-y-2">
       <div className="grid grid-cols-12 bg-[#000000] text-[#FFFFFF] font-semibold text-center">
         <div className="col-span-4 py-3">TÊN HỘI VIÊN</div>
         <div className="col-span-4 py-3">SỐ ĐIỆN THOẠI</div>
         <div className="col-span-4 py-3">THỜI GIAN CHƠI</div>
       </div>
 
-      <div className="space-y-2"> {/* Cách đều các hàng */}
+      <div className="space-y-2">
         {members.map((member) => (
           <div
             key={member.id}

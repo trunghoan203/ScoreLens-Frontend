@@ -258,7 +258,6 @@ export default function FeedbackDetailPage() {
             )}
           </div>
 
-          {/* Lịch sử xử lý */}
           {feedback.history && feedback.history.length > 0 && (
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Lịch sử xử lý</label>

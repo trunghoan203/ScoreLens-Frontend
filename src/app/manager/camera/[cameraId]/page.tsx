@@ -35,9 +35,6 @@ export default function CameraDetailPage() {
   const cameraId = params?.cameraId as string;
 
   const [tables, setTables] = useState<Table[]>([]);
-  // Xoá biến loading
-  // const [loading, setLoading] = useState(true);
-
   const [tableId, setTableId] = useState('');
   const [ip, setIp] = useState('');
   const [username, setUsername] = useState('');
@@ -52,7 +49,6 @@ export default function CameraDetailPage() {
       managerTableService.getAllTables()
     ])
       .then(([cameraData, tableData]) => {
-        // Parse cameras
         let camerasArr: unknown[] = [];
         if (Array.isArray(cameraData)) camerasArr = cameraData;
         else if (cameraData && typeof cameraData === 'object' && Array.isArray((cameraData as { cameras?: unknown[] }).cameras)) camerasArr = (cameraData as { cameras: unknown[] }).cameras;
@@ -71,7 +67,6 @@ export default function CameraDetailPage() {
         } else {
           toast.error('Không tìm thấy camera');
         }
-        // Parse tables
         let tablesArr: unknown[] = [];
         if (Array.isArray(tableData)) tablesArr = tableData;
         else if (tableData && typeof tableData === 'object' && Array.isArray((tableData as { tables?: unknown[] }).tables)) tablesArr = (tableData as { tables: unknown[] }).tables;

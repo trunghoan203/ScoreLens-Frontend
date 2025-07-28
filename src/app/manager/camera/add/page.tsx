@@ -27,7 +27,6 @@ export default function AddCameraPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Load available tables for selection
     managerTableService.getAllTables()
       .then((data: unknown) => {
         let tablesArr: unknown[] = [];
