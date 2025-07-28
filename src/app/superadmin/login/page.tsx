@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AuthLayout } from '@/components/shared/AuthLayout';
 import toast from 'react-hot-toast';
-import { loginSuperAdmin } from '@/lib/superadminService';
+import { loginSuperAdmin } from '@/lib/saService';
 
 export default function SuperAdminAccessPage() {
   const [email, setEmail] = useState('');
