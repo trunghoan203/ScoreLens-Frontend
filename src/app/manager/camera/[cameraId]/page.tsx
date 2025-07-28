@@ -3,6 +3,7 @@ import SidebarManager from '@/components/manager/SidebarManager';
 import HeaderManager from '@/components/manager/HeaderManager';
 import AddFormLayout from '@/components/shared/AddFormLayout';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Select } from '@/components/ui/select';
 import { useRouter, useParams } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
@@ -13,7 +14,7 @@ import { managerTableService } from '@/lib/managerTableService';
 
 interface Table {
   tableId: string;
-  number: number;
+  name: string;
   category: string;
   status: string;
 }
@@ -79,7 +80,7 @@ export default function CameraDetailPage() {
           const obj = t as Partial<Table>;
           return {
             tableId: obj.tableId || '',
-            number: obj.number ?? 0,
+            name: obj.name || '',
             category: obj.category ?? 'pool-8',
             status: obj.status ?? 'empty',
           };
@@ -179,7 +180,7 @@ export default function CameraDetailPage() {
               <option className="text-black" value="">Chọn bàn</option>
               {tables.map(table => (
                 <option className="text-black" key={table.tableId} value={table.tableId}>
-                  Bàn {table.number} - {table.category}
+                  Bàn {table.name} - {table.category}
                 </option>
               ))}
             </Select>
@@ -194,7 +195,7 @@ export default function CameraDetailPage() {
           </div>
           <div className="w-full mb-6">
             <label className="block text-sm font-semibold mb-2 text-black">Mật khẩu<span className="text-red-500">*</span></label>
-            <Input type="password" value={password} onChange={e => setPassword(e.target.value)} required disabled={!isEditMode} />
+            <PasswordInput value={password} onChange={e => setPassword(e.target.value)} required disabled={!isEditMode} />
           </div>
           <div className="w-full mb-10">
             <label className="block text-sm font-semibold mb-2 text-black">Trạng thái kết nối<span className="text-red-500">*</span></label>

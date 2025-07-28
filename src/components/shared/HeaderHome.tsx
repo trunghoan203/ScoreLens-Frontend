@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ScoreLensLogo } from '@/components/icons/LogoWhite';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -9,19 +9,28 @@ import { LoginRolePopup } from '@/components/auth/LoginRolePopup';
 
 export function HeaderHome() {
   const [isRolePopupOpen, setIsRolePopupOpen] = useState(false);
-  const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
-  const [currentLanguage, setCurrentLanguage] = useState<'VI' | 'EN'>('VI');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [, setLang] = useState<'vi' | 'en'>('vi');
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const languages = [
-    { code: 'VI', name: 'Việt Nam', flag: '/images/vietNam.png' },
-    { code: 'EN', name: 'English', flag: '/images/english.png' }
-  ];
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    if (dropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [dropdownOpen]);
 
-  const currentLanguageData = languages.find(lang => lang.code === currentLanguage);
+  const handleSelectLang = (selected: 'vi' | 'en') => {
+    setLang(selected);
+    setDropdownOpen(false);
 
-  const handleLanguageChange = (languageCode: 'VI' | 'EN') => {
-    setCurrentLanguage(languageCode);
-    setIsLanguageDropdownOpen(false);
   };
 
   return (
@@ -37,55 +46,32 @@ export function HeaderHome() {
             </div>
           </div>
           <div className="flex items-center gap-6">
-            <div className="hidden sm:block relative">
-              <div 
-                className="flex items-center gap-2 cursor-pointer hover:text-lime-400 transition-colors"
-                onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
+            <div className="hidden sm:flex items-center gap-2 cursor-pointer relative" ref={dropdownRef}>
+              <div
+                className="flex items-center gap-2"
+                onClick={() => setDropdownOpen((open) => !open)}
               >
-                <Image 
-                  src={currentLanguageData?.flag || '/images/vietNam.png'} 
-                  alt={`${currentLanguageData?.name} Flag`} 
-                  width={28} 
-                  height={20} 
-                  className="rounded-sm" 
-                />
-                <span className="text-lg font-medium">{currentLanguage}</span>
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  className={`h-5 w-5 transition-transform ${isLanguageDropdownOpen ? 'rotate-180' : ''}`} 
-                  viewBox="0 0 20 20" 
-                  fill="currentColor"
-                >
-                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
+                <Image src="/images/vietNam.png" alt="Vietnam Flag" width={28} height={20} className="rounded-sm" />
+                <span className="text-lg font-medium">VI</span>
+                <Image src="/icon/chevron-down.svg" alt="Chevron Down" width={26} height={26} />
               </div>
-              
-              {/* Dropdown Menu */}
-              {isLanguageDropdownOpen && (
-                <div className="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[160px] z-50">
-                  {languages.map((language) => (
-                    <div
-                      key={language.code}
-                      className={`flex items-center gap-3 px-4 py-2 cursor-pointer hover:bg-gray-50 transition-colors ${
-                        currentLanguage === language.code ? 'bg-lime-50 text-lime-600' : 'text-gray-700'
-                      }`}
-                      onClick={() => handleLanguageChange(language.code as 'VI' | 'EN')}
-                    >
-                      <Image 
-                        src={language.flag} 
-                        alt={`${language.name} Flag`} 
-                        width={24} 
-                        height={18} 
-                        className="rounded-sm" 
-                      />
-                      <span className="text-sm font-medium">{language.name}</span>
-                      {currentLanguage === language.code && (
-                        <svg className="w-4 h-4 ml-auto text-lime-600" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </div>
-                  ))}
+              {dropdownOpen && (
+                <div className="absolute right-0 top-full mt-2 w-42 bg-white rounded-lg shadow-lg z-50 py-2">
+                  <div
+                    className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleSelectLang('vi')}
+                  >
+                    <Image src="/images/vietNam.png" alt="Vietnam Flag" width={28} height={20} className="rounded-sm" />
+                    <span className="text-base text-gray-900">Tiếng Việt</span>
+                  </div>
+                  <div
+                    className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleSelectLang('en')}
+                  >
+                    <Image src="/images/english.png" alt="English Flag" width={28} height={20} className="rounded-sm" />
+                    <span className="text-base text-gray-900">Tiếng Anh</span>
+                  </div>
+
                 </div>
               )}
             </div>
