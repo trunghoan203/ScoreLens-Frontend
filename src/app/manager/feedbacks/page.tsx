@@ -20,14 +20,24 @@ export interface Feedback {
   };
   clubId: string;
   tableId: string;
+  clubInfo?: {
+    clubId: string;
+    clubName: string;
+    address?: string;
+  };
+  tableInfo?: {
+    tableId: string;
+    tableName: string;
+    tableNumber?: string;
+  };
   content: string;
-  status: 'pending' | 'manager_processing' | 'admin_processing' | 'superadmin_processing' | 'resolved';
+  status: 'pending' | 'managerP' | 'adminP' | 'superadminP' | 'resolved';
   needSupport: boolean;
   note?: string;
   history: Array<{
-    by: string;
-    role: string;
-    action: string;
+    byId: string;
+    byName: string;
+    byRole: string;
     note?: string;
     date: Date;
   }>;
@@ -59,6 +69,8 @@ export default function FeedbacksPage() {
             createdBy: obj.createdBy || { userId: '', type: 'guest' },
             clubId: obj.clubId || '',
             tableId: obj.tableId || '',
+            clubInfo: obj.clubInfo || { clubId: '', clubName: '' },
+            tableInfo: obj.tableInfo || { tableId: '', tableName: '' },
             content: obj.content || '',
             status: obj.status || 'pending',
             needSupport: obj.needSupport || false,
@@ -79,7 +91,8 @@ export default function FeedbacksPage() {
 
   const filteredFeedbacks = feedbacks.filter(f => 
     f.content.toLowerCase().includes(search.toLowerCase()) ||
-    f.tableId.toLowerCase().includes(search.toLowerCase()) ||
+    (f.tableInfo?.tableName || f.tableId).toLowerCase().includes(search.toLowerCase()) ||
+    (f.clubInfo?.clubName || f.clubId).toLowerCase().includes(search.toLowerCase()) ||
     f.status.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -113,8 +126,8 @@ export default function FeedbacksPage() {
             <FeedbackGrid
               feedbacks={filteredFeedbacks.map(f => ({
                 id: f.feedbackId,
-                branch: f.clubId,
-                table: f.tableId,
+                branch: f.clubInfo?.clubName || f.clubId,
+                table: f.tableInfo?.tableName || f.tableId,
                 time: new Date(f.createdAt).toLocaleString('vi-VN'),
                 status: f.status,
                 cameraReliability: 85, // Mock data
