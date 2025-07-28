@@ -3,6 +3,7 @@ import SidebarManager from '@/components/manager/SidebarManager';
 import HeaderManager from '@/components/manager/HeaderManager';
 import AddFormLayout from '@/components/shared/AddFormLayout';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Select } from '@/components/ui/select';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
@@ -12,7 +13,7 @@ import { managerTableService } from '@/lib/managerTableService';
 
 interface Table {
   tableId: string;
-  number: number;
+  name: string;
   category: string;
   status: string;
 }
@@ -37,7 +38,7 @@ export default function AddCameraPage() {
           const obj = t as Partial<Table>;
           return {
             tableId: obj.tableId || '',
-            number: obj.number ?? 0,
+            name: obj.name ?? '',
             category: obj.category ?? 'pool-8',
             status: obj.status ?? 'empty',
           };
@@ -99,7 +100,7 @@ export default function AddCameraPage() {
               <option className="text-black" value="">Chọn bàn</option>
               {tables.map(table => (
                 <option className="text-black" key={table.tableId} value={table.tableId}>
-                  Bàn {table.number} - {table.category}
+                  Bàn {table.name} - {table.category}
                 </option>
               ))}
             </Select>
@@ -114,7 +115,7 @@ export default function AddCameraPage() {
           </div>
           <div className="w-full mb-10">
             <label className="block text-sm font-semibold mb-2 text-black">Mật khẩu<span className="text-red-500">*</span></label>
-            <Input type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="Nhập mật khẩu" />
+            <PasswordInput value={password} onChange={e => setPassword(e.target.value)} required placeholder="Nhập mật khẩu" />
           </div>
         </AddFormLayout>
       </main>

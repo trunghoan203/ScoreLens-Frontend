@@ -14,7 +14,7 @@ import { useManagerAuthGuard } from '@/lib/hooks/useManagerAuthGuard';
 export interface Table {
   tableId: string;
   clubId: string;
-  number: number;
+  name: string;
   category: 'pool-8' | 'carom';
   status: 'empty' | 'inuse' | 'maintenance';
   createdAt?: string;
@@ -40,7 +40,7 @@ export default function TablesPage() {
           return {
             tableId: obj.tableId || '',
             clubId: obj.clubId || '',
-            number: obj.number ?? 0,
+            name: obj.name || '',
             category: obj.category ?? 'pool-8',
             status: obj.status ?? 'empty',
             createdAt: obj.createdAt,
@@ -58,7 +58,7 @@ export default function TablesPage() {
   const router = useRouter();
   if (isChecking) return null;
   const filteredTables = tables.filter(
-    t => typeof t.number === 'number' && t.number.toString().includes(search)
+    t => t.name.includes(search)
   );
 
   const handleAddTable = () => {
@@ -95,7 +95,7 @@ export default function TablesPage() {
             <TableGrid
               tables={filteredTables.map(t => ({
                 id: t.tableId,
-                name: t.number.toString(),
+                name: t.name,
                 type: t.category,
                 status: t.status,
               }))}
