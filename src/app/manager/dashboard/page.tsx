@@ -29,12 +29,10 @@ export default function ManagerDashboardPage() {
   const [type, setType] = useState('');
   const [status, setStatus] = useState('');
   const router = useRouter();
-  // Đã xoá loading và tableLoading vì không còn sử dụng
   const [actionLoading, setActionLoading] = useState(false);
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
-      // setLoading(false); // This line is removed
     }, 1200);
     return () => clearTimeout(timer);
   }, []);
@@ -43,11 +41,9 @@ export default function ManagerDashboardPage() {
     setActionLoading(true);
     setTimeout(() => {
       setActionLoading(false);
-      // Thêm logic load thêm dữ liệu nếu cần
     }, 1000);
   };
 
-  // Lọc dữ liệu theo filter
   const filteredTables = mockTables.filter(table => {
     const matchSearch = table.name.toLowerCase().includes(search.toLowerCase());
     const matchType = !type || table.type === type;
@@ -59,7 +55,6 @@ export default function ManagerDashboardPage() {
 
   return (
     <>
-      {/* Đã loại bỏ ScoreLensLoading toàn trang để tránh loading dư thừa */}
       <div className="flex min-h-screen bg-gray-50">
         <SidebarManager />
         <main className="flex-1 bg-white p-10 min-h-screen">

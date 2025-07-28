@@ -14,16 +14,14 @@ interface TableGridProps {
 
 export default function TableGrid({ tables, onTableClick }: TableGridProps) {
   return (
-    <div className="rounded-lg overflow-hidden space-y-2"> {/* Cách đều header với body */}
-      {/* Header */}
+    <div className="rounded-lg overflow-hidden space-y-2"> 
       <div className="grid grid-cols-12 bg-[#000000] text-[#FFFFFF] font-semibold text-center">
         <div className="col-span-4 py-3">BÀN</div>
         <div className="col-span-4 py-3">LOẠI BÀN</div>
         <div className="col-span-4 py-3">TRẠNG THÁI</div>
       </div>
 
-      {/* Body */}
-      <div className="space-y-2"> {/* Cách đều từng hàng */}
+      <div className="space-y-2">
         {tables.map((table) => (
           <div
             key={table.id}

@@ -9,7 +9,6 @@ import toast from 'react-hot-toast';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import React from 'react';
 
-// Giả lập danh sách bàn
 const mockTables = [
   { id: '1', name: 'Bàn 01 - Bida Pool', status: 'using', teamA: ['Võ Nguyễn Kim Ngân', 'Cao Trung Hoan'], teamB: ['Huỳnh Gia Bảo', 'Nguyễn Minh Tuấn'], time: '01:23:45' },
   { id: '2', name: 'Bàn 02 - Bida Pool', status: 'available', teamA: [], teamB: [], time: '' },
@@ -49,7 +48,6 @@ export default function TableDetailPage() {
                   setTableStatus('using');
                   setIsEditing(false);
                 }}
-                // Truyền dữ liệu hiện tại khi chỉnh sửa
                 {...(isEditing ? { teamA, teamB } : {})}
               />
             ) : (

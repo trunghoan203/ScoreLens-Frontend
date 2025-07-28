@@ -90,7 +90,6 @@ export default function CameraPage() {
 
   if (isChecking) return null;
 
-  // Tìm tên bàn theo tableId
   const getTableDisplay = (tableId: string) => {
     const table = tables.find(t => t.tableId === tableId);
     if (!table) return tableId;
@@ -112,7 +111,6 @@ export default function CameraPage() {
 
   return (
     <>
-      {/* Đã loại bỏ ScoreLensLoading toàn trang để tránh loading dư thừa */}
       <div className="min-h-screen flex bg-[#18191A]">
         <SidebarManager />
         <main className="flex-1 bg-white p-10 min-h-screen">

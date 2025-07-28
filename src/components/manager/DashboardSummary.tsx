@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 interface DashboardSummaryProps {
   totalTables: number;
@@ -8,30 +9,10 @@ interface DashboardSummaryProps {
 }
 
 const icons = [
-  // Tổng số bàn - icon bàn bida
-  <svg key="bida" className="w-8 h-8 mb-2 text-lime-500" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2.2" />
-    <circle cx="12" cy="12" r="4" fill="currentColor" className="text-lime-400" />
-    <circle cx="8.5" cy="10" r="1.2" fill="#fff" />
-    <circle cx="15.5" cy="14" r="1.2" fill="#fff" />
-  </svg>,
-  // Đang sử dụng - icon đồng hồ
-  <svg key="clock" className="w-8 h-8 mb-2 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-    <circle cx="12" cy="12" r="9" />
-    <path d="M12 7v5l3 3" strokeLinecap="round" />
-  </svg>,
-  // Bàn trống - icon check
-  <svg key="check" className="w-8 h-8 mb-2 text-green-400" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-    <circle cx="12" cy="12" r="9" />
-    <path d="M8 12l3 3 5-5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>,
-  // Hội viên - icon user group
-  <svg key="users" className="w-8 h-8 mb-2 text-purple-500" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-    <circle cx="8" cy="10" r="3" />
-    <circle cx="16" cy="10" r="3" />
-    <path d="M2 20c0-2.5 3.5-4 6-4s6 1.5 6 4" />
-    <path d="M14 20c0-1.5 2-2.5 4-2.5s4 1 4 2.5" />
-  </svg>,
+  <Image key="group" src="/icon/group.svg" alt="Total Tables" width={32} height={32} className="mb-2" />,
+  <Image key="using" src="/icon/using.svg" alt="In Use" width={32} height={32} className="mb-2" />,
+  <Image key="empty" src="/icon/empty.svg" alt="Available" width={32} height={32} className="mb-2" />,
+  <Image key="memberships" src="/icon/memberships.svg" alt="Members" width={32} height={32} className="mb-2" />,
 ];
 
 export default function DashboardSummary({ totalTables, inUse, available, members }: DashboardSummaryProps) {

@@ -19,7 +19,6 @@ export default function ManagerVerificationPage() {
 
 function ManagerVerificationPageInner() {
   const searchParams = useSearchParams();
-  // const router = useRouter(); // Xóa nếu không dùng
   const email = searchParams?.get('email') || '';
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -52,7 +51,7 @@ function ManagerVerificationPageInner() {
   }, [resendTimer]);
 
   const handleOtpChange = (index: number, value: string) => {
-    if (value.length > 1) return; // Only allow single digit
+    if (value.length > 1) return; 
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
