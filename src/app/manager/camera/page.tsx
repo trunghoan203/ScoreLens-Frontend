@@ -25,7 +25,7 @@ export interface Camera {
 
 interface Table {
   tableId: string;
-  number: number;
+  name: string;
   category: string;
   status: string;
 }
@@ -74,7 +74,7 @@ export default function CameraPage() {
           const obj = t as Partial<Table>;
           return {
             tableId: obj.tableId || '',
-            number: obj.number ?? 0,
+            name: obj.name || '',
             category: obj.category ?? 'pool-8',
             status: obj.status ?? 'empty',
           };
@@ -94,7 +94,7 @@ export default function CameraPage() {
   const getTableDisplay = (tableId: string) => {
     const table = tables.find(t => t.tableId === tableId);
     if (!table) return tableId;
-    return `Bàn ${table.number} - ${table.category}`;
+    return `Bàn ${table.name} - ${table.category}`;
   };
 
   const filteredCameras = cameras.filter(
