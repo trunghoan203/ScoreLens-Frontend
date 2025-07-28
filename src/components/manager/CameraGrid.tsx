@@ -16,9 +16,8 @@ interface CameraGridProps {
 
 export default function CameraGrid({ cameras, onCameraClick }: CameraGridProps) {
   return (
-    <div className="rounded-lg overflow-hidden space-y-2"> {/* tạo khoảng cách giữa header và body */}
+    <div className="rounded-lg overflow-hidden space-y-2"> 
       
-      {/* Header */}
       <div className="grid grid-cols-12 bg-[#000000] text-[#FFFFFF] font-semibold text-center rounded-t-lg">
         <div className="col-span-2 py-3">BÀN</div>
         <div className="col-span-3 py-3">IP</div>
@@ -27,7 +26,6 @@ export default function CameraGrid({ cameras, onCameraClick }: CameraGridProps) 
         <div className="col-span-2 py-3">TRẠNG THÁI</div>
       </div>
 
-      {/* Body */}
       {cameras.map((camera) => (
         <div
           key={camera.id}

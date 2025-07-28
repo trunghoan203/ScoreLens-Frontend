@@ -40,8 +40,7 @@ export default function FeedbackGrid({ feedbacks, onFeedbackClick }: FeedbackGri
   };
 
   return (
-    <div className="rounded-lg overflow-hidden space-y-2"> {/* Cách đều header và body */}
-      {/* Header */}
+    <div className="rounded-lg overflow-hidden space-y-2">
       <div className="grid grid-cols-4 bg-[#181818] text-[#FFFFFF] font-semibold text-center">
         <div className="py-3">CHI NHÁNH</div>
         <div className="py-3">BÀN</div>
@@ -49,8 +48,7 @@ export default function FeedbackGrid({ feedbacks, onFeedbackClick }: FeedbackGri
         <div className="py-3">TRẠNG THÁI</div>
       </div>
 
-      {/* Body */}
-      <div className="space-y-2"> {/* Cách đều từng hàng */}
+      <div className="space-y-2">
         {feedbacks.map((feedback) => (
           <div
             key={feedback.id}

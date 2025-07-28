@@ -91,7 +91,6 @@ export default function FeedbacksPage() {
 
   return (
     <>
-      {/* Đã loại bỏ ScoreLensLoading toàn trang để tránh loading dư thừa */}
       <div className="min-h-screen flex bg-[#18191A]">
         <SidebarManager />
         <main className="flex-1 bg-white p-10 min-h-screen">
