@@ -36,7 +36,7 @@ export default function FeedbackDetailPage() {
   const router = useRouter();
   const params = useParams();
   const feedbackId = params?.feedbackId as string;
-  
+
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [status, setStatus] = useState<Feedback['status']>('pending');
