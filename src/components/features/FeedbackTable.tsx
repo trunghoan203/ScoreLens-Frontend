@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Search, Calendar } from 'lucide-react';
-import { getAllFeedback } from '@/lib/superadminFeedbackService';
+import { getAllFeedback } from '@/lib/saFeedbackService';
 import toast from 'react-hot-toast';
 
 interface ApiFeedback {
