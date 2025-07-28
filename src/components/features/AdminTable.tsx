@@ -81,7 +81,6 @@ export function AdminTable({ admins, searchTerm, statusFilter, onRowClick }: Adm
         )}
       </div>
 
-      {/* Load More */}
       {visibleCount < filteredAdmins.length && (
         <div className="text-center pt-4">
           <Button
