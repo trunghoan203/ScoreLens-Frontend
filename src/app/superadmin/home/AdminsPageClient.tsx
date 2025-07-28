@@ -8,7 +8,7 @@ import { PageBanner } from '@/components/shared/PageBanner';
 import { AdminFilters } from '@/components/features/AdminFilters';
 import { AdminTable } from '@/components/features/AdminTable';
 import { FeedbackTable } from '@/components/features/FeedbackTable';
-import { getAdminList } from '@/lib/superAdminService';
+import { getAdminList } from '@/lib/superadminAdminService';
 import toast from 'react-hot-toast';
 
 interface ApiAdmin {

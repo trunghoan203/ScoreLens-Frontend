@@ -5,27 +5,41 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Search, Calendar } from 'lucide-react';
-import { getAllFeedback } from '@/lib/superAdminService';
+import { getAllFeedback } from '@/lib/superadminFeedbackService';
 import toast from 'react-hot-toast';
 
-interface Feedback {
-  id: string;
-  branch: string;
-  table: string;
-  date: string;
-  status: 'Chưa xử lý' | 'Đã xử lý';
-}
-
 interface ApiFeedback {
+  _id: string;
   feedbackId: string;
-  status: 'resolved' | 'pending';
-  createdBy?: {
-    clubId: string;
-    tableId: string;
+  createdBy: {
+    userId: string;
+    type: 'guest' | 'membership';
   };
-  history?: {
-    createdAt: string;
-  }[];
+  clubId: string;
+  tableId: string;
+  content: string;
+  status: 'resolved' | 'pending' | 'managerP' | 'adminP' | 'superadminP';
+  needSupport: boolean;
+  note?: string;
+  history: Array<{
+    byId: string;
+    byName: string;
+    byRole: string;
+    action: string;
+    note?: string;
+    date: string;
+  }>;
+  createdAt: string;
+  updatedAt: string;
+  clubInfo?: {
+    clubName: string;
+    address: string;
+    phoneNumber: string;
+  };
+  tableInfo?: {
+    name: string;
+    category: string;
+  };
 }
 
 export function FeedbackTable() {
@@ -33,7 +47,7 @@ export function FeedbackTable() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [showAll, setShowAll] = useState(false);
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [feedbacks, setFeedbacks] = useState<ApiFeedback[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -41,14 +55,7 @@ export function FeedbackTable() {
     getAllFeedback()
       .then((res) => {
         const data = res.data as { feedbacks: ApiFeedback[] };
-        const mappedFeedbacks: Feedback[] = data.feedbacks.map((fb: ApiFeedback) => ({
-          id: fb.feedbackId,
-          branch: fb.createdBy?.clubId || 'N/A',
-          table: fb.createdBy?.tableId || 'N/A',
-          date: fb.history?.[0]?.createdAt?.slice(0, 10) || 'N/A',
-          status: fb.status === 'resolved' ? 'Đã xử lý' : 'Chưa xử lý',
-        }));
-        setFeedbacks(mappedFeedbacks);
+        setFeedbacks(data.feedbacks);
         setLoading(false);
       })
       .catch(() => {
@@ -60,43 +67,61 @@ export function FeedbackTable() {
 
   const filteredFeedbacks = feedbacks.filter((fb) => {
     const matchesSearch =
-      fb.branch.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      fb.table.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDate = !selectedDate || fb.date === selectedDate;
+      (fb.clubInfo?.clubName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (fb.tableInfo?.name?.toString() || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesDate = !selectedDate || (fb.createdAt ? new Date(fb.createdAt).toISOString().slice(0, 10) : '') === selectedDate;
     return matchesSearch && matchesDate;
   });
 
   const displayedFeedbacks = showAll ? filteredFeedbacks : filteredFeedbacks.slice(0, 10);
 
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'resolved': return 'Đã xử lý';
+      case 'pending': return 'Chưa xử lý';
+      case 'managerP': return 'Manager đang xử lý';
+      case 'adminP': return 'Admin đang xử lý';
+      case 'superadminP': return 'Super Admin đang xử lý';
+      default: return 'Không xác định';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'resolved': return 'success';
+      case 'pending': return 'danger';
+      case 'managerP': return 'danger';
+      case 'adminP': return 'danger';
+      case 'superadminP': return 'danger';
+      default: return 'danger';
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Filter Bar */}
       <div className="backdrop-blur-md border-lime-400 bg-white/60 border border-gray-200 rounded-2xl shadow-lg px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 transition-all duration-300">
-        <h2 className="text-2xl font-extrabold text-black">Danh sách phản hồi</h2>
+        {/* Search*/}
+        <div className="relative w-full sm:w-80">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-lime-500 w-5 h-5" />
+          <input
+            type="text"
+            placeholder="Tìm kiếm phản hồi..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 pl-4 pr-10 text-base font-medium text-black placeholder-gray-400 shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none"
+          />
+        </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-          {/* Search */}
-          <div className="relative w-full sm:w-60">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-lime-500 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Tìm kiếm phản hồi..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 pl-4 pr-10 text-base font-medium text-black placeholder-gray-400 shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none"
-            />
-          </div>
-
-          {/* Date Picker */}
-          <div className="relative w-full sm:w-60">
-            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-lime-500 w-5 h-5" />
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 pl-10 pr-4 text-base font-medium text-black placeholder-gray-400 shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none"
-            />
-          </div>
+        {/* Date Picker*/}
+        <div className="relative w-full sm:w-60">
+          <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-lime-500 w-5 h-5" />
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 pl-10 pr-4 text-base font-medium text-black placeholder-gray-400 shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none"
+          />
         </div>
       </div>
 
@@ -116,19 +141,19 @@ export function FeedbackTable() {
           <div className="space-y-2">
             {displayedFeedbacks.map((fb) => (
               <div
-                key={fb.id}
-                onClick={() => router.push(`/superadmin/feedback/${fb.id}`)}
+                key={fb.feedbackId}
+                onClick={() => router.push(`/superadmin/feedback/${fb.feedbackId}`)}
                 className="grid grid-cols-4 items-center text-center bg-white border border-gray-300 rounded-lg shadow hover:bg-gray-50 cursor-pointer transition"
               >
-                <div className="p-4 font-semibold text-black text-base">{fb.branch}</div>
-                <div className="py-4 text-sm text-gray-800">{fb.table}</div>
-                <div className="py-4 text-sm text-gray-800">{fb.date}</div>
+                <div className="p-4 font-semibold text-black text-base">{fb.clubInfo?.clubName || 'N/A'}</div>
+                <div className="py-4 text-sm text-gray-800">{fb.tableInfo?.name || 'N/A'}</div>
+                <div className="py-4 text-sm text-gray-800">{fb.createdAt ? new Date(fb.createdAt).toISOString().slice(0, 10) : 'N/A'}</div>
                 <div className="flex justify-center py-4">
                   <Badge
-                    variant={fb.status === 'Đã xử lý' ? 'success' : 'danger'}
-                    className="text-sm font-semibold px-4 py-1.5 rounded-full"
+                    variant={getStatusColor(fb.status)}
+                    className="text-sm font-semibold py-1.5 rounded-full whitespace-nowrap"
                   >
-                    {fb.status}
+                    {getStatusText(fb.status)}
                   </Badge>
                 </div>
               </div>
