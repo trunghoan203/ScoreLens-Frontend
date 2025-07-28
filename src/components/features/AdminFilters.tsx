@@ -23,7 +23,7 @@ export function AdminFilters({
         className="backdrop-blur-md border-lime-400 bg-white/60 border border-gray-200 rounded-2xl shadow-lg px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 transition-all duration-300"
         style={{ boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.10)' }}
       >
-        {/* Search Input - Left */}
+        {/* Search Input*/}
         <div className="relative w-full sm:w-80 h-12 bg-white rounded-xl border-2 border-gray-200 focus-within:border-green-500 transition-all">
           <Input
             type="text"
@@ -46,7 +46,7 @@ export function AdminFilters({
           </span>
         </div>
 
-        {/* Status Filter - Right */}
+        {/* Status Filter*/}
         <div className="relative w-full sm:w-55 h-12 bg-white rounded-xl border-2 border-gray-200 text-black focus-within:border-green-500 transition-all">
           <Select
             value={statusFilter}
