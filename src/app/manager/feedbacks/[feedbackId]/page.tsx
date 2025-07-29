@@ -244,12 +244,12 @@ export default function FeedbackDetailPage() {
               {feedback?.history && feedback.history.length > 0 && (
                 <div>
                   <label className="block text-sm font-semibold mb-2 text-black">Lịch sử xử lý</label>
-                  <div className="bg-gray-50 rounded-lg p-4 max-h-200 overflow-y-auto">
+                  <div className="bg-gray-50 rounded-lg p-4 max-h-[925px] overflow-y-auto">
                     <div className="space-y-3">
                       {feedback.history
                         .slice()
                         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                        .slice(0, 10)
+                        .slice(0, 15)
                         .map((item, index) => (
                           <div key={index} className="border-l-4 border-lime-400 pl-4 py-2 bg-white rounded-r-lg">
                             <div className="flex justify-between items-start mb-1">
