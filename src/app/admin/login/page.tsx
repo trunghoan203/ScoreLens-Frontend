@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/PasswordInput';
@@ -8,6 +8,7 @@ import { AuthLayout } from '@/components/shared/AuthLayout';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import axios from '@/lib/axios';
+import { adminService } from '@/lib/adminService';
 import toast from 'react-hot-toast';
 
 export default function AdminLoginPage() {
@@ -15,6 +16,7 @@ export default function AdminLoginPage() {
     email: '',
     password: ''
   });
+  const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<{
     email?: string;
     password?: string;
@@ -22,6 +24,18 @@ export default function AdminLoginPage() {
   }>({});
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  // Load saved credentials on component mount
+  useEffect(() => {
+    const savedData = adminService.getRememberMeData();
+    if (savedData) {
+      setFormData({
+        email: savedData.email,
+        password: savedData.password
+      });
+      setRememberMe(true);
+    }
+  }, []);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -49,55 +63,58 @@ export default function AdminLoginPage() {
     setErrors({});
 
     try {
+      // Gửi request login với rememberMe bằng axios
       const response = await axios.post('/admin/login', {
         email: formData.email,
         password: formData.password,
+        rememberMe: rememberMe
       });
 
       if (response.status === 200) {
-        const data = response.data as { accessToken?: string };
-        const accessToken = data.accessToken;
+        const data = response.data as { data?: { accessToken?: string; refreshToken?: string; [key: string]: unknown } };
+        const accessToken = data.data?.accessToken;
+        const refreshToken = data.data?.refreshToken;
         if (accessToken) {
           localStorage.setItem('adminAccessToken', accessToken);
         }
+        if (refreshToken) {
+          localStorage.setItem('refreshToken', refreshToken);
+        }
+
+        // Lưu thông tin đăng nhập nếu user chọn nhớ mật khẩu
+        adminService.saveRememberMeData({
+          email: formData.email,
+          password: formData.password,
+          rememberMe: rememberMe
+        });
+
         toast.success('Đăng nhập thành công!');
         
+        // Gọi API lấy profile với accessToken vừa nhận
         try {
           const profileResponse = await axios.get('/admin/profile', {
-            headers: { Authorization: `Bearer ${accessToken}` }
+            headers: {
+              Authorization: `Bearer ${accessToken}`
+            }
           });
-          
-          const profileData = profileResponse.data as { 
-            admin?: { brandId?: string | null } 
-          };
-          
+          const profileData = profileResponse.data as { admin?: { brandId?: string | null } };
           if (profileData.admin?.brandId) {
             router.push('/admin/branches');
           } else {
             router.push('/admin/confirm');
           }
-          
         } catch (profileError) {
           console.log('Không thể lấy thông tin profile:', profileError);
           router.push('/admin/confirm');
         }
       } else {
-        const errorMessage = 'Đăng nhập thất bại. Vui lòng thử lại.';
+        const errorMessage = (response.data as { message?: string })?.message || 'Đăng nhập thất bại. Vui lòng thử lại.';
         toast.error(errorMessage);
       }
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      const message = err.response?.data?.message;
-      if (message) {
-        if (message.includes('not verified') || message.includes('verification')) {
-          toast.error('Tài khoản chưa được xác minh. Vui lòng kiểm tra email để lấy mã xác thực.');
-        } else {
-          toast.error(message);
-        }
-      } else {
-        const errorMessage = 'Đăng nhập thất bại. Vui lòng thử lại.';
-        toast.error(errorMessage);
-      }
+      const errorMessage = err?.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.';
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -107,10 +124,13 @@ export default function AdminLoginPage() {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
-
     if (errors[name as keyof typeof errors]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
     }
+  };
+
+  const handleRememberMeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRememberMe(e.target.checked);
   };
 
   return (
@@ -118,8 +138,6 @@ export default function AdminLoginPage() {
       title="Đăng nhập Admin"
       description="Vui lòng đăng nhập để tiếp tục"
     >
-
-
       <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]">
         <div>
           <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -165,14 +183,18 @@ export default function AdminLoginPage() {
         </div>
 
         <div className="flex items-center justify-between text-sm">
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              className="h-4 w-4 text-lime-500 focus:ring-lime-400 border-gray-300 rounded"
-              disabled={isLoading}
-            />
-            <span className="text-gray-700">Nhớ mật khẩu</span>
-          </label>
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={handleRememberMeChange}
+                className="h-4 w-4 text-lime-500 focus:ring-lime-400 border-gray-300 rounded"
+                disabled={isLoading}
+              />
+              <span className="text-gray-700">Nhớ mật khẩu</span>
+            </label> 
+          </div>
           <Link 
             href="/admin/forgotPassword" 
             className="font-medium text-gray-800 hover:text-lime-500 transition-colors"
