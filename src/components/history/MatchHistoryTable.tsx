@@ -1,3 +1,5 @@
+import React from 'react';
+
 interface Match {
     id: string;
     time: string;
@@ -37,10 +39,8 @@ export function MatchHistoryTable({ matches }: MatchHistoryTableProps) {
                         {match.teamB.map((name, idx) => <div key={idx} className="text-xs">{name}</div>)}
                     </div>
                     <div className="col-span-2 py-4 flex justify-center">
-                        <a href={match.vod} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-lime-400 hover:bg-lime-500 text-white font-bold px-4 py-2 rounded-lg transition">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <polygon points="5,3 19,12 5,21" fill="currentColor" />
-                            </svg>
+                        <a href={match.vod} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-[#8ADB10] hover:bg-lime-500 text-white font-bold px-4 py-2 rounded-lg transition">
+                            <img key="playVideo" src="/icon/playVideo.svg" alt="Play Video" className="w-5 h-5" />
                             VOD
                         </a>
                     </div>
