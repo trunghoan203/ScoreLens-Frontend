@@ -10,7 +10,16 @@ export interface AdminProfile {
   updatedAt: string;
 }
 
+export interface RememberMeData {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+}
+
 class AdminService {
+  private readonly REMEMBER_ME_KEY = 'adminRememberMe';
+  private readonly REMEMBER_ME_DURATION = 30 * 24 * 60 * 60 * 1000; // 30 days
+
   /**
    * Lấy thông tin profile của admin đang đăng nhập
    */
@@ -37,6 +46,70 @@ class AdminService {
       console.error('Error getting brandId:', error);
       return null;
     }
+  }
+
+  /**
+   * Lưu thông tin đăng nhập để nhớ mật khẩu
+   */
+  saveRememberMeData(data: RememberMeData): void {
+    if (typeof window === 'undefined') return;
+
+    if (data.rememberMe) {
+      const rememberData = {
+        email: data.email,
+        password: data.password,
+        timestamp: Date.now()
+      };
+      localStorage.setItem(this.REMEMBER_ME_KEY, JSON.stringify(rememberData));
+    } else {
+      this.clearRememberMeData();
+    }
+  }
+
+  /**
+   * Lấy thông tin đăng nhập đã lưu
+   */
+  getRememberMeData(): RememberMeData | null {
+    if (typeof window === 'undefined') return null;
+
+    try {
+      const savedData = localStorage.getItem(this.REMEMBER_ME_KEY);
+      if (!savedData) return null;
+
+      const data = JSON.parse(savedData);
+      const now = Date.now();
+      
+      // Kiểm tra xem dữ liệu có còn hợp lệ không (30 ngày)
+      if (now - data.timestamp > this.REMEMBER_ME_DURATION) {
+        this.clearRememberMeData();
+        return null;
+      }
+
+      return {
+        email: data.email,
+        password: data.password,
+        rememberMe: true
+      };
+    } catch (error) {
+      console.error('Error parsing remember me data:', error);
+      this.clearRememberMeData();
+      return null;
+    }
+  }
+
+  /**
+   * Xóa thông tin đăng nhập đã lưu
+   */
+  clearRememberMeData(): void {
+    if (typeof window === 'undefined') return;
+    localStorage.removeItem(this.REMEMBER_ME_KEY);
+  }
+
+  /**
+   * Kiểm tra xem có dữ liệu nhớ mật khẩu không
+   */
+  hasRememberMeData(): boolean {
+    return this.getRememberMeData() !== null;
   }
 
   /**

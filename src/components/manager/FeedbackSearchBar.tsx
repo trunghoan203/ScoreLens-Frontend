@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 interface FeedbackSearchBarProps {
   search: string;
@@ -16,10 +17,7 @@ export default function FeedbackSearchBar({ search, setSearch }: FeedbackSearchB
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
-        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <circle cx="11" cy="11" r="8" />
-          <path d="M21 21l-4.35-4.35" strokeWidth="2" strokeLinecap="round" />
-        </svg>
+        <Image src="/icon/search.svg" alt="Search" width={20} height={20} className="text-gray-400" />
       </div>
     </div>
   );

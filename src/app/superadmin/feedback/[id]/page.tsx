@@ -4,9 +4,9 @@ import React, { useEffect, useState } from 'react';
 import { useRouter, useParams } from "next/navigation";
 import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
 import { PageBanner } from '@/components/shared/PageBanner';
-import { Button } from '@/components/ui/button';
 import { getFeedbackDetail, updateFeedback } from '@/lib/saFeedbackService';
 import toast from 'react-hot-toast';
+import FeedbackDetailLayout from "@/components/shared/FeedbackDetailLayout";
 
 interface Feedback {
   _id: string;
@@ -151,146 +151,157 @@ export default function FeedbackDetailPage() {
   return (
     <>
       <HeaderAdmin />
-      <PageBanner title="ĐÁNH GIÁ" />
-      <div className="flex justify-center py-10 px-4">
-        <div className="bg-white border border-lime-300 rounded-2xl shadow w-full max-w-xl p-6 space-y-6">
-          <h2 className="text-center text-2xl md:text-3xl font-bold text-gray-800 mb-4">
-            CHI TIẾT PHẢN HỒI
-          </h2>
-          <form
-            onSubmit={e => {
-              e.preventDefault();
-              if (isEditMode) handleSave();
-              else setIsEditMode(true);
-            }}
-          >
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Chi nhánh</label>
-              <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback.clubInfo?.clubName || ''} disabled />
-            </div>
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Bàn</label>
-              <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback.tableInfo?.name || ''} disabled />
-            </div>
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Loại người tạo</label>
-              <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback.createdBy?.type === 'guest' ? 'Khách' : 'Hội viên'} disabled />
-            </div>
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Thời gian tạo</label>
-              <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback.createdAt ? new Date(feedback.createdAt).toLocaleString('vi-VN') : ''} disabled />
-            </div>
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Thời gian cập nhật</label>
-              <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback.updatedAt ? new Date(feedback.updatedAt).toLocaleString('vi-VN') : ''} disabled />
-            </div>
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Trạng thái</label>
-              {isEditMode ? (
-                <select
-                  className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
-                  value={status}
-                  onChange={e => setStatus(e.target.value as Feedback['status'])}
-                >
-                  {statusOptions.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
-              ) : (
-                <span className={`inline-block px-3 py-1 rounded-full text-base font-semibold text-white ${getStatusColor(status)}`}>
-                  {getStatusText(status)}
-                </span>
-              )}
-            </div>
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Cần hỗ trợ</label>
-              {isEditMode ? (
-                <select
-                  className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
-                  value={needSupport ? 'true' : 'false'}
-                  onChange={e => setNeedSupport(e.target.value === 'true')}
-                >
-                  <option value="false">Không</option>
-                  <option value="true">Có</option>
-                </select>
-              ) : (
-                <span className={`inline-block px-3 py-1 rounded-full text-base font-semibold text-white ${needSupport ? 'bg-red-500' : 'bg-green-500'}`}>
-                  {needSupport ? 'Cần hỗ trợ' : 'Không cần hỗ trợ'}
-                </span>
-              )}
-            </div>
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Nội dung phản hồi</label>
-              <textarea
-                className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
-                value={feedback.content}
-                disabled
-                rows={4}
-              />
-            </div>
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Ghi chú xử lý</label>
-              {isEditMode ? (
-                <textarea
-                  className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
-                  value={notes}
-                  onChange={e => setNotes(e.target.value)}
-                  rows={3}
-                  placeholder="Nhập ghi chú xử lý..."
-                />
-              ) : (
-                <textarea
-                  className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
-                  value={getLatestNote(feedback.history) || ''}
-                  disabled
-                  rows={3}
-                />
-              )}
-            </div>
-            {/* Lịch sử xử lý */}
-            {feedback.history && feedback.history.length > 0 && (
-              <div className="w-full mb-6">
-                <label className="block text-sm font-semibold mb-2 text-black">Lịch sử xử lý</label>
-                <div className="bg-gray-50 rounded-lg p-4 max-h-64 overflow-y-auto">
-                  <div className="space-y-3">
-                    {feedback.history.map((item, index) => (
-                      <div key={index} className="border-l-4 border-lime-400 pl-4 py-2 bg-white rounded-r-lg">
-                        <div className="flex justify-between items-start mb-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-sm text-gray-800">{item.byName}</span>
-                            <span className="text-xs bg-gray-200 px-2 py-1 rounded-full text-gray-600">{item.byRole}</span>
-                          </div>
-                          <span className="text-xs text-gray-500">
-                            {item.date ? new Date(item.date).toLocaleString('vi-VN') : ''}
-                          </span>
-                        </div>
-                        {item.note && (
-                          <div className="text-sm text-gray-600">
-                            <span className="font-medium">Ghi chú:</span> {item.note}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+      <PageBanner title="PHẢN HỒI" />
+      <div className="flex flex-col items-center py-10 px-4 min-h-screen w-full">
+        <div className="w-full max-w-none">
+          <FeedbackDetailLayout title="QUẢN LÝ PHẢN HỒI">
+            <div className="flex flex-col md:flex-row gap-8 w-full">
+              <div className="flex-1 space-y-6 order-1 md:order-none">
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-black">Chi nhánh</label>
+                  <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback.clubInfo?.clubName || ''} disabled />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-black">Bàn</label>
+                  <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback.tableInfo?.name || ''} disabled />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-black">Loại người tạo</label>
+                  <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback.createdBy?.type === 'guest' ? 'Khách' : 'Hội viên'} disabled />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-black">Thời gian tạo</label>
+                  <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback.createdAt ? new Date(feedback.createdAt).toLocaleString('vi-VN') : ''} disabled />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-black">Thời gian cập nhật</label>
+                  <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback.updatedAt ? new Date(feedback.updatedAt).toLocaleString('vi-VN') : ''} disabled />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-black">Trạng thái</label>
+                  {isEditMode ? (
+                    <select
+                      className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
+                      value={status}
+                      onChange={e => setStatus(e.target.value as Feedback['status'])}
+                    >
+                      {statusOptions.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <span className={`inline-block px-4 py-2 rounded-full text-base font-semibold text-white ${getStatusColor(status)}`}>
+                      {getStatusText(status)}
+                    </span>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-black">Cần hỗ trợ</label>
+                  {isEditMode ? (
+                    <select
+                      className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
+                      value={needSupport ? 'true' : 'false'}
+                      onChange={e => setNeedSupport(e.target.value === 'true')}
+                    >
+                      <option value="false">Không</option>
+                      <option value="true">Có</option>
+                    </select>
+                  ) : (
+                    <span className={`inline-block px-4 py-2 rounded-full text-base font-semibold text-white ${needSupport ? 'bg-red-500' : 'bg-green-500'}`}>
+                      {needSupport ? 'Cần hỗ trợ' : 'Không cần hỗ trợ'}
+                    </span>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-black">Nội dung phản hồi</label>
+                  <textarea
+                    className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
+                    value={feedback.content}
+                    disabled
+                    rows={4}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-black">Ghi chú xử lý</label>
+                  {isEditMode ? (
+                    <textarea
+                      className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
+                      value={notes}
+                      onChange={e => setNotes(e.target.value)}
+                      rows={3}
+                      placeholder="Nhập ghi chú xử lý..."
+                    />
+                  ) : (
+                    <textarea
+                      className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
+                      value={getLatestNote(feedback.history) || ''}
+                      disabled
+                      rows={3}
+                    />
+                  )}
                 </div>
               </div>
-            )}
-            <div className="flex justify-center gap-4 flex-wrap mt-6">
-              <Button
-                type="button"
-                onClick={handleCancel}
-                className="bg-lime-100 text-lime-700 hover:bg-lime-200 font-semibold px-6 py-2 rounded-full shadow transition"
-              >
-                {isEditMode ? 'Hủy' : 'Đóng'}
-              </Button>
-              <Button
-                type="submit"
-                className="bg-lime-500 text-white hover:bg-lime-600 font-semibold px-6 py-2 rounded-full shadow transition"
-              >
-                {isEditMode ? 'Lưu' : 'Chỉnh sửa'}
-              </Button>
+              <div className="flex-1 space-y-6 order-2 md:order-none">
+                {feedback.history && feedback.history.length > 0 && (
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-center text-black">Lịch sử xử lý</label>
+                    <div className="bg-gray-50 rounded-lg p-4 max-h-[925px] overflow-y-auto">
+                      <div className="space-y-3">
+                        {feedback.history
+                          .slice()
+                          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                          .slice(0, 15)
+                          .map((item, index) => (
+                            <div key={index} className="border-l-4 border-lime-400 pl-4 py-2 bg-white rounded-r-lg">
+                              <div className="flex justify-between items-start mb-1">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-semibold text-sm text-gray-800">{item.byName}</span>
+                                  <span className="text-xs bg-gray-200 px-2 py-1 rounded-full text-gray-600">{item.byRole}</span>
+                                </div>
+                                <span className="text-xs text-gray-500">
+                                  {item.date ? new Date(item.date).toLocaleString('vi-VN') : ''}
+                                </span>
+                              </div>
+                              {item.note && (
+                                <div className="text-sm text-gray-600">
+                                  <span className="font-medium">Ghi chú:</span> {item.note}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          </form>
+            <div className="flex flex-col md:flex-row justify-center items-center gap-4 mt-8">
+              <button
+                type="button"
+                className="w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 rounded-lg transition text-lg"
+                onClick={handleCancel}
+              >
+                {isEditMode ? 'Hủy' : 'Quay lại'}
+              </button>
+              {isEditMode ? (
+                <button
+                  type="button"
+                  className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
+                  onClick={handleSave}
+                >
+                  Lưu
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
+                  onClick={() => setIsEditMode(true)}
+                >
+                  Chỉnh sửa
+                </button>
+              )}
+            </div>
+          </FeedbackDetailLayout>
         </div>
       </div>
     </>

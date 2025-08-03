@@ -15,8 +15,6 @@ interface ApiFeedback {
     userId: string;
     type: 'guest' | 'membership';
   };
-  clubId: string;
-  tableId: string;
   content: string;
   status: 'resolved' | 'pending' | 'managerP' | 'adminP' | 'superadminP';
   needSupport: boolean;
@@ -145,9 +143,9 @@ export function FeedbackTable() {
                 onClick={() => router.push(`/superadmin/feedback/${fb.feedbackId}`)}
                 className="grid grid-cols-4 items-center text-center bg-white border border-gray-300 rounded-lg shadow hover:bg-gray-50 cursor-pointer transition"
               >
-                <div className="p-4 font-semibold text-black text-base">{fb.clubInfo?.clubName || 'N/A'}</div>
-                <div className="py-4 text-sm text-gray-800">{fb.tableInfo?.name || 'N/A'}</div>
-                <div className="py-4 text-sm text-gray-800">{fb.createdAt ? new Date(fb.createdAt).toISOString().slice(0, 10) : 'N/A'}</div>
+                <div className="p-4 font-semibold text-black text-base">{fb.clubInfo?.clubName || ''}</div>
+                <div className="py-4 text-sm text-gray-800">{fb.tableInfo?.name || ''}</div>
+                <div className="py-4 text-sm text-gray-800">{fb.createdAt ? new Date(fb.createdAt).toISOString().slice(0, 10) : ''}</div>
                 <div className="flex justify-center py-4">
                   <Badge
                     variant={getStatusColor(fb.status)}
