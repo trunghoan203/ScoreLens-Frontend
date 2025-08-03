@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SidebarManager from '@/components/manager/SidebarManager';
 import HeaderManager from '@/components/manager/HeaderManager';
 import DashboardSummary from '@/components/manager/DashboardSummary';
@@ -10,6 +10,9 @@ import { useRouter } from 'next/navigation';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { useManagerAuthGuard } from '@/lib/hooks/useManagerAuthGuard';
+import { managerTableService } from '@/lib/managerTableService';
+import { managerMemberService } from '@/lib/managerMemberService';
+import toast from 'react-hot-toast';
 
 const mockTables = [
   { id: '1', name: 'Bàn 01 - Bida Pool', type: 'pool', status: 'using' as const, teamA: 'Team A', teamB: 'Team B', time: '01:23:45' },
@@ -30,6 +33,52 @@ export default function ManagerDashboardPage() {
   const [status, setStatus] = useState('');
   const router = useRouter();
   const [actionLoading, setActionLoading] = useState(false);
+
+  const [dashboardStats, setDashboardStats] = useState({
+    totalTables: 0,
+    inUse: 0,
+    available: 0,
+    members: 0
+  });
+  const [loadingStats, setLoadingStats] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      try {
+        setLoadingStats(true);
+
+        // Fetch tables data
+        const tablesData = await managerTableService.getAllTables();
+        const tables = Array.isArray(tablesData) ? tablesData : (tablesData as any)?.tables || [];
+
+        // Fetch members data
+        const membersData = await managerMemberService.getAllMembers();
+        const members = Array.isArray(membersData) ? membersData : (membersData as any)?.memberships || [];
+
+        // Calculate stats
+        const totalTables = tables.length;
+        const inUse = tables.filter((table: any) => table.status === 'inuse').length;
+        const maintenance = tables.filter((table: any) => table.status === 'maintenance').length;
+        const available = tables.filter((table: any) => table.status === 'empty').length;
+        const totalMembers = members.length;
+                
+        setDashboardStats({
+          totalTables,
+          inUse,
+          available,
+          members: totalMembers
+        });
+      } catch (error) {
+        toast.error('Không thể tải dữ liệu thống kê');
+      } finally {
+        setLoadingStats(false);
+      }
+    };
+
+    if (!isChecking) {
+      fetchDashboardStats();
+    }
+  }, [isChecking]);
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -60,7 +109,18 @@ export default function ManagerDashboardPage() {
         <main className="flex-1 bg-white p-10 min-h-screen">
           <HeaderManager />
           <div className="w-full mx-auto">
-            <DashboardSummary totalTables={20} inUse={12} available={8} members={156} />
+            {loadingStats ? (
+              <div className="my-6">
+                <LoadingSkeleton type="card" />
+              </div>
+            ) : (
+              <DashboardSummary
+                totalTables={dashboardStats.totalTables}
+                inUse={dashboardStats.inUse}
+                available={dashboardStats.available}
+                members={dashboardStats.members}
+              />
+            )}
             <div className="bg-white rounded-lg shadow p-6">
               <TableFilterBar
                 search={search}
@@ -70,9 +130,6 @@ export default function ManagerDashboardPage() {
                 status={status}
                 onStatusChange={setStatus}
               />
-              {/* tableLoading ? ( // This line is removed
-                <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>
-              ) : */}
               {filteredTables.length === 0 ? (
                 <div className="py-8 text-center text-gray-400">
                   <LoadingSkeleton type="text" lines={2} />
