@@ -7,7 +7,7 @@ import { PageBanner } from '@/components/shared/PageBanner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { getAdminDetail, approveAdmin, rejectAdmin } from '@/lib/superadminAdminService';
+import { getAdminDetail, approveAdmin, rejectAdmin } from '@/lib/saAdminService';
 
 interface Club {
   clubId: string;

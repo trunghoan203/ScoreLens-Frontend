@@ -91,14 +91,14 @@ export default function ScoreboardPage() {
           </div>
 
           {/* Kết quả AI */}
-<div className="text-left w-full space-y-2">
-  <p className="text-sm font-semibold text-black mb-1">Kết Quả</p>
-  <div className="border border-gray-300 rounded-md p-3 text-sm text-black bg-white shadow-sm space-y-1">
-    {(aiResults.length > 0 ? aiResults : exampleResults).map((item, index) => (
-      <p key={index}>[AI]: {item}</p>
-    ))}
-  </div>
-</div>
+          <div className="text-left w-full space-y-2">
+            <p className="text-sm font-semibold text-black mb-1">Kết Quả</p>
+            <div className="border border-gray-300 rounded-md p-3 text-sm text-black bg-white shadow-sm space-y-1">
+              {(aiResults.length > 0 ? aiResults : exampleResults).map((item, index) => (
+                <p key={index}>[AI]: {item}</p>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Nút hành động dưới cùng */}
