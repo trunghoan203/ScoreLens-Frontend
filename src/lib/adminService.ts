@@ -8,6 +8,8 @@ export interface AdminProfile {
   role: string;
   createdAt: string;
   updatedAt: string;
+  status: 'approved' | 'pending' | 'rejected';
+  rejectedReason?: string;
 }
 
 export interface RememberMeData {
