@@ -14,17 +14,15 @@ import { managerTableService } from '@/lib/managerTableService';
 import { managerMemberService } from '@/lib/managerMemberService';
 import toast from 'react-hot-toast';
 
-const mockTables = [
-  { id: '1', name: 'Bàn 01 - Bida Pool', type: 'pool', status: 'using' as const, teamA: 'Team A', teamB: 'Team B', time: '01:23:45' },
-  { id: '2', name: 'Bàn 02 - Bida Pool', type: 'pool', status: 'available' as const },
-  { id: '3', name: 'Bàn 03 - Bida Carom', type: 'carom', status: 'available' as const },
-  { id: '4', name: 'Bàn 04 - Bida Pool', type: 'pool', status: 'using' as const, teamA: 'Team A', teamB: 'Team B', time: '01:23:45' },
-  { id: '5', name: 'Bàn 05 - Bida Pool', type: 'pool', status: 'using' as const, teamA: 'Team A', teamB: 'Team B', time: '01:23:45' },
-  { id: '6', name: 'Bàn 06 - Bida Pool', type: 'pool', status: 'using' as const, teamA: 'Team A', teamB: 'Team B', time: '01:23:45' },
-  { id: '7', name: 'Bàn 07 - Bida Pool', type: 'pool', status: 'using' as const, teamA: 'Team A', teamB: 'Team B', time: '01:23:45' },
-  { id: '8', name: 'Bàn 08 - Bida Pool', type: 'pool', status: 'using' as const, teamA: 'Team A', teamB: 'Team B', time: '01:23:45' },
-  { id: '9', name: 'Bàn 09 - Bida Pool', type: 'pool', status: 'using' as const, teamA: 'Team A', teamB: 'Team B', time: '01:23:45' },
-];
+interface TableData {
+  id: string;
+  name: string;
+  type: string;
+  status: 'inuse' | 'empty' | 'maintenance' | 'using' | 'available';
+  teamA?: string;
+  teamB?: string;
+  time?: string;
+}
 
 export default function ManagerDashboardPage() {
   const { isChecking } = useManagerAuthGuard();
@@ -41,25 +39,37 @@ export default function ManagerDashboardPage() {
     members: 0
   });
   const [loadingStats, setLoadingStats] = useState(true);
+  const [tables, setTables] = useState<TableData[]>([]);
+  const [loadingTables, setLoadingTables] = useState(true);
 
   useEffect(() => {
-    const fetchDashboardStats = async () => {
+    const fetchDashboardData = async () => {
       try {
         setLoadingStats(true);
+        setLoadingTables(true);
 
-        // Fetch tables data
         const tablesData = await managerTableService.getAllTables();
-        const tables = Array.isArray(tablesData) ? tablesData : (tablesData as any)?.tables || [];
+        const tablesArray = Array.isArray(tablesData) ? tablesData : (tablesData as any)?.tables || [];
+        
+        const transformedTables: TableData[] = tablesArray.map((table: any) => ({
+          id: table.id || table._id,
+          name: table.name,
+          type: table.category || table.type,
+          status: table.status,
+          teamA: table.teamA,
+          teamB: table.teamB,
+          time: table.time
+        }));
 
-        // Fetch members data
+        setTables(transformedTables);
+
         const membersData = await managerMemberService.getAllMembers();
         const members = Array.isArray(membersData) ? membersData : (membersData as any)?.memberships || [];
 
-        // Calculate stats
-        const totalTables = tables.length;
-        const inUse = tables.filter((table: any) => table.status === 'inuse').length;
-        const maintenance = tables.filter((table: any) => table.status === 'maintenance').length;
-        const available = tables.filter((table: any) => table.status === 'empty').length;
+        const totalTables = transformedTables.length;
+        const inUse = transformedTables.filter((table: TableData) => table.status === 'inuse').length;
+        const maintenance = transformedTables.filter((table: TableData) => table.status === 'maintenance').length;
+        const available = transformedTables.filter((table: TableData) => table.status === 'empty').length;
         const totalMembers = members.length;
                 
         setDashboardStats({
@@ -69,14 +79,16 @@ export default function ManagerDashboardPage() {
           members: totalMembers
         });
       } catch (error) {
+        console.error('Error fetching dashboard data:', error);
         toast.error('Không thể tải dữ liệu thống kê');
       } finally {
         setLoadingStats(false);
+        setLoadingTables(false);
       }
     };
 
     if (!isChecking) {
-      fetchDashboardStats();
+      fetchDashboardData();
     }
   }, [isChecking]);
 
@@ -93,12 +105,17 @@ export default function ManagerDashboardPage() {
     }, 1000);
   };
 
-  const filteredTables = mockTables.filter(table => {
+  const filteredTables = tables.filter(table => {
     const matchSearch = table.name.toLowerCase().includes(search.toLowerCase());
-    const matchType = !type || table.type === type;
-    const matchStatus = !status || table.status === status;
+    const matchType = !type || table.type.toLowerCase() === type.toLowerCase();
+    
+    let displayStatus = table.status;
+    if (table.status === 'inuse') displayStatus = 'using';
+    if (table.status === 'empty') displayStatus = 'available';
+    
+    const matchStatus = !status || displayStatus === status;
     return matchSearch && matchType && matchStatus;
-  }) as typeof mockTables;
+  });
 
   if (isChecking) return null;
 
@@ -130,7 +147,11 @@ export default function ManagerDashboardPage() {
                 status={status}
                 onStatusChange={setStatus}
               />
-              {filteredTables.length === 0 ? (
+              {loadingTables ? (
+                <div className="py-8">
+                  <LoadingSkeleton type="card" />
+                </div>
+              ) : filteredTables.length === 0 ? (
                 <div className="py-8 text-center text-gray-400">
                   <LoadingSkeleton type="text" lines={2} />
                   <div>Không có dữ liệu</div>
@@ -141,11 +162,13 @@ export default function ManagerDashboardPage() {
                   onDetail={(id) => router.push(`/manager/matches/${id}`)}
                 />
               )}
-              <div className="flex justify-center mt-6">
-                <ButtonXemThem onClick={handleXemThem}>
-                  {actionLoading ? <LoadingSpinner size="sm" /> : 'Xem thêm'}
-                </ButtonXemThem>
-              </div>
+              {filteredTables.length > 9 && (
+                <div className="flex justify-center mt-6">
+                  <ButtonXemThem onClick={handleXemThem}>
+                    {actionLoading ? <LoadingSpinner size="sm" /> : 'Xem thêm'}
+                  </ButtonXemThem>
+                </div>
+              )}
             </div>
           </div>
         </main>

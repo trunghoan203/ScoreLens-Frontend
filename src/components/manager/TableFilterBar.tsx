@@ -19,7 +19,6 @@ export default function TableFilterBar({ search, onSearchChange, type, onTypeCha
       >
         <h2 className="text-2xl font-extrabold text-[#000000] tracking-tight mb-2 sm:mb-0">Quản lí bàn</h2>
         <div className="flex flex-col sm:flex-row items-stretch gap-4 w-full sm:w-auto">
-          {/* Search Input */}
           <div className="relative flex items-center w-full sm:w-80 bg-white/80 rounded-xl border border-gray-200 shadow-sm focus-within:border-lime-400 transition-all">
             <input
               type="text"
@@ -32,7 +31,6 @@ export default function TableFilterBar({ search, onSearchChange, type, onTypeCha
               <Image src="/icon/search.svg" alt="Search" width={24} height={24} />
             </span>
           </div>
-          {/* Type Select */}
           <div className="relative w-full sm:w-44">
             <select
               value={type}
@@ -47,7 +45,6 @@ export default function TableFilterBar({ search, onSearchChange, type, onTypeCha
               <Image src="/icon/chevron-down_Black.svg" alt="Dropdown" width={22} height={22} />
             </span>
           </div>
-          {/* Status Select */}
           <div className="relative w-full sm:w-44">
             <select
               value={status}
@@ -57,6 +54,7 @@ export default function TableFilterBar({ search, onSearchChange, type, onTypeCha
               <option value="">Tất cả</option>
               <option value="using">Đang sử dụng</option>
               <option value="available">Bàn trống</option>
+              <option value="maintenance">Bảo trì</option>
             </select>
             <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-lime-500">
               <Image src="/icon/chevron-down_Black.svg" alt="Dropdown" width={22} height={22} />
