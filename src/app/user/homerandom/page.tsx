@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { QRCodeCanvas } from 'qrcode.react';
 import { ScoreLensLogo } from '@/components/icons/LogoBlack';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { BackButton } from '@/components/ui/BackButton';
 
-export default function HomeRandomPage() {
+function HomeRandomContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const tableNumber = searchParams.get('table') || '??';
@@ -29,7 +29,7 @@ export default function HomeRandomPage() {
     return () => clearTimeout(timer);
   }, []);
 
-  const qrJoinUrl = `https://yourdomain.com/user/login?table=${tableNumber}&room=${roomCode}`;
+  const qrJoinUrl = `https://scorelens.vercel.app/user/screencontrol?table=${tableNumber}&room=${roomCode}`;
 
   const handleStart = () => {
     router.push(`/user/screencontrol?table=${tableNumber}&room=${roomCode}`);
@@ -89,5 +89,13 @@ export default function HomeRandomPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function HomeRandomPage() {
+  return (
+    <Suspense fallback={<ScoreLensLoading text="Đang tải..." />}>
+      <HomeRandomContent />
+    </Suspense>
   );
 }

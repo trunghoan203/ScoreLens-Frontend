@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import PopupEditScore from '@/app/user/popup/popupEditScore';
 import PopupEndMatch from '@/app/user/popup/popupEndMatch';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
-import { Pencil, Flag } from 'lucide-react';
+
 
 export default function ScoreboardPage() {
   const router = useRouter();
@@ -106,16 +106,14 @@ export default function ScoreboardPage() {
           <div className="flex flex-row gap-4 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
             <Button
               onClick={handleEditScore}
-              className="w-1/2 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center gap-2"
+              className="w-1/2 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center"
             >
-              <Pencil size={18} />
               Sửa điểm
             </Button>
             <Button
               onClick={handleEndMatch}
-              className="w-1/2 bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center gap-2"
+              className="w-1/2 bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center"
             >
-              <Flag size={18} />
               Kết thúc
             </Button>
           </div>

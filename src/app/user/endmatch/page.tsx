@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { ScoreLensLogo } from '@/components/icons/LogoBlack';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { Button } from '@/components/ui/button';
-import { Trophy, Star, CreditCard } from 'lucide-react';
+import { Trophy } from 'lucide-react';
+
 
 export default function EndMatchPage() {
   const router = useRouter();
@@ -89,16 +90,14 @@ export default function EndMatchPage() {
         <div className="flex flex-row gap-4 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
           <Button
             onClick={handleRate}
-            className="w-full flex items-center justify-center gap-2 bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base transition"
+            className="w-full flex items-center justify-center bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base transition"
           >
-            <Star size={18} />
             Đánh giá
           </Button>
           <Button
             onClick={handlePayment}
-            className="w-full flex items-center justify-center gap-2 bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base transition"
+            className="w-full flex items-center justify-center bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base transition"
           >
-            <CreditCard size={18} />
             Thanh toán
           </Button>
         </div>

@@ -1,12 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ScoreLensLogo } from '@/components/icons/LogoBlack';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
-import { UserPlus, PlusCircle } from 'lucide-react';
 
-export default function StartSessionPage() {
+function StartSessionContent() {
   const [loading, setLoading] = useState(true);
   const [memberId, setMemberId] = useState('');
   const [fullName, setFullName] = useState('');
@@ -97,20 +96,26 @@ export default function StartSessionPage() {
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
           <button
             onClick={handleJoin}
-            className="w-full flex items-center justify-center gap-2 bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base transition"
+            className="w-full flex items-center justify-center bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base transition"
           >
-            <UserPlus size={18} />
             Tham gia
           </button>
           <button
             onClick={handleCreateMatch}
-            className="w-full flex items-center justify-center gap-2 bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base transition"
+            className="w-full flex items-center justify-center bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base transition"
           >
-            <PlusCircle size={18} />
             Tạo trận đấu
           </button>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function StartSessionPage() {
+  return (
+    <Suspense fallback={<ScoreLensLoading text="Đang tải..." />}>
+      <StartSessionContent />
+    </Suspense>
   );
 }
