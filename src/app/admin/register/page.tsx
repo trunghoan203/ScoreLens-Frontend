@@ -159,6 +159,7 @@ export default function AdminRegisterPage() {
         email: formData.email,
         activationCode: otpString,
       });
+      toast.success("Xác minh thành công! Vui lòng đăng nhập để tiếp tục.");
       router.push("/admin/login");
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };

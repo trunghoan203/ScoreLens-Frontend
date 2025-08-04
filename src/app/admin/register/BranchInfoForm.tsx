@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
@@ -24,8 +24,10 @@ interface Branch {
 
 interface BranchInfoFormProps {
   onSuccess: (data: Branch[]) => void;
+  onChange?: (data: Branch[]) => void;
   brandInfo: BrandInfo | null;
   onBack: () => void;
+  initialBranches?: Branch[];
 }
 
 const InfoRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
@@ -35,23 +37,38 @@ const InfoRow = ({ label, value }: { label: string; value: React.ReactNode }) =>
   </div>
 );
 
-export function BranchInfoForm({ onSuccess, brandInfo, onBack }: BranchInfoFormProps) {
-  const [branches, setBranches] = useState<Branch[]>([
-    { name: '', address: '', deviceCount: '', phone: '' },
-  ]);
+export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initialBranches }: BranchInfoFormProps) {
+  const [branches, setBranches] = useState<Branch[]>(
+    initialBranches && initialBranches.length > 0 
+      ? initialBranches 
+      : [{ name: '', address: '', deviceCount: '', phone: '' }]
+  );
   const [showConfirm, setShowConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Cập nhật branches khi initialBranches thay đổi
+  useEffect(() => {
+    if (initialBranches && initialBranches.length > 0) {
+      setBranches(initialBranches);
+    }
+  }, [initialBranches]);
+
   const handleBranchChange = (idx: number, field: keyof Branch, value: string) => {
-    setBranches(prev => prev.map((b, i) => i === idx ? { ...b, [field]: value } : b));
+    const updatedBranches = branches.map((b, i) => i === idx ? { ...b, [field]: value } : b);
+    setBranches(updatedBranches);
+    onChange?.(updatedBranches);
   };
 
   const handleAddBranch = () => {
-    setBranches(prev => [...prev, { name: '', address: '', deviceCount: '', phone: '' }]);
+    const updatedBranches = [...branches, { name: '', address: '', deviceCount: '', phone: '' }];
+    setBranches(updatedBranches);
+    onChange?.(updatedBranches);
   };
 
   const handleRemoveBranch = (idx: number) => {
-    setBranches(prev => prev.filter((_, i) => i !== idx));
+    const updatedBranches = branches.filter((_, i) => i !== idx);
+    setBranches(updatedBranches);
+    onChange?.(updatedBranches);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -64,6 +81,26 @@ export function BranchInfoForm({ onSuccess, brandInfo, onBack }: BranchInfoFormP
     setIsLoading(true);
     
     try {
+      let brandId = brandInfo?.brandId;
+      
+      // Nếu chưa có brandId, tạo brand trước
+      if (!brandId) {
+        const brandResponse = await axios.post('/admin/brands', {
+          brandName: brandInfo?.brandName,
+          phoneNumber: brandInfo?.phoneNumber,
+          website: brandInfo?.website || undefined,
+          logo_url: brandInfo?.logo_url,
+          citizenCode: brandInfo?.citizenCode,
+        });
+        const brandData = brandResponse.data as { brandId?: string; _id?: string };
+        brandId = brandData.brandId || brandData._id || '';
+        
+        // Cập nhật brandInfo với brandId mới
+        if (brandInfo) {
+          brandInfo.brandId = brandId;
+        }
+      }
+
       // Chuyển đổi branches thành format API clubs
       const clubsData = branches.map(branch => ({
         clubName: branch.name,
@@ -73,14 +110,22 @@ export function BranchInfoForm({ onSuccess, brandInfo, onBack }: BranchInfoFormP
         status: 'open' // Mặc định status open
       }));
 
-      // Gọi API tạo clubs
+      // Tạo clubs mới
       await axios.post('/admin/clubs', clubsData);
+      toast.success('Tạo thương hiệu và câu lạc bộ thành công!');
       
-      toast.success('Tạo câu lạc bộ thành công!');
+      // Truyền brandId mới về nếu đã tạo brand
+      if (brandId && brandId !== brandInfo?.brandId) {
+        // Cập nhật brandInfo với brandId mới trong state
+        if (brandInfo) {
+          brandInfo.brandId = brandId;
+        }
+      }
+      
       onSuccess(branches);
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      const message = err.response?.data?.message || 'Tạo câu lạc bộ thất bại. Vui lòng thử lại.';
+      const message = err.response?.data?.message || 'Thao tác thất bại. Vui lòng thử lại.';
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -234,26 +279,29 @@ export function BranchInfoForm({ onSuccess, brandInfo, onBack }: BranchInfoFormP
             </ul>
           </div>
           <div className="mt-8">
-            <Button 
-              type="submit" 
-              variant="lime" 
-              fullWidth
-              disabled={!isFormValid || isLoading}
-            >
-              {isLoading ? 'Đang tạo câu lạc bộ...' : 'Tiếp tục'}
-            </Button>
+                         <Button 
+               type="submit" 
+               variant="lime" 
+               fullWidth
+               disabled={!isFormValid || isLoading}
+             >
+               {isLoading 
+                 ? (initialBranches && initialBranches.length > 0 ? 'Đang cập nhật...' : 'Đang chuẩn bị...') 
+                 : (initialBranches && initialBranches.length > 0 ? 'Cập nhật và tiếp tục' : 'Xác nhận thông tin')
+               }
+             </Button>
           </div>
         </div>
       </form>
       {/* Popup xác nhận cả brandInfo và branchInfo */}
-      <ConfirmPopup
-        open={showConfirm}
-        onConfirm={handleConfirm}
-        onCancel={handleCancel}
-        title="Xác nhận thông tin đăng ký"
-        confirmText={isLoading ? 'Đang tạo...' : 'Xác nhận'}
-        cancelText="Hủy"
-      >
+             <ConfirmPopup
+         open={showConfirm}
+         onConfirm={handleConfirm}
+         onCancel={handleCancel}
+         title="Xác nhận thông tin đăng ký"
+         confirmText={isLoading ? 'Đang tạo...' : 'Tạo thương hiệu và chi nhánh'}
+         cancelText="Hủy"
+       >
         <div className="space-y-6 w-full">
           {/* Thông tin thương hiệu */}
           {brandInfo && (

@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react";
 import Sidebar from "@/components/admin/Sidebar";
 import HeaderAdminPage from "@/components/admin/HeaderAdminPage";
@@ -22,7 +23,6 @@ interface BranchForm {
 }
 
 export default function ClubInfoPage() {
-  const [image, setImage] = useState<File | null>(null);
   const [clubName, setClubName] = useState("");
   const [website, setWebsite] = useState("");
   const [cccd, setCccd] = useState("");
@@ -72,12 +72,6 @@ export default function ClubInfoPage() {
     };
     fetchData();
   }, []);
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
-    }
-  };
 
   const handleBranchChange = (idx: number, field: keyof BranchForm, value: string) => {
     setBranches((prev) =>

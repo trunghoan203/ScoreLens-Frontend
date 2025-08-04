@@ -15,14 +15,40 @@ interface BrandInfo {
   citizenCode: string;
 }
 
+interface Branch {
+  name: string;
+  address: string;
+  deviceCount: string;
+  phone: string;
+}
+
 export default function CompleteProfilePage() {
   const [step, setStep] = useState(1); // 1: Thông tin thương hiệu, 2: Thông tin chi nhánh, 3: Xác nhận
   const [brandInfo, setBrandInfo] = useState<BrandInfo | null>(null);
+  const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = React.useState(true);
   React.useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
   }, []);
+
+  const handleBrandInfoSuccess = (data: BrandInfo) => {
+    setBrandInfo(data);
+    setStep(2);
+  };
+
+  const handleBranchInfoSuccess = (data: Branch[]) => {
+    setBranches(data);
+    setStep(3);
+  };
+
+  const handleBranchInfoChange = (data: Branch[]) => {
+    setBranches(data);
+  };
+
+  const handleBackToStep1 = () => {
+    setStep(1);
+  };
 
   return (
     <>
@@ -35,20 +61,18 @@ export default function CompleteProfilePage() {
         {/* Bước 1: Thông tin thương hiệu */}
         {step === 1 && (
           <BrandInfoForm
-            onSuccess={(data) => {
-              setBrandInfo(data);
-              setStep(2);
-            }}
+            onSuccess={handleBrandInfoSuccess}
+            initialData={brandInfo}
           />
         )}
         {/* Bước 2: Thông tin chi nhánh */}
         {step === 2 && (
           <BranchInfoForm
-            onSuccess={() => {
-              setStep(3);
-            }}
+            onSuccess={handleBranchInfoSuccess}
+            onChange={handleBranchInfoChange}
             brandInfo={brandInfo}
-            onBack={() => setStep(1)}
+            onBack={handleBackToStep1}
+            initialBranches={branches}
           />
         )}
         {/* Bước 3: Thông báo thành công */}
