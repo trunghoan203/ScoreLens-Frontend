@@ -7,6 +7,7 @@ import CameraGrid from "@/components/manager/CameraGrid";
 import CameraPageBanner from "@/components/manager/CameraPageBanner";
 import { useRouter } from "next/navigation";
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
+import EmptyState from '@/components/ui/EmptyState';
 import { managerCameraService } from '@/lib/managerCameraService';
 import { managerTableService } from '@/lib/managerTableService';
 import toast from 'react-hot-toast';
@@ -37,6 +38,7 @@ export default function CameraPage() {
   const [cameras, setCameras] = useState<Camera[]>([]);
   const [tables, setTables] = useState<Table[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -101,8 +103,16 @@ export default function CameraPage() {
          c.IPAddress.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleAddCamera = () => {
-    router.push('/manager/camera/add');
+  const handleAddCamera = async () => {
+    setIsAdding(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      router.push('/manager/camera/add');
+    } catch (error) {
+      console.error('Error navigating to add page:', error);
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   const handleCameraClick = (cameraId: string) => {
@@ -116,20 +126,52 @@ export default function CameraPage() {
         <main className="flex-1 bg-white p-10 min-h-screen">
           <HeaderManager />
           <CameraPageBanner />
-          <CameraSearchBar
-            search={search}
-            setSearch={setSearch}
-            onAddCamera={handleAddCamera}
-          />
+          {cameras.length > 0 && (
+            <CameraSearchBar
+              search={search}
+              setSearch={setSearch}
+              onAddCamera={isAdding ? () => {} : handleAddCamera}
+            />
+          )}
           {loading ? (
             <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>
           ) : error ? (
             <div className="py-8 text-center text-red-500">{error}</div>
-          ) : filteredCameras.length === 0 ? (
-            <div className="py-8 text-center text-gray-400">
-              <LoadingSkeleton type="text" lines={2} />
-              <div>Không có dữ liệu</div>
-            </div>
+          ) : cameras.length === 0 ? (
+            <EmptyState
+              icon={
+                <svg className="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              }
+              title={search ? 'Không tìm thấy camera phù hợp' : 'Chưa có camera nào'}
+              description={
+                search 
+                  ? 'Thử thay đổi từ khóa tìm kiếm hoặc thêm camera mới để mở rộng hệ thống giám sát'
+                  : 'Bắt đầu thiết lập hệ thống camera giám sát chuyên nghiệp cho câu lạc bộ của bạn'
+              }
+              primaryAction={{
+                label: 'Thêm camera mới',
+                onClick: handleAddCamera,
+                loading: isAdding,
+                icon: (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                )
+              }}
+              secondaryAction={search ? {
+                label: 'Xem tất cả',
+                onClick: () => setSearch(''),
+                icon: (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h16M4 12h16M4 20h16" />
+                  </svg>
+                )
+              } : undefined}
+              additionalInfo="Camera giám sát sẽ giúp bạn theo dõi và quản lý hoạt động của câu lạc bộ hiệu quả"
+              showAdditionalInfo={!search}
+            />
           ) : (
             <CameraGrid
               cameras={filteredCameras.map(c => ({
