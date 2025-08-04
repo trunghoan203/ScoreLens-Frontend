@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
@@ -16,17 +16,29 @@ interface BrandInfo {
 
 interface BrandInfoFormProps {
   onSuccess: (data: BrandInfo) => void;
+  initialData?: BrandInfo | null;
 }
 
-export function BrandInfoForm({ onSuccess }: BrandInfoFormProps) {
+export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
   const [image, setImage] = useState<File | null>(null);
-  const [logoUrl, setLogoUrl] = useState('');
-  const [brandName, setBrandName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [website, setWebsite] = useState('');
-  const [citizenCode, setCitizenCode] = useState('');
+  const [logoUrl, setLogoUrl] = useState(initialData?.logo_url || '');
+  const [brandName, setBrandName] = useState(initialData?.brandName || '');
+  const [phoneNumber, setPhoneNumber] = useState(initialData?.phoneNumber || '');
+  const [website, setWebsite] = useState(initialData?.website || '');
+  const [citizenCode, setCitizenCode] = useState(initialData?.citizenCode || '');
   const [isLoading, setIsLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+
+  // Cập nhật form khi initialData thay đổi
+  useEffect(() => {
+    if (initialData) {
+      setLogoUrl(initialData.logo_url || '');
+      setBrandName(initialData.brandName || '');
+      setPhoneNumber(initialData.phoneNumber || '');
+      setWebsite(initialData.website || '');
+      setCitizenCode(initialData.citizenCode || '');
+    }
+  }, [initialData]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -67,17 +79,28 @@ export function BrandInfoForm({ onSuccess }: BrandInfoFormProps) {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await axios.post('/admin/brands', {
-        brandName,
-        phoneNumber,
-        website: website || undefined,
-        logo_url: logoUrl,
-        citizenCode,
-      });
-      const brandData = response.data as { brandId?: string; _id?: string };
-      toast.success('Tạo thương hiệu thành công!');
+      let brandId = initialData?.brandId;
+      
+      if (initialData?.brandId) {
+        // Cập nhật thông tin thương hiệu đã tồn tại
+        const response = await axios.put(`/admin/brands/${initialData.brandId}`, {
+          brandName,
+          phoneNumber,
+          website: website || undefined,
+          logo_url: logoUrl,
+          citizenCode,
+        });
+        const brandData = response.data as { brandId?: string; _id?: string };
+        brandId = brandData.brandId || brandData._id || initialData.brandId || '';
+        toast.success('Cập nhật thông tin thương hiệu thành công!');
+      } else {
+        // Chỉ lưu dữ liệu vào state, không gọi API tạo brand
+        brandId = ''; // Sẽ được tạo trong BranchInfoForm
+        toast.success('Lưu thông tin thương hiệu thành công!');
+      }
+      
       onSuccess({
-        brandId: brandData.brandId || brandData._id || '',
+        brandId,
         brandName,
         phoneNumber,
         website,
@@ -86,7 +109,7 @@ export function BrandInfoForm({ onSuccess }: BrandInfoFormProps) {
       });
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      const message = err.response?.data?.message || 'Tạo thương hiệu thất bại. Vui lòng thử lại.';
+      const message = err.response?.data?.message || 'Thao tác thất bại. Vui lòng thử lại.';
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -97,7 +120,9 @@ export function BrandInfoForm({ onSuccess }: BrandInfoFormProps) {
 
   return (
     <form className="w-full max-w-2xl mx-auto flex flex-col gap-6 items-center px-0 pb-8" onSubmit={handleSubmit}>
-      <h2 className="text-2xl font-bold text-center text-gray-900 mb-4">Thông tin thương hiệu</h2>
+      <h2 className="text-2xl font-bold text-center text-gray-900 mb-4">
+        {initialData?.brandId ? 'Chỉnh sửa thông tin thương hiệu' : 'Thông tin thương hiệu'}
+      </h2>
       {/* Image upload */}
       <div className="flex flex-col items-center w-full">
         <label className="block text-lg font-semibold mb-4 w-full text-center">Logo thương hiệu</label>
@@ -162,14 +187,17 @@ export function BrandInfoForm({ onSuccess }: BrandInfoFormProps) {
           />
         </div>
       </div>
-      <Button
-        type="submit"
-        variant="lime"
-        fullWidth
-        disabled={!isFormValid || isLoading}
-      >
-        {isLoading ? 'Đang tạo thương hiệu...' : 'Tiếp tục'}
-      </Button>
+             <Button
+         type="submit"
+         variant="lime"
+         fullWidth
+         disabled={!isFormValid || isLoading}
+       >
+         {isLoading 
+           ? (initialData?.brandId ? 'Đang cập nhật...' : 'Đang lưu...') 
+           : (initialData?.brandId ? 'Cập nhật và tiếp tục' : 'Lưu và tiếp tục')
+         }
+       </Button>
     </form>
   );
 } 

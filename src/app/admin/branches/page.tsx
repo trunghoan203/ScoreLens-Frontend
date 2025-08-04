@@ -4,7 +4,8 @@ import Sidebar from '@/components/admin/Sidebar';
 import HeaderAdminPage from '@/components/admin/HeaderAdminPage';
 import BranchSearchBar from '@/components/admin/BranchSearchBar';
 import BranchTable from '@/components/admin/BranchTable';
-import { LoadingSkeleton, TableSkeleton } from '@/components/ui/LoadingSkeleton';
+import { TableSkeleton } from '@/components/ui/LoadingSkeleton';
+import EmptyState from '@/components/ui/EmptyState';
 import { useRouter } from 'next/navigation';
 import clubsService, { ClubResponse } from '@/lib/clubsService';
 import adminService from '@/lib/adminService';
@@ -89,12 +90,14 @@ export default function BranchesPage() {
               CHI NHÁNH
             </span>
           </div>
-          <BranchSearchBar
-            search={search}
-            setSearch={handleSearch}
-            onAddBranch={isAdding ? () => {} : handleAddBranch}
-          />
-          {isPageLoading ? (
+                     {branches.length > 0 && (
+             <BranchSearchBar
+               search={search}
+               setSearch={handleSearch}
+               onAddBranch={isAdding ? () => {} : handleAddBranch}
+             />
+           )}
+           {isPageLoading ? (
             <div className="py-8">
               <TableSkeleton rows={5} />
             </div>
@@ -102,11 +105,41 @@ export default function BranchesPage() {
             <div className="py-8">
               <TableSkeleton rows={5} />
             </div>
-          ) : branches.length === 0 ? (
-            <div className="py-8">
-              <LoadingSkeleton type="text" lines={2} />
-              <div className="text-center text-gray-500 mt-4">Không tìm thấy chi nhánh nào</div>
-            </div>
+                     ) : branches.length === 0 ? (
+                       <EmptyState
+                         icon={
+                           <svg className="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                           </svg>
+                         }
+                         title={search ? 'Không tìm thấy chi nhánh phù hợp' : 'Chưa có chi nhánh nào'}
+                         description={
+                           search 
+                             ? 'Thử thay đổi từ khóa tìm kiếm hoặc tạo chi nhánh mới để mở rộng thương hiệu của bạn'
+                             : 'Bắt đầu hành trình mở rộng thương hiệu bằng cách tạo chi nhánh đầu tiên'
+                         }
+                         primaryAction={{
+                           label: 'Tạo chi nhánh mới',
+                           onClick: handleAddBranch,
+                           loading: isAdding,
+                           icon: (
+                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                             </svg>
+                           )
+                         }}
+                         secondaryAction={search ? {
+                           label: 'Xem tất cả',
+                           onClick: () => setSearch(''),
+                           icon: (
+                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h16M4 12h16M4 20h16" />
+                             </svg>
+                           )
+                         } : undefined}
+                         additionalInfo="Chi nhánh sẽ giúp bạn quản lý và mở rộng thương hiệu hiệu quả"
+                         showAdditionalInfo={!search}
+                       />
           ) : (
             <BranchTable 
               branches={branches.map(b => ({ 

@@ -97,8 +97,24 @@ export default function AdminLoginPage() {
               Authorization: `Bearer ${accessToken}`
             }
           });
-          const profileData = profileResponse.data as { admin?: { brandId?: string | null } };
-          if (profileData.admin?.brandId) {
+          const profileData = profileResponse.data as { admin?: { brandId?: string | null, status?: string, rejectedReason?: string } };
+          const admin = profileData.admin;
+          if (!admin) {
+            router.push('/admin/confirm');
+            return;
+          }
+          if (admin.status === 'pending') {
+            localStorage.setItem('rejectedAdminInfo', JSON.stringify(admin));
+            router.push('/admin/pending');
+            return;
+          }
+          if (admin.status === 'rejected') {
+            localStorage.setItem('rejectedAdminInfo', JSON.stringify(admin));
+            router.push('/admin/rejected');
+            return;
+          }
+          // approved
+          if (admin.brandId) {
             router.push('/admin/branches');
           } else {
             router.push('/admin/confirm');
