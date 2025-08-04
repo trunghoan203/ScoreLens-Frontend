@@ -13,5 +13,5 @@ export const approveAdmin = (adminId: string) =>
     axios.post(`/superAdmin/admin/approve/${adminId}`);
 
 // Từ chối admin
-export const rejectAdmin = (adminId: string) =>
-    axios.post(`/superAdmin/admin/reject/${adminId}`);
+export const rejectAdmin = (adminId: string, rejectedReason: string) =>
+    axios.post(`/superAdmin/admin/reject/${adminId}`, { rejectedReason });
