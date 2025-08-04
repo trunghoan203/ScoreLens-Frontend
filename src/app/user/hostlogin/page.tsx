@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ScoreLensLogo } from '@/components/icons/LogoBlack';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { BackButton } from '@/components/ui/BackButton';
 
-export default function HostLoginPage() {
+function HostLoginContent() {
   const [teamAPlayers, setTeamAPlayers] = useState(2);
   const [teamBPlayers, setTeamBPlayers] = useState(2);
   const [tableNumber, setTableNumber] = useState('');
@@ -169,5 +169,13 @@ export default function HostLoginPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function HostLoginPage() {
+  return (
+    <Suspense fallback={<ScoreLensLoading text="Đang tải..." />}>
+      <HostLoginContent />
+    </Suspense>
   );
 }
