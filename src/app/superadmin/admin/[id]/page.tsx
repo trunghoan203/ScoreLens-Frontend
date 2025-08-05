@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
 import { PageBanner } from '@/components/shared/PageBanner';
 import { Button } from '@/components/ui/button';
@@ -77,9 +78,10 @@ export default function AdminDetailPage() {
     }
   };
 
-  const handleReject = async () => {
+  const handleReject = () => {
     setShowRejectReason(true);
   };
+
   const handleConfirmReject = async () => {
     if (!rejectReason.trim()) {
       toast.error('Vui lòng nhập lý do từ chối!');
@@ -98,6 +100,8 @@ export default function AdminDetailPage() {
     }
   };
 
+  const MotionButton = motion(Button);
+
   if (loading) return <div className="p-4 text-center">Đang tải...</div>;
   if (!admin) return <div className="p-4 text-center text-red-500">Không tìm thấy admin với ID: {id}</div>;
 
@@ -111,25 +115,25 @@ export default function AdminDetailPage() {
             THÔNG TIN CHI TIẾT
           </h2>
 
-          <div className="flex flex-col items-center mb-4">
-            <span className="text-base font-semibold">
-              Trạng thái: {admin.status === 'pending' && (
-                <span className="text-yellow-500">Chờ duyệt</span>
-              )}
-              {admin.status === 'approved' && (
-                <span className="text-green-600">Đã duyệt</span>
-              )}
-              {admin.status === 'rejected' && (
-                <span className="text-red-600">Bị từ chối</span>
-              )}
-            </span>
+                     <div className="flex flex-col items-center mb-4">
+             <span className="text-base font-semibold text-black">
+               Trạng thái: {admin.status === 'pending' && (
+                 <span className="text-yellow-500">Chờ duyệt</span>
+               )}
+               {admin.status === 'approved' && (
+                 <span className="text-green-600">Đã duyệt</span>
+               )}
+               {admin.status === 'rejected' && (
+                 <span className="text-red-600">Bị từ chối</span>
+               )}
+             </span>
             {admin.status === 'rejected' && admin.rejectedReason && (
               <div className="mt-2 px-4 py-2 bg-red-50 border border-red-200 rounded text-red-700 text-sm max-w-xl text-center">
                 <b>Lý do bị từ chối:</b> {admin.rejectedReason}
               </div>
             )}
           </div>
-          {/* Thông tin cơ bản */}
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="flex justify-center">
               <div className="w-60 h-72 bg-gray-200 rounded-md flex items-center justify-center text-gray-500 text-sm">
@@ -159,7 +163,7 @@ export default function AdminDetailPage() {
               </div>
             </div>
           </div>
-          {/* Danh sách chi nhánh */}
+
           {admin.clubs && admin.clubs.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div />
@@ -195,69 +199,123 @@ export default function AdminDetailPage() {
               </div>
             </div>
           )}
-          {/* Nút Hành Động */}
+
           {admin.status === 'pending' ? (
             <div className="flex flex-col items-center gap-6 pt-4">
-              <div className="flex justify-center gap-8">
-                <Button
-                  className="w-44 h-12 text-base font-semibold rounded-xl"
-                  onClick={handleReject}
-                  variant="destructive"
-                >
-                  TỪ CHỐI
-                </Button>
-                <Button
-                  className="w-44 h-12 text-base font-semibold rounded-xl bg-lime-500 hover:bg-lime-600 text-white"
-                  onClick={handleApprove}
-                >
-                  DUYỆT
-                </Button>
-              </div>
-              {showRejectReason && (
-                <div className="w-full max-w-md bg-white border border-red-200 rounded-xl shadow-lg p-6 mt-4">
-                  <label className="block text-sm font-medium text-red-700 mb-2">Lý do từ chối</label>
-                  <textarea
-                    className="w-full min-h-[80px] border border-red-300 rounded-lg p-2 mb-3 focus:ring-2 focus:ring-red-400 focus:border-transparent"
-                    value={rejectReason}
-                    onChange={e => setRejectReason(e.target.value)}
-                    placeholder="Nhập lý do từ chối..."
-                    disabled={rejecting}
-                  />
-                  <div className="flex gap-3 justify-end">
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowRejectReason(false)}
-                      disabled={rejecting}
-                    >
-                      Hủy
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={handleConfirmReject}
-                      disabled={rejecting}
-                    >
-                      {rejecting ? 'Đang gửi...' : 'Xác nhận từ chối'}
-                    </Button>
-                  </div>
-                </div>
-              )}
-              <Button
-                className="w-44 h-12 text-base font-semibold rounded-xl"
-                onClick={() => router.push('/superadmin/home')}
-                variant="outline"
-              >
-                QUAY LẠI
-              </Button>
-            </div>
-          ) : (
-            <div className="flex justify-center pt-4">
-              <Button
-                className="w-44 h-12 text-base font-semibold rounded-xl"
-                onClick={() => router.push('/superadmin/home')}
-                variant="outline"
-              >
-                QUAY LẠI
-              </Button>
+                             <div className="flex justify-center gap-8">
+                 <MotionButton
+                   whileHover={{ 
+                     scale: 1.05,
+                     boxShadow: "0 10px 25px rgba(239, 68, 68, 0.3)",
+                     y: -2
+                   }}
+                   whileTap={{ scale: 0.95 }}
+                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                   className="w-44 h-12 text-base font-semibold rounded-xl bg-red-500 hover:bg-red-600 text-white shadow-lg hover:shadow-xl transform transition-all duration-200"
+                   onClick={handleReject}
+                 >
+                   TỪ CHỐI
+                 </MotionButton>
+
+                 <MotionButton
+                   whileHover={{ 
+                     scale: 1.05,
+                     boxShadow: "0 10px 25px rgba(34, 197, 94, 0.3)",
+                     y: -2
+                   }}
+                   whileTap={{ scale: 0.95 }}
+                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                   className="w-44 h-12 text-base font-semibold rounded-xl bg-lime-500 hover:bg-lime-600 text-white shadow-lg hover:shadow-xl transform transition-all duration-200"
+                   onClick={handleApprove}
+                 >
+                   DUYỆT
+                 </MotionButton>
+               </div>
+
+                             {showRejectReason && (
+                 <div className="w-full max-w-xl bg-white border border-lime-500 rounded-2xl shadow-xl p-6 mt-6 transition-all duration-300">
+                   <h3 className="text-xl font-bold text-lime-600 mb-4 text-center">
+                     Nhập lý do từ chối
+                   </h3>
+
+                   <textarea
+                     className="w-full min-h-[100px] rounded-lg border border-lime-500 p-4 text-black text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-lime-500 resize-none"
+                     placeholder="Vui lòng nhập lý do từ chối tại đây..."
+                     value={rejectReason}
+                     onChange={(e) => setRejectReason(e.target.value)}
+                     disabled={rejecting}
+                   />
+
+                                       <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+                                           <MotionButton
+                         whileHover={{ 
+                           scale: 1.05,
+                           boxShadow: "0 8px 20px rgba(239, 68, 68, 0.3)",
+                           y: -1
+                         }}
+                         whileTap={{ scale: 0.95 }}
+                         transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                         onClick={() => setShowRejectReason(false)}
+                         disabled={rejecting}
+                         className="w-full sm:w-40 h-11 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 shadow-md hover:shadow-lg transform transition-all duration-200"
+                       >
+                         Hủy
+                       </MotionButton>
+
+                      <MotionButton
+                        whileHover={{ 
+                          scale: 1.05,
+                          boxShadow: "0 8px 20px rgba(34, 197, 94, 0.3)",
+                          y: -1
+                        }}
+                        whileTap={{ scale: 0.95 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                        onClick={handleConfirmReject}
+                        disabled={rejecting}
+                        className="w-full sm:w-52 h-11 bg-lime-500 text-white font-semibold rounded-xl hover:bg-lime-600 shadow-md hover:shadow-lg transform transition-all duration-200"
+                      >
+                        {rejecting ? (
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            Đang gửi...
+                          </div>
+                        ) : (
+                          'Xác nhận từ chối'
+                        )}
+                      </MotionButton>
+                    </div>
+                 </div>
+               )}
+
+                                                             <MotionButton
+                   whileHover={{ 
+                     scale: 1.05,
+                     boxShadow: "0 10px 25px rgba(34, 197, 94, 0.3)",
+                     y: -2
+                   }}
+                   whileTap={{ scale: 0.95 }}
+                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                   className="w-44 h-12 text-base font-semibold rounded-xl bg-lime-500 text-white hover:bg-lime-600 shadow-lg hover:shadow-xl transform transition-all duration-200"
+                   onClick={() => router.push('/superadmin/home')}
+                 >
+                   QUAY LẠI
+                 </MotionButton>
+               </div>
+             ) : (
+               <div className="flex justify-center pt-4">
+                 <MotionButton
+                   whileHover={{ 
+                     scale: 1.05,
+                     boxShadow: "0 10px 25px rgba(34, 197, 94, 0.3)",
+                     y: -2
+                   }}
+                   whileTap={{ scale: 0.95 }}
+                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                   className="w-44 h-12 text-base font-semibold rounded-xl bg-lime-500 text-white hover:bg-lime-600 shadow-lg hover:shadow-xl transform transition-all duration-200"
+                   onClick={() => router.push('/superadmin/home')}
+                 >
+                   QUAY LẠI
+                 </MotionButton>
             </div>
           )}
         </div>
