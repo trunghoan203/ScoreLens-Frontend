@@ -7,6 +7,7 @@ import { PasswordInput } from '@/components/ui/PasswordInput';
 import { AuthLayout } from '@/components/shared/AuthLayout';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+import { CheckCircle } from 'lucide-react';
 
 function AdminResetPasswordPageInner() {
   const searchParams = useSearchParams();
@@ -17,9 +18,6 @@ function AdminResetPasswordPageInner() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-
-  // Ref and state for dynamic image height
-  // const formRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,19 +47,7 @@ function AdminResetPasswordPageInner() {
         <div className="flex-1 flex flex-col justify-center">
           <div className="text-center space-y-6">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-              <svg
-                className="w-8 h-8 text-green-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
+              <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900">Đặt lại mật khẩu thành công!</h2>
             <p className="text-gray-600">
@@ -148,4 +134,4 @@ export default function AdminResetPasswordPage() {
       <AdminResetPasswordPageInner />
     </Suspense>
   );
-} 
+}

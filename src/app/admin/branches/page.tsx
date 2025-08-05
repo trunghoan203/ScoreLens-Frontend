@@ -11,6 +11,7 @@ import clubsService, { ClubResponse } from '@/lib/clubsService';
 import adminService from '@/lib/adminService';
 import toast from 'react-hot-toast';
 import { useAdminAuthGuard } from '@/lib/hooks/useAdminAuthGuard';
+import { Building, Plus, List } from "lucide-react";
 
 export default function BranchesPage() {
   const { isChecking } = useAdminAuthGuard();
@@ -28,15 +29,12 @@ export default function BranchesPage() {
       try {
         setIsPageLoading(true);
         const brandId = await adminService.getBrandId();
-        if (brandId) {
-          const clubs = await clubsService.getClubsByBrandId(brandId);
-          setAllBranches(clubs);
-          setBranches(clubs);
-        } else {
-          const clubs = await clubsService.getAllClubs();
-          setAllBranches(clubs);
-          setBranches(clubs);
-        }
+        const clubs = brandId
+          ? await clubsService.getClubsByBrandId(brandId)
+          : await clubsService.getAllClubs();
+
+        setAllBranches(clubs);
+        setBranches(clubs);
       } catch (error) {
         console.error('Error loading clubs:', error);
         toast.error('Không thể tải danh sách chi nhánh');
@@ -80,80 +78,65 @@ export default function BranchesPage() {
   if (isChecking) return null;
 
   return (
-    <>
-      <div className="min-h-screen flex bg-[#18191A]">
-        <Sidebar />
-        <main className="flex-1 bg-white p-10 min-h-screen">
-          <HeaderAdminPage />
-          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
-              CHI NHÁNH
-            </span>
+    <div className="min-h-screen flex bg-[#18191A]">
+      <Sidebar />
+      <main className="flex-1 bg-white p-10 min-h-screen">
+        <HeaderAdminPage />
+        <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
+          <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+            <Building className="w-7 h-7" />
+            CHI NHÁNH
+          </span>
+        </div>
+
+        {branches.length > 0 && (
+          <BranchSearchBar
+            search={search}
+            setSearch={handleSearch}
+            onAddBranch={isAdding ? () => {} : handleAddBranch}
+          />
+        )}
+
+        {isPageLoading || isSearching ? (
+          <div className="py-8">
+            <TableSkeleton rows={5} />
           </div>
-                     {branches.length > 0 && (
-             <BranchSearchBar
-               search={search}
-               setSearch={handleSearch}
-               onAddBranch={isAdding ? () => {} : handleAddBranch}
-             />
-           )}
-           {isPageLoading ? (
-            <div className="py-8">
-              <TableSkeleton rows={5} />
-            </div>
-          ) : isSearching ? (
-            <div className="py-8">
-              <TableSkeleton rows={5} />
-            </div>
-                     ) : branches.length === 0 ? (
-                       <EmptyState
-                         icon={
-                           <svg className="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                           </svg>
-                         }
-                         title={search ? 'Không tìm thấy chi nhánh phù hợp' : 'Chưa có chi nhánh nào'}
-                         description={
-                           search 
-                             ? 'Thử thay đổi từ khóa tìm kiếm hoặc tạo chi nhánh mới để mở rộng thương hiệu của bạn'
-                             : 'Bắt đầu hành trình mở rộng thương hiệu bằng cách tạo chi nhánh đầu tiên'
-                         }
-                         primaryAction={{
-                           label: 'Tạo chi nhánh mới',
-                           onClick: handleAddBranch,
-                           loading: isAdding,
-                           icon: (
-                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                             </svg>
-                           )
-                         }}
-                         secondaryAction={search ? {
-                           label: 'Xem tất cả',
-                           onClick: () => setSearch(''),
-                           icon: (
-                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h16M4 12h16M4 20h16" />
-                             </svg>
-                           )
-                         } : undefined}
-                         additionalInfo="Chi nhánh sẽ giúp bạn quản lý và mở rộng thương hiệu hiệu quả"
-                         showAdditionalInfo={!search}
-                       />
-          ) : (
-            <BranchTable 
-              branches={branches.map(b => ({ 
-                _id: b._id,
-                clubId: b.clubId,
-                name: b.clubName, 
-                address: b.address, 
-                tableNumber: b.tableNumber,
-                status: b.status as 'open' | 'closed' 
-              }))} 
-            />
-          )}
-        </main>
-      </div>
-    </>
+        ) : branches.length === 0 ? (
+          <EmptyState
+            icon={<Building className="w-14 h-14 text-white" />}
+            title={search ? 'Không tìm thấy chi nhánh phù hợp' : 'Chưa có chi nhánh nào'}
+            description={
+              search
+                ? 'Thử thay đổi từ khóa tìm kiếm hoặc tạo chi nhánh mới để mở rộng thương hiệu của bạn'
+                : 'Bắt đầu hành trình mở rộng thương hiệu bằng cách tạo chi nhánh đầu tiên'
+            }
+            primaryAction={{
+              label: 'Tạo chi nhánh mới',
+              onClick: handleAddBranch,
+              loading: isAdding,
+              icon: <Plus className="w-5 h-5" />
+            }}
+            secondaryAction={search ? {
+              label: 'Xem tất cả',
+              onClick: () => setSearch(''),
+              icon: <List className="w-5 h-5" />
+            } : undefined}
+            additionalInfo="Chi nhánh sẽ giúp bạn quản lý và mở rộng thương hiệu hiệu quả"
+            showAdditionalInfo={!search}
+          />
+        ) : (
+          <BranchTable
+            branches={branches.map(b => ({
+              _id: b._id,
+              clubId: b.clubId,
+              name: b.clubName,
+              address: b.address,
+              tableNumber: b.tableNumber,
+              status: b.status as 'open' | 'closed'
+            }))}
+          />
+        )}
+      </main>
+    </div>
   );
-} 
+}

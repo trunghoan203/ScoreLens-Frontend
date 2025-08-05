@@ -7,6 +7,7 @@ import { AuthLayout } from '@/components/shared/AuthLayout';
 import Link from 'next/link';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
+import { ArrowLeft } from 'lucide-react';
 
 export default function AdminVerificationPage() {
   return (
@@ -38,7 +39,6 @@ function AdminVerificationPageInner() {
     '/images/numberBalls/ball_7.png',
     '/images/numberBalls/ball_8.png',
     '/images/numberBalls/ball_9.png',
-    // Có thể thêm ball_0.png nếu có
   ];
 
   useEffect(() => {
@@ -51,7 +51,7 @@ function AdminVerificationPageInner() {
   }, [resendTimer]);
 
   const handleOtpChange = (index: number, value: string) => {
-    if (value.length > 1) return; // Only allow single digit
+    if (value.length > 1) return;
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
@@ -72,7 +72,6 @@ function AdminVerificationPageInner() {
     if (/^\d{6}$/.test(pastedData)) {
       const newOtp = pastedData.split('');
       setOtp(newOtp);
-      // Focus vào ô cuối cùng
       setTimeout(() => {
         inputRefs.current[5]?.focus();
       }, 0);
@@ -103,12 +102,10 @@ function AdminVerificationPageInner() {
     if (!canResend) return;
     setIsLoading(true);
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       setResendTimer(60);
       setCanResend(false);
     } catch {
-      // Handle error
     } finally {
       setIsLoading(false);
     }
@@ -196,9 +193,7 @@ function AdminVerificationPageInner() {
               href="/admin/login"
               className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
+              <ArrowLeft className="w-4 h-4" />
               Quay lại đăng nhập
             </Link>
           </div>
@@ -206,4 +201,4 @@ function AdminVerificationPageInner() {
       </form>
     </AuthLayout>
   );
-} 
+}
