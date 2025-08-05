@@ -1,90 +1,106 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import clubsService, { ClubResponse } from '@/lib/clubsService';
-import brandService from '@/lib/brandService';
+'use client';
 
-interface AdminInfo {
-  fullName: string;
-  email: string;
-  brandId?: string;
-  status?: string;
-  rejectedReason?: string;
-}
-
-interface BrandInfo {
-  name: string;
-  phoneNumber?: string;
-  website?: string;
-  logoUrl?: string;
-}
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
+import { CircleAlert } from 'lucide-react';
 
 export default function AdminRejectedPage() {
-  const [admin, setAdmin] = useState<AdminInfo | null>(null);
-  const [brand, setBrand] = useState<BrandInfo | null>(null);
-  const [clubs, setClubs] = useState<ClubResponse[]>([]);
   const router = useRouter();
 
-  useEffect(() => {
-    const data = localStorage.getItem("rejectedAdminInfo");
-    if (data) {
-      const adminInfo = JSON.parse(data) as AdminInfo;
-      setAdmin(adminInfo);
-      if (adminInfo.brandId) {
-        // Gọi API lấy brand và clubs
-        brandService.getBrandById(adminInfo.brandId).then((brandData: any) => {
-          setBrand({
-            name: brandData?.name || '',
-            phoneNumber: brandData?.phoneNumber,
-            website: brandData?.website,
-            logoUrl: brandData?.logoUrl,
-          });
-        });
-        clubsService.getClubsByBrandId(adminInfo.brandId).then((clubsData: any) => {
-          setClubs(clubsData || []);
-        });
-      }
-    }
-  }, []);
-
-  if (!admin) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="text-lg text-gray-600">Không tìm thấy thông tin admin bị từ chối.</div>
-        <button className="mt-4 px-4 py-2 bg-lime-500 text-white rounded" onClick={() => router.push("/admin/login")}>Quay lại đăng nhập</button>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-      <div className="bg-white rounded-xl shadow-lg p-8 max-w-lg w-full">
-        <h1 className="text-2xl font-bold text-red-600 mb-4 text-center">Tài khoản của bạn đã bị từ chối</h1>
-        <div className="mb-4 text-center text-gray-700">
-          <div><b>Họ tên:</b> {admin.fullName}</div>
-          <div><b>Email:</b> {admin.email}</div>
-          {brand && <div><b>Thương hiệu:</b> {brand.name}</div>}
-          {brand?.phoneNumber && <div><b>Số điện thoại:</b> {brand.phoneNumber}</div>}
-          {brand?.website && <div><b>Website:</b> {brand.website}</div>}
-        </div>
-        <div className="mb-6 text-center">
-          <div className="text-lg font-semibold text-gray-800 mb-2">Lý do bị từ chối:</div>
-          <div className="text-red-500 text-base">{admin.rejectedReason || "Không có lý do cụ thể."}</div>
-        </div>
-        {clubs.length > 0 && (
-          <div className="mb-6">
-            <div className="text-lg font-semibold text-gray-800 mb-2 text-center">Danh sách chi nhánh đã đăng ký:</div>
-            <ul className="text-gray-700 text-sm list-disc pl-6">
-              {clubs.map(club => (
-                <li key={club._id || club.clubId}>
-                  <b>{club.clubName}</b> - {club.address}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-        <button className="w-full py-3 bg-lime-500 text-white rounded-lg font-semibold hover:bg-lime-600 transition" onClick={() => router.push("/admin/login")}>Quay lại đăng nhập</button>
+    <div className="relative min-h-screen bg-gradient-to-br from-gray-50 via-white to-[#fff0f0] overflow-hidden">
+      {/* Header */}
+      <HeaderAdmin />
+
+      {/* Animated background */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob-slow" style={{ backgroundColor: '#EF4444' }} />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob-slow animation-delay-3000" style={{ backgroundColor: '#EF4444' }} />
+        <div className="absolute top-48 left-48 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob-slow animation-delay-6000" style={{ backgroundColor: '#EF4444' }} />
       </div>
+
+      {/* Main content */}
+      <div className="flex justify-center pt-16 px-4">
+        <div className="bg-white backdrop-blur-xl rounded-3xl shadow-2xl ring-2 ring-red-400 transition-all p-10 max-w-md w-full text-center animate-fade-in-up">
+          <div className="mb-6">
+            <div
+              className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse shadow-inner"
+              style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)' }}
+            >
+              <CircleAlert className="w-10 h-10 text-red-500" />
+            </div>
+          </div>
+
+          <h1
+            className="text-3xl font-extrabold mb-4 bg-gradient-to-r bg-clip-text text-transparent"
+            style={{ backgroundImage: 'linear-gradient(to right, #EF4444, #EF4444)' }}
+          >
+            Tài khoản bị từ chối
+          </h1>
+
+          <p className="text-gray-700 mb-8 leading-relaxed text-[16px]">
+            Tài khoản của bạn không được chấp nhận do không đáp ứng yêu cầu của hệ thống.
+            <br /><br />
+            Vui lòng liên hệ với quản trị viên nếu bạn cần thêm thông tin hoặc muốn gửi lại yêu cầu.
+          </p>
+
+          <button
+            className="w-full py-4 text-white rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+            style={{
+              backgroundImage: 'linear-gradient(to right, #EF4444, #DC2626)',
+            }}
+            onClick={() => router.push('/admin/login')}
+          >
+            Quay lại đăng nhập
+          </button>
+        </div>
+      </div>
+
+      {/* Animations */}
+      <style jsx>{`
+        @keyframes blob-slow {
+          0% {
+            transform: translate(0px, 0px) scale(1);
+          }
+          33% {
+            transform: translate(40px, -60px) scale(1.1);
+          }
+          66% {
+            transform: translate(-30px, 30px) scale(0.95);
+          }
+          100% {
+            transform: translate(0px, 0px) scale(1);
+          }
+        }
+
+        .animate-blob-slow {
+          animation: blob-slow 10s infinite ease-in-out;
+        }
+
+        .animation-delay-3000 {
+          animation-delay: 3s;
+        }
+
+        .animation-delay-6000 {
+          animation-delay: 6s;
+        }
+
+        @keyframes fade-in-up {
+          0% {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-fade-in-up {
+          animation: fade-in-up 0.8s ease-out both;
+        }
+      `}</style>
     </div>
   );
 }

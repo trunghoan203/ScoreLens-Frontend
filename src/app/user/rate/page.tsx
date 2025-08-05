@@ -40,7 +40,7 @@ export default function RatePage() {
       setShowPopup(true);
       setFeedback('');
       toast.success('Gửi phản hồi thành công!');
-    } catch (error) {
+    } catch {
       toast.error('Gửi phản hồi thất bại!');
     } finally {
       setSubmitting(false);
