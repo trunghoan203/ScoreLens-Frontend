@@ -8,12 +8,12 @@ import Link from 'next/link';
 import VerifyCodeForm from '@/components/auth/VerifyCodeForm';
 import axios from '@/lib/axios';
 import toast from 'react-hot-toast';
+import { ArrowLeft, Send, CheckCircle, Loader } from 'lucide-react';
 
 export default function AdminForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Ref and state for dynamic image height
   const formRef = useRef<HTMLDivElement>(null);
 
   const [step, setStep] = useState(1);
@@ -22,7 +22,7 @@ export default function AdminForgotPasswordPage() {
 
   useLayoutEffect(() => {
     if (formRef.current) {
-      // Xóa: const formHeight = ...
+      // Reserved for layout purposes
     }
   }, []);
 
@@ -46,14 +46,12 @@ export default function AdminForgotPasswordPage() {
     e.preventDefault();
     setIsLoading(true);
     if (newPassword.length < 8) {
-      const errorMessage = 'Mật khẩu phải có ít nhất 8 ký tự.';
-      toast.error(errorMessage);
+      toast.error('Mật khẩu phải có ít nhất 8 ký tự.');
       setIsLoading(false);
       return;
     }
     if (newPassword !== confirmPassword) {
-      const errorMessage = 'Mật khẩu xác nhận không khớp.';
-      toast.error(errorMessage);
+      toast.error('Mật khẩu xác nhận không khớp.');
       setIsLoading(false);
       return;
     }
@@ -75,7 +73,6 @@ export default function AdminForgotPasswordPage() {
       title="Quên mật khẩu?"
       description="Nhập email để lấy lại mật khẩu"
     >
-
       {step === 1 && (
         <form onSubmit={handleSubmitEmail} className="space-y-6 p-4 md:p-6 overflow-hidden">
           <div>
@@ -94,6 +91,7 @@ export default function AdminForgotPasswordPage() {
               disabled={isLoading}
             />
           </div>
+
           <Button
             type="submit"
             variant="lime"
@@ -101,38 +99,18 @@ export default function AdminForgotPasswordPage() {
             disabled={isLoading || !email}
           >
             {isLoading ? (
-              <div className="flex items-center justify-center">
-                <svg
-                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-900"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
+              <div className="flex items-center justify-center gap-2">
+                <Loader className="w-5 h-5 animate-spin" />
                 Đang gửi...
               </div>
             ) : (
-              <div className="flex items-center justify-center">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
+              <div className="flex items-center justify-center gap-2">
+                <Send className="w-5 h-5" />
                 Gửi
               </div>
             )}
           </Button>
+
           <div className="text-center w-full mt-4">
             <span className="text-gray-800 text-sm">Đã nhớ mật khẩu? </span>
             <Link
@@ -142,30 +120,29 @@ export default function AdminForgotPasswordPage() {
               Quay lại đăng nhập
             </Link>
           </div>
+
           <div className="text-center mt-6">
             <Link
               href="/"
               className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
+              <ArrowLeft className="w-4 h-4" />
               Quay lại trang chủ
             </Link>
           </div>
         </form>
       )}
+
       {step === 2 && (
         <VerifyCodeForm
           email={email}
           apiEndpoint="/admin/verify-resetCode"
           codeField="resetCode"
           onBack={() => setStep(1)}
-          onSuccess={() => {
-            setStep(3);
-          }}
+          onSuccess={() => setStep(3)}
         />
       )}
+
       {step === 3 && (
         <form onSubmit={handleSubmitNewPassword} className="space-y-6 p-4 md:p-6 overflow-hidden">
           <div>
@@ -184,6 +161,7 @@ export default function AdminForgotPasswordPage() {
               disabled={isLoading}
             />
           </div>
+
           <div>
             <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
               Xác nhận mật khẩu mới
@@ -200,6 +178,7 @@ export default function AdminForgotPasswordPage() {
               disabled={isLoading}
             />
           </div>
+
           <Button
             type="submit"
             variant="lime"
@@ -210,19 +189,23 @@ export default function AdminForgotPasswordPage() {
           </Button>
         </form>
       )}
+
       {step === 4 && (
         <div className="w-full max-w-lg mx-auto flex flex-col gap-6 items-center px-0 pb-8 animate-success-fade-in">
-          <h2 className="text-2xl md:text-3xl font-bold text-center text-black mt-8 mb-2">ĐẶT LẠI MẬT KHẨU THÀNH CÔNG</h2>
-          <p className="text-lg text-center text-gray-700 mb-2">Bạn có thể đăng nhập với mật khẩu mới.</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-center text-black mt-8 mb-2">
+            ĐẶT LẠI MẬT KHẨU THÀNH CÔNG
+          </h2>
+          <p className="text-lg text-center text-gray-700 mb-2">
+            Bạn có thể đăng nhập với mật khẩu mới.
+          </p>
           <div className="flex justify-center my-6">
             <div className="animate-success-bounce">
-              <svg width="110" height="110" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="55" cy="55" r="55" fill="#A3E635"/>
-                <path d="M35 58L50 73L75 48" stroke="white" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              <CheckCircle className="w-24 h-24 text-lime-400" strokeWidth={1.5} />
             </div>
           </div>
-          <div className="text-2xl font-bold text-black text-center mb-2 animate-success-pop">Bạn đã có thể đăng nhập!</div>
+          <div className="text-2xl font-bold text-black text-center mb-2 animate-success-pop">
+            Bạn đã có thể đăng nhập!
+          </div>
           <Link href="/admin/login" className="text-lime-600 font-semibold hover:underline text-lg transition-colors">
             Đăng nhập
           </Link>

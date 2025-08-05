@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useState } from "react";
 import Sidebar from "@/components/admin/Sidebar";
@@ -12,6 +12,9 @@ import managerService from '@/lib/managerService';
 import adminService from '@/lib/adminService';
 import toast from 'react-hot-toast';
 import { useAdminAuthGuard } from '@/lib/hooks/useAdminAuthGuard';
+
+// ✅ import icons từ lucide-react
+import { Users, Plus, List } from 'lucide-react';
 
 interface Manager {
   name: string;
@@ -94,71 +97,55 @@ export default function ManagersPage() {
   if (isChecking) return null;
 
   return (
-    <>
-      <div className="min-h-screen flex bg-[#18191A]">
-        <Sidebar />
-        <main className="flex-1 bg-white p-10 min-h-screen">
-          <HeaderAdminPage />
-          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
-              QUẢN LÝ
-            </span>
+    <div className="min-h-screen flex bg-[#18191A]">
+      <Sidebar />
+      <main className="flex-1 bg-white p-10 min-h-screen">
+        <HeaderAdminPage />
+        <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
+          <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+            QUẢN LÝ
+          </span>
+        </div>
+
+        {managers.length > 0 && (
+          <ManagerSearchBar
+            search={search}
+            setSearch={handleSearch}
+            onAddManager={isAdding ? () => {} : handleAddManager}
+          />
+        )}
+
+        {loading || tableLoading ? (
+          <div className="py-8">
+            <TableSkeleton rows={5} />
           </div>
-          {managers.length > 0 && (
-            <ManagerSearchBar
-              search={search}
-              setSearch={handleSearch}
-              onAddManager={isAdding ? () => {} : handleAddManager}
-            />
-          )}
-          {loading ? (
-            <div className="py-8">
-              <TableSkeleton rows={5} />
-            </div>
-          ) : tableLoading ? (
-            <div className="py-8">
-              <TableSkeleton rows={5} />
-            </div>
-                    ) : managers.length === 0 ? (
-            <EmptyState
-              icon={
-                <svg className="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                </svg>
-              }
-              title={search ? 'Không tìm thấy quản lý phù hợp' : 'Chưa có quản lý nào'}
-              description={
-                search 
-                  ? 'Thử thay đổi từ khóa tìm kiếm hoặc thêm quản lý mới để mở rộng đội ngũ của bạn'
-                  : 'Bắt đầu xây dựng đội ngũ quản lý chuyên nghiệp cho thương hiệu của bạn'
-              }
-              primaryAction={{
-                label: 'Thêm quản lý mới',
-                onClick: handleAddManager,
-                loading: isAdding,
-                icon: (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                )
-              }}
-              secondaryAction={search ? {
-                label: 'Xem tất cả',
-                onClick: () => setSearch(''),
-                icon: (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h16M4 12h16M4 20h16" />
-                  </svg>
-                )
-              } : undefined}
-              additionalInfo="Quản lý sẽ giúp bạn vận hành và phát triển thương hiệu hiệu quả"
-              showAdditionalInfo={!search}
-            />
-          ) : (
-            <ManagerTable managers={filteredManagers} />
-          )}
-        </main>
-      </div>
-    </>
+        ) : managers.length === 0 ? (
+          <EmptyState
+            icon={<Users className="w-14 h-14 text-white" />}
+            title={search ? 'Không tìm thấy quản lý phù hợp' : 'Chưa có quản lý nào'}
+            description={
+              search 
+                ? 'Thử thay đổi từ khóa tìm kiếm hoặc thêm quản lý mới để mở rộng đội ngũ của bạn'
+                : 'Bắt đầu xây dựng đội ngũ quản lý chuyên nghiệp cho thương hiệu của bạn'
+            }
+            primaryAction={{
+              label: 'Thêm quản lý mới',
+              onClick: handleAddManager,
+              loading: isAdding,
+              icon: <Plus className="w-5 h-5" />
+            }}
+            secondaryAction={search ? {
+              label: 'Xem tất cả',
+              onClick: () => setSearch(''),
+              icon: <List className="w-5 h-5" />
+            } : undefined}
+            additionalInfo="Quản lý sẽ giúp bạn vận hành và phát triển thương hiệu hiệu quả"
+            showAdditionalInfo={!search}
+          />
+        ) : (
+          <ManagerTable managers={filteredManagers} />
+        )}
+      </main>
+    </div>
   );
-} 
+}
