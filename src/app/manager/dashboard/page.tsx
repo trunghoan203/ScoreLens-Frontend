@@ -25,6 +25,23 @@ interface TableData {
   time?: string;
 }
 
+interface ApiTableData {
+  id?: string;
+  _id?: string;
+  name: string;
+  category?: string;
+  type?: string;
+  status: string;
+  teamA?: string;
+  teamB?: string;
+  time?: string;
+}
+
+interface ApiResponse<T> {
+  tables?: T[];
+  memberships?: T[];
+}
+
 export default function ManagerDashboardPage() {
   const { isChecking } = useManagerAuthGuard();
   const [search, setSearch] = useState('');
@@ -50,13 +67,13 @@ export default function ManagerDashboardPage() {
         setLoadingTables(true);
 
         const tablesData = await managerTableService.getAllTables();
-        const tablesArray = Array.isArray(tablesData) ? tablesData : (tablesData as any)?.tables || [];
+        const tablesArray = Array.isArray(tablesData) ? tablesData : (tablesData as ApiResponse<ApiTableData>)?.tables || [];
         
-        const transformedTables: TableData[] = tablesArray.map((table: any) => ({
-          id: table.id || table._id,
+        const transformedTables: TableData[] = tablesArray.map((table: ApiTableData) => ({
+          id: table.id || table._id || '',
           name: table.name,
-          type: table.category || table.type,
-          status: table.status,
+          type: table.category || table.type || '',
+          status: table.status as TableData['status'],
           teamA: table.teamA,
           teamB: table.teamB,
           time: table.time
@@ -65,11 +82,10 @@ export default function ManagerDashboardPage() {
         setTables(transformedTables);
 
         const membersData = await managerMemberService.getAllMembers();
-        const members = Array.isArray(membersData) ? membersData : (membersData as any)?.memberships || [];
+        const members = Array.isArray(membersData) ? membersData : (membersData as ApiResponse<unknown>)?.memberships || [];
 
         const totalTables = transformedTables.length;
         const inUse = transformedTables.filter((table: TableData) => table.status === 'inuse').length;
-        const maintenance = transformedTables.filter((table: TableData) => table.status === 'maintenance').length;
         const available = transformedTables.filter((table: TableData) => table.status === 'empty').length;
         const totalMembers = members.length;
                 

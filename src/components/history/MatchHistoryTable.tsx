@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 interface Match {
     id: string;
@@ -40,7 +41,7 @@ export function MatchHistoryTable({ matches }: MatchHistoryTableProps) {
                     </div>
                     <div className="col-span-2 py-4 flex justify-center">
                         <a href={match.vod} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-[#8ADB10] hover:bg-lime-500 text-white font-bold px-4 py-2 rounded-lg transition">
-                            <img key="playVideo" src="/icon/playVideo.svg" alt="Play Video" className="w-5 h-5" />
+                            <Image src="/icon/playVideo.svg" alt="Play Video" width={20} height={20} className="w-5 h-5" />
                             VOD
                         </a>
                     </div>
