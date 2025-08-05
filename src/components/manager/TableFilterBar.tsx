@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 interface TableFilterBarProps {
   search: string;
@@ -18,7 +19,6 @@ export default function TableFilterBar({ search, onSearchChange, type, onTypeCha
       >
         <h2 className="text-2xl font-extrabold text-[#000000] tracking-tight mb-2 sm:mb-0">Quản lí bàn</h2>
         <div className="flex flex-col sm:flex-row items-stretch gap-4 w-full sm:w-auto">
-          {/* Search Input */}
           <div className="relative flex items-center w-full sm:w-80 bg-white/80 rounded-xl border border-gray-200 shadow-sm focus-within:border-lime-400 transition-all">
             <input
               type="text"
@@ -28,13 +28,9 @@ export default function TableFilterBar({ search, onSearchChange, type, onTypeCha
               className="bg-transparent outline-none flex-1 text-[#000000] text-base px-4 py-2 rounded-xl placeholder-gray-400 font-medium"
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-lime-500 pointer-events-none">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                <circle cx="11" cy="11" r="8" />
-                <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
-              </svg>
+              <Image src="/icon/search.svg" alt="Search" width={24} height={24} />
             </span>
           </div>
-          {/* Type Select */}
           <div className="relative w-full sm:w-44">
             <select
               value={type}
@@ -46,12 +42,9 @@ export default function TableFilterBar({ search, onSearchChange, type, onTypeCha
               <option value="carom">Carom</option>
             </select>
             <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-lime-500">
-              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                <path d="M6 9l6 6 6-6" />
-              </svg>
+              <Image src="/icon/chevron-down_Black.svg" alt="Dropdown" width={22} height={22} />
             </span>
           </div>
-          {/* Status Select */}
           <div className="relative w-full sm:w-44">
             <select
               value={status}
@@ -61,11 +54,10 @@ export default function TableFilterBar({ search, onSearchChange, type, onTypeCha
               <option value="">Tất cả</option>
               <option value="using">Đang sử dụng</option>
               <option value="available">Bàn trống</option>
+              <option value="maintenance">Bảo trì</option>
             </select>
             <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-lime-500">
-              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                <path d="M6 9l6 6 6-6" />
-              </svg>
+              <Image src="/icon/chevron-down_Black.svg" alt="Dropdown" width={22} height={22} />
             </span>
           </div>
         </div>

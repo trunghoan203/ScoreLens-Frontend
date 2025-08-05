@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ScoreLensLogo } from '@/components/icons/LogoBlack';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { BackButton } from '@/components/ui/BackButton';
 
-export default function GuestJoinPage() {
+function GuestJoinContent() {
   const [fullName, setFullName] = useState('');
   const [tableNumber, setTableNumber] = useState('');
   const [roomCode, setRoomCode] = useState('');
@@ -84,5 +84,13 @@ export default function GuestJoinPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function GuestJoinPage() {
+  return (
+    <Suspense fallback={<ScoreLensLoading text="Đang tải..." />}>
+      <GuestJoinContent />
+    </Suspense>
   );
 }

@@ -22,7 +22,7 @@ export default function AddTablePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await managerTableService.createTable({ number: Number(name), category: type });
+      await managerTableService.createTable({ name: name, category: type });
       toast.success('Đã thêm bàn thành công!');
       router.push('/manager/tables');
     } catch (error) {

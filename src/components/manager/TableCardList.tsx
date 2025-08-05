@@ -5,7 +5,7 @@ interface Table {
   id: string;
   name: string;
   type: string;
-  status: 'using' | 'available';
+  status: 'inuse' | 'empty' | 'maintenance' | 'using' | 'available';
   teamA?: string;
   teamB?: string;
   time?: string;

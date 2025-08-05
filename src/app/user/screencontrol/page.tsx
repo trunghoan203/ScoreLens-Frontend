@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import PopupEditScore from '@/app/user/popup/popupEditScore';
 import PopupEndMatch from '@/app/user/popup/popupEndMatch';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
-import { Pencil, Flag } from 'lucide-react';
+
 
 export default function ScoreboardPage() {
   const router = useRouter();
@@ -91,14 +91,14 @@ export default function ScoreboardPage() {
           </div>
 
           {/* Kết quả AI */}
-<div className="text-left w-full space-y-2">
-  <p className="text-sm font-semibold text-black mb-1">Kết Quả</p>
-  <div className="border border-gray-300 rounded-md p-3 text-sm text-black bg-white shadow-sm space-y-1">
-    {(aiResults.length > 0 ? aiResults : exampleResults).map((item, index) => (
-      <p key={index}>[AI]: {item}</p>
-    ))}
-  </div>
-</div>
+          <div className="text-left w-full space-y-2">
+            <p className="text-sm font-semibold text-black mb-1">Kết Quả</p>
+            <div className="border border-gray-300 rounded-md p-3 text-sm text-black bg-white shadow-sm space-y-1">
+              {(aiResults.length > 0 ? aiResults : exampleResults).map((item, index) => (
+                <p key={index}>[AI]: {item}</p>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Nút hành động dưới cùng */}
@@ -106,16 +106,14 @@ export default function ScoreboardPage() {
           <div className="flex flex-row gap-4 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
             <Button
               onClick={handleEditScore}
-              className="w-1/2 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center gap-2"
+              className="w-1/2 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center"
             >
-              <Pencil size={18} />
               Sửa điểm
             </Button>
             <Button
               onClick={handleEndMatch}
-              className="w-1/2 bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center gap-2"
+              className="w-1/2 bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center"
             >
-              <Flag size={18} />
               Kết thúc
             </Button>
           </div>

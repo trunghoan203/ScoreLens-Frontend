@@ -11,7 +11,6 @@ export function MemberIdForm({ memberId, setMemberId, onSubmit }: MemberIdFormPr
                 TRA CỨU LỊCH SỬ ĐẤU
             </h1>
             
-            {/* Thống kê tổng quan */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                 <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6 text-center shadow-lg">
                     <div className="text-3xl font-bold mb-2">1,250</div>

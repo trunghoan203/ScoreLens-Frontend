@@ -20,14 +20,14 @@ class ManagerTableService {
     return res.data;
   }
 
-  async createTable(data: { number: number; category: string; status?: string }) {
+  async createTable(data: { name: string; category: string; status?: string }) {
     const res = await axios.post('/manager/table', data, {
       headers: this.getAuthHeaders(),
     });
     return res.data;
   }
 
-  async updateTable(id: string, data: { number: number; category: string; status?: string }) {
+  async updateTable(id: string, data: { name: string; category: string; status?: string }) {
     const res = await axios.put(`/manager/table/${id}`, data, {
       headers: this.getAuthHeaders(),
     });

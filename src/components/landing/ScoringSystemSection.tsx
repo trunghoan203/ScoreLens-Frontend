@@ -26,9 +26,6 @@ export const ScoringSystemSection = () => {
             <li>Tổng hợp kết quả nhanh chóng</li>
             <li>Hạn chế sai sót khi tính điểm thủ công</li>
           </ul>
-          <Button variant="outline" className="text-lg px-8 py-6 border-2 border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white">
-            Bạn muốn trải nghiệm chứ? &rarr;
-          </Button>
         </div>
       </div>
     </section>

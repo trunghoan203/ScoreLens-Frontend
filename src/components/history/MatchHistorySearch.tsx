@@ -9,13 +9,12 @@ interface MatchHistorySearchProps {
 export function MatchHistorySearch({ search, setSearch, isSearching = false }: MatchHistorySearchProps) {
     const [inputValue, setInputValue] = useState(search);
 
-    // Debounce search input
     useEffect(() => {
         const timer = setTimeout(() => {
             if (inputValue !== search) {
                 setSearch(inputValue);
             }
-        }, 500); // 500ms delay
+        }, 500);
 
         return () => clearTimeout(timer);
     }, [inputValue, setSearch, search]);
@@ -32,7 +31,6 @@ export function MatchHistorySearch({ search, setSearch, isSearching = false }: M
                     disabled={isSearching}
                 />
                 
-                {/* Search icon or loading spinner */}
                 <div className="absolute right-3">
                     {isSearching ? (
                         <div className="w-5 h-5 border-2 border-lime-400 border-t-transparent rounded-full animate-spin"></div>

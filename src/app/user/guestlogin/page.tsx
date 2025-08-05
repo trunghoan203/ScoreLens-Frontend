@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ScoreLensLogo } from '@/components/icons/LogoBlack';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import Image from 'next/image';
 import { BackButton } from '@/components/ui/BackButton';
 
-export default function GuestLoginPage() {
+function GuestLoginContent() {
   const [roomCode, setRoomCode] = useState<string[]>(['', '', '', '', '', '']);
   const [tableNumber, setTableNumber] = useState('');
   const [loading, setLoading] = useState(true);
@@ -147,5 +147,13 @@ export default function GuestLoginPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function GuestLoginPage() {
+  return (
+    <Suspense fallback={<ScoreLensLoading text="Đang tải..." />}>
+      <GuestLoginContent />
+    </Suspense>
   );
 }

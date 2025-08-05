@@ -42,6 +42,11 @@ export default function RatePage() {
       toast.success('Gửi phản hồi thành công!');
     } catch {
       toast.error('Gửi phản hồi thất bại!');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      const errorMessage = error.response?.data?.message || 'Gửi phản hồi thất bại!';
+      toast.error(errorMessage);
+
     } finally {
       setSubmitting(false);
     }
