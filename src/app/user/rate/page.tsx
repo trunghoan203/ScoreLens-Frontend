@@ -30,6 +30,7 @@ export default function RatePage() {
     }
     setSubmitting(true);
     try {
+      // TODO: Lấy clubId, tableId động nếu cần
       await userFeedbackService.createFeedback({
         clubId: 'CLB-1751950292581-3267',
         tableId: 'TB-1752296882416',
@@ -39,6 +40,8 @@ export default function RatePage() {
       setShowPopup(true);
       setFeedback('');
       toast.success('Gửi phản hồi thành công!');
+    } catch {
+      toast.error('Gửi phản hồi thất bại!');
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       const errorMessage = error.response?.data?.message || 'Gửi phản hồi thất bại!';
@@ -58,23 +61,28 @@ export default function RatePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-100 px-4 relative">
+      {/* Nút Back ở góc trên bên trái */}
       <div className="absolute top-4 left-4 z-20">
         <BackButton onClick={() => router.back()} />
       </div>
+      {/* Nội dung chính */}
       <div
         className={`flex-1 flex flex-col items-center text-center space-y-8 py-10 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto transition-all duration-300 ${
           showPopup ? 'blur-sm backdrop-brightness-95' : ''
         }`}
       >
+        {/* Logo */}
         <div className="flex justify-center">
           <div className="sm:w-28 sm:h-28">
             <ScoreLensLogo />
           </div>
         </div>
 
+        {/* Tiêu đề */}
         <h1 className="text-2xl sm:text-3xl font-bold text-black">ĐÁNH GIÁ</h1>
 
-=        <div className="bg-lime-400 rounded-xl px-4 py-3 text-left space-y-2 w-full">
+        {/* Khung phản hồi */}
+        <div className="bg-lime-400 rounded-xl px-4 py-3 text-left space-y-2 w-full">
           <p className="text-white font-semibold text-sm">PHẢN HỒI:</p>
           <div className="bg-white rounded-xl p-2">
             <textarea
@@ -89,7 +97,8 @@ export default function RatePage() {
         </div>
       </div>
 
-=      <div className="w-full p-4 bg-white shadow-inner">
+      {/* Nút dưới cùng */}
+      <div className="w-full p-4 bg-white shadow-inner">
         <div className="flex flex-row gap-4 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
           <Button
             onClick={handleSubmit}
@@ -102,7 +111,8 @@ export default function RatePage() {
         </div>
       </div>
 
-=      {showPopup && (
+      {/* Popup */}
+      {showPopup && (
         <PopupFeedback
           onClose={() => setShowPopup(false)}
           onConfirm={handleConfirmPayment}
