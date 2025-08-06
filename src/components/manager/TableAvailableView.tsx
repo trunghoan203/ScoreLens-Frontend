@@ -1,18 +1,20 @@
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
 import TableStatusBadge from './TableStatusBadge';
 import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 interface TableAvailableViewProps {
   table: { id: string; name: string };
   onReady: (teamA: string[], teamB: string[]) => void;
+  loading?: boolean;
 }
 
-export default function TableAvailableView({ table, onReady }: TableAvailableViewProps) {
+export default function TableAvailableView({ table, onReady, loading = false }: TableAvailableViewProps) {
   const [teamA, setTeamA] = useState(['']);
   const [teamB, setTeamB] = useState(['']);
+  const router = useRouter();
 
   const handleChange = (team: 'A' | 'B', index: number, value: string) => {
     const setter = team === 'A' ? setTeamA : setTeamB;
@@ -68,7 +70,6 @@ export default function TableAvailableView({ table, onReady }: TableAvailableVie
         <h3 className="text-2xl font-bold">{table.name}</h3>
       </div>
       <div className="flex justify-center gap-8 mb-6">
-        {/* Team A */}
         <div>
           <div className="font-semibold mb-2">Team A</div>
           {teamA.map((player, idx) => (
@@ -77,21 +78,21 @@ export default function TableAvailableView({ table, onReady }: TableAvailableVie
                 value={player}
                 onChange={e => handleChange('A', idx, e.target.value)}
                 placeholder={`Người Chơi ${idx + 1}`}
+                disabled={loading}
               />
               {idx === 0 ? (
-                <Button size="icon" variant="outline" onClick={() => handleAddPlayer('A')}>
-                  <Plus size={16} />
+                <Button size="icon" variant="ghost" onClick={() => handleAddPlayer('A')} disabled={loading} className="hover:bg-transparent">
+                  <img src="/icon/plus-circle.svg" width={25} height={25} alt="Thêm người chơi" />
                 </Button>
               ) : (
-                <Button size="icon" variant="outline" onClick={() => handleRemovePlayer('A', idx)}>
-                  <Trash2 size={16} />
+                <Button size="icon" variant="ghost" onClick={() => handleRemovePlayer('A', idx)} disabled={loading} className="hover:bg-transparent">
+                  <img src="/icon/trash-2.svg" width={25} height={25} alt="Xóa người chơi" />
                 </Button>
               )}
             </div>
           ))}
         </div>
         <div className="flex flex-col justify-center font-bold text-xl">VS</div>
-        {/* Team B */}
         <div>
           <div className="font-semibold mb-2">Team B</div>
           {teamB.map((player, idx) => (
@@ -100,14 +101,15 @@ export default function TableAvailableView({ table, onReady }: TableAvailableVie
                 value={player}
                 onChange={e => handleChange('B', idx, e.target.value)}
                 placeholder={`Người Chơi ${idx + 1}`}
+                disabled={loading}
               />
               {idx === 0 ? (
-                <Button size="icon" variant="outline" onClick={() => handleAddPlayer('B')}>
-                  <Plus size={16} />
+                <Button size="icon" variant="ghost" onClick={() => handleAddPlayer('B')} disabled={loading} className="hover:bg-transparent">
+                  <img src="/icon/plus-circle.svg" width={25} height={25} alt="Thêm người chơi" />
                 </Button>
               ) : (
-                <Button size="icon" variant="outline" onClick={() => handleRemovePlayer('B', idx)}>
-                  <Trash2 size={16} />
+                <Button size="icon" variant="ghost" onClick={() => handleRemovePlayer('B', idx)} disabled={loading} className="hover:bg-transparent">
+                  <img src="/icon/trash-2.svg" width={25} height={25} alt="Xóa người chơi" />
                 </Button>
               )}
             </div>
@@ -115,8 +117,22 @@ export default function TableAvailableView({ table, onReady }: TableAvailableVie
         </div>
       </div>
       <div className="text-center mb-6 text-lg font-mono">00:00:00</div>
-      <div className="flex justify-center">
-        <Button variant="lime" className="px-12 py-3 text-lg font-bold" onClick={handleReady}>Bắt đầu</Button>
+      <div className="flex justify-center gap-4">
+        <button
+          type="button"
+          className="w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 rounded-lg transition text-lg"
+          onClick={() => router.back()}
+        >
+          Quay lại
+        </button>
+        <button
+          type="button"
+          onClick={handleReady}
+          disabled={loading}
+          className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
+        >
+          {loading ? 'Đang tạo trận đấu...' : 'Sẵn sàng'}
+        </button>
       </div>
     </div>
   );
