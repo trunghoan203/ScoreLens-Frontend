@@ -114,6 +114,18 @@ class AdminService {
     return this.getRememberMeData() !== null;
   }
 
+  async updateStatus(): Promise<AdminProfile> {
+    try {
+      const response = await axios.patch('/admin/status/pending');
+      if (response.data && typeof response.data === 'object' && 'admin' in response.data) {
+        return (response.data as { admin: AdminProfile }).admin;
+      }
+      throw new Error('Dữ liệu trả về không hợp lệ');
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
   /**
    * Xử lý lỗi chung
    */
