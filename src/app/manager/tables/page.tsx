@@ -29,6 +29,7 @@ export default function TablesPage() {
   const [tables, setTables] = useState<Table[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -60,6 +61,17 @@ export default function TablesPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Theo dõi scroll để thay đổi viền header
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setIsScrolled(scrollTop > 0);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   if (isChecking) return null;
 
   const filteredTables = tables.filter(
@@ -86,8 +98,13 @@ export default function TablesPage() {
     <>
       <div className="min-h-screen flex bg-[#18191A]">
         <SidebarManager />
-        <main className="flex-1 bg-white p-10 min-h-screen">
-          <HeaderManager />
+        <main className="flex-1 bg-white min-h-screen">
+          <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${
+            isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
+          }`}>
+            <HeaderManager />
+          </div>
+          <div className="p-10">
           <TablePageBanner />
           {tables.length > 0 && (
             <TableSearchBar
@@ -147,6 +164,7 @@ export default function TablesPage() {
               onTableClick={handleTableClick}
             />
           )}
+          </div>
         </main>
       </div>
     </>

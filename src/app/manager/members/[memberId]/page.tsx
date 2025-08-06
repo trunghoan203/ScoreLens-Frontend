@@ -27,6 +27,7 @@ export default function MemberDetailPage() {
   const [playTime, setPlayTime] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     managerMemberService.getAllMembers()
@@ -52,6 +53,16 @@ export default function MemberDetailPage() {
         toast.error('Không thể tải dữ liệu hội viên');
       });
   }, [memberId]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setIsScrolled(scrollTop > 0);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleSave = async () => {
     try {
@@ -79,8 +90,13 @@ export default function MemberDetailPage() {
   return (
     <div className="min-h-screen flex bg-[#18191A]">
       <SidebarManager />
-      <main className="flex-1 bg-white p-10 min-h-screen">
-        <HeaderManager />
+      <main className="flex-1 bg-white min-h-screen">
+        <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${
+          isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
+        }`}>
+          <HeaderManager />
+        </div>
+        <div className="p-10">
         <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
           <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
             QUẢN LÝ HỘI VIÊN
@@ -137,6 +153,7 @@ export default function MemberDetailPage() {
             <Input value={playTime} onChange={e => setPlayTime(e.target.value)} disabled />
           </div>
         </AddFormLayout>
+        </div>
       </main>
     </div>
   );

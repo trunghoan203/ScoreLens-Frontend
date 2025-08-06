@@ -5,7 +5,7 @@ import AddFormLayout from '@/components/shared/AddFormLayout';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { managerTableService } from '@/lib/managerTableService';
 
@@ -17,7 +17,19 @@ const tableTypes = [
 export default function AddTablePage() {
   const [name, setName] = useState('');
   const [type, setType] = useState(tableTypes[0].value);
+  const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
+
+  // Theo dõi scroll để thay đổi viền header
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setIsScrolled(scrollTop > 0);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,8 +46,13 @@ export default function AddTablePage() {
   return (
     <div className="min-h-screen flex bg-[#18191A]">
       <SidebarManager />
-      <main className="flex-1 bg-white p-10 min-h-screen">
-        <HeaderManager />
+      <main className="flex-1 bg-white min-h-screen">
+        <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${
+          isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
+        }`}>
+          <HeaderManager />
+        </div>
+        <div className="p-10">
         <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
           <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
             QUẢN LÝ BÀN
@@ -59,6 +76,7 @@ export default function AddTablePage() {
             </Select>
           </div>
         </AddFormLayout>
+        </div>
       </main>
     </div>
   );
