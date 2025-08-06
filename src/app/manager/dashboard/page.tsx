@@ -31,6 +31,7 @@ export default function ManagerDashboardPage() {
   const [search, setSearch] = useState('');
   const [type, setType] = useState('');
   const [status, setStatus] = useState('');
+  const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -101,6 +102,16 @@ export default function ManagerDashboardPage() {
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setIsScrolled(scrollTop > 0);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const handleXemThem = () => {
     setActionLoading(true);
     setTimeout(() => {
@@ -126,86 +137,92 @@ export default function ManagerDashboardPage() {
     <>
       <div className="flex min-h-screen bg-gray-50">
         <SidebarManager />
-        <main className="flex-1 bg-white p-10 min-h-screen">
-          <HeaderManager />
-          <div className="w-full mx-auto">
-            {loadingStats ? (
-              <div className="my-6">
-                <LoadingSkeleton type="card" />
-              </div>
-            ) : (
-              <DashboardSummary
-                totalTables={dashboardStats.totalTables}
-                inUse={dashboardStats.inUse}
-                available={dashboardStats.available}
-                members={dashboardStats.members}
-              />
-            )}
-            <div className="bg-white rounded-lg shadow p-6">
-              <TableFilterBar
-                search={search}
-                onSearchChange={setSearch}
-                type={type}
-                onTypeChange={setType}
-                status={status}
-                onStatusChange={setStatus}
-              />
-              {loadingTables ? (
-                <div className="py-8">
+        <main className="flex-1 bg-[#FFFFFF] min-h-screen">
+          <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${
+            isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
+          }`}>
+            <HeaderManager />
+          </div>
+          <div className="p-10">
+            <div className="w-full mx-auto">
+              {loadingStats ? (
+                <div className="my-6">
                   <LoadingSkeleton type="card" />
                 </div>
-              ) : filteredTables.length === 0 ? (
-                <EmptyState
-                  icon={
-                    <svg className="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 5v4m8-4v4M8 11h8M8 15h8" />
-                    </svg>
-                  }
-                  title={search ? 'Không tìm thấy bàn phù hợp' : 'Chưa có bàn nào'}
-                  description={
-                    search 
-                      ? 'Thử thay đổi từ khóa tìm kiếm hoặc thêm bàn mới để mở rộng cơ sở vật chất'
-                      : 'Bắt đầu thiết lập hệ thống bàn chơi chuyên nghiệp cho câu lạc bộ của bạn'
-                  }
-                  primaryAction={{
-                    label: 'Thêm bàn mới',
-                    onClick: () => router.push('/manager/tables/add'),
-                    icon: (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                    )
-                  }}
-                  secondaryAction={search ? {
-                    label: 'Xem tất cả',
-                    onClick: () => {
-                      setSearch('');
-                      setType('');
-                      setStatus('');
-                    },
-                    icon: (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h16M4 12h16M4 20h16" />
-                      </svg>
-                    )
-                  } : undefined}
-                  additionalInfo="Bàn chơi sẽ giúp bạn cung cấp dịch vụ chất lượng và thu hút hội viên"
-                  showAdditionalInfo={!search}
-                />
               ) : (
-                <TableCardList
-                  tables={filteredTables}
-                  onDetail={(id) => router.push(`/manager/matches/${id}`)}
+                <DashboardSummary
+                  totalTables={dashboardStats.totalTables}
+                  inUse={dashboardStats.inUse}
+                  available={dashboardStats.available}
+                  members={dashboardStats.members}
                 />
               )}
-              {filteredTables.length > 9 && (
-                <div className="flex justify-center mt-6">
-                  <ButtonXemThem onClick={handleXemThem}>
-                    {actionLoading ? <LoadingSpinner size="sm" /> : 'Xem thêm'}
-                  </ButtonXemThem>
-                </div>
-              )}
+              <div className="bg-white rounded-lg shadow p-6">
+                <TableFilterBar
+                  search={search}
+                  onSearchChange={setSearch}
+                  type={type}
+                  onTypeChange={setType}
+                  status={status}
+                  onStatusChange={setStatus}
+                />
+                {loadingTables ? (
+                  <div className="py-8">
+                    <LoadingSkeleton type="card" />
+                  </div>
+                ) : filteredTables.length === 0 ? (
+                  <EmptyState
+                    icon={
+                      <svg className="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 5v4m8-4v4M8 11h8M8 15h8" />
+                      </svg>
+                    }
+                    title={search ? 'Không tìm thấy bàn phù hợp' : 'Chưa có bàn nào'}
+                    description={
+                      search 
+                        ? 'Thử thay đổi từ khóa tìm kiếm hoặc thêm bàn mới để mở rộng cơ sở vật chất'
+                        : 'Bắt đầu thiết lập hệ thống bàn chơi chuyên nghiệp cho câu lạc bộ của bạn'
+                    }
+                    primaryAction={{
+                      label: 'Thêm bàn mới',
+                      onClick: () => router.push('/manager/tables/add'),
+                      icon: (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                      )
+                    }}
+                    secondaryAction={search ? {
+                      label: 'Xem tất cả',
+                      onClick: () => {
+                        setSearch('');
+                        setType('');
+                        setStatus('');
+                      },
+                      icon: (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h16M4 12h16M4 20h16" />
+                        </svg>
+                      )
+                    } : undefined}
+                    additionalInfo="Bàn chơi sẽ giúp bạn cung cấp dịch vụ chất lượng và thu hút hội viên"
+                    showAdditionalInfo={!search}
+                  />
+                ) : (
+                  <TableCardList
+                    tables={filteredTables}
+                    onDetail={(id) => router.push(`/manager/matches/${id}`)}
+                  />
+                )}
+                {filteredTables.length > 9 && (
+                  <div className="flex justify-center mt-6">
+                    <ButtonXemThem onClick={handleXemThem}>
+                      {actionLoading ? <LoadingSpinner size="sm" /> : 'Xem thêm'}
+                    </ButtonXemThem>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </main>
