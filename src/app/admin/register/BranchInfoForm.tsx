@@ -5,6 +5,7 @@ import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import axios from '@/lib/axios';
+import adminService from '@/lib/adminService';
 
 interface BrandInfo {
   brandId: string;
@@ -113,6 +114,11 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
       // Tạo clubs mới
       await axios.post('/admin/clubs', clubsData);
       toast.success('Tạo thương hiệu và câu lạc bộ thành công!');
+      try {
+        await adminService.updateStatus();
+      } catch {
+        toast.error('Không thể cập nhật trạng thái admin về pending.');
+      }
       
       // Truyền brandId mới về nếu đã tạo brand
       if (brandId && brandId !== brandInfo?.brandId) {
