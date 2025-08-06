@@ -5,6 +5,7 @@ import { BrandInfoForm } from "../register/BrandInfoForm";
 import { BranchInfoForm } from "../register/BranchInfoForm";
 import { RegisterSteps } from "@/components/auth/RegisterSteps";
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
+import { CheckCircle } from 'lucide-react';
 
 interface BrandInfo {
   brandId: string;
@@ -82,10 +83,7 @@ export default function CompleteProfilePage() {
             <p className="text-lg text-center text-gray-700 mb-2">Vui lòng chờ chúng tôi chấp nhận yêu cầu đăng ký của bạn!</p>
             <div className="flex justify-center my-6">
               <div className="animate-success-bounce">
-                <svg width="110" height="110" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="55" cy="55" r="55" fill="#A3E635"/>
-                  <path d="M35 58L50 73L75 48" stroke="white" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+                <CheckCircle size={110} strokeWidth={2} fill="#A3E635" className="text-lime-400 bg-transparent rounded-full" />
               </div>
             </div>
             <div className="text-2xl font-bold text-black text-center mb-2 animate-success-pop">Cảm ơn bạn đã đăng ký!</div>
