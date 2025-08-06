@@ -11,6 +11,7 @@ import clubsService, { ClubResponse } from '@/lib/clubsService';
 import adminService from '@/lib/adminService';
 import toast from 'react-hot-toast';
 import { useAdminAuthGuard } from '@/lib/hooks/useAdminAuthGuard';
+import { Building2, Plus, Menu } from 'lucide-react';
 
 export default function BranchesPage() {
   const { isChecking } = useAdminAuthGuard();
@@ -108,9 +109,7 @@ export default function BranchesPage() {
                      ) : branches.length === 0 ? (
                        <EmptyState
                          icon={
-                           <svg className="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                           </svg>
+                           <Building2 className="w-14 h-14 text-white" strokeWidth={1.5} />
                          }
                          title={search ? 'Không tìm thấy chi nhánh phù hợp' : 'Chưa có chi nhánh nào'}
                          description={
@@ -123,18 +122,14 @@ export default function BranchesPage() {
                            onClick: handleAddBranch,
                            loading: isAdding,
                            icon: (
-                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                             </svg>
+                             <Plus className="w-5 h-5" />
                            )
                          }}
                          secondaryAction={search ? {
                            label: 'Xem tất cả',
                            onClick: () => setSearch(''),
                            icon: (
-                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h16M4 12h16M4 20h16" />
-                             </svg>
+                             <Menu className="w-5 h-5" />
                            )
                          } : undefined}
                          additionalInfo="Chi nhánh sẽ giúp bạn quản lý và mở rộng thương hiệu hiệu quả"

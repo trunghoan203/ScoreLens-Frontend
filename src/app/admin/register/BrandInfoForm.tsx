@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import axios from '@/lib/axios';
 import toast from 'react-hot-toast';
+import { Image as LucideImage } from 'lucide-react';
 
 interface BrandInfo {
   brandId: string;
@@ -141,9 +142,7 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
             className="absolute inset-0 opacity-0 cursor-pointer"
           />
           <div className="absolute top-2 right-2 bg-white rounded-full p-1 shadow border border-gray-200">
-            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2a2.828 2.828 0 11-4-4 2.828 2.828 0 014 4z" />
-            </svg>
+            <LucideImage className="w-5 h-5 text-gray-500" />
           </div>
         </div>
         {uploading}
