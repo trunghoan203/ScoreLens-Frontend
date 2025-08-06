@@ -17,6 +17,7 @@ import toast from 'react-hot-toast';
 
 interface TableData {
   id: string;
+  tableId?: string;
   name: string;
   type: string;
   status: 'inuse' | 'empty' | 'maintenance' | 'using' | 'available';
@@ -71,6 +72,7 @@ export default function ManagerDashboardPage() {
         
         const transformedTables: TableData[] = tablesArray.map((table: ApiTableData) => ({
           id: table.id || table._id || '',
+            
           name: table.name,
           type: table.category || table.type || '',
           status: table.status as TableData['status'],
