@@ -24,6 +24,7 @@ export default function AddCameraPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [tables, setTables] = useState<Table[]>([]);
+  const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -47,6 +48,17 @@ export default function AddCameraPage() {
       .catch(() => {
         toast.error('Không thể tải danh sách bàn');
       });
+  }, []);
+
+  // Theo dõi scroll để thay đổi viền header
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setIsScrolled(scrollTop > 0);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -76,8 +88,13 @@ export default function AddCameraPage() {
   return (
     <div className="min-h-screen flex bg-[#18191A]">
       <SidebarManager />
-      <main className="flex-1 bg-white p-10 min-h-screen">
-        <HeaderManager />
+      <main className="flex-1 bg-white min-h-screen">
+        <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${
+          isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
+        }`}>
+          <HeaderManager />
+        </div>
+        <div className="p-10">
         <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
           <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
             QUẢN LÝ CAMERA
@@ -117,6 +134,7 @@ export default function AddCameraPage() {
             <PasswordInput value={password} onChange={e => setPassword(e.target.value)} required placeholder="Nhập mật khẩu" />
           </div>
         </AddFormLayout>
+        </div>
       </main>
     </div>
   );
