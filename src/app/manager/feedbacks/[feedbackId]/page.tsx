@@ -5,6 +5,7 @@ import HeaderManager from "@/components/manager/HeaderManager";
 import { useRouter, useParams } from "next/navigation";
 import toast from 'react-hot-toast';
 import { managerFeedbackService } from '@/lib/managerFeedbackService';
+import { managerTableService } from '@/lib/managerTableService';
 import FeedbackDetailLayout from "@/components/shared/FeedbackDetailLayout";
 import FeedbackPageBanner from "@/components/manager/FeedbackPageBanner";
 
@@ -52,28 +53,53 @@ export default function FeedbackDetailPage() {
   const [status, setStatus] = useState<Feedback['status']>('pending');
   const [notes, setNotes] = useState('');
   const [needSupport, setNeedSupport] = useState(false);
+  const [tables, setTables] = useState<any[]>([]);
 
   useEffect(() => {
-    managerFeedbackService.getAllFeedbacks()
-      .then((data: unknown) => {
-        console.log('FEEDBACK DETAIL FROM API:', data); // DEBUG LOG
+    const fetchData = async () => {
+      try {
+        const tablesData = await managerTableService.getAllTables();
+        const tablesArray = Array.isArray(tablesData) ? tablesData : (tablesData as any)?.tables || [];
+        setTables(tablesArray);
+
+        const feedbacksData = await managerFeedbackService.getAllFeedbacks();
         let feedbacksArr: unknown[] = [];
-        if (Array.isArray(data)) feedbacksArr = data;
-        else if (data && typeof data === 'object' && Array.isArray((data as { feedbacks?: unknown[] }).feedbacks)) feedbacksArr = (data as { feedbacks: unknown[] }).feedbacks;
-        else if (data && typeof data === 'object' && Array.isArray((data as { data?: unknown[] }).data)) feedbacksArr = (data as { data: unknown[] }).data;
+        if (Array.isArray(feedbacksData)) feedbacksArr = feedbacksData;
+        else if (feedbacksData && typeof feedbacksData === 'object' && Array.isArray((feedbacksData as { feedbacks?: unknown[] }).feedbacks)) feedbacksArr = (feedbacksData as { feedbacks: unknown[] }).feedbacks;
+        else if (feedbacksData && typeof feedbacksData === 'object' && Array.isArray((feedbacksData as { data?: unknown[] }).data)) feedbacksArr = (feedbacksData as { data: unknown[] }).data;
+        
         const found = feedbacksArr.find((f) => {
           const obj = f as Partial<Feedback>;
           return obj.feedbackId === feedbackId || obj._id === feedbackId;
         });
+        
         if (found) {
           const feedbackData = found as Partial<Feedback>;
+          const tableId = feedbackData.tableId || '';
+          
+           let table = tablesArray.find((t: any) => {
+             const tId = t.tableId || t.id || t._id;
+             return tId === tableId;
+           });
+           
+           if (!table && tableId) {
+             table = tablesArray.find((t: any) => {
+               const tId = t.tableId || t.id || t._id;
+               return tId && tId.includes(tableId) || tableId.includes(tId);
+             });
+           }
+          
           const mappedFeedback: Feedback = {
             feedbackId: feedbackData.feedbackId || feedbackData._id || '',
             createdBy: feedbackData.createdBy || { userId: '', type: 'guest' },
             clubId: feedbackData.clubId || '',
-            tableId: feedbackData.tableId || '',
+            tableId: tableId,
             clubInfo: feedbackData.clubInfo || { clubId: '', clubName: '' },
-            tableInfo: feedbackData.tableInfo || { tableId: '', tableName: '' },
+                         tableInfo: {
+               tableId: tableId,
+               tableName: table?.name || `Bàn ${tableId}`, 
+               tableNumber: table?.tableNumber
+             },
             content: feedbackData.content || '',
             status: feedbackData.status || 'pending',
             needSupport: feedbackData.needSupport || false,
@@ -94,10 +120,13 @@ export default function FeedbackDetailPage() {
         } else {
           toast.error('Không tìm thấy phản hồi');
         }
-      })
-      .catch(() => {
+      } catch (error) {
+        console.error('Error fetching data:', error);
         toast.error('Không thể tải dữ liệu phản hồi');
-      });
+      }
+    };
+
+    fetchData();
   }, [feedbackId]);
 
   const statusOptions = [

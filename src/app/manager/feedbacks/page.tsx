@@ -8,6 +8,7 @@ import FeedbackPageBanner from "@/components/manager/FeedbackPageBanner";
 import { useRouter } from "next/navigation";
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { managerFeedbackService } from '@/lib/managerFeedbackService';
+import { managerTableService } from '@/lib/managerTableService';
 import toast from 'react-hot-toast';
 import { useManagerAuthGuard } from '@/lib/hooks/useManagerAuthGuard';
 
@@ -51,26 +52,49 @@ export default function FeedbacksPage() {
   const [loading, setLoading] = useState(true);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [tables, setTables] = useState<any[]>([]);
   const router = useRouter();
 
   useEffect(() => {
-    setLoading(true);
-    managerFeedbackService.getAllFeedbacks()
-      .then((data: unknown) => {
-        console.log('DATA FROM API:', data); // DEBUG LOG
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const feedbacksData = await managerFeedbackService.getAllFeedbacks();
         let feedbacksArr: unknown[] = [];
-        if (Array.isArray(data)) feedbacksArr = data;
-        else if (data && typeof data === 'object' && Array.isArray((data as { feedbacks?: unknown[] }).feedbacks)) feedbacksArr = (data as { feedbacks: unknown[] }).feedbacks;
-        else if (data && typeof data === 'object' && Array.isArray((data as { data?: unknown[] }).data)) feedbacksArr = (data as { data: unknown[] }).data;
+        if (Array.isArray(feedbacksData)) feedbacksArr = feedbacksData;
+        else if (feedbacksData && typeof feedbacksData === 'object' && Array.isArray((feedbacksData as { feedbacks?: unknown[] }).feedbacks)) feedbacksArr = (feedbacksData as { feedbacks: unknown[] }).feedbacks;
+        else if (feedbacksData && typeof feedbacksData === 'object' && Array.isArray((feedbacksData as { data?: unknown[] }).data)) feedbacksArr = (feedbacksData as { data: unknown[] }).data;
+        
+        const tablesData = await managerTableService.getAllTables();        const tablesArray = Array.isArray(tablesData) ? tablesData : (tablesData as any)?.tables || [];
+        setTables(tablesArray);
+
         const mappedFeedbacks: Feedback[] = feedbacksArr.map(f => {
           const obj = f as Partial<Feedback>;
+          const tableId = obj.tableId || '';
+          
+          let table = tablesArray.find((t: any) => {
+            const tId = t.tableId || t.id || t._id;
+            return tId === tableId;
+          });
+          
+          if (!table && tableId) {
+            table = tablesArray.find((t: any) => {
+              const tId = t.tableId || t.id || t._id;
+              return tId && tId.includes(tableId) || tableId.includes(tId);
+            });
+          }
+          
           return {
             feedbackId: obj.feedbackId || obj._id || '',
             createdBy: obj.createdBy || { userId: '', type: 'guest' },
             clubId: obj.clubId || '',
-            tableId: obj.tableId || '',
+            tableId: tableId,
             clubInfo: obj.clubInfo || { clubId: '', clubName: '' },
-            tableInfo: obj.tableInfo || { tableId: '', tableName: '' },
+            tableInfo: {
+              tableId: tableId,
+              tableName: table?.name || `${tableId}`, 
+              tableNumber: table?.tableNumber
+            },
             content: obj.content || '',
             status: obj.status || 'pending',
             needSupport: obj.needSupport || false,
@@ -81,13 +105,19 @@ export default function FeedbacksPage() {
           };
         });
         setFeedbacks(mappedFeedbacks);
-      })
-      .catch(() => {
+      } catch (error) {
+        console.error('Error fetching data:', error);
         setError('Không thể tải danh sách phản hồi');
         toast.error('Không thể tải danh sách phản hồi');
-      })
-      .finally(() => setLoading(false));
-  }, []);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (!isChecking) {
+      fetchData();
+    }
+  }, [isChecking]);
 
   const filteredFeedbacks = feedbacks.filter(f => 
     f.content.toLowerCase().includes(search.toLowerCase()) ||
@@ -130,7 +160,7 @@ export default function FeedbacksPage() {
                 table: f.tableInfo?.tableName || f.tableId,
                 time: new Date(f.createdAt).toLocaleString('vi-VN'),
                 status: f.status,
-                cameraReliability: 85, // Mock data
+                cameraReliability: 85,
                 feedback: f.content,
                 notes: f.note || '',
               }))}

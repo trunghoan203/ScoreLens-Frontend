@@ -6,7 +6,6 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // ✅ THÊM MỚI VARIANT "PRIMARY"
         primary: 'bg-lime-500 text-white hover:bg-lime-600',
         default: 'bg-gray-900 text-gray-50 hover:bg-gray-900/90',
         destructive: 'bg-red-500 text-gray-50 hover:bg-red-500/90',
@@ -17,7 +16,6 @@ const buttonVariants = cva(
         lime: 'bg-gradient-to-r from-lime-400 to-lime-500 text-gray-900 font-bold shadow-md hover:from-lime-500 hover:to-lime-400 hover:shadow-lg hover:-translate-y-0.5 focus:ring-lime-400/50 focus:ring-2 px-6 py-3 rounded-xl transition-all duration-200',
       },
       size: {
-        // ✅ THÊM MỚI SIZE "XL" CHO NÚT TO
         xl: 'h-14 px-8 py-4',
         default: 'h-10 px-4 py-2',
         sm: 'h-9 rounded-md px-3',
