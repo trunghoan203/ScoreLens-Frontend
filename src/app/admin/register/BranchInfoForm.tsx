@@ -6,6 +6,7 @@ import Image from 'next/image';
 import toast from 'react-hot-toast';
 import axios from '@/lib/axios';
 import adminService from '@/lib/adminService';
+import { X, Plus, Image as LucideImage } from 'lucide-react';
 
 interface BrandInfo {
   brandId: string;
@@ -193,9 +194,7 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
                       className="p-1.5 rounded-full bg-red-50 hover:bg-red-200 text-red-500 border border-red-200 shadow-sm transition"
                       aria-label="Xóa chi nhánh"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
+                      <X className="w-4 h-4" />
                     </button>
                   )}
                   {idx === branches.length - 1 && (
@@ -205,9 +204,7 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
                       className="p-1.5 rounded-full bg-lime-50 hover:bg-lime-200 text-lime-600 border border-lime-200 shadow-sm transition"
                       aria-label="Thêm chi nhánh"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
+                      <Plus className="w-4 h-4" />
                     </button>
                   )}
                 </div>
@@ -324,7 +321,7 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
                       className="object-cover w-full h-full"
                     />
                   ) : (
-                    <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    <LucideImage className="w-12 h-12 text-gray-400" />
                   )}
                 </div>
                 <div className="w-full space-y-2 text-sm">
