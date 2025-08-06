@@ -14,7 +14,6 @@ import toast from "react-hot-toast";
 import brandService, { Brand } from "@/lib/brandService";
 import adminService from "@/lib/adminService";
 import clubsService, { ClubResponse } from "@/lib/clubsService";
-import { Image as ImageIcon, X, Plus } from "lucide-react";
 
 interface BranchForm {
   name: string;
@@ -34,9 +33,10 @@ export default function ClubInfoPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitLoading, setSubmitLoading] = useState(false);
+  // Dữ liệu gốc từ API
   const [brandInfo, setBrandInfo] = useState<Brand | null>(null);
   const [clubs, setClubs] = useState<ClubResponse[]>([]);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false); // <--- Thêm state này
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -52,13 +52,14 @@ export default function ClubInfoPage() {
           setPhone(brand.phoneNumber || "");
           const clubsData = await clubsService.getClubsByBrandId(brandId);
           setClubs(clubsData);
+          // Map dữ liệu chi nhánh từ API vào form
           if (clubsData.length > 0) {
             setBranches(
               clubsData.map((club) => ({
                 name: club.clubName || "",
                 address: club.address || "",
                 tableCount: club.tableNumber?.toString() || "",
-                cameraCount: "",
+                cameraCount: "", // Không có trường cameraCount trong API, để trống
               }))
             );
           }
@@ -105,7 +106,7 @@ export default function ClubInfoPage() {
   const handleConfirm = () => {
     setShowConfirm(false);
     toast.success("Đã lưu thông tin câu lạc bộ!");
-    setIsEditing(false);
+    setIsEditing(false); // <--- Sau khi lưu xong, quay lại chế độ chỉ xem
   };
 
   const handleCancel = () => {
@@ -129,22 +130,25 @@ export default function ClubInfoPage() {
             onSubmit={handleSubmit}
           >
             <div className="flex flex-col md:flex-row gap-8 items-start w-full">
+              {/* Left: Image upload + requirements */}
               <div className="flex flex-col items-center w-full md:w-1/3">
                 <label className="block text-lg font-semibold mb-2 w-full text-left">Hình ảnh</label>
                 {brandInfo?.logo_url ? (
-                  <div className="w-64 h-64 mb-4 relative rounded-full overflow-hidden border border-gray-200 shadow">
-                    <Image
-                      src={brandInfo.logo_url}
-                      alt="Logo"
-                      fill
-                      className="object-cover rounded-full"
-                    />
-                  </div>
-                ) : (
-                  <div className="w-32 h-32 mb-4 flex items-center justify-center bg-white border rounded-full shadow">
-                    <ImageIcon className="w-10 h-10 text-gray-400" />
-                  </div>
-                )}
+  <div className="w-64 h-64 mb-4 relative rounded-full overflow-hidden border border-gray-200 shadow">
+    <Image
+      src={brandInfo.logo_url}
+      alt="Logo"
+      fill
+      className="object-cover rounded-full"
+    />
+  </div>
+) : (
+  <div className="w-32 h-32 mb-4 flex items-center justify-center bg-white border rounded-full shadow">
+    <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    </svg>
+  </div>
+)}
                 <div className="text-xs text-red-600 mt-2 w-full">
                   <b>*YÊU CẦU:</b>
                   <ul className="list-disc ml-4 mt-1">
@@ -154,7 +158,7 @@ export default function ClubInfoPage() {
                   </ul>
                 </div>
               </div>
-
+              {/* Right: Form fields + Branches Section */}
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Tên Câu Lạc Bộ</label>
@@ -172,7 +176,7 @@ export default function ClubInfoPage() {
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Số Điện Thoại</label>
                   <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Nhập SĐT ..." disabled={!isEditing} />
                 </div>
-
+                {/* Branches Section nằm trong col-span-2, rộng ngang input lớn */}
                 <div className="col-span-2">
                   <div className="w-full mt-8 space-y-4">
                     {branches.map((branch, idx) => (
@@ -180,6 +184,7 @@ export default function ClubInfoPage() {
                         key={idx}
                         className="relative p-6 border rounded-xl bg-white shadow-md mb-6 transition-shadow hover:shadow-lg"
                       >
+                        {/* Nút thao tác */}
                         <div className="absolute top-4 right-4 flex gap-2">
                           {branches.length > 1 && (
                             <button
@@ -189,7 +194,9 @@ export default function ClubInfoPage() {
                               aria-label="Xóa chi nhánh"
                               disabled={!isEditing}
                             >
-                              <X className="w-4 h-4" />
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
                             </button>
                           )}
                           {idx === branches.length - 1 && (
@@ -200,7 +207,9 @@ export default function ClubInfoPage() {
                               aria-label="Thêm chi nhánh"
                               disabled={!isEditing}
                             >
-                              <Plus className="w-4 h-4" />
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                              </svg>
                             </button>
                           )}
                         </div>
@@ -229,24 +238,20 @@ export default function ClubInfoPage() {
                     ))}
                   </div>
                 </div>
-
                 <div className="col-span-2 mt-4">
                   <Button type="submit" variant="lime" fullWidth disabled={submitLoading}>
-                    {submitLoading ? (
-                      <LoadingSpinner size="sm" color="white" text={isEditing ? "Đang lưu..." : ""} />
-                    ) : isEditing ? "Lưu thông tin" : "Sửa thông tin"}
+                    {submitLoading ? <LoadingSpinner size="sm" color="white" text={isEditing ? "Đang lưu..." : ""} /> : (isEditing ? "Lưu thông tin" : "Sửa thông tin")}
                   </Button>
                 </div>
               </div>
             </div>
           </form>
-
+          {/* Empty state demo: nếu không có chi nhánh */}
           {branches.length === 0 && (
             <div className="w-full flex justify-center mt-8">
               <LoadingSkeleton type="card" lines={1} className="w-full max-w-md" />
             </div>
           )}
-
           <ConfirmPopup
             open={showConfirm}
             onConfirm={handleConfirm}
@@ -261,4 +266,4 @@ export default function ClubInfoPage() {
       </div>
     </>
   );
-}
+} 

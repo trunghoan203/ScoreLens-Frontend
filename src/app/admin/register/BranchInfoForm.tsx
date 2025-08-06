@@ -5,7 +5,6 @@ import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import axios from '@/lib/axios';
-import { Plus, Trash2, ImageIcon } from 'lucide-react';
 
 interface BrandInfo {
   brandId: string;
@@ -47,6 +46,7 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
   const [showConfirm, setShowConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Cập nhật branches khi initialBranches thay đổi
   useEffect(() => {
     if (initialBranches && initialBranches.length > 0) {
       setBranches(initialBranches);
@@ -79,10 +79,11 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
   const handleConfirm = async () => {
     setShowConfirm(false);
     setIsLoading(true);
-
+    
     try {
       let brandId = brandInfo?.brandId;
-
+      
+      // Nếu chưa có brandId, tạo brand trước
       if (!brandId) {
         const brandResponse = await axios.post('/admin/brands', {
           brandName: brandInfo?.brandName,
@@ -93,19 +94,34 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
         });
         const brandData = brandResponse.data as { brandId?: string; _id?: string };
         brandId = brandData.brandId || brandData._id || '';
-        if (brandInfo) brandInfo.brandId = brandId;
+        
+        // Cập nhật brandInfo với brandId mới
+        if (brandInfo) {
+          brandInfo.brandId = brandId;
+        }
       }
 
+      // Chuyển đổi branches thành format API clubs
       const clubsData = branches.map(branch => ({
         clubName: branch.name,
         address: branch.address,
         phoneNumber: branch.phone,
         tableNumber: parseInt(branch.deviceCount) || 0,
-        status: 'open'
+        status: 'open' // Mặc định status open
       }));
 
+      // Tạo clubs mới
       await axios.post('/admin/clubs', clubsData);
       toast.success('Tạo thương hiệu và câu lạc bộ thành công!');
+      
+      // Truyền brandId mới về nếu đã tạo brand
+      if (brandId && brandId !== brandInfo?.brandId) {
+        // Cập nhật brandInfo với brandId mới trong state
+        if (brandInfo) {
+          brandInfo.brandId = brandId;
+        }
+      }
+      
       onSuccess(branches);
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
@@ -120,57 +136,140 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
     setShowConfirm(false);
   };
 
-  const isFormValid = branches.every(branch => branch.name && branch.address && branch.deviceCount && branch.phone);
+  const isFormValid = branches.every(branch => 
+    branch.name && branch.address && branch.deviceCount && branch.phone
+  );
 
   return (
     <>
       <form className="w-full max-w-4xl mx-auto flex flex-col gap-8 items-start px-0 pb-8" onSubmit={handleSubmit}>
         <div className="w-full">
+          {/* Nút quay lại bước trước */}
           <div className="mb-4">
-            <Button type="button" onClick={onBack}>← Quay lại bước trước</Button>
+            <Button
+              type="button"
+              style={{
+                background: '#ECFCCB',
+                border: '1.5px solid #A3E635',
+                color: '#365314',
+                fontWeight: 700,
+                transition: 'all 0.2s cubic-bezier(0.4,0,0.2,1)',
+                boxShadow: '0 1px 4px 0 rgba(163,230,53,0.10)'
+              }}
+              onMouseOver={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = '#D9F99D';
+                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.04)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 16px 0 rgba(163,230,53,0.18)';
+              }}
+              onMouseOut={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = '#ECFCCB';
+                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 1px 4px 0 rgba(163,230,53,0.10)';
+              }}
+              onClick={onBack}
+            >
+              ← Quay lại bước trước
+            </Button>
           </div>
           <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">Thông tin chi nhánh</h2>
           <div className="space-y-6">
             {branches.map((branch, idx) => (
-              <div key={idx} className="relative p-6 border rounded-xl bg-white shadow-md">
+              <div
+                key={idx}
+                className="relative p-6 border rounded-xl bg-white shadow-md transition-shadow hover:shadow-lg"
+              >
+                {/* Action buttons */}
                 <div className="absolute top-4 right-4 flex gap-2">
                   {branches.length > 1 && (
-                    <button type="button" onClick={() => handleRemoveBranch(idx)} className="p-1.5 rounded-full bg-red-50">
-                      <Trash2 className="w-4 h-4 text-red-500" />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveBranch(idx)}
+                      className="p-1.5 rounded-full bg-red-50 hover:bg-red-200 text-red-500 border border-red-200 shadow-sm transition"
+                      aria-label="Xóa chi nhánh"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
                     </button>
                   )}
                   {idx === branches.length - 1 && (
-                    <button type="button" onClick={handleAddBranch} className="p-1.5 rounded-full bg-lime-50">
-                      <Plus className="w-4 h-4 text-lime-600" />
+                    <button
+                      type="button"
+                      onClick={handleAddBranch}
+                      className="p-1.5 rounded-full bg-lime-50 hover:bg-lime-200 text-lime-600 border border-lime-200 shadow-sm transition"
+                      aria-label="Thêm chi nhánh"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
                     </button>
                   )}
                 </div>
-                <span className="text-base font-semibold text-lime-600 mb-4 block">Chi nhánh {idx + 1}</span>
+                <div className="mb-4">
+                  <span className="text-base font-semibold text-lime-600">Chi nhánh {idx + 1}</span>
+                </div>
+                {/* Layout input 2 dòng 3 cột */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="col-span-3">
-                    <label className="block text-xs font-medium text-gray-500 mb-1">Tên Câu Lạc Bộ</label>
-                    <Input value={branch.name} onChange={e => handleBranchChange(idx, 'name', e.target.value)} required />
+                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                      Tên Câu Lạc Bộ <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={branch.name}
+                      onChange={e => handleBranchChange(idx, 'name', e.target.value)}
+                      placeholder="Nhập Tên Chi Nhánh..."
+                      required
+                    />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">Số Bàn</label>
-                    <Input value={branch.deviceCount} onChange={e => handleBranchChange(idx, 'deviceCount', e.target.value)} required />
+                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                      Số Bàn <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={branch.deviceCount}
+                      onChange={e => handleBranchChange(idx, 'deviceCount', e.target.value)}
+                      placeholder="Nhập Số Bàn..."
+                      required
+                    />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">Địa Chỉ</label>
-                    <Input value={branch.address} onChange={e => handleBranchChange(idx, 'address', e.target.value)} required />
+                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                      Địa Chỉ <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={branch.address}
+                      onChange={e => handleBranchChange(idx, 'address', e.target.value)}
+                      placeholder="Nhập Địa Chỉ"
+                      required
+                    />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">Số Điện Thoại</label>
-                    <Input value={branch.phone} onChange={e => handleBranchChange(idx, 'phone', e.target.value)} required />
+                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                      Số Điện Thoại <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={branch.phone}
+                      onChange={e => handleBranchChange(idx, 'phone', e.target.value)}
+                      placeholder="Nhập Số Điện Thoại..."
+                      required
+                    />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">Số Camera</label>
-                    <Input value={branch.deviceCount} onChange={e => handleBranchChange(idx, 'deviceCount', e.target.value)} required />
+                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                      Số Camera <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={branch.deviceCount}
+                      onChange={e => handleBranchChange(idx, 'deviceCount', e.target.value)}
+                      placeholder="Nhập Số Camera..."
+                      required
+                    />
                   </div>
                 </div>
               </div>
             ))}
           </div>
+          {/* Yêu cầu camera */}
           <div className="text-xs text-red-600 mt-2 w-full">
             <b>*YÊU CẦU:</b>
             <ul className="list-disc ml-4 mt-1">
@@ -180,30 +279,46 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
             </ul>
           </div>
           <div className="mt-8">
-            <Button type="submit" disabled={!isFormValid || isLoading} variant="lime" fullWidth>
-              {isLoading ? 'Đang xử lý...' : 'Xác nhận thông tin'}
-            </Button>
+                         <Button 
+               type="submit" 
+               variant="lime" 
+               fullWidth
+               disabled={!isFormValid || isLoading}
+             >
+               {isLoading 
+                 ? (initialBranches && initialBranches.length > 0 ? 'Đang cập nhật...' : 'Đang chuẩn bị...') 
+                 : (initialBranches && initialBranches.length > 0 ? 'Cập nhật và tiếp tục' : 'Xác nhận thông tin')
+               }
+             </Button>
           </div>
         </div>
       </form>
-      <ConfirmPopup
-        open={showConfirm}
-        onConfirm={handleConfirm}
-        onCancel={handleCancel}
-        title="Xác nhận thông tin đăng ký"
-        confirmText={isLoading ? 'Đang tạo...' : 'Tạo thương hiệu và chi nhánh'}
-        cancelText="Hủy"
-      >
+      {/* Popup xác nhận cả brandInfo và branchInfo */}
+             <ConfirmPopup
+         open={showConfirm}
+         onConfirm={handleConfirm}
+         onCancel={handleCancel}
+         title="Xác nhận thông tin đăng ký"
+         confirmText={isLoading ? 'Đang tạo...' : 'Tạo thương hiệu và chi nhánh'}
+         cancelText="Hủy"
+       >
         <div className="space-y-6 w-full">
+          {/* Thông tin thương hiệu */}
           {brandInfo && (
             <div className="p-4 border rounded-lg bg-gray-50">
               <h3 className="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Thông tin thương hiệu</h3>
               <div className="flex flex-col md:flex-row items-center gap-6">
-                <div className="w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden border">
+                <div className="w-32 h-32 bg-gray-200 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden border">
                   {brandInfo.logo_url ? (
-                    <Image src={brandInfo.logo_url} alt="Logo" width={128} height={128} className="object-cover w-full h-full" />
+                    <Image
+                      src={brandInfo.logo_url}
+                      alt="Logo"
+                      width={128}
+                      height={128}
+                      className="object-cover w-full h-full"
+                    />
                   ) : (
-                    <ImageIcon className="w-12 h-12 text-gray-400" />
+                    <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                   )}
                 </div>
                 <div className="w-full space-y-2 text-sm">
@@ -215,9 +330,10 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
               </div>
             </div>
           )}
+          {/* Thông tin chi nhánh */}
           <div className="space-y-4">
             <h3 className="text-lg font-bold text-gray-800 border-b pb-2">Thông tin chi nhánh</h3>
-            {branches.map((branch, idx) => (
+            {branches.map((branch: Branch, idx: number) => (
               <div key={idx} className="relative p-4 border rounded-lg bg-gray-50 text-sm mt-4">
                 <p className="font-bold text-base text-gray-900 mb-3">
                   <span className="text-lime-600">●</span> Chi Nhánh {idx + 1}: {branch.name}
@@ -235,4 +351,4 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
       </ConfirmPopup>
     </>
   );
-}
+} 
