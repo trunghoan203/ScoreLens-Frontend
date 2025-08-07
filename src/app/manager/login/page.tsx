@@ -12,7 +12,7 @@ export default function ManagerLoginPage() {
   const [email, setemail] = useState('');
   const [errors, setErrors] = useState<{ email?: string; general?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
-
+ 
   const validateForm = () => {
     const newErrors: typeof errors = {};
     if (!email) {
