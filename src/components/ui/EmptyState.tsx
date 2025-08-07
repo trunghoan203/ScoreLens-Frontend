@@ -31,7 +31,7 @@ export default function EmptyState({
   return (
     <div className="relative overflow-hidden">
       <div className="relative py-20 px-8 flex flex-col items-center justify-center">
-        <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-12 max-w-2xl w-full">
+        <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl p-12 max-w-2xl w-full">
           {/* Icon Section */}
           <div className="relative mb-10 flex justify-center">
             <div className="relative">
@@ -41,14 +41,14 @@ export default function EmptyState({
                   {icon}
                 </div>
               </div>
-              
+
               {/* Decorative Rings */}
               <div className="absolute inset-0 w-28 h-28 border-4 border-lime-200 rounded-full animate-ping opacity-20"></div>
               <div className="absolute inset-0 w-28 h-28 border-2 border-lime-300 rounded-full animate-pulse"></div>
-              
+
               {/* Floating Dots */}
               <div className="absolute -top-2 -right-2 w-6 h-6 bg-lime-400 rounded-full shadow-lg animate-bounce"></div>
-              <div className="absolute -bottom-1 -left-1 w-4 h-4 bg-lime-300 rounded-full shadow-md animate-bounce" style={{animationDelay: '0.5s'}}></div>
+              <div className="absolute -bottom-1 -left-1 w-4 h-4 bg-lime-300 rounded-full shadow-md animate-bounce" style={{ animationDelay: '0.5s' }}></div>
             </div>
           </div>
 
@@ -75,7 +75,7 @@ export default function EmptyState({
                   >
                     {/* Button Shine Effect */}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                    
+
                     {primaryAction.loading ? (
                       <>
                         <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white relative z-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
