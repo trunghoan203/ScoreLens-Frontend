@@ -12,7 +12,7 @@ function StartSessionContent() {
   const [tableNumber, setTableNumber] = useState('');
   const router = useRouter();
   const searchParams = useSearchParams();
-
+ 
   useEffect(() => {
     const table = searchParams.get('table');
     if (table) setTableNumber(table);
