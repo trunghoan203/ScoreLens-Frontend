@@ -16,7 +16,7 @@ export default function AdminLoginPage() {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
-  });
+  }); 
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<{
     email?: string;
