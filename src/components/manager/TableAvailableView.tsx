@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import TableStatusBadge from './TableStatusBadge';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface TableAvailableViewProps {
   table: { id: string; name: string };
@@ -82,11 +83,11 @@ export default function TableAvailableView({ table, onReady, loading = false }: 
               />
               {idx === 0 ? (
                 <Button size="icon" variant="ghost" onClick={() => handleAddPlayer('A')} disabled={loading} className="hover:bg-transparent">
-                  <img src="/icon/plus-circle.svg" width={25} height={25} alt="Thêm người chơi" />
+                  <Image src="/icon/plus-circle.svg" width={25} height={25} alt="Thêm người chơi" />
                 </Button>
               ) : (
                 <Button size="icon" variant="ghost" onClick={() => handleRemovePlayer('A', idx)} disabled={loading} className="hover:bg-transparent">
-                  <img src="/icon/trash-2.svg" width={25} height={25} alt="Xóa người chơi" />
+                  <Image src="/icon/trash-2.svg" width={25} height={25} alt="Xóa người chơi" />
                 </Button>
               )}
             </div>
@@ -105,11 +106,11 @@ export default function TableAvailableView({ table, onReady, loading = false }: 
               />
               {idx === 0 ? (
                 <Button size="icon" variant="ghost" onClick={() => handleAddPlayer('B')} disabled={loading} className="hover:bg-transparent">
-                  <img src="/icon/plus-circle.svg" width={25} height={25} alt="Thêm người chơi" />
+                  <Image src="/icon/plus-circle.svg" width={25} height={25} alt="Thêm người chơi" />
                 </Button>
               ) : (
                 <Button size="icon" variant="ghost" onClick={() => handleRemovePlayer('B', idx)} disabled={loading} className="hover:bg-transparent">
-                  <img src="/icon/trash-2.svg" width={25} height={25} alt="Xóa người chơi" />
+                  <Image src="/icon/trash-2.svg" width={25} height={25} alt="Xóa người chơi" />
                 </Button>
               )}
             </div>

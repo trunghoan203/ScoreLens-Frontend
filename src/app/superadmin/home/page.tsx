@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
@@ -27,7 +27,7 @@ export interface TableAdmin {
   status: 'Đã duyệt' | 'Chưa duyệt' | 'Bị từ chối';
 }
 
-export default function SuperAdminHomePage() {
+function SuperAdminHomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') === 'feedback' ? 'feedback' : 'approval';
@@ -155,5 +155,13 @@ export default function SuperAdminHomePage() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function SuperAdminHomePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SuperAdminHomeContent />
+    </Suspense>
   );
 }

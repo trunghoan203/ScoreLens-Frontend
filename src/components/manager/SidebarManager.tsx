@@ -6,7 +6,6 @@ import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
 import { Button } from '@/components/ui/button';
 import toast from 'react-hot-toast';
 import axios from '@/lib/axios';
-import Image from 'next/image';
 
 export default function SidebarManager() {
   const pathname = usePathname();
@@ -85,7 +84,9 @@ export default function SidebarManager() {
         cancelText="Hủy"
       >
         <div className="flex flex-col items-center justify-center">
-          <Image src="/icon/window.svg" alt="Logout" width={64} height={64} className="text-black my-4" />
+        <svg className="w-16 h-16 text-black my-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
+          </svg>
         </div>
       </ConfirmPopup>
     </aside>

@@ -43,6 +43,18 @@ interface Feedback {
   updatedAt: Date;
 }
 
+interface TableData {
+  tableId?: string;
+  id?: string;
+  _id?: string;
+  name?: string;
+  tableNumber?: string;
+}
+
+interface TablesResponse {
+  tables?: TableData[];
+}
+
 export default function FeedbackDetailPage() {
   const router = useRouter();
   const params = useParams();
@@ -60,7 +72,7 @@ export default function FeedbackDetailPage() {
     const fetchData = async () => {
       try {
         const tablesData = await managerTableService.getAllTables();
-        const tablesArray = Array.isArray(tablesData) ? tablesData : (tablesData as any)?.tables || [];
+        const tablesArray = Array.isArray(tablesData) ? tablesData : (tablesData as TablesResponse)?.tables || [];
         setTables(tablesArray);
 
         const feedbacksData = await managerFeedbackService.getAllFeedbacks();
@@ -78,15 +90,15 @@ export default function FeedbackDetailPage() {
           const feedbackData = found as Partial<Feedback>;
           const tableId = feedbackData.tableId || '';
 
-          let table = tablesArray.find((t: any) => {
+          let table = tablesArray.find((t: TableData) => {
             const tId = t.tableId || t.id || t._id;
             return tId === tableId;
           });
 
           if (!table && tableId) {
-            table = tablesArray.find((t: any) => {
+            table = tablesArray.find((t: TableData) => {
               const tId = t.tableId || t.id || t._id;
-              return tId && tId.includes(tableId) || tableId.includes(tId);
+              return tId && (tId.includes(tableId) || tableId.includes(tId));
             });
           }
 
