@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { AuthLayout } from '@/components/shared/AuthLayout';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
+import { verifySuperAdminLogin } from '@/lib/saService';
 
 export default function SuperAdminVerificationPage() {
   return (
@@ -75,15 +76,30 @@ function SuperAdminVerificationPageInner() {
 
     setIsLoading(true);
     try {
-      await new Promise(res => setTimeout(res, 1000));
+      const res = await verifySuperAdminLogin(email, otpString);
+      // Lưu access_token vào localStorage
+      const data = res.data as { accessToken?: string };
+      if (data.accessToken) {
+        localStorage.setItem('adminAccessToken', data.accessToken);
+      }
       toast.success('Xác thực thành công!');
-      router.push(`/superadmin/home?email=${encodeURIComponent(email)}&otp=${otpString}`);
+      router.push(`/superadmin/home`);
     } catch {
       toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Gửi lại mã
+  // const handleResend = async () => {
+  //   try {
+  //     await resendLoginCode(email);
+  //     toast.success('Đã gửi lại mã xác thực!');
+  //   } catch {
+  //     toast.error('Không gửi lại được mã xác thực');
+  //   }
+  // };
 
   return (
     <AuthLayout
@@ -102,8 +118,8 @@ function SuperAdminVerificationPageInner() {
                 ${inputRefs.current[index] && document.activeElement === inputRefs.current[index]
                   ? 'border-lime-500 shadow-lg'
                   : digit
-                  ? 'border-lime-400'
-                  : 'border-gray-300'}
+                    ? 'border-lime-400'
+                    : 'border-gray-300'}
               `}
               onClick={() => inputRefs.current[index]?.focus()}
             >
@@ -150,14 +166,14 @@ function SuperAdminVerificationPageInner() {
 
         {/* Nút quay lại trang chủ */}
         <div className="flex justify-center">
-  <div
-    onClick={() => router.push('/superadmin/login')}
-    className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-gray-700 hover:text-lime-600 cursor-pointer transition-colors"
-  >
-    <span className="text-base">←</span>
-    <span>Quay lại trang chủ</span>
-  </div>
-</div>
+          <div
+            onClick={() => router.push('/superadmin/login')}
+            className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-gray-700 hover:text-lime-600 cursor-pointer transition-colors"
+          >
+            <span className="text-base">←</span>
+            <span>Quay lại trang chủ</span>
+          </div>
+        </div>
       </form>
     </AuthLayout>
   );

@@ -37,6 +37,82 @@ class ManagerService {
     }
   }
 
+  /**
+   * Lấy danh sách manager theo brandId (hoặc tất cả nếu không có brandId)
+   */
+  async getManagers(brandId?: string | null) {
+    try {
+      const params = brandId ? { brandId } : {};
+      const res = await axios.get('/admin/managers', { params });
+      return res.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Tạo mới manager
+   */
+  async createManager(manager: {
+    fullName: string;
+    email: string;
+    phoneNumber: string;
+    dateOfBirth: string;
+    citizenCode: string;
+    address: string;
+    clubId: string;
+  }) {
+    try {
+      const res = await axios.post('/admin/managers', manager);
+      return res.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Lấy chi tiết manager theo managerId
+   */
+  async getManagerDetail(managerId: string) {
+    try {
+      const res = await axios.get(`/admin/managers/${managerId}`);
+      return res.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Cập nhật thông tin manager
+   */
+  async updateManager(managerId: string, data: {
+    fullName: string;
+    email: string;
+    phoneNumber: string;
+    dateOfBirth: string;
+    citizenCode: string;
+    address: string;
+    clubId: string;
+  }) {
+    try {
+      const res = await axios.put(`/admin/managers/${managerId}`, data);
+      return res.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Xóa manager
+   */
+  async deleteManager(managerId: string) {
+    try {
+      const res = await axios.delete(`/admin/managers/${managerId}`);
+      return res.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
   private handleError(error: unknown): Error {
     if (typeof error === 'object' && error !== null && 'response' in error) {
       const axiosError = error as { response?: { data?: { message?: string } } };

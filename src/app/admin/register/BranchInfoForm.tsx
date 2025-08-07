@@ -1,16 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
+import axios from '@/lib/axios';
+import adminService from '@/lib/adminService';
+import { X, Plus, Image as LucideImage } from 'lucide-react';
 
 interface BrandInfo {
-  image: File | null;
-  shopName: string;
-  fullName: string;
-  cccd: string;
-  phone: string;
+  brandId: string;
+  brandName: string;
+  phoneNumber: string;
+  website?: string;
+  logo_url?: string;
+  citizenCode: string;
 }
 
 interface Branch {
@@ -22,8 +26,10 @@ interface Branch {
 
 interface BranchInfoFormProps {
   onSuccess: (data: Branch[]) => void;
+  onChange?: (data: Branch[]) => void;
   brandInfo: BrandInfo | null;
   onBack: () => void;
+  initialBranches?: Branch[];
 }
 
 const InfoRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
@@ -33,22 +39,38 @@ const InfoRow = ({ label, value }: { label: string; value: React.ReactNode }) =>
   </div>
 );
 
-export function BranchInfoForm({ onSuccess, brandInfo, onBack }: BranchInfoFormProps) {
-  const [branches, setBranches] = useState<Branch[]>([
-    { name: '', address: '', deviceCount: '', phone: '' },
-  ]);
+export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initialBranches }: BranchInfoFormProps) {
+  const [branches, setBranches] = useState<Branch[]>(
+    initialBranches && initialBranches.length > 0 
+      ? initialBranches 
+      : [{ name: '', address: '', deviceCount: '', phone: '' }]
+  );
   const [showConfirm, setShowConfirm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Cập nhật branches khi initialBranches thay đổi
+  useEffect(() => {
+    if (initialBranches && initialBranches.length > 0) {
+      setBranches(initialBranches);
+    }
+  }, [initialBranches]);
 
   const handleBranchChange = (idx: number, field: keyof Branch, value: string) => {
-    setBranches(prev => prev.map((b, i) => i === idx ? { ...b, [field]: value } : b));
+    const updatedBranches = branches.map((b, i) => i === idx ? { ...b, [field]: value } : b);
+    setBranches(updatedBranches);
+    onChange?.(updatedBranches);
   };
 
   const handleAddBranch = () => {
-    setBranches(prev => [...prev, { name: '', address: '', deviceCount: '', phone: '' }]);
+    const updatedBranches = [...branches, { name: '', address: '', deviceCount: '', phone: '' }];
+    setBranches(updatedBranches);
+    onChange?.(updatedBranches);
   };
 
   const handleRemoveBranch = (idx: number) => {
-    setBranches(prev => prev.filter((_, i) => i !== idx));
+    const updatedBranches = branches.filter((_, i) => i !== idx);
+    setBranches(updatedBranches);
+    onChange?.(updatedBranches);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -56,10 +78,65 @@ export function BranchInfoForm({ onSuccess, brandInfo, onBack }: BranchInfoFormP
     setShowConfirm(true);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     setShowConfirm(false);
-    toast.success('Đã lưu thông tin chi nhánh thành công!');
-    onSuccess(branches);
+    setIsLoading(true);
+    
+    try {
+      let brandId = brandInfo?.brandId;
+      
+      // Nếu chưa có brandId, tạo brand trước
+      if (!brandId) {
+        const brandResponse = await axios.post('/admin/brands', {
+          brandName: brandInfo?.brandName,
+          phoneNumber: brandInfo?.phoneNumber,
+          website: brandInfo?.website || undefined,
+          logo_url: brandInfo?.logo_url,
+          citizenCode: brandInfo?.citizenCode,
+        });
+        const brandData = brandResponse.data as { brandId?: string; _id?: string };
+        brandId = brandData.brandId || brandData._id || '';
+        
+        // Cập nhật brandInfo với brandId mới
+        if (brandInfo) {
+          brandInfo.brandId = brandId;
+        }
+      }
+
+      // Chuyển đổi branches thành format API clubs
+      const clubsData = branches.map(branch => ({
+        clubName: branch.name,
+        address: branch.address,
+        phoneNumber: branch.phone,
+        tableNumber: parseInt(branch.deviceCount) || 0,
+        status: 'open' // Mặc định status open
+      }));
+
+      // Tạo clubs mới
+      await axios.post('/admin/clubs', clubsData);
+      toast.success('Tạo thương hiệu và câu lạc bộ thành công!');
+      try {
+        await adminService.updateStatus();
+      } catch {
+        toast.error('Không thể cập nhật trạng thái admin về pending.');
+      }
+      
+      // Truyền brandId mới về nếu đã tạo brand
+      if (brandId && brandId !== brandInfo?.brandId) {
+        // Cập nhật brandInfo với brandId mới trong state
+        if (brandInfo) {
+          brandInfo.brandId = brandId;
+        }
+      }
+      
+      onSuccess(branches);
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      const message = err.response?.data?.message || 'Thao tác thất bại. Vui lòng thử lại.';
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -117,9 +194,7 @@ export function BranchInfoForm({ onSuccess, brandInfo, onBack }: BranchInfoFormP
                       className="p-1.5 rounded-full bg-red-50 hover:bg-red-200 text-red-500 border border-red-200 shadow-sm transition"
                       aria-label="Xóa chi nhánh"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
+                      <X className="w-4 h-4" />
                     </button>
                   )}
                   {idx === branches.length - 1 && (
@@ -129,9 +204,7 @@ export function BranchInfoForm({ onSuccess, brandInfo, onBack }: BranchInfoFormP
                       className="p-1.5 rounded-full bg-lime-50 hover:bg-lime-200 text-lime-600 border border-lime-200 shadow-sm transition"
                       aria-label="Thêm chi nhánh"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
+                      <Plus className="w-4 h-4" />
                     </button>
                   )}
                 </div>
@@ -209,24 +282,29 @@ export function BranchInfoForm({ onSuccess, brandInfo, onBack }: BranchInfoFormP
             </ul>
           </div>
           <div className="mt-8">
-            <Button 
-              type="submit" 
-              variant="lime" 
-              fullWidth
-              disabled={!isFormValid}
-            >
-              Tiếp tục
-            </Button>
+                         <Button 
+               type="submit" 
+               variant="lime" 
+               fullWidth
+               disabled={!isFormValid || isLoading}
+             >
+               {isLoading 
+                 ? (initialBranches && initialBranches.length > 0 ? 'Đang cập nhật...' : 'Đang chuẩn bị...') 
+                 : (initialBranches && initialBranches.length > 0 ? 'Cập nhật và tiếp tục' : 'Xác nhận thông tin')
+               }
+             </Button>
           </div>
         </div>
       </form>
       {/* Popup xác nhận cả brandInfo và branchInfo */}
-      <ConfirmPopup
-        open={showConfirm}
-        onConfirm={handleConfirm}
-        onCancel={handleCancel}
-        title="Xác nhận thông tin đăng ký"
-      >
+             <ConfirmPopup
+         open={showConfirm}
+         onConfirm={handleConfirm}
+         onCancel={handleCancel}
+         title="Xác nhận thông tin đăng ký"
+         confirmText={isLoading ? 'Đang tạo...' : 'Tạo thương hiệu và chi nhánh'}
+         cancelText="Hủy"
+       >
         <div className="space-y-6 w-full">
           {/* Thông tin thương hiệu */}
           {brandInfo && (
@@ -234,23 +312,23 @@ export function BranchInfoForm({ onSuccess, brandInfo, onBack }: BranchInfoFormP
               <h3 className="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Thông tin thương hiệu</h3>
               <div className="flex flex-col md:flex-row items-center gap-6">
                 <div className="w-32 h-32 bg-gray-200 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden border">
-                  {brandInfo.image ? (
+                  {brandInfo.logo_url ? (
                     <Image
-                      src={URL.createObjectURL(brandInfo.image)}
-                      alt="Preview"
+                      src={brandInfo.logo_url}
+                      alt="Logo"
                       width={128}
                       height={128}
                       className="object-cover w-full h-full"
                     />
                   ) : (
-                    <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    <LucideImage className="w-12 h-12 text-gray-400" />
                   )}
                 </div>
                 <div className="w-full space-y-2 text-sm">
-                  <InfoRow label="Tên Quán" value={brandInfo.shopName} />
-                  <InfoRow label="Họ và Tên" value={brandInfo.fullName} />
-                  <InfoRow label="CCCD" value={brandInfo.cccd} />
-                  <InfoRow label="Số Điện Thoại" value={brandInfo.phone || 'N/A'} />
+                  <InfoRow label="Tên thương hiệu" value={brandInfo.brandName} />
+                  <InfoRow label="Số điện thoại" value={brandInfo.phoneNumber} />
+                  <InfoRow label="Website" value={brandInfo.website || 'N/A'} />
+                  <InfoRow label="CCCD" value={brandInfo.citizenCode} />
                 </div>
               </div>
             </div>

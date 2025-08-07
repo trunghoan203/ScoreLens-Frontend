@@ -10,6 +10,7 @@ import axios from "@/lib/axios";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import toast from 'react-hot-toast';
+import { ArrowLeft } from 'lucide-react';
 
 export default function AdminRegisterPage() {
   const [step, setStep] = useState(1);
@@ -159,6 +160,7 @@ export default function AdminRegisterPage() {
         email: formData.email,
         activationCode: otpString,
       });
+      toast.success("Xác minh thành công! Vui lòng đăng nhập để tiếp tục.");
       router.push("/admin/login");
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
@@ -243,9 +245,7 @@ export default function AdminRegisterPage() {
             href="/"
             className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
+            <ArrowLeft className="w-4 h-4" />
             Quay lại trang chủ
           </Link>
         </div>
@@ -313,9 +313,7 @@ export default function AdminRegisterPage() {
               onClick={e => { e.preventDefault(); setStep(1); }}
               className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1 cursor-pointer"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
+              <ArrowLeft className="w-4 h-4" />
               Quay lại
             </Link>
           </div> 
@@ -401,9 +399,7 @@ export default function AdminRegisterPage() {
                 onClick={e => { e.preventDefault(); setStep(1); }}
                 className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1 cursor-pointer"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
+                <ArrowLeft className="w-4 h-4" />
                 Quay lại
               </Link>
             </div>

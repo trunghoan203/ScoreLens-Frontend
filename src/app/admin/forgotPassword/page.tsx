@@ -8,6 +8,7 @@ import Link from 'next/link';
 import VerifyCodeForm from '@/components/auth/VerifyCodeForm';
 import axios from '@/lib/axios';
 import toast from 'react-hot-toast';
+import { Loader2, Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 
 export default function AdminForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -102,33 +103,12 @@ export default function AdminForgotPasswordPage() {
           >
             {isLoading ? (
               <div className="flex items-center justify-center">
-                <svg
-                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-900"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
+                <Loader2 className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-900" />
                 Đang gửi...
               </div>
             ) : (
               <div className="flex items-center justify-center">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
+                <Mail className="w-5 h-5 mr-2" />
                 Gửi
               </div>
             )}
@@ -147,9 +127,7 @@ export default function AdminForgotPasswordPage() {
               href="/"
               className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
+              <ArrowLeft className="w-4 h-4" />
               Quay lại trang chủ
             </Link>
           </div>
@@ -216,10 +194,7 @@ export default function AdminForgotPasswordPage() {
           <p className="text-lg text-center text-gray-700 mb-2">Bạn có thể đăng nhập với mật khẩu mới.</p>
           <div className="flex justify-center my-6">
             <div className="animate-success-bounce">
-              <svg width="110" height="110" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="55" cy="55" r="55" fill="#A3E635"/>
-                <path d="M35 58L50 73L75 48" stroke="white" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              <CheckCircle size={110} strokeWidth={2} fill="#A3E635" className="text-lime-400 bg-transparent rounded-full" />
             </div>
           </div>
           <div className="text-2xl font-bold text-black text-center mb-2 animate-success-pop">Bạn đã có thể đăng nhập!</div>

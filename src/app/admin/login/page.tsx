@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/PasswordInput';
@@ -8,13 +8,16 @@ import { AuthLayout } from '@/components/shared/AuthLayout';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import axios from '@/lib/axios';
+import { adminService } from '@/lib/adminService';
 import toast from 'react-hot-toast';
+import { Loader2, LogIn, ArrowLeft } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+  const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<{
     email?: string;
     password?: string;
@@ -22,6 +25,18 @@ export default function AdminLoginPage() {
   }>({});
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  // Load saved credentials on component mount
+  useEffect(() => {
+    const savedData = adminService.getRememberMeData();
+    if (savedData) {
+      setFormData({
+        email: savedData.email,
+        password: savedData.password
+      });
+      setRememberMe(true);
+    }
+  }, []);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -49,37 +64,74 @@ export default function AdminLoginPage() {
     setErrors({});
 
     try {
+      // Gửi request login với rememberMe bằng axios
       const response = await axios.post('/admin/login', {
         email: formData.email,
         password: formData.password,
+        rememberMe: rememberMe
       });
-      // Giả sử API trả về status 200 là thành công
+
       if (response.status === 200) {
-        const data = response.data as { accessToken?: string };
-        const accessToken = data.accessToken;
+        const data = response.data as { data?: { accessToken?: string; refreshToken?: string; [key: string]: unknown } };
+        const accessToken = data.data?.accessToken;
+        const refreshToken = data.data?.refreshToken;
         if (accessToken) {
           localStorage.setItem('adminAccessToken', accessToken);
         }
+        if (refreshToken) {
+          localStorage.setItem('refreshToken', refreshToken);
+        }
+
+        // Lưu thông tin đăng nhập nếu user chọn nhớ mật khẩu
+        adminService.saveRememberMeData({
+          email: formData.email,
+          password: formData.password,
+          rememberMe: rememberMe
+        });
+
         toast.success('Đăng nhập thành công!');
-        router.push('/admin/branches');
+        
+        // Gọi API lấy profile với accessToken vừa nhận
+        try {
+          const profileResponse = await axios.get('/admin/profile', {
+            headers: {
+              Authorization: `Bearer ${accessToken}`
+            }
+          });
+          const profileData = profileResponse.data as { admin?: { brandId?: string | null, status?: string, rejectedReason?: string } };
+          const admin = profileData.admin;
+          if (!admin) {
+            router.push('/admin/confirm');
+            return;
+          }
+          if (admin.status === 'pending') {
+            localStorage.setItem('rejectedAdminInfo', JSON.stringify(admin));
+            router.push('/admin/pending');
+            return;
+          }
+          if (admin.status === 'rejected') {
+            localStorage.setItem('rejectedAdminInfo', JSON.stringify(admin));
+            router.push('/admin/rejected');
+            return;
+          }
+          // approved
+          if (admin.brandId) {
+            router.push('/admin/branches');
+          } else {
+            router.push('/admin/confirm');
+          }
+        } catch (profileError) {
+          console.log('Không thể lấy thông tin profile:', profileError);
+          router.push('/admin/confirm');
+        }
       } else {
-        const errorMessage = 'Đăng nhập thất bại. Vui lòng thử lại.';
+        const errorMessage = (response.data as { message?: string })?.message || 'Đăng nhập thất bại. Vui lòng thử lại.';
         toast.error(errorMessage);
       }
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      const message = err.response?.data?.message;
-      if (message) {
-        // Xử lý trường hợp tài khoản chưa xác minh
-        if (message.includes('not verified') || message.includes('verification')) {
-          toast.error('Tài khoản chưa được xác minh. Vui lòng kiểm tra email để lấy mã xác thực.');
-        } else {
-          toast.error(message);
-        }
-      } else {
-        const errorMessage = 'Đăng nhập thất bại. Vui lòng thử lại.';
-        toast.error(errorMessage);
-      }
+      const errorMessage = err?.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.';
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -89,10 +141,13 @@ export default function AdminLoginPage() {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Clear error when user starts typing
     if (errors[name as keyof typeof errors]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
     }
+  };
+
+  const handleRememberMeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRememberMe(e.target.checked);
   };
 
   return (
@@ -100,8 +155,6 @@ export default function AdminLoginPage() {
       title="Đăng nhập Admin"
       description="Vui lòng đăng nhập để tiếp tục"
     >
-
-
       <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]">
         <div>
           <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -147,14 +200,18 @@ export default function AdminLoginPage() {
         </div>
 
         <div className="flex items-center justify-between text-sm">
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              className="h-4 w-4 text-lime-500 focus:ring-lime-400 border-gray-300 rounded"
-              disabled={isLoading}
-            />
-            <span className="text-gray-700">Nhớ mật khẩu</span>
-          </label>
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={handleRememberMeChange}
+                className="h-4 w-4 text-lime-500 focus:ring-lime-400 border-gray-300 rounded"
+                disabled={isLoading}
+              />
+              <span className="text-gray-700">Nhớ mật khẩu</span>
+            </label> 
+          </div>
           <Link 
             href="/admin/forgotPassword" 
             className="font-medium text-gray-800 hover:text-lime-500 transition-colors"
@@ -171,17 +228,12 @@ export default function AdminLoginPage() {
         >
           {isLoading ? (
             <div className="flex items-center justify-center">
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
+              <Loader2 className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-900" />
               Đang đăng nhập...
             </div>
           ) : (
             <div className="flex items-center justify-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-              </svg>
+              <LogIn className="w-5 h-5 mr-2" />
               Đăng nhập
             </div>
           )}
@@ -202,9 +254,7 @@ export default function AdminLoginPage() {
             href="/"
             className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
+            <ArrowLeft className="w-4 h-4" />
             Quay lại trang chủ
           </Link>
         </div>

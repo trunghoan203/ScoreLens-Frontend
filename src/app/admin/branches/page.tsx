@@ -4,101 +4,151 @@ import Sidebar from '@/components/admin/Sidebar';
 import HeaderAdminPage from '@/components/admin/HeaderAdminPage';
 import BranchSearchBar from '@/components/admin/BranchSearchBar';
 import BranchTable from '@/components/admin/BranchTable';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { LoadingSkeleton, TableSkeleton } from '@/components/ui/LoadingSkeleton';
-import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
+import { TableSkeleton } from '@/components/ui/LoadingSkeleton';
+import EmptyState from '@/components/ui/EmptyState';
 import { useRouter } from 'next/navigation';
-
-const branchesData = [
-  { name: "WOW Billiard", address: "80 Lê Hồng Phong, phường Lý Thường Kiệt, thành phố Quy Nhơn", status: "open" },
-  { name: "WOW Billiard", address: "80 Lê Hồng Phong, phường Lý Thường Kiệt, thành phố Quy Nhơn", status: "closed" },
-  { name: "WOW Billiard", address: "80 Lê Hồng Phong, phường Lý Thường Kiệt, thành phố Quy Nhơn", status: "open" },
-  { name: "WOW Billiard", address: "80 Lê Hồng Phong, phường Lý Thường Kiệt, thành phố Quy Nhơn", status: "closed" },
-  { name: "WOW Billiard", address: "80 Lê Hồng Phong, phường Lý Thường Kiệt, thành phố Quy Nhơn", status: "open" },
-  { name: "WOW Billiard", address: "80 Lê Hồng Phong, phường Lý Thường Kiệt, thành phố Quy Nhơn", status: "closed" },
-  { name: "WOW Billiard", address: "80 Lê Hồng Phong, phường Lý Thường Kiệt, thành phố Quy Nhơn", status: "open" },
-];
+import clubsService, { ClubResponse } from '@/lib/clubsService';
+import adminService from '@/lib/adminService';
+import toast from 'react-hot-toast';
+import { useAdminAuthGuard } from '@/lib/hooks/useAdminAuthGuard';
+import { Building2, Plus, Menu } from 'lucide-react';
 
 export default function BranchesPage() {
+  const { isChecking } = useAdminAuthGuard();
   const [search, setSearch] = useState("");
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
-  const [branches, setBranches] = useState(branchesData);
-  const [isAdding, setIsAdding] = useState(false); // demo spinner nhỏ
+  const [branches, setBranches] = useState<ClubResponse[]>([]);
+  const [allBranches, setAllBranches] = useState<ClubResponse[]>([]);
+  const [isAdding, setIsAdding] = useState(false);
   const router = useRouter();
 
-  // Simulate page loading
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsPageLoading(false);
-    }, 2000); // 2 seconds loading
-    return () => clearTimeout(timer);
-  }, []);
+    if (isChecking) return;
+    const loadClubs = async () => {
+      try {
+        setIsPageLoading(true);
+        const brandId = await adminService.getBrandId();
+        if (brandId) {
+          const clubs = await clubsService.getClubsByBrandId(brandId);
+          setAllBranches(clubs);
+          setBranches(clubs);
+        } else {
+          const clubs = await clubsService.getAllClubs();
+          setAllBranches(clubs);
+          setBranches(clubs);
+        }
+      } catch (error) {
+        console.error('Error loading clubs:', error);
+        toast.error('Không thể tải danh sách chi nhánh');
+      } finally {
+        setIsPageLoading(false);
+      }
+    };
+    loadClubs();
+  }, [isChecking]);
 
-  // Simulate search with loading
   const handleSearch = async (searchTerm: string) => {
     setSearch(searchTerm);
     setIsSearching(true);
-    await new Promise(resolve => setTimeout(resolve, 800));
-    const filtered = branchesData.filter(b =>
-      b.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      b.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setBranches(filtered);
-    setIsSearching(false);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 300));
+      const filtered = allBranches.filter(b =>
+        b.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        b.clubName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setBranches(filtered);
+    } catch (error) {
+      console.error('Error searching:', error);
+      toast.error('Lỗi tìm kiếm');
+    } finally {
+      setIsSearching(false);
+    }
   };
 
-  // Demo: Spinner nhỏ khi thêm chi nhánh
   const handleAddBranch = async () => {
     setIsAdding(true);
-    await new Promise(resolve => setTimeout(resolve, 1200));
-    setIsAdding(false);
-    router.push('/admin/branches/add');
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      router.push('/admin/branches/add');
+    } catch (error) {
+      console.error('Error navigating to add page:', error);
+    } finally {
+      setIsAdding(false);
+    }
   };
+
+  if (isChecking) return null;
 
   return (
     <>
-  {isPageLoading && <ScoreLensLoading text="Đang tải..." />}
-    <div className="min-h-screen flex bg-[#18191A]">
-      <Sidebar />
-      <main className="flex-1 bg-white p-10 min-h-screen">
-        <HeaderAdminPage />
-        <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-          <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
-            CHI NHÁNH
-          </span>
-        </div>
-        <BranchSearchBar
-          search={search}
-          setSearch={handleSearch}
-          onAddBranch={handleAddBranch}
-          isSearching={isSearching}
-        />
-        {/* 4. LoadingSpinner nhỏ khi thêm chi nhánh (demo) */}
-        {isAdding && (
-          <div className="flex justify-center py-4">
-            <LoadingSpinner size="md" text="Đang thêm chi nhánh..." color="lime" />
+      <div className="min-h-screen flex bg-[#18191A]">
+        <Sidebar />
+        <main className="flex-1 bg-white p-10 min-h-screen">
+          <HeaderAdminPage />
+          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
+            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+              CHI NHÁNH
+            </span>
           </div>
-        )}
-        {/* 2. TableSkeleton khi search */}
-        {isSearching && (
-          <div className="py-8">
-            <TableSkeleton rows={5} />
-          </div>
-        )}
-        {/* 3. LoadingSkeleton cho từng dòng nếu không có dữ liệu */}
-        {!isSearching && branches.length === 0 && (
-          <div className="py-8">
-            <LoadingSkeleton type="text" lines={2} />
-            <div className="text-center text-gray-500 mt-4">Không tìm thấy chi nhánh nào</div>
-          </div>
-        )}
-        {/* Hiển thị bảng khi có dữ liệu */}
-        {!isSearching && branches.length > 0 && (
-          <BranchTable branches={branches.map(b => ({ ...b, status: b.status as 'open' | 'closed' }))} />
-        )}
-      </main>
-    </div>
+                     {branches.length > 0 && (
+             <BranchSearchBar
+               search={search}
+               setSearch={handleSearch}
+               onAddBranch={isAdding ? () => {} : handleAddBranch}
+             />
+           )}
+           {isPageLoading ? (
+            <div className="py-8">
+              <TableSkeleton rows={5} />
+            </div>
+          ) : isSearching ? (
+            <div className="py-8">
+              <TableSkeleton rows={5} />
+            </div>
+                     ) : branches.length === 0 ? (
+                       <EmptyState
+                         icon={
+                           <Building2 className="w-14 h-14 text-white" strokeWidth={1.5} />
+                         }
+                         title={search ? 'Không tìm thấy chi nhánh phù hợp' : 'Chưa có chi nhánh nào'}
+                         description={
+                           search 
+                             ? 'Thử thay đổi từ khóa tìm kiếm hoặc tạo chi nhánh mới để mở rộng thương hiệu của bạn'
+                             : 'Bắt đầu hành trình mở rộng thương hiệu bằng cách tạo chi nhánh đầu tiên'
+                         }
+                         primaryAction={{
+                           label: 'Tạo chi nhánh mới',
+                           onClick: handleAddBranch,
+                           loading: isAdding,
+                           icon: (
+                             <Plus className="w-5 h-5" />
+                           )
+                         }}
+                         secondaryAction={search ? {
+                           label: 'Xem tất cả',
+                           onClick: () => setSearch(''),
+                           icon: (
+                             <Menu className="w-5 h-5" />
+                           )
+                         } : undefined}
+                         additionalInfo="Chi nhánh sẽ giúp bạn quản lý và mở rộng thương hiệu hiệu quả"
+                         showAdditionalInfo={!search}
+                       />
+          ) : (
+            <BranchTable 
+              branches={branches.map(b => ({ 
+                _id: b._id,
+                clubId: b.clubId,
+                name: b.clubName, 
+                address: b.address, 
+                tableNumber: b.tableNumber,
+                status: b.status as 'open' | 'closed' 
+              }))} 
+            />
+          )}
+        </main>
+      </div>
     </>
   );
 } 
