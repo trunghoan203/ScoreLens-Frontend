@@ -51,6 +51,7 @@ export default function FeedbacksPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [tables, setTables] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
@@ -119,7 +120,6 @@ export default function FeedbacksPage() {
     }
   }, [isChecking]);
 
-  // Theo dõi scroll để thay đổi viền header
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
