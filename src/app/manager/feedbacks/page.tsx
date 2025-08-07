@@ -46,12 +46,23 @@ export interface Feedback {
   updatedAt: Date;
 }
 
+interface TableData {
+  tableId?: string;
+  id?: string;
+  _id?: string;
+  name?: string;
+  tableNumber?: string;
+}
+
+interface TablesResponse {
+  tables?: TableData[];
+}
+
 export default function FeedbacksPage() {
   const { isChecking } = useManagerAuthGuard();
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
-  const [tables, setTables] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
@@ -66,22 +77,22 @@ export default function FeedbacksPage() {
         else if (feedbacksData && typeof feedbacksData === 'object' && Array.isArray((feedbacksData as { feedbacks?: unknown[] }).feedbacks)) feedbacksArr = (feedbacksData as { feedbacks: unknown[] }).feedbacks;
         else if (feedbacksData && typeof feedbacksData === 'object' && Array.isArray((feedbacksData as { data?: unknown[] }).data)) feedbacksArr = (feedbacksData as { data: unknown[] }).data;
         
-        const tablesData = await managerTableService.getAllTables();        const tablesArray = Array.isArray(tablesData) ? tablesData : (tablesData as any)?.tables || [];
-        setTables(tablesArray);
+        const tablesData = await managerTableService.getAllTables();
+        const tablesArray = Array.isArray(tablesData) ? tablesData : (tablesData as TablesResponse)?.tables || [];
 
         const mappedFeedbacks: Feedback[] = feedbacksArr.map(f => {
           const obj = f as Partial<Feedback>;
           const tableId = obj.tableId || '';
           
-          let table = tablesArray.find((t: any) => {
+          let table = tablesArray.find((t: TableData) => {
             const tId = t.tableId || t.id || t._id;
             return tId === tableId;
           });
           
           if (!table && tableId) {
-            table = tablesArray.find((t: any) => {
+            table = tablesArray.find((t: TableData) => {
               const tId = t.tableId || t.id || t._id;
-              return tId && tId.includes(tableId) || tableId.includes(tId);
+              return tId && (tId.includes(tableId) || tableId.includes(tId));
             });
           }
           
