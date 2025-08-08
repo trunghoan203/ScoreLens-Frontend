@@ -9,7 +9,8 @@ instance.interceptors.request.use(
     if (typeof window !== 'undefined') {
       const adminToken = localStorage.getItem('adminAccessToken');
       const superAdminToken = localStorage.getItem('superAdminAccessToken');
-      const token = superAdminToken || adminToken;
+      const managerToken = localStorage.getItem('managerAccessToken');
+      const token = superAdminToken || adminToken || managerToken;
 
       if (token) {
         config.headers = config.headers || {};
