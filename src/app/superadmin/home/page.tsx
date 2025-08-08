@@ -3,12 +3,13 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
+import { HeaderSuperAdmin } from '@/components/shared/HeaderSuperAdmin';
 import { PageBanner } from '@/components/shared/PageBanner';
 import { AdminFilters } from '@/components/features/AdminFilters';
 import { AdminTable } from '@/components/features/AdminTable';
 import { FeedbackTable } from '@/components/features/FeedbackTable';
 import { getAdminList } from '@/lib/saAdminService';
+import { useSuperAdminAuthGuard } from '@/lib/hooks/useSuperAdminAuthGuard';
 import toast from 'react-hot-toast';
 
 interface ApiAdmin {
@@ -17,6 +18,7 @@ interface ApiAdmin {
   email: string;
   location?: string;
   status: 'approved' | 'pending' | 'rejected';
+  createdAt: string;
 }
 
 export interface TableAdmin {
@@ -25,25 +27,40 @@ export interface TableAdmin {
   email: string;
   location: string;
   status: 'Đã duyệt' | 'Chưa duyệt' | 'Bị từ chối';
+  createdAt: string;
 }
 
 function SuperAdminHomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') === 'feedback' ? 'feedback' : 'approval';
+  const { isChecking } = useSuperAdminAuthGuard();
 
   const [activeTab, setActiveTab] = useState<'approval' | 'feedback'>(initialTab);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [admins, setAdmins] = useState<TableAdmin[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   useEffect(() => {
     if (activeTab === 'approval') {
-      setLoading(true);
+      if (isInitialLoad || statusFilter !== '') {
+        setLoading(true);
+      }
+
       getAdminList({
-        search: searchTerm,
-        status: statusFilter,
+        search: debouncedSearchTerm,
+        status: statusFilter || undefined,
         page: 1,
         limit: 50,
       })
@@ -60,17 +77,20 @@ function SuperAdminHomeContent() {
                 : admin.status === 'pending'
                   ? 'Chưa duyệt'
                   : 'Bị từ chối',
+            createdAt: admin.createdAt,
           }));
           setAdmins(mappedAdmins);
           setLoading(false);
+          setIsInitialLoad(false);
         })
         .catch(() => {
           toast.error('Không lấy được danh sách admin');
           setAdmins([]);
           setLoading(false);
+          setIsInitialLoad(false);
         });
     }
-  }, [searchTerm, statusFilter, activeTab]);
+  }, [debouncedSearchTerm, statusFilter, activeTab, isInitialLoad]);
 
   const handleRowClick = (adminId: string) => {
     router.push(`/superadmin/admin/${adminId}`);
@@ -81,9 +101,13 @@ function SuperAdminHomeContent() {
     router.push(`/superadmin/home?tab=${tab}`, { scroll: false });
   };
 
+  if (isChecking) {
+    return <div className="flex items-center justify-center min-h-screen">Đang kiểm tra...</div>;
+  }
+
   return (
     <>
-      <HeaderAdmin />
+      <HeaderSuperAdmin />
       <PageBanner title={activeTab === 'approval' ? 'DANH SÁCH ADMIN' : 'DANH SÁCH PHẢN HỒI'} />
       <div className="bg-[#EEEDED] w-full px-4 md:px-8 py-8">
         <div className="max-w-6xl mx-auto space-y-6 md:space-y-8">

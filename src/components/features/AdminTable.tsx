@@ -11,6 +11,7 @@ interface Admin {
   name: string;
   email: string;
   status: AdminStatus;
+  createdAt: string;
   brand?: {
     address: string;
   };
@@ -32,11 +33,34 @@ interface AdminTableProps {
 export function AdminTable({ admins, searchTerm, statusFilter, onRowClick }: AdminTableProps) {
   const [visibleCount, setVisibleCount] = React.useState(5);
 
-  const filteredAdmins = admins.filter((admin) => {
+  const sortedAdmins = admins.sort((a, b) => {
+    const dateA = new Date(a.createdAt).getTime();
+    const dateB = new Date(b.createdAt).getTime();
+    return dateB - dateA;
+  });
+
+  const filteredAdmins = sortedAdmins.filter((admin) => {
     const matchesSearch =
       admin.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       admin.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = !statusFilter || admin.status === statusFilter;
+
+    let matchesStatus = true;
+    if (statusFilter) {
+      switch (statusFilter) {
+        case 'approved':
+          matchesStatus = admin.status === 'Đã duyệt';
+          break;
+        case 'pending':
+          matchesStatus = admin.status === 'Chưa duyệt';
+          break;
+        case 'rejected':
+          matchesStatus = admin.status === 'Bị từ chối';
+          break;
+        default:
+          matchesStatus = true;
+      }
+    }
+
     return matchesSearch && matchesStatus;
   });
 
@@ -81,7 +105,7 @@ export function AdminTable({ admins, searchTerm, statusFilter, onRowClick }: Adm
         )}
       </div>
 
-      {visibleCount < filteredAdmins.length && (
+      {visibleCount < sortedAdmins.length && (
         <div className="text-center pt-4">
           <Button
             onClick={handleLoadMore}
