@@ -7,7 +7,7 @@ const instance = axios.create({
 instance.interceptors.request.use(
   (config) => {
     if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('adminAccessToken');
+      const token = localStorage.getItem('managerAccessToken');
       if (token) {
         config.headers = config.headers || {};
         config.headers['Authorization'] = `Bearer ${token}`;
