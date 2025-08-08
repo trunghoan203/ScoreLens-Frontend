@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
 import { PageBanner } from '@/components/shared/PageBanner';
 import { getFeedbackDetail, updateFeedback } from '@/lib/saFeedbackService';
+import { useSuperAdminAuthGuard } from '@/lib/hooks/useSuperAdminAuthGuard';
 import toast from 'react-hot-toast';
 import FeedbackDetailLayout from "@/components/shared/FeedbackDetailLayout";
 
@@ -44,6 +45,7 @@ interface Feedback {
 export default function FeedbackDetailPage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
+  const { isChecking } = useSuperAdminAuthGuard();
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [status, setStatus] = useState<Feedback['status']>('pending');
@@ -98,6 +100,14 @@ export default function FeedbackDetailPage() {
     }
   };
 
+  const getCategoryText = (category: string) => {
+    switch (category) {
+      case 'pool-8': return 'Pool 8';
+      case 'carom': return 'Carom';
+      default: return category;
+    }
+  };
+
   const handleSave = async () => {
     try {
       if (!id) return;
@@ -108,7 +118,6 @@ export default function FeedbackDetailPage() {
       });
       toast.success('Cập nhật thành công');
       setIsEditMode(false);
-      // reload feedback
       getFeedbackDetail(id).then((res) => {
         const data = res.data as { feedback: Feedback };
         setFeedback(data.feedback);
@@ -145,6 +154,10 @@ export default function FeedbackDetailPage() {
     return latestItem?.note || '';
   };
 
+  if (isChecking) {
+    return <div className="flex items-center justify-center min-h-screen">Đang kiểm tra...</div>;
+  }
+
   if (loading) return <div className="p-4 text-center">Đang tải...</div>;
   if (!feedback) return <div className="p-4 text-center text-red-500">Không tìm thấy feedback</div>;
 
@@ -164,6 +177,10 @@ export default function FeedbackDetailPage() {
                 <div>
                   <label className="block text-sm font-semibold mb-2 text-black">Bàn</label>
                   <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback.tableInfo?.name || ''} disabled />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-black">Loại bàn</label>
+                  <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={getCategoryText(feedback.tableInfo?.category || '')} disabled />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-2 text-black">Loại người tạo</label>

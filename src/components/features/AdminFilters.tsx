@@ -54,9 +54,9 @@ export function AdminFilters({
             className="h-full w-full bg-transparent px-4 pr-10 rounded-xl appearance-none focus:outline-none"
           >
             <option value="">Tất cả</option>
-            <option value="Đã duyệt">Đã duyệt</option>
-            <option value="Chưa duyệt">Chưa duyệt</option>
-            <option value="Bị từ chối">Bị từ chối</option>
+            <option value="approved">Đã duyệt</option>
+            <option value="pending">Chưa duyệt</option>
+            <option value="rejected">Bị từ chối</option>
           </Select>
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8ADB10] pointer-events-none">
             <svg
