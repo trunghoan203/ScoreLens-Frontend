@@ -77,14 +77,21 @@ function SuperAdminVerificationPageInner() {
     setIsLoading(true);
     try {
       const res = await verifySuperAdminLogin(email, otpString);
+      console.log('Login response:', res); // Debug log
+
       // Lưu access_token vào localStorage
       const data = res.data as { accessToken?: string };
       if (data.accessToken) {
-        localStorage.setItem('adminAccessToken', data.accessToken);
+        localStorage.setItem('superAdminAccessToken', data.accessToken);
+        console.log('Token saved:', data.accessToken); // Debug log
+      } else {
+        console.error('No accessToken in response:', data); // Debug log
       }
+
       toast.success('Xác thực thành công!');
       router.push(`/superadmin/home`);
-    } catch {
+    } catch (error) {
+      console.error('Login error:', error); // Debug log
       toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);
