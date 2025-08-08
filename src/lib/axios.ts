@@ -10,7 +10,6 @@ instance.interceptors.request.use(
       const adminToken = localStorage.getItem('adminAccessToken');
       const superAdminToken = localStorage.getItem('superAdminAccessToken');
       const token = superAdminToken || adminToken;
-
       if (token) {
         config.headers = config.headers || {};
         config.headers['Authorization'] = `Bearer ${token}`;

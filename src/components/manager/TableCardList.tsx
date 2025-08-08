@@ -9,6 +9,9 @@ interface Table {
   teamA?: string;
   teamB?: string;
   time?: string;
+  matchId?: string;
+  matchStatus?: 'pending' | 'ongoing' | 'completed';
+  elapsedTime?: string;
 }
 
 interface TableCardListProps {
@@ -28,6 +31,8 @@ export default function TableCardList({ tables, onDetail }: TableCardListProps) 
           teamA={table.teamA}
           teamB={table.teamB}
           time={table.time}
+          matchStatus={table.matchStatus}
+          elapsedTime={table.elapsedTime}
           onDetail={onDetail ? () => onDetail(table.id) : () => {}}
         />
       ))}
