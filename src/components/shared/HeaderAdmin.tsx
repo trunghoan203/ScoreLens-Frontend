@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { ScoreLensLogo } from '@/components/icons/LogoWhite';
 import Image from 'next/image';
-import { logoutSuperAdmin } from '@/lib/saService';
 
 export function HeaderAdmin() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -35,12 +34,6 @@ export function HeaderAdmin() {
     setCurrentLanguage(languageCode);
     setDropdownOpen(false);
   };
-  const handleLogout = async () => {
-    await logoutSuperAdmin();
-    localStorage.removeItem('superAdminAccessToken');
-    window.location.href = '/superadmin/login';
-  };
-
   return (
     <header className="w-full flex justify-between items-center py-4 px-8 bg-black">
       <div className="flex items-center gap-4">
@@ -101,13 +94,6 @@ export function HeaderAdmin() {
             </div>
           )}
         </div>
-        <button
-          onClick={handleLogout}
-          className="bg-lime-500 hover:bg-lime-600 text-white font-semibold px-4 py-2 rounded transition"
-        >
-          Đăng xuất
-        </button>
-
       </div>
     </header>
   );
