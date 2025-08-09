@@ -5,7 +5,6 @@ import HeaderManager from "@/components/manager/HeaderManager";
 import { useRouter, useParams } from "next/navigation";
 import toast from 'react-hot-toast';
 import { managerFeedbackService } from '@/lib/managerFeedbackService';
-import { managerTableService } from '@/lib/managerTableService';
 import FeedbackDetailLayout from "@/components/shared/FeedbackDetailLayout";
 import FeedbackPageBanner from "@/components/manager/FeedbackPageBanner";
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +27,7 @@ interface Feedback {
     tableId: string;
     tableName: string;
     tableNumber?: string;
+    category?: string;
   };
   content: string;
   status: 'pending' | 'managerP' | 'adminP' | 'superadminP' | 'resolved';
@@ -44,17 +44,7 @@ interface Feedback {
   updatedAt: Date;
 }
 
-interface TableData {
-  tableId?: string;
-  id?: string;
-  _id?: string;
-  name?: string;
-  tableNumber?: string;
-}
 
-interface TablesResponse {
-  tables?: TableData[];
-}
 
 export default function FeedbackDetailPage() {
   const router = useRouter();
@@ -62,7 +52,6 @@ export default function FeedbackDetailPage() {
   const feedbackId = params?.feedbackId as string;
 
   const [feedback, setFeedback] = useState<Feedback | null>(null);
-  const [, setTables] = useState<unknown[]>([]);
   const [isEditMode, setIsEditMode] = useState(false);
   const [status, setStatus] = useState<Feedback['status']>('pending');
   const [notes, setNotes] = useState('');
@@ -72,56 +61,40 @@ export default function FeedbackDetailPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const tablesData = await managerTableService.getAllTables();
-        const tablesArray = Array.isArray(tablesData) ? tablesData : (tablesData as TablesResponse)?.tables || [];
-        setTables(tablesArray);
-
-        const feedbacksData = await managerFeedbackService.getAllFeedbacks();
-        let feedbacksArr: unknown[] = [];
-        if (Array.isArray(feedbacksData)) feedbacksArr = feedbacksData;
-        else if (feedbacksData && typeof feedbacksData === 'object' && Array.isArray((feedbacksData as { feedbacks?: unknown[] }).feedbacks)) feedbacksArr = (feedbacksData as { feedbacks: unknown[] }).feedbacks;
-        else if (feedbacksData && typeof feedbacksData === 'object' && Array.isArray((feedbacksData as { data?: unknown[] }).data)) feedbacksArr = (feedbacksData as { data: unknown[] }).data;
-
-        const found = feedbacksArr.find((f) => {
-          const obj = f as Partial<Feedback>;
-          return obj.feedbackId === feedbackId || obj._id === feedbackId;
-        });
-
-        if (found) {
-          const feedbackData = found as Partial<Feedback>;
-          const tableId = feedbackData.tableId || '';
-
-          let table = tablesArray.find((t: TableData) => {
-            const tId = t.tableId || t.id || t._id;
-            return tId === tableId;
-          });
-
-          if (!table && tableId) {
-            table = tablesArray.find((t: TableData) => {
-              const tId = t.tableId || t.id || t._id;
-              return tId && (tId.includes(tableId) || tableId.includes(tId));
-            });
+        const feedbackDetailData = await managerFeedbackService.getFeedbackDetail(feedbackId);
+        let feedbackObj;
+        if (feedbackDetailData && typeof feedbackDetailData === 'object') {
+          if ((feedbackDetailData as any).feedback) {
+            feedbackObj = (feedbackDetailData as any).feedback;
+          } else if ((feedbackDetailData as any).data?.feedback) {
+            feedbackObj = (feedbackDetailData as any).data.feedback;
+          } else {
+            feedbackObj = feedbackDetailData;
           }
+        }
 
+        if (feedbackObj) {
           const mappedFeedback: Feedback = {
-            feedbackId: feedbackData.feedbackId || feedbackData._id || '',
-            createdBy: feedbackData.createdBy || { userId: '', type: 'guest' },
-            clubId: feedbackData.clubId || '',
-            tableId: tableId,
-            clubInfo: feedbackData.clubInfo || { clubId: '', clubName: '' },
+            feedbackId: feedbackObj.feedbackId || feedbackObj._id || '',
+            createdBy: feedbackObj.createdBy || { userId: '', type: 'guest' },
+            clubId: feedbackObj.clubId || '',
+            tableId: feedbackObj.tableId || '',
+            clubInfo: feedbackObj.clubInfo || { clubId: '', clubName: '' },
             tableInfo: {
-              tableId: tableId,
-              tableName: table?.name || `Bàn ${tableId}`,
-              tableNumber: table?.tableNumber
+              tableId: feedbackObj.tableId || '',
+              tableName: feedbackObj.tableInfo?.name || 'Không xác định',
+              tableNumber: feedbackObj.tableInfo?.tableNumber || '',
+              category: feedbackObj.tableInfo?.category || 'Không xác định'
             },
-            content: feedbackData.content || '',
-            status: feedbackData.status || 'pending',
-            needSupport: feedbackData.needSupport || false,
-            note: feedbackData.note || '',
-            history: feedbackData.history || [],
-            createdAt: feedbackData.createdAt || new Date(),
-            updatedAt: feedbackData.updatedAt || new Date(),
+            content: feedbackObj.content || '',
+            status: feedbackObj.status || 'pending',
+            needSupport: feedbackObj.needSupport || false,
+            note: feedbackObj.note || '',
+            history: feedbackObj.history || [],
+            createdAt: feedbackObj.createdAt || new Date(),
+            updatedAt: feedbackObj.updatedAt || new Date(),
           };
+
           setFeedback(mappedFeedback);
           setStatus(mappedFeedback.status);
           let latestNote = '';
@@ -135,7 +108,7 @@ export default function FeedbackDetailPage() {
           toast.error('Không tìm thấy phản hồi');
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching feedback detail:', error);
         toast.error('Không thể tải dữ liệu phản hồi');
       }
     };
@@ -218,6 +191,10 @@ export default function FeedbackDetailPage() {
                 <div>
                   <label className="block text-sm font-semibold mb-2 text-black">Bàn</label>
                   <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.tableInfo?.tableName || feedback?.tableId || ''} disabled />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-black">Loại bàn</label>
+                  <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.tableInfo?.category === 'pool-8' ? 'Pool 8' : feedback?.tableInfo?.category === 'carom' ? 'Carom' : feedback?.tableInfo?.category || 'Không xác định'} disabled />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-2 text-black">Loại người tạo</label>
@@ -303,7 +280,7 @@ export default function FeedbackDetailPage() {
               </div>
               <div className="flex-1 space-y-6 order-2 md:order-none">
                 <div>
-                  <label className="block text-sm font-semibold mb-2 text-black">Lịch sử xử lý</label>
+                  <label className="block text-sm font-semibold mb-2 text-black text-center">Lịch sử xử lý</label>
                   <div className="bg-gray-50 rounded-lg p-4 max-h-[925px] overflow-y-auto">
                     {feedback?.history && feedback.history.length > 0 ? (
                       <div className="space-y-3">

@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
+import { managerFeedbackService } from '@/lib/managerFeedbackService';
+import toast from 'react-hot-toast';
 
 interface Feedback {
   id: string;
@@ -7,17 +10,104 @@ interface Feedback {
   table: string;
   time: string;
   status: 'pending' | 'managerP' | 'adminP' | 'superadminP' | 'resolved';
-  cameraReliability: number;
   feedback: string;
   notes: string;
+  createdAt: Date;
 }
 
 interface FeedbackGridProps {
-  feedbacks: Feedback[];
+  search?: string;
+  statusFilter?: string;
+  dateFilter?: string;
   onFeedbackClick?: (id: string) => void;
 }
 
-export default function FeedbackGrid({ feedbacks, onFeedbackClick }: FeedbackGridProps) {
+
+
+export default function FeedbackGrid({
+  search = "",
+  statusFilter = "managerP",
+  dateFilter = "",
+  onFeedbackClick
+}: FeedbackGridProps) {
+  const [loading, setLoading] = useState(true);
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const feedbacksData = await managerFeedbackService.getAllFeedbacks();
+        let feedbacksArr: unknown[] = [];
+        if (Array.isArray(feedbacksData)) feedbacksArr = feedbacksData;
+        else if (feedbacksData && typeof feedbacksData === 'object' && Array.isArray((feedbacksData as { feedbacks?: unknown[] }).feedbacks)) feedbacksArr = (feedbacksData as { feedbacks: unknown[] }).feedbacks;
+        else if (feedbacksData && typeof feedbacksData === 'object' && Array.isArray((feedbacksData as { data?: unknown[] }).data)) feedbacksArr = (feedbacksData as { data: unknown[] }).data;
+
+        const mappedFeedbacks: Feedback[] = feedbacksArr.map(f => {
+          const obj = f as any;
+
+          // Đảm bảo tableName luôn là string
+          let tableName = 'Không xác định';
+          if (obj.tableInfo?.name) {
+            tableName = String(obj.tableInfo.name);
+          }
+
+          return {
+            id: String(obj.feedbackId || obj._id || ''),
+            branch: String(obj.clubInfo?.clubName || 'Không xác định'),
+            table: String(tableName),
+            time: String(obj.createdAt ? new Date(obj.createdAt).toLocaleString('vi-VN') : 'Không xác định'),
+            status: obj.status || 'pending',
+            feedback: String(obj.content || ''),
+            notes: String(obj.note || ''),
+            createdAt: obj.createdAt ? new Date(obj.createdAt) : new Date(0),
+          };
+        });
+
+        const sortedFeedbacks = mappedFeedbacks.sort((a, b) => {
+          const dateA = a.createdAt.getTime();
+          const dateB = b.createdAt.getTime();
+          return dateB - dateA;
+        });
+
+        setFeedbacks(sortedFeedbacks);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setError('Không thể tải danh sách phản hồi');
+        toast.error('Không thể tải danh sách phản hồi');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const filteredFeedbacks = feedbacks.filter(f => {
+    const branch = (f.branch || '').toString().toLowerCase();
+    const table = (f.table || '').toString().toLowerCase();
+    const searchTerm = search.toLowerCase().trim();
+
+    const matchesSearch = searchTerm === '' ||
+      branch.includes(searchTerm) ||
+      table.includes(searchTerm);
+
+    const matchesStatus = statusFilter === 'all' || f.status === statusFilter;
+
+    let matchesDate = true;
+    if (dateFilter) {
+      const feedbackDate = f.createdAt.toISOString().split('T')[0];
+      matchesDate = feedbackDate === dateFilter;
+    }
+
+    if (searchTerm && (branch.includes(searchTerm) || table.includes(searchTerm))) {
+      console.log(`🔍 Found match: "${searchTerm}" in branch: "${f.branch}" or table: "${f.table}"`);
+    }
+
+    return matchesSearch && matchesStatus && matchesDate;
+  });
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'resolved': return 'success';
@@ -40,6 +130,23 @@ export default function FeedbackGrid({ feedbacks, onFeedbackClick }: FeedbackGri
     }
   };
 
+  if (loading) {
+    return <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>;
+  }
+
+  if (error) {
+    return <div className="py-8 text-center text-red-500">{error}</div>;
+  }
+
+  if (filteredFeedbacks.length === 0) {
+    return (
+      <div className="py-8 text-center text-gray-400">
+        <LoadingSkeleton type="text" lines={2} />
+        <div>Không có dữ liệu</div>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-lg overflow-hidden space-y-2">
       <div className="grid grid-cols-4 bg-[#181818] text-[#FFFFFF] font-semibold text-center">
@@ -50,7 +157,7 @@ export default function FeedbackGrid({ feedbacks, onFeedbackClick }: FeedbackGri
       </div>
 
       <div className="space-y-2">
-        {feedbacks.map((feedback) => (
+        {filteredFeedbacks.map((feedback) => (
           <div
             key={feedback.id}
             className="grid grid-cols-4 items-center text-center bg-gray-200 rounded-lg cursor-pointer hover:bg-lime-50 transition"
