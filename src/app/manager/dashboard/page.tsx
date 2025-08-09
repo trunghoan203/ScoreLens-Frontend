@@ -67,7 +67,7 @@ export default function ManagerDashboardPage() {
   const [tables, setTables] = useState<TableData[]>([]);
   const [loadingTables, setLoadingTables] = useState(true);
   const [activeMatches, setActiveMatches] = useState<Map<string, { matchId: string; status: string; startTime: Date | null }>>(new Map());
-  const [globalTimer, setGlobalTimer] = useState<number>(0);
+  // Remove unused globalTimer state
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -77,7 +77,7 @@ export default function ManagerDashboardPage() {
 
         const tablesData = await managerTableService.getAllTables();
         const tablesArray = Array.isArray(tablesData) ? tablesData : (tablesData as { tables?: RawTableData[] })?.tables || [];
-        
+
         const transformedTables: TableData[] = tablesArray.map((table: RawTableData) => ({
           id: table.tableId || table.id || table._id || '',
           tableId: table.tableId,
@@ -94,26 +94,26 @@ export default function ManagerDashboardPage() {
         const inUseTables = transformedTables.filter(table => table.status === 'inuse');
         const matchDataPromises = inUseTables.map(async (table) => {
           try {
-            const ongoingResponse = await managerMatchService.getMatchesByTable(table.id, 'ongoing', 1, 1) as any;
+            const ongoingResponse = await managerMatchService.getMatchesByTable(table.id, 'ongoing', 1, 1) as Record<string, unknown>;
             if (ongoingResponse.success && Array.isArray(ongoingResponse.data) && ongoingResponse.data.length > 0) {
               const match = ongoingResponse.data[0];
-                                          return {
-               tableId: table.id,
-               matchId: match.matchId,
-               status: match.status,
-               startTime: match.startTime ? new Date(match.startTime) : (match.status === 'ongoing' ? new Date() : null)
-             };
+              return {
+                tableId: table.id,
+                matchId: match.matchId,
+                status: match.status,
+                startTime: match.startTime ? new Date(match.startTime) : (match.status === 'ongoing' ? new Date() : null)
+              };
             }
-            
-            const pendingResponse = await managerMatchService.getMatchesByTable(table.id, 'pending', 1, 1) as any;
+
+            const pendingResponse = await managerMatchService.getMatchesByTable(table.id, 'pending', 1, 1) as Record<string, unknown>;
             if (pendingResponse.success && Array.isArray(pendingResponse.data) && pendingResponse.data.length > 0) {
               const match = pendingResponse.data[0];
-                           return {
-               tableId: table.id,
-               matchId: match.matchId,
-               status: match.status,
-               startTime: match.startTime ? new Date(match.startTime) : (match.status === 'ongoing' ? new Date() : null)
-             };
+              return {
+                tableId: table.id,
+                matchId: match.matchId,
+                status: match.status,
+                startTime: match.startTime ? new Date(match.startTime) : (match.status === 'ongoing' ? new Date() : null)
+              };
             }
           } catch (error) {
             console.error(`Error fetching match data for table ${table.id}:`, error);
@@ -137,7 +137,7 @@ export default function ManagerDashboardPage() {
         const inUse = transformedTables.filter((table: TableData) => table.status === 'inuse').length;
         const available = transformedTables.filter((table: TableData) => table.status === 'empty').length;
         const totalMembers = members.length;
-                
+
         setDashboardStats({
           totalTables,
           inUse,
@@ -160,7 +160,7 @@ export default function ManagerDashboardPage() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setGlobalTimer(prev => prev + 1);
+      // Remove global timer update
     }, 1000);
 
     return () => clearInterval(interval);
@@ -178,20 +178,20 @@ export default function ManagerDashboardPage() {
   const filteredTables = tables.map(table => {
     const matchData = activeMatches.get(table.id);
     let elapsedTime = '0 phút';
-    
+
     if (matchData && matchData.status === 'ongoing' && matchData.startTime) {
       const now = new Date();
       const elapsed = Math.floor((now.getTime() - matchData.startTime.getTime()) / 1000);
       const hours = Math.floor(elapsed / 3600);
       const minutes = Math.floor((elapsed % 3600) / 60);
-      
+
       if (hours === 0) {
         elapsedTime = `${minutes} phút`;
       } else {
         elapsedTime = `${hours} giờ ${minutes} phút`;
       }
     }
-    
+
     return {
       ...table,
       matchId: matchData?.matchId,
@@ -201,11 +201,11 @@ export default function ManagerDashboardPage() {
   }).filter(table => {
     const matchSearch = table.name.toLowerCase().includes(search.toLowerCase());
     const matchType = !type || table.type.toLowerCase() === type.toLowerCase();
-    
+
     let displayStatus = table.status;
     if (table.status === 'inuse') displayStatus = 'using';
     if (table.status === 'empty') displayStatus = 'available';
-    
+
     const matchStatus = !status || displayStatus === status;
     return matchSearch && matchType && matchStatus;
   });
@@ -257,7 +257,7 @@ export default function ManagerDashboardPage() {
                     }
                     title={search ? 'Không tìm thấy bàn phù hợp' : 'Chưa có bàn nào'}
                     description={
-                      search 
+                      search
                         ? 'Thử thay đổi từ khóa tìm kiếm hoặc thêm bàn mới để mở rộng cơ sở vật chất'
                         : 'Bắt đầu thiết lập hệ thống bàn chơi chuyên nghiệp cho câu lạc bộ của bạn'
                     }

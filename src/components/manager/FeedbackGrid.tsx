@@ -45,23 +45,26 @@ export default function FeedbackGrid({
         else if (feedbacksData && typeof feedbacksData === 'object' && Array.isArray((feedbacksData as { data?: unknown[] }).data)) feedbacksArr = (feedbacksData as { data: unknown[] }).data;
 
         const mappedFeedbacks: Feedback[] = feedbacksArr.map(f => {
-          const obj = f as any;
+          const obj = f as Record<string, unknown>;
+
+          const tableInfo = obj.tableInfo as Record<string, unknown> | undefined;
+          const clubInfo = obj.clubInfo as Record<string, unknown> | undefined;
 
           // Đảm bảo tableName luôn là string
           let tableName = 'Không xác định';
-          if (obj.tableInfo?.name) {
-            tableName = String(obj.tableInfo.name);
+          if (tableInfo?.name) {
+            tableName = String(tableInfo.name);
           }
 
           return {
             id: String(obj.feedbackId || obj._id || ''),
-            branch: String(obj.clubInfo?.clubName || 'Không xác định'),
+            branch: String(clubInfo?.clubName || 'Không xác định'),
             table: String(tableName),
-            time: String(obj.createdAt ? new Date(obj.createdAt).toLocaleString('vi-VN') : 'Không xác định'),
-            status: obj.status || 'pending',
+            time: String(obj.createdAt ? new Date(obj.createdAt as string).toLocaleString('vi-VN') : 'Không xác định'),
+            status: (obj.status as Feedback['status']) || 'pending',
             feedback: String(obj.content || ''),
             notes: String(obj.note || ''),
-            createdAt: obj.createdAt ? new Date(obj.createdAt) : new Date(0),
+            createdAt: obj.createdAt ? new Date(obj.createdAt as string) : new Date(0),
           };
         });
 

@@ -5,41 +5,43 @@ interface UseWebSocketProps {
   matchId: string | null;
   matchStatus: 'pending' | 'ongoing' | 'completed';
   onTimeUpdate: (elapsedTime: string) => void;
-  onMatchUpdate?: (matchData: any) => void;
+  onMatchUpdate?: (matchData: unknown) => void;
 }
 
-export const useWebSocket = ({ 
-  matchId, 
-  matchStatus, 
-  onTimeUpdate, 
-  onMatchUpdate 
+export const useWebSocket = ({
+  matchId,
+  matchStatus,
+  onTimeUpdate,
+  onMatchUpdate
 }: UseWebSocketProps) => {
   const isConnected = useRef(false);
 
   useEffect(() => {
     if (matchId && matchStatus === 'ongoing' && !isConnected.current) {
       // Connect to WebSocket
-      const socket = socketService.connect();
-      
+      socketService.connect();
+
       // Join match room
       socketService.joinMatchRoom(matchId);
-      
+
       // Listen for time updates from server
       socketService.onTimeUpdate((data) => {
-        if (data.matchId === matchId) {
-          onTimeUpdate(data.elapsedTime);
+        const matchData = data as { matchId: string; elapsedTime: string };
+        if (matchData.matchId === matchId) {
+          onTimeUpdate(matchData.elapsedTime);
         }
       });
-      
+
       // Listen for match updates
       if (onMatchUpdate) {
         socketService.onMatchUpdated((updatedMatch) => {
-          if (updatedMatch.matchId === matchId) {
+          const match = updatedMatch as { matchId: string };
+          if (match.matchId === matchId) {
             onMatchUpdate(updatedMatch);
           }
         });
       }
-      
+
       isConnected.current = true;
     }
 
@@ -51,7 +53,7 @@ export const useWebSocket = ({
         isConnected.current = false;
       }
     };
-  }, [matchId, matchStatus]);
+  }, [matchId, matchStatus, onMatchUpdate, onTimeUpdate]);
 
   return {
     isConnected: socketService.isSocketConnected(),

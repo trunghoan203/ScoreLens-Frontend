@@ -22,7 +22,7 @@ class SocketService {
       this.isConnected = false;
     });
 
-    this.socket.on('connect_error', (error) => {
+    this.socket.on('connect_error', () => {
       this.isConnected = false;
     });
 
@@ -49,13 +49,13 @@ class SocketService {
     }
   }
 
-  onMatchUpdated(callback: (data: any) => void) {
+  onMatchUpdated(callback: (data: unknown) => void) {
     if (this.socket) {
       this.socket.on('match_updated', callback);
     }
   }
 
-  onMatchDeleted(callback: (data: any) => void) {
+  onMatchDeleted(callback: (data: unknown) => void) {
     if (this.socket) {
       this.socket.on('match_deleted', callback);
     }

@@ -62,37 +62,56 @@ export default function FeedbackDetailPage() {
     const fetchData = async () => {
       try {
         const feedbackDetailData = await managerFeedbackService.getFeedbackDetail(feedbackId);
-        let feedbackObj;
+        let feedbackObj: Record<string, unknown> | undefined;
         if (feedbackDetailData && typeof feedbackDetailData === 'object') {
-          if ((feedbackDetailData as any).feedback) {
-            feedbackObj = (feedbackDetailData as any).feedback;
-          } else if ((feedbackDetailData as any).data?.feedback) {
-            feedbackObj = (feedbackDetailData as any).data.feedback;
+          const data = feedbackDetailData as Record<string, unknown>;
+          if (data.feedback) {
+            feedbackObj = data.feedback as Record<string, unknown>;
+          } else if (data.data && typeof data.data === 'object' && (data.data as Record<string, unknown>).feedback) {
+            feedbackObj = (data.data as Record<string, unknown>).feedback as Record<string, unknown>;
           } else {
-            feedbackObj = feedbackDetailData;
+            feedbackObj = data;
           }
         }
 
         if (feedbackObj) {
+          const tableInfo = feedbackObj.tableInfo as Record<string, unknown> | undefined;
+          const clubInfo = feedbackObj.clubInfo as Record<string, unknown> | undefined;
+          const createdBy = feedbackObj.createdBy as Record<string, unknown> | undefined;
+          const history = feedbackObj.history as Array<Record<string, unknown>> | undefined;
+
           const mappedFeedback: Feedback = {
-            feedbackId: feedbackObj.feedbackId || feedbackObj._id || '',
-            createdBy: feedbackObj.createdBy || { userId: '', type: 'guest' },
-            clubId: feedbackObj.clubId || '',
-            tableId: feedbackObj.tableId || '',
-            clubInfo: feedbackObj.clubInfo || { clubId: '', clubName: '' },
-            tableInfo: {
-              tableId: feedbackObj.tableId || '',
-              tableName: feedbackObj.tableInfo?.name || 'Không xác định',
-              tableNumber: feedbackObj.tableInfo?.tableNumber || '',
-              category: feedbackObj.tableInfo?.category || 'Không xác định'
+            feedbackId: String(feedbackObj.feedbackId || feedbackObj._id || ''),
+            createdBy: {
+              userId: String(createdBy?.userId || ''),
+              type: (createdBy?.type as 'guest' | 'membership') || 'guest'
             },
-            content: feedbackObj.content || '',
-            status: feedbackObj.status || 'pending',
-            needSupport: feedbackObj.needSupport || false,
-            note: feedbackObj.note || '',
-            history: feedbackObj.history || [],
-            createdAt: feedbackObj.createdAt || new Date(),
-            updatedAt: feedbackObj.updatedAt || new Date(),
+            clubId: String(feedbackObj.clubId || ''),
+            tableId: String(feedbackObj.tableId || ''),
+            clubInfo: {
+              clubId: String(clubInfo?.clubId || ''),
+              clubName: String(clubInfo?.clubName || ''),
+              address: String(clubInfo?.address || '')
+            },
+            tableInfo: {
+              tableId: String(feedbackObj.tableId || ''),
+              tableName: String(tableInfo?.name || 'Không xác định'),
+              tableNumber: String(tableInfo?.tableNumber || ''),
+              category: String(tableInfo?.category || 'Không xác định')
+            },
+            content: String(feedbackObj.content || ''),
+            status: (feedbackObj.status as Feedback['status']) || 'pending',
+            needSupport: Boolean(feedbackObj.needSupport),
+            note: String(feedbackObj.note || ''),
+            history: (history || []).map(h => ({
+              byId: String(h.byId || ''),
+              byName: String(h.byName || ''),
+              byRole: String(h.byRole || ''),
+              note: String(h.note || ''),
+              date: h.date ? new Date(h.date as string) : new Date()
+            })),
+            createdAt: feedbackObj.createdAt ? new Date(feedbackObj.createdAt as string) : new Date(),
+            updatedAt: feedbackObj.updatedAt ? new Date(feedbackObj.updatedAt as string) : new Date(),
           };
 
           setFeedback(mappedFeedback);

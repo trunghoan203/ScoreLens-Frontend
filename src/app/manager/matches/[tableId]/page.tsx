@@ -41,6 +41,23 @@ interface RawTableData {
   time?: string;
 }
 
+interface MatchData {
+  matchId: string;
+  tableName: string;
+  gameType: string;
+  startTime?: Date;
+  endTime?: Date;
+  teams: Array<{
+    teamName: string;
+    score: number;
+    isWinner: boolean;
+    members: Array<{
+      guestName?: string;
+      membershipName?: string;
+    }>;
+  }>;
+}
+
 interface MembersData {
   memberships?: unknown[];
 }
@@ -67,7 +84,7 @@ export default function TableDetailPage() {
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showEditScoreModal, setShowEditScoreModal] = useState(false);
-  const [matchData, setMatchData] = useState<any>(null);
+  const [matchData, setMatchData] = useState<MatchData | null>(null);
   const [elapsedTime, setElapsedTime] = useState<string>('00:00:00');
   const [matchStartTime, setMatchStartTime] = useState<Date | null>(null);
 
@@ -105,12 +122,12 @@ export default function TableDetailPage() {
           setTableStatus(foundTable.status === 'inuse' ? 'using' : 'available');
 
           try {
-            const matchResponse = await managerMatchService.getMatchesByTable(tableId, 'ongoing', 1, 1) as any;
+            const matchResponse = await managerMatchService.getMatchesByTable(tableId, 'ongoing', 1, 1) as Record<string, unknown>;
             if (matchResponse.success && Array.isArray(matchResponse.data) && matchResponse.data.length > 0) {
               const activeMatch = matchResponse.data[0];
               if (activeMatch.teams && activeMatch.teams.length >= 2) {
-                const teamAMembers = activeMatch.teams[0]?.members?.map((m: any) => m.guestName || m.membershipName || 'Unknown') || [];
-                const teamBMembers = activeMatch.teams[1]?.members?.map((m: any) => m.guestName || m.membershipName || 'Unknown') || [];
+                const teamAMembers = activeMatch.teams[0]?.members?.map((m: Record<string, unknown>) => m.guestName || m.membershipName || 'Unknown') || [];
+                const teamBMembers = activeMatch.teams[1]?.members?.map((m: Record<string, unknown>) => m.guestName || m.membershipName || 'Unknown') || [];
                 setTeamA(teamAMembers);
                 setTeamB(teamBMembers);
                 setTeamAScore(activeMatch.teams[0]?.score || 0);
@@ -134,12 +151,12 @@ export default function TableDetailPage() {
                 }
               }
             } else {
-              const pendingResponse = await managerMatchService.getMatchesByTable(tableId, 'pending', 1, 1) as any;
+              const pendingResponse = await managerMatchService.getMatchesByTable(tableId, 'pending', 1, 1) as Record<string, unknown>;
               if (pendingResponse.success && Array.isArray(pendingResponse.data) && pendingResponse.data.length > 0) {
                 const pendingMatch = pendingResponse.data[0];
                 if (pendingMatch.teams && pendingMatch.teams.length >= 2) {
-                  const teamAMembers = pendingMatch.teams[0]?.members?.map((m: any) => m.guestName || m.membershipName || 'Unknown') || [];
-                  const teamBMembers = pendingMatch.teams[1]?.members?.map((m: any) => m.guestName || m.membershipName || 'Unknown') || [];
+                  const teamAMembers = pendingMatch.teams[0]?.members?.map((m: Record<string, unknown>) => m.guestName || m.membershipName || 'Unknown') || [];
+                  const teamBMembers = pendingMatch.teams[1]?.members?.map((m: Record<string, unknown>) => m.guestName || m.membershipName || 'Unknown') || [];
                   setTeamA(teamAMembers);
                   setTeamB(teamBMembers);
                   setTeamAScore(pendingMatch.teams[0]?.score || 0);
@@ -205,17 +222,18 @@ export default function TableDetailPage() {
     if (!isChecking) {
       fetchData();
     }
-  }, [isChecking, tableId]);
+  }, [isChecking, tableId, router]);
 
-  const { isConnected } = useWebSocket({
+  const { } = useWebSocket({
     matchId: activeMatchId,
     matchStatus,
     onTimeUpdate: (elapsedTime) => {
       setElapsedTime(elapsedTime);
     },
     onMatchUpdate: (updatedMatch) => {
-      setMatchStatus(updatedMatch.status);
-      if (updatedMatch.status === 'completed') {
+      const match = updatedMatch as Record<string, unknown>;
+      setMatchStatus(match.status as 'pending' | 'ongoing' | 'completed');
+      if (match.status === 'completed') {
         setElapsedTime('00:00:00');
       }
     }
@@ -266,7 +284,7 @@ export default function TableDetailPage() {
         ]
       };
 
-      const response = await managerMatchService.createMatch(matchData) as any;
+      const response = await managerMatchService.createMatch(matchData) as Record<string, unknown>;
 
       if (response.success) {
         toast.success('Tạo trận đấu thành công!');
@@ -274,12 +292,13 @@ export default function TableDetailPage() {
         setTeamB(teamB);
         setTableStatus('using');
         setIsEditing(false);
-        if (response.data?.matchId) {
-          setActiveMatchId(response.data.matchId as string);
+        const responseData = response.data as Record<string, unknown>;
+        if (responseData?.matchId) {
+          setActiveMatchId(responseData.matchId as string);
         }
 
       } else {
-        toast.error(response.message || 'Tạo trận đấu thất bại!');
+        toast.error((response.message as string) || 'Tạo trận đấu thất bại!');
       }
     } catch (error) {
       console.error('Error creating match:', error);
@@ -295,13 +314,13 @@ export default function TableDetailPage() {
         toast.error('Không xác định được trận đấu để bắt đầu');
         return;
       }
-      const res = (await managerMatchService.startMatch(activeMatchId)) as any;
+      const res = (await managerMatchService.startMatch(activeMatchId)) as Record<string, unknown>;
       if (res?.success) {
         toast.success('Bắt đầu trận đấu thành công!');
         setMatchStatus('ongoing');
         setMatchStartTime(new Date());
       } else {
-        toast.error(res?.message || 'Bắt đầu trận đấu thất bại!');
+        toast.error((res?.message as string) || 'Bắt đầu trận đấu thất bại!');
       }
     } catch (error) {
       console.error('Error starting match:', error);
@@ -372,27 +391,29 @@ export default function TableDetailPage() {
         return;
       }
 
-      const matchResponse = await managerMatchService.getMatchById(activeMatchId) as any;
+      const matchResponse = await managerMatchService.getMatchById(activeMatchId) as Record<string, unknown>;
       if (matchResponse?.success) {
-        const currentMatch = matchResponse.data;
-        
-        const teams = currentMatch.teams || [];
-        
-        const scores = teams.map((team: any) => team.score);
+        const currentMatch = matchResponse.data as Record<string, unknown>;
+
+        const teams = (currentMatch?.teams as Array<Record<string, unknown>>) || [];
+
+        const scores = teams.map((team: Record<string, unknown>) => team.score as number);
         const maxScore = Math.max(...scores);
-        const teamsWithMaxScore = teams.filter((team: any) => team.score === maxScore);
-        
-        const teamsWithWinner = teams.map((team: any) => ({
-          ...team,
-          isWinner: team.score === maxScore && maxScore > 0 && teamsWithMaxScore.length === 1
+        const teamsWithMaxScore = teams.filter((team: Record<string, unknown>) => team.score === maxScore);
+
+        const teamsWithWinner = teams.map((team: Record<string, unknown>) => ({
+          teamName: team.teamName as string || 'Team',
+          score: team.score as number || 0,
+          isWinner: team.score === maxScore && maxScore > 0 && teamsWithMaxScore.length === 1,
+          members: (team.members as Array<Record<string, unknown>>) || []
         }));
-        
+
         setMatchData({
-          matchId: currentMatch.matchId,
+          matchId: currentMatch?.matchId as string,
           tableName: table?.name || 'Unknown',
-          gameType: currentMatch.gameType,
-          startTime: currentMatch.startTime ? new Date(currentMatch.startTime) : undefined,
-          endTime: new Date(), 
+          gameType: currentMatch?.gameType as string,
+          startTime: currentMatch?.startTime ? new Date(currentMatch.startTime as string) : undefined,
+          endTime: new Date(),
           teams: teamsWithWinner
         });
         setShowSummaryModal(true);
@@ -411,12 +432,12 @@ export default function TableDetailPage() {
         toast.error('Không xác định được trận đấu để kết thúc');
         return;
       }
-      const res = (await managerMatchService.endMatch(activeMatchId)) as any;
+      const res = (await managerMatchService.endMatch(activeMatchId)) as Record<string, unknown>;
       if (res?.success) {
         toast.success('Kết thúc trận đấu thành công!');
         router.push('/manager/dashboard');
       } else {
-        toast.error(res?.message || 'Kết thúc trận đấu thất bại!');
+        toast.error((res?.message as string) || 'Kết thúc trận đấu thất bại!');
       }
     } catch (error) {
       console.error('Error ending match:', error);
