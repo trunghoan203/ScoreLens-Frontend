@@ -1,4 +1,5 @@
 import React from 'react';
+import { Badge } from '@/components/ui/badge';
 
 interface Feedback {
   id: string;
@@ -19,19 +20,19 @@ interface FeedbackGridProps {
 export default function FeedbackGrid({ feedbacks, onFeedbackClick }: FeedbackGridProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-500';
-      case 'resolved': return 'bg-green-500';
-      case 'managerP': return 'bg-blue-500';
-      case 'adminP': return 'bg-purple-500';
-      case 'superadminP': return 'bg-indigo-500';
-      default: return 'bg-gray-500';
+      case 'resolved': return 'success';
+      case 'pending': return 'danger';
+      case 'managerP': return 'danger';
+      case 'adminP': return 'danger';
+      case 'superadminP': return 'danger';
+      default: return 'danger';
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending': return 'Chờ xử lý';
-      case 'resolved': return 'Đã giải quyết';
+      case 'pending': return 'Chưa xử lý';
+      case 'resolved': return 'Đã xử lý';
       case 'managerP': return 'Manager đang xử lý';
       case 'adminP': return 'Admin đang xử lý';
       case 'superadminP': return 'Super Admin đang xử lý';
@@ -59,12 +60,12 @@ export default function FeedbackGrid({ feedbacks, onFeedbackClick }: FeedbackGri
             <div className="py-4 text-gray-700">{feedback.table}</div>
             <div className="py-4 text-gray-700">{feedback.time}</div>
             <div className="py-4 flex justify-center">
-              <span className={
-                `inline-flex items-center justify-center rounded-full text-sm font-bold text-white px-4 py-2 ` +
-                `w-50 ${getStatusColor(feedback.status)}`
-              }>
+              <Badge
+                variant={getStatusColor(feedback.status)}
+                className="text-sm font-semibold flex-shrink-0 whitespace-nowrap"
+              >
                 {getStatusText(feedback.status)}
-              </span>
+              </Badge>
             </div>
           </div>
         ))}

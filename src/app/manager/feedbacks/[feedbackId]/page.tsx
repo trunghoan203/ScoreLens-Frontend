@@ -8,6 +8,7 @@ import { managerFeedbackService } from '@/lib/managerFeedbackService';
 import { managerTableService } from '@/lib/managerTableService';
 import FeedbackDetailLayout from "@/components/shared/FeedbackDetailLayout";
 import FeedbackPageBanner from "@/components/manager/FeedbackPageBanner";
+import { Badge } from '@/components/ui/badge';
 
 interface Feedback {
   feedbackId: string;
@@ -153,21 +154,21 @@ export default function FeedbackDetailPage() {
   }, []);
 
   const statusOptions = [
-    { value: 'pending', label: 'Chờ xử lý' },
+    { value: 'pending', label: 'Chưa xử lý' },
     { value: 'managerP', label: 'Manager đang xử lý' },
     { value: 'adminP', label: 'Admin đang xử lý' },
     { value: 'superadminP', label: 'Super Admin đang xử lý' },
-    { value: 'resolved', label: 'Đã giải quyết' },
+    { value: 'resolved', label: 'Đã xử lý' },
   ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-500';
-      case 'resolved': return 'bg-green-500';
-      case 'managerP': return 'bg-blue-500';
-      case 'adminP': return 'bg-purple-500';
-      case 'superadminP': return 'bg-indigo-500';
-      default: return 'bg-gray-500';
+      case 'resolved': return 'success';
+      case 'pending': return 'danger';
+      case 'managerP': return 'danger';
+      case 'adminP': return 'danger';
+      case 'superadminP': return 'danger';
+      default: return 'danger';
     }
   };
 
@@ -243,9 +244,12 @@ export default function FeedbackDetailPage() {
                       ))}
                     </select>
                   ) : (
-                    <span className={`inline-block px-4 py-2 rounded-full text-base font-semibold text-white ${getStatusColor(status)}`}>
+                    <Badge
+                      variant={getStatusColor(status)}
+                      className="text-sm font-semibold flex-shrink-0 whitespace-nowrap"
+                    >
                       {getStatusText(status)}
-                    </span>
+                    </Badge>
                   )}
                 </div>
                 <div>
@@ -260,9 +264,12 @@ export default function FeedbackDetailPage() {
                       <option value="true">Có</option>
                     </select>
                   ) : (
-                    <span className={`inline-block px-4 py-2 rounded-full text-base font-semibold text-white ${needSupport ? 'bg-red-500' : 'bg-green-500'}`}>
+                    <Badge
+                      variant={needSupport ? 'danger' : 'success'}
+                      className="text-sm font-semibold flex-shrink-0 whitespace-nowrap"
+                    >
                       {needSupport ? 'Cần hỗ trợ' : 'Không cần hỗ trợ'}
-                    </span>
+                    </Badge>
                   )}
                 </div>
                 <div>
@@ -294,49 +301,49 @@ export default function FeedbackDetailPage() {
                   )}
                 </div>
               </div>
-                             <div className="flex-1 space-y-6 order-2 md:order-none">
-                 <div>
-                   <label className="block text-sm font-semibold mb-2 text-black">Lịch sử xử lý</label>
-                   <div className="bg-gray-50 rounded-lg p-4 max-h-[925px] overflow-y-auto">
-                     {feedback?.history && feedback.history.length > 0 ? (
-                       <div className="space-y-3">
-                         {feedback.history
-                           .slice()
-                           .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                           .slice(0, 15)
-                           .map((item, index) => (
-                             <div key={index} className="border-l-4 border-lime-400 pl-4 py-2 bg-white rounded-r-lg">
-                               <div className="flex justify-between items-start mb-1">
-                                 <div className="flex items-center gap-2">
-                                   <span className="font-semibold text-sm text-gray-800">{item.byName}</span>
-                                   <span className="text-xs bg-gray-200 px-2 py-1 rounded-full text-gray-600">{item.byRole}</span>
-                                 </div>
-                                 <span className="text-xs text-gray-500">
-                                   {item.date ? new Date(item.date).toLocaleString('vi-VN') : ''}
-                                 </span>
-                               </div>
-                               {item.note && (
-                                 <div className="text-sm text-gray-600">
-                                   <span className="font-medium">Ghi chú:</span> {item.note}
-                                 </div>
-                               )}
-                             </div>
-                           ))}
-                       </div>
-                     ) : (
-                       <div className="text-center py-8">
-                         <div className="text-gray-400 mb-2">
-                           <svg className="w-12 h-12 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                           </svg>
-                         </div>
-                         <p className="text-gray-500 text-sm font-medium">Chưa có lịch sử xử lý</p>
-                         <p className="text-gray-400 text-xs mt-1">Lịch sử xử lý sẽ hiển thị khi có người cập nhật phản hồi</p>
-                       </div>
-                     )}
-                   </div>
-                 </div>
-               </div>
+              <div className="flex-1 space-y-6 order-2 md:order-none">
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-black">Lịch sử xử lý</label>
+                  <div className="bg-gray-50 rounded-lg p-4 max-h-[925px] overflow-y-auto">
+                    {feedback?.history && feedback.history.length > 0 ? (
+                      <div className="space-y-3">
+                        {feedback.history
+                          .slice()
+                          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                          .slice(0, 15)
+                          .map((item, index) => (
+                            <div key={index} className="border-l-4 border-lime-400 pl-4 py-2 bg-white rounded-r-lg">
+                              <div className="flex justify-between items-start mb-1">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-semibold text-sm text-gray-800">{item.byName}</span>
+                                  <span className="text-xs bg-gray-200 px-2 py-1 rounded-full text-gray-600">{item.byRole}</span>
+                                </div>
+                                <span className="text-xs text-gray-500">
+                                  {item.date ? new Date(item.date).toLocaleString('vi-VN') : ''}
+                                </span>
+                              </div>
+                              {item.note && (
+                                <div className="text-sm text-gray-600">
+                                  <span className="font-medium">Ghi chú:</span> {item.note}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <div className="text-gray-400 mb-2">
+                          <svg className="w-12 h-12 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <p className="text-gray-500 text-sm font-medium">Chưa có lịch sử xử lý</p>
+                        <p className="text-gray-400 text-xs mt-1">Lịch sử xử lý sẽ hiển thị khi có người cập nhật phản hồi</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
             <div className="flex flex-col md:flex-row justify-center items-center gap-4 mt-8">
               <button
