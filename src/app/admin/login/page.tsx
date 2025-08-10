@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/PasswordInput';
 import { AuthLayout } from '@/components/shared/AuthLayout';
+import { SearchParamsWrapper } from '@/components/shared/SearchParamsWrapper';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import axios from '@/lib/axios';
@@ -55,7 +56,7 @@ export default function AdminLoginPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, searchParams: URLSearchParams | null) => {
     e.preventDefault();
     
     if (!validateForm()) return;
@@ -90,6 +91,11 @@ export default function AdminLoginPage() {
         });
 
         toast.success('Đăng nhập thành công!');
+        const redirectUrl = searchParams?.get('redirect');
+        if (redirectUrl) {
+          router.push(redirectUrl);
+          return;
+        }
         
         // Gọi API lấy profile với accessToken vừa nhận
         try {
@@ -155,110 +161,114 @@ export default function AdminLoginPage() {
       title="Đăng nhập Admin"
       description="Vui lòng đăng nhập để tiếp tục"
     >
-      <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]">
-        <div>
-          <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-            Email
-          </label>
-          <Input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${
-              errors.email ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="Nhập email của bạn"
-            required
-            disabled={isLoading}
-          />
-          {errors.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-            Mật khẩu
-          </label>
-          <PasswordInput
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleInputChange}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${
-              errors.password ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="Nhập mật khẩu"
-            required
-            disabled={isLoading}
-          />
-          {errors.password && (
-            <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-          )}
-        </div>
-
-        <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center gap-2">
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={handleRememberMeChange}
-                className="h-4 w-4 text-lime-500 focus:ring-lime-400 border-gray-300 rounded"
+      <SearchParamsWrapper>
+        {(searchParams) => (
+          <form onSubmit={(e) => handleSubmit(e, searchParams)} className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]">
+            <div>
+              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                Email
+              </label>
+              <Input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${
+                  errors.email ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Nhập email của bạn"
+                required
                 disabled={isLoading}
               />
-              <span className="text-gray-700">Nhớ mật khẩu</span>
-            </label> 
-          </div>
-          <Link 
-            href="/admin/forgotPassword" 
-            className="font-medium text-gray-800 hover:text-lime-500 transition-colors"
-          >
-            Quên mật khẩu?
-          </Link>
-        </div>
-
-        <Button
-          type="submit"
-          variant="lime"
-          fullWidth
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <div className="flex items-center justify-center">
-              <Loader2 className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-900" />
-              Đang đăng nhập...
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              )}
             </div>
-          ) : (
-            <div className="flex items-center justify-center">
-              <LogIn className="w-5 h-5 mr-2" />
-              Đăng nhập
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
+                Mật khẩu
+              </label>
+              <PasswordInput
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${
+                  errors.password ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Nhập mật khẩu"
+                required
+                disabled={isLoading}
+              />
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+              )}
             </div>
-          )}
-        </Button>
 
-        <div className="text-center w-full mt-4">
-          <span className="text-gray-800 text-sm">Bạn chưa có tài khoản? </span>
-          <Link 
-            href="/admin/register" 
-            className="text-lime-600 font-semibold hover:underline text-sm transition-colors"
-          >
-            Đăng ký
-          </Link>
-        </div>
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={handleRememberMeChange}
+                    className="h-4 w-4 text-lime-500 focus:ring-lime-400 border-gray-300 rounded"
+                    disabled={isLoading}
+                  />
+                  <span className="text-gray-700">Nhớ mật khẩu</span>
+                </label> 
+              </div>
+              <Link 
+                href="/admin/forgotPassword" 
+                className="font-medium text-gray-800 hover:text-lime-500 transition-colors"
+              >
+                Quên mật khẩu?
+              </Link>
+            </div>
 
-        <div className="text-center mt-6">
-          <Link
-            href="/"
-            className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Quay lại trang chủ
-          </Link>
-        </div>
-      </form>
+            <Button
+              type="submit"
+              variant="lime"
+              fullWidth
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <Loader2 className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-900" />
+                  Đang đăng nhập...
+                </div>
+              ) : (
+                <div className="flex items-center justify-center">
+                  <LogIn className="w-5 h-5 mr-2" />
+                  Đăng nhập
+                </div>
+              )}
+            </Button>
+
+            <div className="text-center w-full mt-4">
+              <span className="text-gray-800 text-sm">Bạn chưa có tài khoản? </span>
+              <Link 
+                href="/admin/register" 
+                className="text-lime-600 font-semibold hover:underline text-sm transition-colors"
+              >
+                Đăng ký
+              </Link>
+            </div>
+
+            <div className="text-center mt-6">
+              <Link
+                href="/"
+                className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Quay lại trang chủ
+              </Link>
+            </div>
+          </form>
+        )}
+      </SearchParamsWrapper>
     </AuthLayout>
   );
 }
