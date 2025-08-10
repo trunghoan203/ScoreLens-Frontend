@@ -11,7 +11,7 @@ export default function SuperAdminAccessPage() {
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState<{ email?: string; general?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
-
+ 
   const validateForm = () => {
     const newErrors: typeof errors = {};
     if (!email || !/^\S+@\S+\.\S+$/.test(email)) {

@@ -16,8 +16,8 @@ interface CameraGridProps {
 
 export default function CameraGrid({ cameras, onCameraClick }: CameraGridProps) {
   return (
-    <div className="rounded-lg overflow-hidden space-y-2"> 
-      
+    <div className="rounded-lg overflow-hidden space-y-2">
+
       <div className="grid grid-cols-12 bg-[#000000] text-[#FFFFFF] font-semibold text-center rounded-t-lg">
         <div className="col-span-2 py-3">BÀN</div>
         <div className="col-span-3 py-3">IP</div>
@@ -38,9 +38,8 @@ export default function CameraGrid({ cameras, onCameraClick }: CameraGridProps) 
           <div className="col-span-3 py-4 text-gray-700 text-base">{'•'.repeat(8)}</div>
           <div className="col-span-2 py-4 flex justify-center">
             <span
-              className={`w-4 h-4 rounded-full inline-block ${
-                camera.status === 'active' ? 'bg-green-500' : 'bg-red-500'
-              }`}
+              className={`w-4 h-4 rounded-full inline-block ${camera.status === 'active' ? 'bg-green-500' : 'bg-red-500'
+                }`}
             ></span>
           </div>
         </div>

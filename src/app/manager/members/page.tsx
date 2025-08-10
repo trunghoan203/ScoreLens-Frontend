@@ -16,7 +16,6 @@ export interface Member {
   membershipId: string;
   fullName: string;
   phoneNumber: string;
-  totalPlayTime?: number;
   _id?: string;
 }
 
@@ -44,7 +43,6 @@ export default function MembersPage() {
             membershipId: obj.membershipId || obj._id || '',
             fullName: obj.fullName || '',
             phoneNumber: obj.phoneNumber || '',
-            totalPlayTime: obj.totalPlayTime ?? 0,
           };
         });
         setMembers(mappedMembers);
@@ -92,70 +90,53 @@ export default function MembersPage() {
       <div className="min-h-screen flex bg-[#18191A]">
         <SidebarManager />
         <main className="flex-1 bg-white min-h-screen">
-          <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${
-            isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
-          }`}>
+          <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
+            }`}>
             <HeaderManager />
           </div>
           <div className="p-10">
-          <MemberPageBanner />
-          {members.length > 0 && (
-            <MemberSearchBar
-              search={search}
-              setSearch={setSearch}
-              onAddMember={isAdding ? () => {} : handleAddMember}
-            />
-          )}
-          {loading ? (
-            <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>
-          ) : error ? (
-            <div className="py-8 text-center text-red-500">{error}</div>
-          ) : members.length === 0 ? (
-            <EmptyState
-              icon={
-                <svg className="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                </svg>
-              }
-              title={search ? 'Không tìm thấy hội viên phù hợp' : 'Chưa có hội viên nào'}
-              description={
-                search 
-                  ? 'Thử thay đổi từ khóa tìm kiếm hoặc thêm hội viên mới để mở rộng cộng đồng'
-                  : 'Bắt đầu xây dựng cộng đồng hội viên chuyên nghiệp cho câu lạc bộ của bạn'
-              }
-              primaryAction={{
-                label: 'Thêm hội viên mới',
-                onClick: handleAddMember,
-                loading: isAdding,
-                icon: (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            <MemberPageBanner />
+            {members.length > 0 && (
+              <MemberSearchBar
+                search={search}
+                setSearch={setSearch}
+                onAddMember={isAdding ? () => { } : handleAddMember}
+              />
+            )}
+            {loading ? (
+              <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>
+            ) : error ? (
+              <div className="py-8 text-center text-red-500">{error}</div>
+            ) : filteredMembers.length === 0 ? (
+              <EmptyState
+                icon={
+                  <svg className="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                   </svg>
-                )
-              }}
-              secondaryAction={search ? {
-                label: 'Xem tất cả',
-                onClick: () => setSearch(''),
-                icon: (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h16M4 12h16M4 20h16" />
-                  </svg>
-                )
-              } : undefined}
-              additionalInfo="Hội viên sẽ giúp bạn xây dựng và phát triển cộng đồng câu lạc bộ hiệu quả"
-              showAdditionalInfo={!search}
-            />
-          ) : (
-            <MemberGrid
-              members={filteredMembers.map(m => ({
-                id: m.membershipId,
-                name: m.fullName,
-                phone: m.phoneNumber,
-                playTime: m.totalPlayTime !== undefined ? `${m.totalPlayTime} phút` : '',
-              }))}
-              onMemberClick={handleMemberClick}
-            />
-          )}
+                }
+                title="Không tìm thấy hội viên phù hợp"
+                description="Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy hội viên phù hợp"
+                secondaryAction={{
+                  label: 'Xem tất cả',
+                  onClick: () => setSearch(''),
+                  icon: (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h16M4 12h16M4 20h16" />
+                    </svg>
+                  )
+                }}
+                showAdditionalInfo={false}
+              />
+            ) : (
+              <MemberGrid
+                members={filteredMembers.map(m => ({
+                  id: m.membershipId,
+                  name: m.fullName,
+                  phone: m.phoneNumber,
+                }))}
+                onMemberClick={handleMemberClick}
+              />
+            )}
           </div>
         </main>
       </div>

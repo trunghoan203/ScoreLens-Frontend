@@ -44,6 +44,17 @@ export default function CameraDetailPage() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
+  const formatCategory = (category: string) => {
+    switch (category) {
+      case 'pool-8':
+        return 'Pool-8';
+      case 'carom':
+        return 'Carom';
+      default:
+        return category;
+    }
+  };
+
   useEffect(() => {
     Promise.all([
       managerCameraService.getAllCameras(),
@@ -101,12 +112,12 @@ export default function CameraDetailPage() {
 
   const handleSave = async () => {
     try {
-      await managerCameraService.updateCamera(cameraId, { 
+      await managerCameraService.updateCamera(cameraId, {
         tableId,
-        IPAddress: ip, 
-        username, 
-        password, 
-        isConnect 
+        IPAddress: ip,
+        username,
+        password,
+        isConnect
       });
       toast.success('Đã lưu camera thành công!');
       setIsEditMode(false);
@@ -131,98 +142,96 @@ export default function CameraDetailPage() {
     <div className="min-h-screen flex bg-[#18191A]">
       <SidebarManager />
       <main className="flex-1 bg-white min-h-screen">
-        <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${
-          isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
-        }`}>
+        <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
+          }`}>
           <HeaderManager />
         </div>
         <div className="p-10">
-        <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-          <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
-            QUẢN LÝ CAMERA
-          </span>
-        </div>
-        <AddFormLayout
-          title={isEditMode ? "CHỈNH SỬA CAMERA" : "CHI TIẾT CAMERA"}
-          onBack={() => router.push('/manager/camera')}
-          backLabel="Quay lại"
-          submitLabel={isEditMode ? "Lưu" : "Chỉnh sửa"}
-          extraActions={
-            !isEditMode && (
-              <button
-                type="button"
-                className="w-40 bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded-lg transition text-lg"
-                onClick={() => setShowConfirm(true)}
-              >
-                Xóa
-              </button>
-            )
-          }
-          onSubmit={e => {
-            e.preventDefault();
-            if (isEditMode) {
-              handleSave();
-            } else {
-              setIsEditMode(true);
+          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
+            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+              QUẢN LÝ CAMERA
+            </span>
+          </div>
+          <AddFormLayout
+            title={isEditMode ? "CHỈNH SỬA CAMERA" : "CHI TIẾT CAMERA"}
+            onBack={() => router.push('/manager/camera')}
+            backLabel="Quay lại"
+            submitLabel={isEditMode ? "Lưu" : "Chỉnh sửa"}
+            extraActions={
+              !isEditMode && (
+                <button
+                  type="button"
+                  className="w-40 bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded-lg transition text-lg"
+                  onClick={() => setShowConfirm(true)}
+                >
+                  Xóa
+                </button>
+              )
             }
-          }}
-        >
-          <ConfirmPopup
-            open={showConfirm}
-            title="Bạn có chắc chắn muốn xóa camera này không?"
-            onCancel={() => setShowConfirm(false)}
-            onConfirm={async () => { 
-              setShowConfirm(false); 
-              await handleDelete();
+            onSubmit={e => {
+              e.preventDefault();
+              if (isEditMode) {
+                handleSave();
+              } else {
+                setIsEditMode(true);
+              }
             }}
-            confirmText="Xác nhận"
-            cancelText="Hủy"
           >
-            <></>
-          </ConfirmPopup>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Bàn<span className="text-red-500">*</span></label>
-            <Select
-              className="text-black"
-              value={tableId}
-              onChange={e => setTableId(e.target.value)}
-              required
-              disabled={!isEditMode}
+            <ConfirmPopup
+              open={showConfirm}
+              title="Bạn có chắc chắn muốn xóa camera này không?"
+              onCancel={() => setShowConfirm(false)}
+              onConfirm={async () => {
+                setShowConfirm(false);
+                await handleDelete();
+              }}
+              confirmText="Xác nhận"
+              cancelText="Hủy"
             >
-              <option className="text-black" value="">Chọn bàn</option>
-              {tables.map(table => (
-                <option className="text-black" key={table.tableId} value={table.tableId}>
-                  Bàn {table.name} - {table.category}
-                </option>
-              ))}
-            </Select>
-          </div>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">IP<span className="text-red-500">*</span></label>
-            <Input value={ip} onChange={e => setIp(e.target.value)} required disabled={!isEditMode} />
-          </div>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Username<span className="text-red-500">*</span></label>
-            <Input value={username} onChange={e => setUsername(e.target.value)} required disabled={!isEditMode} />
-          </div>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Mật khẩu<span className="text-red-500">*</span></label>
-            <PasswordInput value={password} onChange={e => setPassword(e.target.value)} required disabled={!isEditMode} />
-          </div>
-          <div className="w-full mb-10">
-            <label className="block text-sm font-semibold mb-2 text-black">Trạng thái kết nối<span className="text-red-500">*</span></label>
-            <Select 
-              className="text-black" 
-              value={isConnect ? 'true' : 'false'} 
-              onChange={e => setIsConnect(e.target.value === 'true')} 
-              required 
-              disabled={!isEditMode}
-            >
-              <option className="text-black" value="true">Đã kết nối</option>
-              <option className="text-black" value="false">Chưa kết nối</option>
-            </Select>
-          </div>
-        </AddFormLayout>
+              <></>
+            </ConfirmPopup>
+            <div className="w-full mb-6">
+              <label className="block text-sm font-semibold mb-2 text-black">Bàn<span className="text-red-500">*</span></label>
+              <Select
+                className="text-black"
+                value={tableId}
+                onChange={e => setTableId(e.target.value)}
+                required
+                disabled={!isEditMode}
+              >
+                {tables.map(table => (
+                  <option className="text-black" key={table.tableId} value={table.tableId}>
+                    {table.name} - {formatCategory(table.category)}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <div className="w-full mb-6">
+              <label className="block text-sm font-semibold mb-2 text-black">IP<span className="text-red-500">*</span></label>
+              <Input value={ip} onChange={e => setIp(e.target.value)} required disabled={!isEditMode} />
+            </div>
+            <div className="w-full mb-6">
+              <label className="block text-sm font-semibold mb-2 text-black">Username<span className="text-red-500">*</span></label>
+              <Input value={username} onChange={e => setUsername(e.target.value)} required disabled={!isEditMode} />
+            </div>
+            <div className="w-full mb-6">
+              <label className="block text-sm font-semibold mb-2 text-black">Mật khẩu<span className="text-red-500">*</span></label>
+              <PasswordInput value={password} onChange={e => setPassword(e.target.value)} required disabled={!isEditMode} />
+            </div>
+            <div className="w-full mb-10">
+              <label className="block text-sm font-semibold mb-2 text-black">Trạng thái kết nối<span className="text-red-500">*</span></label>
+              <Select
+                className="text-black"
+                value={isConnect ? 'true' : 'false'}
+                onChange={e => setIsConnect(e.target.value === 'true')}
+                required
+                disabled={!isEditMode}
+              >
+                <option className="text-black" value="true">Đã kết nối</option>
+                <option className="text-black" value="false">Chưa kết nối</option>
+              </Select>
+            </div>
+          </AddFormLayout>
         </div>
       </main>
     </div>
