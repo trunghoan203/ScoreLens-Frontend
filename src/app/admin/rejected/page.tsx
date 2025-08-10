@@ -1,12 +1,20 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
 import { CircleAlert } from 'lucide-react';
+import adminService from '@/lib/adminService';
 
 export default function AdminRejectedPage() {
   const router = useRouter();
+  const [adminId, setAdminId] = useState<string | null>(null);
+
+  useEffect(() => {
+    adminService.getProfile().then(res => {
+      setAdminId(res.adminId || null);
+    });
+  }, []);
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-gray-50 via-white to-[#fff0f0] overflow-hidden">
@@ -40,9 +48,11 @@ export default function AdminRejectedPage() {
           </h1>
 
           <p className="text-gray-700 mb-8 leading-relaxed text-[16px]">
-            Tài khoản của bạn không được chấp nhận do không đáp ứng yêu cầu của hệ thống.
-            <br /><br />
-            Vui lòng liên hệ với quản trị viên nếu bạn cần thêm thông tin hoặc muốn gửi lại yêu cầu.
+            Vui lòng kiểm tra email hoặc{' '}
+            <a href={`/admin/reform?${adminId}`} rel="noopener noreferrer" className="text-blue-500 hover:underline">
+              tại đây
+            </a>
+            {' '}để biết thêm chi tiết.
           </p>
 
           <button

@@ -83,7 +83,7 @@ export default function CompleteProfilePage() {
             <p className="text-lg text-center text-gray-700 mb-2">Vui lòng chờ chúng tôi chấp nhận yêu cầu đăng ký của bạn!</p>
             <div className="flex justify-center my-6">
               <div className="animate-success-bounce">
-                <CheckCircle size={110} strokeWidth={2} fill="#A3E635" className="text-lime-400 bg-transparent rounded-full" />
+                <CheckCircle size={110} strokeWidth={2} className="text-lime-400" fill="none"/>
               </div>
             </div>
             <div className="text-2xl font-bold text-black text-center mb-2 animate-success-pop">Cảm ơn bạn đã đăng ký!</div>
