@@ -67,7 +67,6 @@ export default function ManagerDashboardPage() {
   const [tables, setTables] = useState<TableData[]>([]);
   const [loadingTables, setLoadingTables] = useState(true);
   const [activeMatches, setActiveMatches] = useState<Map<string, { matchId: string; status: string; startTime: Date | null }>>(new Map());
-  // Remove unused globalTimer state
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -160,7 +159,6 @@ export default function ManagerDashboardPage() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      // Remove global timer update
     }, 1000);
 
     return () => clearInterval(interval);
@@ -256,20 +254,7 @@ export default function ManagerDashboardPage() {
                       </svg>
                     }
                     title={search ? 'Không tìm thấy bàn phù hợp' : 'Chưa có bàn nào'}
-                    description={
-                      search
-                        ? 'Thử thay đổi từ khóa tìm kiếm hoặc thêm bàn mới để mở rộng cơ sở vật chất'
-                        : 'Bắt đầu thiết lập hệ thống bàn chơi chuyên nghiệp cho câu lạc bộ của bạn'
-                    }
-                    primaryAction={{
-                      label: 'Thêm bàn mới',
-                      onClick: () => router.push('/manager/tables/add'),
-                      icon: (
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                      )
-                    }}
+                    description={'Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy bàn phù hợp'}
                     secondaryAction={search ? {
                       label: 'Xem tất cả',
                       onClick: () => {
@@ -283,7 +268,6 @@ export default function ManagerDashboardPage() {
                         </svg>
                       )
                     } : undefined}
-                    additionalInfo="Bàn chơi sẽ giúp bạn cung cấp dịch vụ chất lượng và thu hút hội viên"
                     showAdditionalInfo={!search}
                   />
                 ) : (

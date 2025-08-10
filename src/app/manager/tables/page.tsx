@@ -25,6 +25,7 @@ export interface Table {
 export default function TablesPage() {
   const { isChecking } = useManagerAuthGuard();
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [tables, setTables] = useState<Table[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +62,6 @@ export default function TablesPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Theo dõi scroll để thay đổi viền header
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
@@ -74,9 +74,11 @@ export default function TablesPage() {
 
   if (isChecking) return null;
 
-  const filteredTables = tables.filter(
-    t => t.name.includes(search)
-  );
+  const filteredTables = tables.filter(t => {
+    const matchesSearch = t.name.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory = categoryFilter === "" || t.category === categoryFilter;
+    return matchesSearch && matchesCategory;
+  });
 
   const handleAddTable = async () => {
     setIsAdding(true);
@@ -99,71 +101,60 @@ export default function TablesPage() {
       <div className="min-h-screen flex bg-[#18191A]">
         <SidebarManager />
         <main className="flex-1 bg-white min-h-screen">
-          <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${
-            isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
-          }`}>
+          <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
+            }`}>
             <HeaderManager />
           </div>
           <div className="p-10">
-          <TablePageBanner />
-          {tables.length > 0 && (
-            <TableSearchBar
-              search={search}
-              setSearch={setSearch}
-              onAddTable={isAdding ? () => {} : handleAddTable}
-            />
-          )}
-          {loading ? (
-            <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>
-          ) : error ? (
-            <div className="py-8 text-center text-red-500">{error}</div>
-          ) : tables.length === 0 ? (
-            <EmptyState
-              icon={
-                <svg className="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 5v4m8-4v4M8 11h8M8 15h8" />
-                </svg>
-              }
-              title={search ? 'Không tìm thấy bàn phù hợp' : 'Chưa có bàn nào'}
-              description={
-                search 
-                  ? 'Thử thay đổi từ khóa tìm kiếm hoặc thêm bàn mới để mở rộng cơ sở vật chất'
-                  : 'Bắt đầu thiết lập hệ thống bàn chơi chuyên nghiệp cho câu lạc bộ của bạn'
-              }
-              primaryAction={{
-                label: 'Thêm bàn mới',
-                onClick: handleAddTable,
-                loading: isAdding,
-                icon: (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            <TablePageBanner />
+            {tables.length > 0 && (
+              <TableSearchBar
+                search={search}
+                setSearch={setSearch}
+                categoryFilter={categoryFilter}
+                setCategoryFilter={setCategoryFilter}
+                onAddTable={isAdding ? () => { } : handleAddTable}
+              />
+            )}
+            {loading ? (
+              <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>
+            ) : error ? (
+              <div className="py-8 text-center text-red-500">{error}</div>
+            ) : filteredTables.length === 0 ? (
+              <EmptyState
+                icon={
+                  <svg className="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 5v4m8-4v4M8 11h8M8 15h8" />
                   </svg>
-                )
-              }}
-              secondaryAction={search ? {
-                label: 'Xem tất cả',
-                onClick: () => setSearch(''),
-                icon: (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h16M4 12h16M4 20h16" />
-                  </svg>
-                )
-              } : undefined}
-              additionalInfo="Bàn chơi sẽ giúp bạn cung cấp dịch vụ chất lượng và thu hút hội viên"
-              showAdditionalInfo={!search}
-            />
-          ) : (
-            <TableGrid
-              tables={filteredTables.map(t => ({
-                id: t.tableId,
-                name: t.name,
-                type: t.category,
-                status: t.status,
-              }))}
-              onTableClick={handleTableClick}
-            />
-          )}
+                }
+                title="Không tìm thấy bàn phù hợp"
+                description="Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy bàn phù hợp"
+                secondaryAction={{
+                  label: 'Xem tất cả',
+                  onClick: () => {
+                    setSearch('');
+                    setCategoryFilter('');
+                  },
+                  icon: (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h16M4 12h16M4 20h16" />
+                    </svg>
+                  )
+                }}
+                showAdditionalInfo={false}
+              />
+            ) : (
+              <TableGrid
+                tables={filteredTables.map(t => ({
+                  id: t.tableId,
+                  name: t.name,
+                  type: t.category,
+                  status: t.status,
+                }))}
+                onTableClick={handleTableClick}
+              />
+            )}
           </div>
         </main>
       </div>
