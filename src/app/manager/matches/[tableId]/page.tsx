@@ -8,9 +8,13 @@ import TableAvailableView from '@/components/manager/TableAvailableView';
 import TableUsingView from '@/components/manager/TableUsingView';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { useManagerAuthGuard } from '@/lib/hooks/useManagerAuthGuard';
+import { useWebSocket } from '@/lib/hooks/useWebSocket';
 import { managerTableService } from '@/lib/managerTableService';
 import { managerMemberService } from '@/lib/managerMemberService';
 import { managerMatchService } from '@/lib/managerMatchService';
+import { MatchSummaryModal } from '@/components/manager/MatchSummaryModal';
+import { EditMatchModal } from '@/components/manager/EditMatchModal';
+import { EditScoreModal } from '@/components/manager/EditScoreModal';
 import toast from 'react-hot-toast';
 
 interface TableData {
@@ -37,6 +41,23 @@ interface RawTableData {
   time?: string;
 }
 
+interface MatchData {
+  matchId: string;
+  tableName: string;
+  gameType: string;
+  startTime?: Date;
+  endTime?: Date;
+  teams: Array<{
+    teamName: string;
+    score: number;
+    isWinner: boolean;
+    members: Array<{
+      guestName?: string;
+      membershipName?: string;
+    }>;
+  }>;
+}
+
 interface MembersData {
   memberships?: unknown[];
 }
@@ -55,7 +76,17 @@ export default function TableDetailPage() {
   const [tableStatus, setTableStatus] = useState<'available' | 'using'>('available');
   const [teamA, setTeamA] = useState<string[]>([]);
   const [teamB, setTeamB] = useState<string[]>([]);
+  const [teamAScore, setTeamAScore] = useState<number>(0);
+  const [teamBScore, setTeamBScore] = useState<number>(0);
+  const [activeMatchId, setActiveMatchId] = useState<string | null>(null);
+  const [matchStatus, setMatchStatus] = useState<'pending' | 'ongoing' | 'completed'>('pending');
   const [isEditing, setIsEditing] = useState(false);
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showEditScoreModal, setShowEditScoreModal] = useState(false);
+  const [matchData, setMatchData] = useState<MatchData | null>(null);
+  const [elapsedTime, setElapsedTime] = useState<string>('00:00:00');
+  const [matchStartTime, setMatchStartTime] = useState<Date | null>(null);
 
   const [dashboardStats, setDashboardStats] = useState({
     totalTables: 0,
@@ -73,7 +104,7 @@ export default function TableDetailPage() {
 
         const tablesData = await managerTableService.getAllTables();
         const tablesArray = Array.isArray(tablesData) ? tablesData : (tablesData as { tables?: RawTableData[] })?.tables || [];
-        
+
         const transformedTables: TableData[] = tablesArray.map((table: RawTableData) => ({
           id: table.tableId || table.id || table._id || '',
           tableId: table.tableId,
@@ -89,8 +120,77 @@ export default function TableDetailPage() {
         if (foundTable) {
           setTable(foundTable);
           setTableStatus(foundTable.status === 'inuse' ? 'using' : 'available');
-          setTeamA(foundTable.teamA ? [foundTable.teamA] : []);
-          setTeamB(foundTable.teamB ? [foundTable.teamB] : []);
+
+          try {
+            const matchResponse = await managerMatchService.getMatchesByTable(tableId, 'ongoing', 1, 1) as Record<string, unknown>;
+            if (matchResponse.success && Array.isArray(matchResponse.data) && matchResponse.data.length > 0) {
+              const activeMatch = matchResponse.data[0];
+              if (activeMatch.teams && activeMatch.teams.length >= 2) {
+                const teamAMembers = activeMatch.teams[0]?.members?.map((m: Record<string, unknown>) => m.guestName || m.membershipName || 'Unknown') || [];
+                const teamBMembers = activeMatch.teams[1]?.members?.map((m: Record<string, unknown>) => m.guestName || m.membershipName || 'Unknown') || [];
+                setTeamA(teamAMembers);
+                setTeamB(teamBMembers);
+                setTeamAScore(activeMatch.teams[0]?.score || 0);
+                setTeamBScore(activeMatch.teams[1]?.score || 0);
+                setTableStatus('using');
+                setActiveMatchId(activeMatch.matchId);
+                setMatchStatus(activeMatch.status || 'pending');
+                if (activeMatch.startTime) {
+                  const startTime = new Date(activeMatch.startTime);
+                  setMatchStartTime(startTime);
+
+                  if (activeMatch.status === 'ongoing') {
+                    const now = new Date();
+                    const elapsed = Math.floor((now.getTime() - startTime.getTime()) / 1000);
+                    const hours = Math.floor(elapsed / 3600);
+                    const minutes = Math.floor((elapsed % 3600) / 60);
+                    const seconds = elapsed % 60;
+                    const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    setElapsedTime(timeString);
+                  }
+                }
+              }
+            } else {
+              const pendingResponse = await managerMatchService.getMatchesByTable(tableId, 'pending', 1, 1) as Record<string, unknown>;
+              if (pendingResponse.success && Array.isArray(pendingResponse.data) && pendingResponse.data.length > 0) {
+                const pendingMatch = pendingResponse.data[0];
+                if (pendingMatch.teams && pendingMatch.teams.length >= 2) {
+                  const teamAMembers = pendingMatch.teams[0]?.members?.map((m: Record<string, unknown>) => m.guestName || m.membershipName || 'Unknown') || [];
+                  const teamBMembers = pendingMatch.teams[1]?.members?.map((m: Record<string, unknown>) => m.guestName || m.membershipName || 'Unknown') || [];
+                  setTeamA(teamAMembers);
+                  setTeamB(teamBMembers);
+                  setTeamAScore(pendingMatch.teams[0]?.score || 0);
+                  setTeamBScore(pendingMatch.teams[1]?.score || 0);
+                  setTableStatus('using');
+                  setActiveMatchId(pendingMatch.matchId);
+                  setMatchStatus(pendingMatch.status || 'pending');
+                  if (pendingMatch.startTime) {
+                    const startTime = new Date(pendingMatch.startTime);
+                    setMatchStartTime(startTime);
+
+                    if (pendingMatch.status === 'ongoing') {
+                      const now = new Date();
+                      const elapsed = Math.floor((now.getTime() - startTime.getTime()) / 1000);
+                      const hours = Math.floor(elapsed / 3600);
+                      const minutes = Math.floor((elapsed % 3600) / 60);
+                      const seconds = elapsed % 60;
+                      const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                      setElapsedTime(timeString);
+                    }
+                  }
+                }
+              } else {
+                setTeamA(foundTable.teamA ? [foundTable.teamA] : []);
+                setTeamB(foundTable.teamB ? [foundTable.teamB] : []);
+                setActiveMatchId(null);
+              }
+            }
+          } catch (matchError) {
+            console.error('Error fetching match data:', matchError);
+            setTeamA(foundTable.teamA ? [foundTable.teamA] : []);
+            setTeamB(foundTable.teamB ? [foundTable.teamB] : []);
+            setActiveMatchId(null);
+          }
         } else {
           toast.error('Không tìm thấy bàn');
           router.push('/manager/dashboard');
@@ -103,7 +203,7 @@ export default function TableDetailPage() {
         const inUse = transformedTables.filter((table: TableData) => table.status === 'inuse').length;
         const available = transformedTables.filter((table: TableData) => table.status === 'empty').length;
         const totalMembers = members.length;
-                
+
         setDashboardStats({
           totalTables,
           inUse,
@@ -124,14 +224,52 @@ export default function TableDetailPage() {
     }
   }, [isChecking, tableId, router]);
 
+  const { } = useWebSocket({
+    matchId: activeMatchId,
+    matchStatus,
+    onTimeUpdate: (elapsedTime) => {
+      setElapsedTime(elapsedTime);
+    },
+    onMatchUpdate: (updatedMatch) => {
+      const match = updatedMatch as Record<string, unknown>;
+      setMatchStatus(match.status as 'pending' | 'ongoing' | 'completed');
+      if (match.status === 'completed') {
+        setElapsedTime('00:00:00');
+      }
+    }
+  });
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    if (matchStatus === 'ongoing' && matchStartTime) {
+      interval = setInterval(() => {
+        const now = new Date();
+        const elapsed = Math.floor((now.getTime() - matchStartTime.getTime()) / 1000);
+        const hours = Math.floor(elapsed / 3600);
+        const minutes = Math.floor((elapsed % 3600) / 60);
+        const seconds = elapsed % 60;
+        const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        setElapsedTime(timeString);
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [matchStatus, matchStartTime]);
+
+
   const handleCreateMatch = async (teamA: string[], teamB: string[]) => {
     setCreatingMatch(true);
     try {
-      const createdByMembershipId = localStorage.getItem('membershipId') || 'MB-1752246596272';
-      
+      const createdByMembershipId = localStorage.getItem('membershipId') || undefined;
+
       const matchData = {
         tableId,
-        gameType: table?.type === 'carom' ? 'carom' : 'pool-8',
+        gameType: (table?.type === 'carom' ? 'carom' : 'pool-8') as 'carom' | 'pool-8',
         createdByMembershipId,
         isAiAssisted: false,
         teams: [
@@ -146,20 +284,21 @@ export default function TableDetailPage() {
         ]
       };
 
-      await managerMatchService.createMatch(matchData);
-      
-      toast.success('Tạo trận đấu thành công!');
-      setTeamA(teamA);
-      setTeamB(teamB);
-      setTableStatus('using');
-      setIsEditing(false);
-      
-      if (table) {
-        await managerTableService.updateTable(tableId, {
-          name: table.name,
-          category: table.type,
-          status: 'inuse'
-        });
+      const response = await managerMatchService.createMatch(matchData) as Record<string, unknown>;
+
+      if (response.success) {
+        toast.success('Tạo trận đấu thành công!');
+        setTeamA(teamA);
+        setTeamB(teamB);
+        setTableStatus('using');
+        setIsEditing(false);
+        const responseData = response.data as Record<string, unknown>;
+        if (responseData?.matchId) {
+          setActiveMatchId(responseData.matchId as string);
+        }
+
+      } else {
+        toast.error((response.message as string) || 'Tạo trận đấu thất bại!');
       }
     } catch (error) {
       console.error('Error creating match:', error);
@@ -169,21 +308,162 @@ export default function TableDetailPage() {
     }
   };
 
+  const handleStartMatch = async () => {
+    try {
+      if (!activeMatchId) {
+        toast.error('Không xác định được trận đấu để bắt đầu');
+        return;
+      }
+      const res = (await managerMatchService.startMatch(activeMatchId)) as Record<string, unknown>;
+      if (res?.success) {
+        toast.success('Bắt đầu trận đấu thành công!');
+        setMatchStatus('ongoing');
+        setMatchStartTime(new Date());
+      } else {
+        toast.error((res?.message as string) || 'Bắt đầu trận đấu thất bại!');
+      }
+    } catch (error) {
+      console.error('Error starting match:', error);
+      toast.error('Bắt đầu trận đấu thất bại!');
+    }
+  };
+
+  const handleEditMembers = () => {
+    setShowEditModal(false);
+    setIsEditing(true);
+  };
+
+  const handleEditScores = () => {
+    setShowEditModal(false);
+    setShowEditScoreModal(true);
+  };
+
+  const handleSaveScores = async (newTeamAScore: number, newTeamBScore: number) => {
+    try {
+      if (!activeMatchId) {
+        toast.error('Không xác định được trận đấu để cập nhật');
+        return;
+      }
+
+      await Promise.all([
+        managerMatchService.updateScore(activeMatchId, { teamIndex: 0, score: newTeamAScore }),
+        managerMatchService.updateScore(activeMatchId, { teamIndex: 1, score: newTeamBScore }),
+      ]);
+
+      setTeamAScore(newTeamAScore);
+      setTeamBScore(newTeamBScore);
+      setShowEditScoreModal(false);
+      toast.success('Cập nhật điểm số thành công!');
+    } catch (error) {
+      console.error('Error updating scores:', error);
+      toast.error('Cập nhật điểm số thất bại!');
+    }
+  };
+
+  const handleUpdateTeams = async (updatedTeamA: string[], updatedTeamB: string[]) => {
+    try {
+      if (!activeMatchId) {
+        toast.error('Không xác định được trận đấu để cập nhật');
+        return;
+      }
+      await Promise.all([
+        managerMatchService.updateTeamMembers(activeMatchId, 0, {
+          members: updatedTeamA.map((name) => ({ guestName: name })),
+        }),
+        managerMatchService.updateTeamMembers(activeMatchId, 1, {
+          members: updatedTeamB.map((name) => ({ guestName: name })),
+        }),
+      ]);
+      setTeamA(updatedTeamA);
+      setTeamB(updatedTeamB);
+      setIsEditing(false);
+      toast.success('Cập nhật thành viên thành công!');
+    } catch (error) {
+      console.error('Error updating team members:', error);
+      toast.error('Cập nhật thành viên thất bại!');
+    }
+  };
+
+  const handleEndMatch = async () => {
+    try {
+      if (!activeMatchId) {
+        toast.error('Không xác định được trận đấu để kết thúc');
+        return;
+      }
+
+      const matchResponse = await managerMatchService.getMatchById(activeMatchId) as Record<string, unknown>;
+      if (matchResponse?.success) {
+        const currentMatch = matchResponse.data as Record<string, unknown>;
+
+        const teams = (currentMatch?.teams as Array<Record<string, unknown>>) || [];
+
+        const scores = teams.map((team: Record<string, unknown>) => team.score as number);
+        const maxScore = Math.max(...scores);
+        const teamsWithMaxScore = teams.filter((team: Record<string, unknown>) => team.score === maxScore);
+
+        const teamsWithWinner = teams.map((team: Record<string, unknown>) => ({
+          teamName: team.teamName as string || 'Team',
+          score: team.score as number || 0,
+          isWinner: team.score === maxScore && maxScore > 0 && teamsWithMaxScore.length === 1,
+          members: (team.members as Array<Record<string, unknown>>) || []
+        }));
+
+        setMatchData({
+          matchId: currentMatch?.matchId as string,
+          tableName: table?.name || 'Unknown',
+          gameType: currentMatch?.gameType as string,
+          startTime: currentMatch?.startTime ? new Date(currentMatch.startTime as string) : undefined,
+          endTime: new Date(),
+          teams: teamsWithWinner
+        });
+        setShowSummaryModal(true);
+      } else {
+        toast.error('Không thể lấy thông tin trận đấu');
+      }
+    } catch (error) {
+      console.error('Error getting match data:', error);
+      toast.error('Không thể lấy thông tin trận đấu');
+    }
+  };
+
+  const handleConfirmEndMatch = async () => {
+    try {
+      if (!activeMatchId) {
+        toast.error('Không xác định được trận đấu để kết thúc');
+        return;
+      }
+      const res = (await managerMatchService.endMatch(activeMatchId)) as Record<string, unknown>;
+      if (res?.success) {
+        toast.success('Kết thúc trận đấu thành công!');
+        router.push('/manager/dashboard');
+      } else {
+        toast.error((res?.message as string) || 'Kết thúc trận đấu thất bại!');
+      }
+    } catch (error) {
+      console.error('Error ending match:', error);
+      toast.error('Kết thúc trận đấu thất bại!');
+    }
+  };
+
   if (isChecking) return null;
 
   if (loading) {
     return (
       <div className="flex min-h-screen bg-gray-50">
         <SidebarManager />
-        <main className="flex-1 bg-white p-10 min-h-screen">
-          <HeaderManager />
-          <div className="w-full mx-auto">
-            <div className="my-6">
-              <LoadingSkeleton type="card" />
-            </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="py-8">
+        <main className="flex-1 bg-[#FFFFFF] min-h-screen">
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+            <HeaderManager />
+          </div>
+          <div className="p-10">
+            <div className="w-full mx-auto">
+              <div className="my-6">
                 <LoadingSkeleton type="card" />
+              </div>
+              <div className="bg-white rounded-lg shadow p-6">
+                <div className="py-8">
+                  <LoadingSkeleton type="card" />
+                </div>
               </div>
             </div>
           </div>
@@ -196,12 +476,16 @@ export default function TableDetailPage() {
     return (
       <div className="flex min-h-screen bg-gray-50">
         <SidebarManager />
-        <main className="flex-1 bg-white p-10 min-h-screen">
-          <HeaderManager />
-          <div className="w-full mx-auto">
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="py-8 text-center text-gray-400">
-                <div>Không tìm thấy bàn</div>
+        <main className="flex-1 bg-[#FFFFFF] min-h-screen">
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+            <HeaderManager />
+          </div>
+          <div className="p-10">
+            <div className="w-full mx-auto">
+              <div className="bg-white rounded-lg shadow p-6">
+                <div className="py-8 text-center text-gray-400">
+                  <div>Không tìm thấy bàn</div>
+                </div>
               </div>
             </div>
           </div>
@@ -214,47 +498,84 @@ export default function TableDetailPage() {
     <>
       <div className="flex min-h-screen bg-gray-50">
         <SidebarManager />
-        <main className="flex-1 bg-white p-10 min-h-screen">
-          <HeaderManager />
-          <div className="w-full mx-auto">
-            {loadingStats ? (
-              <div className="my-6">
-                <LoadingSkeleton type="card" />
-              </div>
-            ) : (
-              <DashboardSummary
-                totalTables={dashboardStats.totalTables}
-                inUse={dashboardStats.inUse}
-                available={dashboardStats.available}
-                members={dashboardStats.members}
-              />
-            )}
-            <div className="bg-white rounded-lg shadow p-6">              
-                             {tableStatus === 'available' || isEditing ? (
-                 <TableAvailableView
-                   table={{ id: table.id, name: table.name }}
-                   onReady={handleCreateMatch}
-                   loading={creatingMatch}
-                   {...(isEditing ? { teamA, teamB } : {})}
-                 />
-               ) : (
-                <TableUsingView
-                  table={{ 
-                    id: table.id, 
-                    name: table.name, 
-                    teamA, 
-                    teamB, 
-                    time: table.time || '00:00:00' 
-                  }}
-                  onBack={() => setTableStatus('available')}
-                  onEndMatch={() => toast.success('Kết thúc trận đấu thành công!')}
-                  onEdit={() => setIsEditing(true)}
+        <main className="flex-1 bg-[#FFFFFF] min-h-screen">
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+            <HeaderManager />
+          </div>
+          <div className="p-10">
+            <div className="w-full mx-auto">
+              {loadingStats ? (
+                <div className="my-6">
+                  <LoadingSkeleton type="card" />
+                </div>
+              ) : (
+                <DashboardSummary
+                  totalTables={dashboardStats.totalTables}
+                  inUse={dashboardStats.inUse}
+                  available={dashboardStats.available}
+                  members={dashboardStats.members}
                 />
               )}
+              <div className="bg-white rounded-lg shadow p-6">
+                {tableStatus === 'available' || isEditing ? (
+                  <TableAvailableView
+                    table={{ id: table.id, name: table.name }}
+                    onReady={isEditing ? handleUpdateTeams : handleCreateMatch}
+                    loading={creatingMatch}
+                    isEditing={isEditing}
+                    onBack={() => setIsEditing(false)}
+                    elapsedTime={elapsedTime}
+                    {...(isEditing ? { teamA, teamB } : {})}
+                  />
+                ) : (
+                  <TableUsingView
+                    table={{
+                      id: table.id,
+                      name: table.name,
+                      teamA,
+                      teamB,
+                      teamAScore,
+                      teamBScore,
+                      time: table.time || '00:00:00'
+                    }}
+                    onBack={() => router.push('/manager/dashboard')}
+                    onEndMatch={handleEndMatch}
+                    onEdit={() => setShowEditModal(true)}
+                    onStartMatch={handleStartMatch}
+                    matchStatus={matchStatus}
+                    elapsedTime={elapsedTime}
+                  />
+                )}
+              </div>
             </div>
           </div>
         </main>
       </div>
+
+      <MatchSummaryModal
+        open={showSummaryModal}
+        matchData={matchData}
+        onConfirm={handleConfirmEndMatch}
+        onCancel={() => {
+          setShowSummaryModal(false);
+          setMatchData(null);
+        }}
+      />
+
+      <EditMatchModal
+        open={showEditModal}
+        onEditMembers={handleEditMembers}
+        onEditScores={handleEditScores}
+        onCancel={() => setShowEditModal(false)}
+      />
+
+      <EditScoreModal
+        open={showEditScoreModal}
+        teamAScore={teamAScore}
+        teamBScore={teamBScore}
+        onSave={handleSaveScores}
+        onCancel={() => setShowEditScoreModal(false)}
+      />
     </>
   );
 } 
