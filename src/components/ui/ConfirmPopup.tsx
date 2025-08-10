@@ -25,19 +25,19 @@ export const ConfirmPopup: React.FC<ConfirmPopupProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
       <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-lg mx-4 flex flex-col items-center transform animate-scale-in">
         <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">{title}</h2>
-        <div className="mb-8 w-full max-h-[60vh] overflow-y-auto px-2 custom-scrollbar">{children}</div>
+        <div className="mb-6 w-full max-h-[60vh] overflow-y-auto px-2 custom-scrollbar mt-4">{children}</div>
         <div className="flex gap-4 w-full justify-center">
           <Button
             onClick={onCancel}
-            variant="outline"
-            className="px-8 py-3 text-base font-semibold text-black"
+            variant="destructive"
+            className="px-8 text-base font-semibold w-[140px]"
           >
             {cancelText}
           </Button>
           <Button
             onClick={onConfirm}
             variant="lime"
-            className="px-8 py-3 text-base"
+            className="px-8 text-base w-[140px]"
           >
             {confirmText}
           </Button>

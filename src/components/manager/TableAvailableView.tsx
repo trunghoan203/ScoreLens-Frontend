@@ -82,7 +82,7 @@ export default function TableAvailableView({ table, onReady, loading = false, te
       </div>
       <div className="flex justify-center gap-8 mb-6">
         <div>
-          <div className="font-semibold mb-2 text-center">Team A</div>
+          <div className="font-semibold mb-4 text-center">Team A</div>
           {teamA.map((player, idx) => (
             <div key={idx} className="flex items-center gap-2 mb-2">
               <Input
@@ -105,7 +105,7 @@ export default function TableAvailableView({ table, onReady, loading = false, te
         </div>
         <div className="flex flex-col justify-center font-bold text-xl">VS</div>
         <div>
-          <div className="font-semibold mb-2 text-center">Team B</div>
+          <div className="font-semibold mb-4 text-center">Team B</div>
           {teamB.map((player, idx) => (
             <div key={idx} className="flex items-center gap-2 mb-2">
               <Input
