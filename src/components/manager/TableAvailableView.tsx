@@ -22,7 +22,6 @@ export default function TableAvailableView({ table, onReady, loading = false, te
   const [teamB, setTeamB] = useState<string[]>(initialTeamB && initialTeamB.length > 0 ? initialTeamB : ['']);
   const router = useRouter();
 
-  // Sync when props change (e.g., edit mode toggled)
   React.useEffect(() => {
     if (initialTeamA && initialTeamA.length > 0) setTeamA(initialTeamA);
     if (initialTeamB && initialTeamB.length > 0) setTeamB(initialTeamB);
@@ -42,7 +41,7 @@ export default function TableAvailableView({ table, onReady, loading = false, te
     if (current.length >= 4) {
       toast.error('Không thể thêm quá 4 người chơi!', {
         style: {
-          background: '#ef4444', // đỏ tươi
+          background: '#ef4444',
           color: '#fff',
           fontWeight: 'bold',
           fontSize: '1rem',
@@ -75,7 +74,7 @@ export default function TableAvailableView({ table, onReady, loading = false, te
   return (
     <div className="border border-lime-200 rounded-lg p-8 bg-[#FFFFFF] mx-auto text-[#000000]">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-lg font-semibold">Quản lí bàn</h2>
+        <h2 className="text-lg font-semibold">Tạo trận đấu</h2>
         <TableStatusBadge status={isEditing ? "using" : "available"} />
       </div>
       <div className="text-center mb-6">
@@ -83,7 +82,7 @@ export default function TableAvailableView({ table, onReady, loading = false, te
       </div>
       <div className="flex justify-center gap-8 mb-6">
         <div>
-          <div className="font-semibold mb-2">Team A</div>
+          <div className="font-semibold mb-2 text-center">Team A</div>
           {teamA.map((player, idx) => (
             <div key={idx} className="flex items-center gap-2 mb-2">
               <Input
@@ -106,7 +105,7 @@ export default function TableAvailableView({ table, onReady, loading = false, te
         </div>
         <div className="flex flex-col justify-center font-bold text-xl">VS</div>
         <div>
-          <div className="font-semibold mb-2">Team B</div>
+          <div className="font-semibold mb-2 text-center">Team B</div>
           {teamB.map((player, idx) => (
             <div key={idx} className="flex items-center gap-2 mb-2">
               <Input
@@ -145,7 +144,7 @@ export default function TableAvailableView({ table, onReady, loading = false, te
           disabled={loading}
           className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
         >
-          {loading ? 'Đang tạo trận đấu...' : isEditing ? 'Lưu thay đổi' : 'Sẵn sàng'}
+          {loading ? 'Đang tạo...' : isEditing ? 'Lưu thay đổi' : 'Sẵn sàng'}
         </button>
       </div>
     </div>
