@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import TableStatusBadge from './TableStatusBadge';
@@ -10,23 +10,12 @@ interface TableAvailableViewProps {
   table: { id: string; name: string };
   onReady: (teamA: string[], teamB: string[]) => void;
   loading?: boolean;
-  teamA?: string[];
-  teamB?: string[];
-  isEditing?: boolean;
-  onBack?: () => void;
-  elapsedTime?: string;
 }
 
-export default function TableAvailableView({ table, onReady, loading = false, teamA: initialTeamA, teamB: initialTeamB, isEditing = false, onBack, elapsedTime }: TableAvailableViewProps) {
-  const [teamA, setTeamA] = useState<string[]>(initialTeamA && initialTeamA.length > 0 ? initialTeamA : ['']);
-  const [teamB, setTeamB] = useState<string[]>(initialTeamB && initialTeamB.length > 0 ? initialTeamB : ['']);
+export default function TableAvailableView({ table, onReady, loading = false }: TableAvailableViewProps) {
+  const [teamA, setTeamA] = useState(['']);
+  const [teamB, setTeamB] = useState(['']);
   const router = useRouter();
-
-  // Sync when props change (e.g., edit mode toggled)
-  React.useEffect(() => {
-    if (initialTeamA && initialTeamA.length > 0) setTeamA(initialTeamA);
-    if (initialTeamB && initialTeamB.length > 0) setTeamB(initialTeamB);
-  }, [initialTeamA, initialTeamB]);
 
   const handleChange = (team: 'A' | 'B', index: number, value: string) => {
     const setter = team === 'A' ? setTeamA : setTeamB;
@@ -76,7 +65,7 @@ export default function TableAvailableView({ table, onReady, loading = false, te
     <div className="border border-lime-200 rounded-lg p-8 bg-[#FFFFFF] mx-auto text-[#000000]">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg font-semibold">Quản lí bàn</h2>
-        <TableStatusBadge status={isEditing ? "using" : "available"} />
+        <TableStatusBadge status="available" />
       </div>
       <div className="text-center mb-6">
         <h3 className="text-2xl font-bold">{table.name}</h3>
@@ -128,14 +117,12 @@ export default function TableAvailableView({ table, onReady, loading = false, te
           ))}
         </div>
       </div>
-      {isEditing && elapsedTime && (
-        <div className="text-center mb-6 text-lg font-mono">{elapsedTime}</div>
-      )}
+      <div className="text-center mb-6 text-lg font-mono">00:00:00</div>
       <div className="flex justify-center gap-4">
         <button
           type="button"
           className="w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 rounded-lg transition text-lg"
-          onClick={isEditing && onBack ? onBack : () => router.push('/manager/dashboard')}
+          onClick={() => router.back()}
         >
           Quay lại
         </button>
@@ -145,7 +132,7 @@ export default function TableAvailableView({ table, onReady, loading = false, te
           disabled={loading}
           className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
         >
-          {loading ? 'Đang tạo trận đấu...' : isEditing ? 'Lưu thay đổi' : 'Sẵn sàng'}
+          {loading ? 'Đang tạo trận đấu...' : 'Sẵn sàng'}
         </button>
       </div>
     </div>

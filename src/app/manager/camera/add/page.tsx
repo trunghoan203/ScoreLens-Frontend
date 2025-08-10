@@ -116,7 +116,7 @@ export default function AddCameraPage() {
               <option className="text-black" value="">Chọn bàn</option>
               {tables.map(table => (
                 <option className="text-black" key={table.tableId} value={table.tableId}>
-                  {table.name} - {table.category}
+                  Bàn {table.name} - {table.category}
                 </option>
               ))}
             </Select>

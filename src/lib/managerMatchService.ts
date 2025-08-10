@@ -1,133 +1,89 @@
 import axios from './axios';
 
-interface MatchTeamMember {
-  membershipId?: string;
-  membershipName?: string;
-  guestName?: string;
-  phoneNumber?: string;
-}
-
-interface MatchTeam {
-  teamName: string;
-  members: MatchTeamMember[];
-}
-
-interface CreateMatchData {
+interface MatchData {
   tableId: string;
-  gameType: 'carom' | 'pool-8';
-  createdByMembershipId?: string;
+  gameType: string;
+  createdByMembershipId: string;
   isAiAssisted: boolean;
-  teams: MatchTeam[];
-}
-
-interface UpdateScoreData {
-  teamIndex: number;
-  score: number;
-}
-
-interface UpdateTeamMembersData {
-  members: MatchTeamMember[];
+  teams: Array<{
+    teamName: string;
+    members: Array<{ guestName: string }>;
+  }>;
 }
 
 class ManagerMatchService {
-  // Create Match
-  async createMatch(matchData: CreateMatchData) {
+  getToken() {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('managerAccessToken');
+    }
+    return null;
+  }
+
+  getAuthHeaders() {
+    const token = this.getToken();
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }
+
+  async createMatch(matchData: MatchData) {
     try {
-      const res = await axios.post('/manager/matches', matchData);
+      const res = await axios.post('/api/membership/matches', matchData, {
+        headers: this.getAuthHeaders(),
+      });
       return res.data;
     } catch (error) {
       throw this.handleError(error);
     }
   }
 
-  // Get Match By Code
-  async getMatchByCode(matchCode: string) {
+  async getMatches() {
     try {
-      const res = await axios.get(`/manager/matches/code/${matchCode}`);
+      const res = await axios.get('/api/membership/matches', {
+        headers: this.getAuthHeaders(),
+      });
       return res.data;
     } catch (error) {
       throw this.handleError(error);
     }
   }
 
-  // Get Match By Id
   async getMatchById(matchId: string) {
     try {
-      const res = await axios.get(`/manager/matches/${matchId}`);
+      const res = await axios.get(`/api/membership/matches/${matchId}`, {
+        headers: this.getAuthHeaders(),
+      });
       return res.data;
     } catch (error) {
       throw this.handleError(error);
     }
   }
 
-  // Get Match by TableId
-  async getMatchesByTable(tableId: string, status?: string, limit = 10, page = 1) {
+  async updateMatch(matchId: string, matchData: Partial<MatchData>) {
     try {
-      let url = `/manager/matches/table/${tableId}?limit=${limit}&page=${page}`;
-      if (status) {
-        url += `&status=${status}`;
-      }
-      const res = await axios.get(url);
+      const res = await axios.put(`/api/membership/matches/${matchId}`, matchData, {
+        headers: this.getAuthHeaders(),
+      });
       return res.data;
     } catch (error) {
       throw this.handleError(error);
     }
   }
 
-  // Get Match History
-  async getMatchHistory(membershipId: string, limit = 10, page = 1) {
-    try {
-      const res = await axios.get(`/manager/matches/history/${membershipId}?limit=${limit}&page=${page}`);
-      return res.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
-  }
-
-  // Update Score
-  async updateScore(matchId: string, scoreData: UpdateScoreData) {
-    try {
-      const res = await axios.put(`/manager/matches/${matchId}/score`, scoreData);
-      return res.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
-  }
-
-  // Update Team Members
-  async updateTeamMembers(matchId: string, teamIndex: number, membersData: UpdateTeamMembersData) {
-    try {
-      const res = await axios.put(`/manager/matches/${matchId}/teams/${teamIndex}/members`, membersData);
-      return res.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
-  }
-
-  // Start Match
-  async startMatch(matchId: string) {
-    try {
-      const res = await axios.put(`/manager/matches/${matchId}/start`, {});
-      return res.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
-  }
-
-  // End Match
-  async endMatch(matchId: string) {
-    try {
-      const res = await axios.put(`/manager/matches/${matchId}/end`, {});
-      return res.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
-  }
-
-  // Delete Match
   async deleteMatch(matchId: string) {
     try {
-      const res = await axios.delete(`/manager/matches/${matchId}`);
+      const res = await axios.delete(`/api/membership/matches/${matchId}`, {
+        headers: this.getAuthHeaders(),
+      });
+      return res.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async endMatch(matchId: string) {
+    try {
+      const res = await axios.post(`/api/membership/matches/${matchId}/end`, {}, {
+        headers: this.getAuthHeaders(),
+      });
       return res.data;
     } catch (error) {
       throw this.handleError(error);
