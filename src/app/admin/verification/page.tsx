@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useRef, useEffect, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import React, { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { AuthLayout } from '@/components/shared/AuthLayout';
+import { SearchParamsWrapper } from '@/components/shared/SearchParamsWrapper';
 import Link from 'next/link';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
@@ -11,14 +12,13 @@ import { ArrowLeft } from 'lucide-react';
 
 export default function AdminVerificationPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <AdminVerificationPageInner />
-    </Suspense>
+    <SearchParamsWrapper>
+      {(searchParams) => <AdminVerificationPageInner searchParams={searchParams} />}
+    </SearchParamsWrapper>
   );
 }
 
-function AdminVerificationPageInner() {
-  const searchParams = useSearchParams();
+function AdminVerificationPageInner({ searchParams }: { searchParams: URLSearchParams | null }) {
   const router = useRouter();
   const email = searchParams?.get('email') || '';
 

@@ -2,6 +2,7 @@ import axios from './axios';
 
 export interface AdminProfile {
   _id: string;
+  adminId?: string;
   fullName: string;
   email: string;
   brandId?: string;
