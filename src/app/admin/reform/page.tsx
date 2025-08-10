@@ -16,6 +16,7 @@ import { ConfirmPopup } from "@/components/ui/ConfirmPopup";
 import Image from "next/image";
 import { Image as LucideImage } from "lucide-react";
 import axios from "@/lib/axios";
+import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
 import toast from "react-hot-toast";
 
 const InfoRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
@@ -113,6 +114,14 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
         const currentProfile = await adminService.getProfile();
         setAdminProfileState(currentProfile);
 
+        if (currentProfile.status == 'approved'){
+          router.push('/admin/branches')
+        }
+
+        if (currentProfile.status == 'pending'){
+          router.push('/admin/pending')
+        }
+
         if (adminIdFromQuery && currentProfile.adminId && adminIdFromQuery !== currentProfile.adminId) {
           setWarning('Tài khoản đăng nhập không khớp với liên kết. Hiển thị dữ liệu của tài khoản hiện tại.');
         }
@@ -194,8 +203,9 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
     <>
       {(isLoading || isCheckingAuth) && <ScoreLensLoading text="Đang tải..." />}
       <div className="min-h-screen bg-white">
-        <h1 className="text-3xl md:text-4xl font-bold text-center pt-12 pb-8 text-black">BỔ SUNG THÔNG TIN TÀI KHOẢN</h1>
-        <RegisterSteps currentStep={step} steps={["Tổng quan", "Thông tin thương hiệu", "Thông tin chi nhánh", "Xác nhận"]} />
+      <HeaderAdmin />
+        <h1 className="text-3xl md:text-4xl font-bold text-center pt-12 pb-8 text-black">THÔNG TIN BỊ TỪ CHỐI</h1>
+        <RegisterSteps currentStep={step} steps={["Thông tin chi tiết", "Thông tin thương hiệu", "Thông tin chi nhánh", "Xác nhận"]} />
         
         <div className="w-full max-w-5xl mx-auto px-4 pb-12">
           {error && (
@@ -214,9 +224,9 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
               <h2 className="text-2xl md:text-3xl font-bold text-center text-black mt-8 mb-2">BẠN ĐÃ ĐĂNG KÝ THÀNH CÔNG</h2>
               <p className="text-lg text-center text-gray-700 mb-2">Vui lòng chờ chúng tôi chấp nhận yêu cầu đăng ký của bạn!</p>
               <div className="flex justify-center my-6">
-                <div className="animate-success-bounce">
-                  <CheckCircle size={110} strokeWidth={2} fill="#A3E635" className="text-lime-400 bg-transparent rounded-full" />
-                </div>
+              <div className="animate-success-bounce">
+                <CheckCircle size={110} strokeWidth={2} className="text-lime-400" fill="none"/>
+              </div>
               </div>
               <div className="text-2xl font-bold text-black text-center mb-2 animate-success-pop">Cảm ơn bạn đã đăng ký!</div>
             </div>
@@ -224,45 +234,123 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
 
           {step === 1 && adminProfileState && (
             <>
-              <div className="p-6 mb-8 border rounded-xl bg-white shadow-sm">
-                <h2 className="text-xl font-bold mb-4 text-gray-900">Thông tin Admin</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div><span className="text-gray-500">Họ tên:</span> <span className="font-semibold text-gray-900">{adminProfileState.fullName || 'N/A'}</span></div>
-                  <div><span className="text-gray-500">Email:</span> <span className="font-semibold text-gray-900">{adminProfileState.email || 'N/A'}</span></div>
-                  <div><span className="text-gray-500">Trạng thái:</span> <span className="font-semibold text-gray-900">{adminProfileState.status || 'N/A'}</span></div>
+            <div className="space-y-8">
+
+              <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
+                <h2 className="text-lg font-semibold text-gray-900 mb-5">
+                  Thông tin Admin
+                </h2>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+                  <div>
+                    <span className="block text-gray-500 mb-1">Họ tên</span>
+                    <span className="font-medium text-gray-900">
+                      {adminProfileState.fullName || 'N/A'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="block text-gray-500 mb-1">Email</span>
+                    <span className="font-medium text-gray-900">
+                      {adminProfileState.email || 'N/A'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="block text-gray-500 mb-1">Trạng thái</span>
+                    <span
+                      className={`font-bold ${
+                        adminProfileState.status === 'rejected'
+                          ? 'text-red-500'
+                          : 'text-yellow-600'
+                      }`}
+                    >
+                      {adminProfileState.status === 'rejected'
+                        ? 'Đã bị từ chối'
+                        : 'Đang chờ duyệt'}
+                    </span>
+                  </div>
                   {adminProfileState.rejectedReason && (
-                    <div className="md:col-span-2"><span className="text-gray-500">Lý do bị từ chối:</span> <span className="font-semibold text-gray-900">{adminProfileState.rejectedReason}</span></div>
+                    <div className="sm:col-span-2">
+                      <span className="block text-gray-500 mb-1">Lý do bị từ chối</span>
+                      <span className="font-bold text-red-500">
+                        {adminProfileState.rejectedReason}
+                      </span>
+                    </div>
                   )}
                 </div>
-
               </div>
 
-              <div className="p-6 mb-8 border rounded-xl bg-white shadow-sm">
-                <h2 className="text-xl font-bold mb-4 text-gray-900">Thông tin Thương hiệu</h2>
+              <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
+                <h2 className="text-lg font-semibold text-gray-900 mb-5">
+                  Thông tin Thương hiệu
+                </h2>
                 {brand ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div><span className="text-gray-500">Tên thương hiệu:</span> <span className="font-semibold text-gray-900">{brand.brandName}</span></div>
-                    <div><span className="text-gray-500">Số điện thoại:</span> <span className="font-semibold text-gray-900">{brand.phoneNumber}</span></div>
-                    <div><span className="text-gray-500">Website:</span> <span className="font-semibold text-gray-900">{brand.website || 'N/A'}</span></div>
-                    <div><span className="text-gray-500">CCCD:</span> <span className="font-semibold text-gray-900">{brand.citizenCode}</span></div>
+                  <div className="flex flex-col md:flex-row items-start gap-6">
+                    <div className="w-28 h-28 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden">
+                      {brand.logo_url ? (
+                        <Image
+                          src={brand.logo_url}
+                          alt="Logo"
+                          width={112}
+                          height={112}
+                          className="object-cover w-full h-full"
+                        />
+                      ) : (
+                        <LucideImage className="w-10 h-10 text-gray-400" />
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 flex-1 text-sm">
+                      <div>
+                        <span className="block text-gray-500 mb-1">Tên thương hiệu</span>
+                        <span className="font-medium text-gray-900">{brand.brandName}</span>
+                      </div>
+                      <div>
+                        <span className="block text-gray-500 mb-1">Số điện thoại</span>
+                        <span className="font-medium text-gray-900">{brand.phoneNumber}</span>
+                      </div>
+                      <div>
+                        <span className="block text-gray-500 mb-1">Website</span>
+                        <span className="font-medium text-gray-900">{brand.website || 'N/A'}</span>
+                      </div>
+                      <div>
+                        <span className="block text-gray-500 mb-1">CCCD</span>
+                        <span className="font-medium text-gray-900">{brand.citizenCode}</span>
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <div className="text-sm text-gray-600">Chưa có thông tin thương hiệu.</div>
                 )}
               </div>
 
-              <div className="p-6 mb-8 border rounded-xl bg-white shadow-sm">
-                <h2 className="text-xl font-bold mb-4 text-gray-900">Danh sách Chi nhánh</h2>
+              <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
+                <h2 className="text-lg font-semibold text-gray-900 mb-5">
+                  Danh sách Chi nhánh
+                </h2>
+
                 {clubs && clubs.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {clubs.map((club) => (
-                      <div key={club._id} className="p-4 border rounded-lg bg-gray-50">
-                        <p className="font-semibold text-gray-900 mb-2">{club.clubName}</p>
-                        <div className="space-y-1 text-sm">
-                          <div><span className="text-gray-500">Địa chỉ:</span> <span className="font-medium text-gray-900">{club.address}</span></div>
-                          <div><span className="text-gray-500">Số điện thoại:</span> <span className="font-medium text-gray-900">{club.phoneNumber}</span></div>
-                          <div><span className="text-gray-500">Số bàn:</span> <span className="font-medium text-gray-900">{club.tableNumber}</span></div>
-                          <div><span className="text-gray-500">Trạng thái:</span> <span className="font-medium text-gray-900">{club.status}</span></div>
+                      <div
+                        key={club._id}
+                        className="p-4 border border-gray-200 rounded-lg bg-gray-50 hover:shadow-sm transition-shadow"
+                      >
+                        <p className="font-medium text-gray-900 mb-3">
+                          {club.clubName}
+                        </p>
+                        <div className="space-y-2 text-sm">
+                          <div>
+                            <span className="block text-gray-500 mb-0.5">Địa chỉ</span>
+                            <span className="font-medium text-gray-900">{club.address}</span>
+                          </div>
+                          <div>
+                            <span className="block text-gray-500 mb-0.5">Số điện thoại</span>
+                            <span className="font-medium text-gray-900">{club.phoneNumber}</span>
+                          </div>
+                          <div>
+                            <span className="block text-gray-500 mb-0.5">Số bàn</span>
+                            <span className="font-medium text-gray-900">{club.tableNumber}</span>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -270,6 +358,7 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
                 ) : (
                   <div className="text-sm text-gray-600">Chưa có chi nhánh nào.</div>
                 )}
+              </div>
               </div>
               <div className="flex justify-end gap-3 mt-6">
                   <Button 
@@ -424,12 +513,13 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
         cancelText="Hủy"
       >
         <div className="space-y-4">
-          <p className="text-sm text-gray-800 text-center">
-            Bạn có chắc chắn muốn xóa tài khoản này không? Hành động này không thể hoàn tác.
-          </p>
           <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-700 font-medium">
-              ⚠️ Cảnh báo: Xóa tài khoản sẽ xóa vĩnh viễn tất cả dữ liệu liên quan bao gồm thông tin thương hiệu và chi nhánh.
+            <p className="text-sm text-red-700 font-medium text-center">
+              Xóa tài khoản sẽ xóa vĩnh viễn tài khoản và tất cả dữ liệu liên quan bao gồm thông tin thương hiệu và chi nhánh.
+              <br />
+              Bạn có chắc chắn muốn xóa tài khoản này không?
+              <br />
+              Hành động này không thể hoàn tác.
             </p>
           </div>
         </div>
