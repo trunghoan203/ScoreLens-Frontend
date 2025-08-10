@@ -5,9 +5,9 @@ import HeaderManager from "@/components/manager/HeaderManager";
 import { useRouter, useParams } from "next/navigation";
 import toast from 'react-hot-toast';
 import { managerFeedbackService } from '@/lib/managerFeedbackService';
-import { managerTableService } from '@/lib/managerTableService';
 import FeedbackDetailLayout from "@/components/shared/FeedbackDetailLayout";
 import FeedbackPageBanner from "@/components/manager/FeedbackPageBanner";
+import { Badge } from '@/components/ui/badge';
 
 interface Feedback {
   feedbackId: string;
@@ -27,6 +27,7 @@ interface Feedback {
     tableId: string;
     tableName: string;
     tableNumber?: string;
+    category?: string;
   };
   content: string;
   status: 'pending' | 'managerP' | 'adminP' | 'superadminP' | 'resolved';
@@ -43,17 +44,7 @@ interface Feedback {
   updatedAt: Date;
 }
 
-interface TableData {
-  tableId?: string;
-  id?: string;
-  _id?: string;
-  name?: string;
-  tableNumber?: string;
-}
 
-interface TablesResponse {
-  tables?: TableData[];
-}
 
 export default function FeedbackDetailPage() {
   const router = useRouter();
@@ -61,7 +52,6 @@ export default function FeedbackDetailPage() {
   const feedbackId = params?.feedbackId as string;
 
   const [feedback, setFeedback] = useState<Feedback | null>(null);
-  const [, setTables] = useState<unknown[]>([]);
   const [isEditMode, setIsEditMode] = useState(false);
   const [status, setStatus] = useState<Feedback['status']>('pending');
   const [notes, setNotes] = useState('');
@@ -71,56 +61,59 @@ export default function FeedbackDetailPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const tablesData = await managerTableService.getAllTables();
-        const tablesArray = Array.isArray(tablesData) ? tablesData : (tablesData as TablesResponse)?.tables || [];
-        setTables(tablesArray);
-
-        const feedbacksData = await managerFeedbackService.getAllFeedbacks();
-        let feedbacksArr: unknown[] = [];
-        if (Array.isArray(feedbacksData)) feedbacksArr = feedbacksData;
-        else if (feedbacksData && typeof feedbacksData === 'object' && Array.isArray((feedbacksData as { feedbacks?: unknown[] }).feedbacks)) feedbacksArr = (feedbacksData as { feedbacks: unknown[] }).feedbacks;
-        else if (feedbacksData && typeof feedbacksData === 'object' && Array.isArray((feedbacksData as { data?: unknown[] }).data)) feedbacksArr = (feedbacksData as { data: unknown[] }).data;
-
-        const found = feedbacksArr.find((f) => {
-          const obj = f as Partial<Feedback>;
-          return obj.feedbackId === feedbackId || obj._id === feedbackId;
-        });
-
-        if (found) {
-          const feedbackData = found as Partial<Feedback>;
-          const tableId = feedbackData.tableId || '';
-
-          let table = tablesArray.find((t: TableData) => {
-            const tId = t.tableId || t.id || t._id;
-            return tId === tableId;
-          });
-
-          if (!table && tableId) {
-            table = tablesArray.find((t: TableData) => {
-              const tId = t.tableId || t.id || t._id;
-              return tId && (tId.includes(tableId) || tableId.includes(tId));
-            });
+        const feedbackDetailData = await managerFeedbackService.getFeedbackDetail(feedbackId);
+        let feedbackObj: Record<string, unknown> | undefined;
+        if (feedbackDetailData && typeof feedbackDetailData === 'object') {
+          const data = feedbackDetailData as Record<string, unknown>;
+          if (data.feedback) {
+            feedbackObj = data.feedback as Record<string, unknown>;
+          } else if (data.data && typeof data.data === 'object' && (data.data as Record<string, unknown>).feedback) {
+            feedbackObj = (data.data as Record<string, unknown>).feedback as Record<string, unknown>;
+          } else {
+            feedbackObj = data;
           }
+        }
+
+        if (feedbackObj) {
+          const tableInfo = feedbackObj.tableInfo as Record<string, unknown> | undefined;
+          const clubInfo = feedbackObj.clubInfo as Record<string, unknown> | undefined;
+          const createdBy = feedbackObj.createdBy as Record<string, unknown> | undefined;
+          const history = feedbackObj.history as Array<Record<string, unknown>> | undefined;
 
           const mappedFeedback: Feedback = {
-            feedbackId: feedbackData.feedbackId || feedbackData._id || '',
-            createdBy: feedbackData.createdBy || { userId: '', type: 'guest' },
-            clubId: feedbackData.clubId || '',
-            tableId: tableId,
-            clubInfo: feedbackData.clubInfo || { clubId: '', clubName: '' },
-            tableInfo: {
-              tableId: tableId,
-              tableName: table?.name || `Bàn ${tableId}`,
-              tableNumber: table?.tableNumber
+            feedbackId: String(feedbackObj.feedbackId || feedbackObj._id || ''),
+            createdBy: {
+              userId: String(createdBy?.userId || ''),
+              type: (createdBy?.type as 'guest' | 'membership') || 'guest'
             },
-            content: feedbackData.content || '',
-            status: feedbackData.status || 'pending',
-            needSupport: feedbackData.needSupport || false,
-            note: feedbackData.note || '',
-            history: feedbackData.history || [],
-            createdAt: feedbackData.createdAt || new Date(),
-            updatedAt: feedbackData.updatedAt || new Date(),
+            clubId: String(feedbackObj.clubId || ''),
+            tableId: String(feedbackObj.tableId || ''),
+            clubInfo: {
+              clubId: String(clubInfo?.clubId || ''),
+              clubName: String(clubInfo?.clubName || ''),
+              address: String(clubInfo?.address || '')
+            },
+            tableInfo: {
+              tableId: String(feedbackObj.tableId || ''),
+              tableName: String(tableInfo?.name || 'Không xác định'),
+              tableNumber: String(tableInfo?.tableNumber || ''),
+              category: String(tableInfo?.category || 'Không xác định')
+            },
+            content: String(feedbackObj.content || ''),
+            status: (feedbackObj.status as Feedback['status']) || 'pending',
+            needSupport: Boolean(feedbackObj.needSupport),
+            note: String(feedbackObj.note || ''),
+            history: (history || []).map(h => ({
+              byId: String(h.byId || ''),
+              byName: String(h.byName || ''),
+              byRole: String(h.byRole || ''),
+              note: String(h.note || ''),
+              date: h.date ? new Date(h.date as string) : new Date()
+            })),
+            createdAt: feedbackObj.createdAt ? new Date(feedbackObj.createdAt as string) : new Date(),
+            updatedAt: feedbackObj.updatedAt ? new Date(feedbackObj.updatedAt as string) : new Date(),
           };
+
           setFeedback(mappedFeedback);
           setStatus(mappedFeedback.status);
           let latestNote = '';
@@ -134,7 +127,7 @@ export default function FeedbackDetailPage() {
           toast.error('Không tìm thấy phản hồi');
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching feedback detail:', error);
         toast.error('Không thể tải dữ liệu phản hồi');
       }
     };
@@ -153,21 +146,21 @@ export default function FeedbackDetailPage() {
   }, []);
 
   const statusOptions = [
-    { value: 'pending', label: 'Chờ xử lý' },
+    { value: 'pending', label: 'Chưa xử lý' },
     { value: 'managerP', label: 'Manager đang xử lý' },
     { value: 'adminP', label: 'Admin đang xử lý' },
     { value: 'superadminP', label: 'Super Admin đang xử lý' },
-    { value: 'resolved', label: 'Đã giải quyết' },
+    { value: 'resolved', label: 'Đã xử lý' },
   ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-500';
-      case 'resolved': return 'bg-green-500';
-      case 'managerP': return 'bg-blue-500';
-      case 'adminP': return 'bg-purple-500';
-      case 'superadminP': return 'bg-indigo-500';
-      default: return 'bg-gray-500';
+      case 'resolved': return 'success';
+      case 'pending': return 'danger';
+      case 'managerP': return 'danger';
+      case 'adminP': return 'danger';
+      case 'superadminP': return 'danger';
+      default: return 'danger';
     }
   };
 
@@ -219,6 +212,10 @@ export default function FeedbackDetailPage() {
                   <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.tableInfo?.tableName || feedback?.tableId || ''} disabled />
                 </div>
                 <div>
+                  <label className="block text-sm font-semibold mb-2 text-black">Loại bàn</label>
+                  <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.tableInfo?.category === 'pool-8' ? 'Pool 8' : feedback?.tableInfo?.category === 'carom' ? 'Carom' : feedback?.tableInfo?.category || 'Không xác định'} disabled />
+                </div>
+                <div>
                   <label className="block text-sm font-semibold mb-2 text-black">Loại người tạo</label>
                   <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.createdBy?.type === 'guest' ? 'Khách' : (feedback?.createdBy?.type === 'membership' ? 'Hội viên' : '')} disabled />
                 </div>
@@ -243,9 +240,12 @@ export default function FeedbackDetailPage() {
                       ))}
                     </select>
                   ) : (
-                    <span className={`inline-block px-4 py-2 rounded-full text-base font-semibold text-white ${getStatusColor(status)}`}>
+                    <Badge
+                      variant={getStatusColor(status)}
+                      className="text-sm font-semibold flex-shrink-0 whitespace-nowrap"
+                    >
                       {getStatusText(status)}
-                    </span>
+                    </Badge>
                   )}
                 </div>
                 <div>
@@ -260,9 +260,12 @@ export default function FeedbackDetailPage() {
                       <option value="true">Có</option>
                     </select>
                   ) : (
-                    <span className={`inline-block px-4 py-2 rounded-full text-base font-semibold text-white ${needSupport ? 'bg-red-500' : 'bg-green-500'}`}>
+                    <Badge
+                      variant={needSupport ? 'danger' : 'success'}
+                      className="text-sm font-semibold flex-shrink-0 whitespace-nowrap"
+                    >
                       {needSupport ? 'Cần hỗ trợ' : 'Không cần hỗ trợ'}
-                    </span>
+                    </Badge>
                   )}
                 </div>
                 <div>
@@ -294,49 +297,49 @@ export default function FeedbackDetailPage() {
                   )}
                 </div>
               </div>
-                             <div className="flex-1 space-y-6 order-2 md:order-none">
-                 <div>
-                   <label className="block text-sm font-semibold mb-2 text-black">Lịch sử xử lý</label>
-                   <div className="bg-gray-50 rounded-lg p-4 max-h-[925px] overflow-y-auto">
-                     {feedback?.history && feedback.history.length > 0 ? (
-                       <div className="space-y-3">
-                         {feedback.history
-                           .slice()
-                           .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                           .slice(0, 15)
-                           .map((item, index) => (
-                             <div key={index} className="border-l-4 border-lime-400 pl-4 py-2 bg-white rounded-r-lg">
-                               <div className="flex justify-between items-start mb-1">
-                                 <div className="flex items-center gap-2">
-                                   <span className="font-semibold text-sm text-gray-800">{item.byName}</span>
-                                   <span className="text-xs bg-gray-200 px-2 py-1 rounded-full text-gray-600">{item.byRole}</span>
-                                 </div>
-                                 <span className="text-xs text-gray-500">
-                                   {item.date ? new Date(item.date).toLocaleString('vi-VN') : ''}
-                                 </span>
-                               </div>
-                               {item.note && (
-                                 <div className="text-sm text-gray-600">
-                                   <span className="font-medium">Ghi chú:</span> {item.note}
-                                 </div>
-                               )}
-                             </div>
-                           ))}
-                       </div>
-                     ) : (
-                       <div className="text-center py-8">
-                         <div className="text-gray-400 mb-2">
-                           <svg className="w-12 h-12 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                           </svg>
-                         </div>
-                         <p className="text-gray-500 text-sm font-medium">Chưa có lịch sử xử lý</p>
-                         <p className="text-gray-400 text-xs mt-1">Lịch sử xử lý sẽ hiển thị khi có người cập nhật phản hồi</p>
-                       </div>
-                     )}
-                   </div>
-                 </div>
-               </div>
+              <div className="flex-1 space-y-6 order-2 md:order-none">
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-black text-center">Lịch sử xử lý</label>
+                  <div className="bg-gray-50 rounded-lg p-4 max-h-[925px] overflow-y-auto">
+                    {feedback?.history && feedback.history.length > 0 ? (
+                      <div className="space-y-3">
+                        {feedback.history
+                          .slice()
+                          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                          .slice(0, 15)
+                          .map((item, index) => (
+                            <div key={index} className="border-l-4 border-lime-400 pl-4 py-2 bg-white rounded-r-lg">
+                              <div className="flex justify-between items-start mb-1">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-semibold text-sm text-gray-800">{item.byName}</span>
+                                  <span className="text-xs bg-gray-200 px-2 py-1 rounded-full text-gray-600">{item.byRole}</span>
+                                </div>
+                                <span className="text-xs text-gray-500">
+                                  {item.date ? new Date(item.date).toLocaleString('vi-VN') : ''}
+                                </span>
+                              </div>
+                              {item.note && (
+                                <div className="text-sm text-gray-600">
+                                  <span className="font-medium">Ghi chú:</span> {item.note}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <div className="text-gray-400 mb-2">
+                          <svg className="w-12 h-12 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <p className="text-gray-500 text-sm font-medium">Chưa có lịch sử xử lý</p>
+                        <p className="text-gray-400 text-xs mt-1">Lịch sử xử lý sẽ hiển thị khi có người cập nhật phản hồi</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
             <div className="flex flex-col md:flex-row justify-center items-center gap-4 mt-8">
               <button
