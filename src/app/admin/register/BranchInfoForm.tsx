@@ -18,6 +18,7 @@ interface BrandInfo {
 }
 
 interface Branch {
+  id?: string;
   name: string;
   address: string;
   deviceCount: string;
@@ -30,6 +31,10 @@ interface BranchInfoFormProps {
   brandInfo: BrandInfo | null;
   onBack: () => void;
   initialBranches?: Branch[];
+  mode?: 'create' | 'edit';
+  onSaveClub?: (clubId: string, clubData: { clubName: string; address: string; phoneNumber: string; tableNumber: number }) => Promise<void>;
+  onCreateClub?: (clubData: { clubName: string; address: string; phoneNumber: string; tableNumber: number }) => Promise<string>;
+  onDeleteClub?: (clubId: string) => Promise<void>;
 }
 
 const InfoRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
@@ -39,7 +44,7 @@ const InfoRow = ({ label, value }: { label: string; value: React.ReactNode }) =>
   </div>
 );
 
-export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initialBranches }: BranchInfoFormProps) {
+export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initialBranches, mode = 'create', onSaveClub, onCreateClub, onDeleteClub }: BranchInfoFormProps) {
   const [branches, setBranches] = useState<Branch[]>(
     initialBranches && initialBranches.length > 0 
       ? initialBranches 
@@ -47,6 +52,10 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
   );
   const [showConfirm, setShowConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [savingClubs, setSavingClubs] = useState<Set<string>>(new Set());
+  const [editingBranches, setEditingBranches] = useState<Set<string>>(new Set());
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingClubId, setDeletingClubId] = useState<string | null>(null);
 
   // Cập nhật branches khi initialBranches thay đổi
   useEffect(() => {
@@ -62,15 +71,46 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
   };
 
   const handleAddBranch = () => {
-    const updatedBranches = [...branches, { name: '', address: '', deviceCount: '', phone: '' }];
+    const updatedBranches = [...branches, { id: undefined, name: '', address: '', deviceCount: '', phone: '' }];
     setBranches(updatedBranches);
     onChange?.(updatedBranches);
   };
 
   const handleRemoveBranch = (idx: number) => {
-    const updatedBranches = branches.filter((_, i) => i !== idx);
-    setBranches(updatedBranches);
-    onChange?.(updatedBranches);
+    const branch = branches[idx];
+    if (branch.id && onDeleteClub) {
+      setDeletingClubId(branch.id);
+      setShowDeleteConfirm(true);
+    } else {
+      const updatedBranches = branches.filter((_, i) => i !== idx);
+      setBranches(updatedBranches);
+      onChange?.(updatedBranches);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingClubId || !onDeleteClub) return;
+    
+    setShowDeleteConfirm(false);
+    try {
+      await onDeleteClub(deletingClubId);
+      // Remove from local state after successful deletion
+      const updatedBranches = branches.filter(b => b.id !== deletingClubId);
+      setBranches(updatedBranches);
+      onChange?.(updatedBranches);
+      toast.success('Xóa chi nhánh thành công!');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      const message = err.response?.data?.message || 'Xóa chi nhánh thất bại!';
+      toast.error(message);
+    } finally {
+      setDeletingClubId(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteConfirm(false);
+    setDeletingClubId(null);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -83,6 +123,11 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
     setIsLoading(true);
     
     try {
+      if (mode === 'edit') {
+        onSuccess(branches);
+        setIsLoading(false);
+        return;
+      }
       let brandId = brandInfo?.brandId;
       
       // Nếu chưa có brandId, tạo brand trước
@@ -143,6 +188,68 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
     setShowConfirm(false);
   };
 
+  const handleSaveClub = async (idx: number) => {
+    const branch = branches[idx];
+    if (!onSaveClub && !onCreateClub) return;
+    
+    const clubData = {
+      clubName: branch.name,
+      address: branch.address,
+      phoneNumber: branch.phone,
+      tableNumber: parseInt(branch.deviceCount) || 0,
+    };
+    
+    const branchId = branch.id || `new-${idx}`;
+    setSavingClubs(prev => new Set(prev).add(branchId));
+    
+    try {
+      if (branch.id && onSaveClub) {
+        
+        await onSaveClub(branch.id, clubData);
+        toast.success('Cập nhật chi nhánh thành công!');
+      } else if (!branch.id && onCreateClub) {
+        
+        const newClubId = await onCreateClub(clubData);
+        
+        const updatedBranches = branches.map((b, i) => 
+          i === idx ? { ...b, id: newClubId } : b
+        );
+        setBranches(updatedBranches);
+        onChange?.(updatedBranches);
+        toast.success('Tạo chi nhánh thành công!');
+      }
+      
+      setEditingBranches(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(branchId);
+        return newSet;
+      });
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      const message = err.response?.data?.message || (branch.id ? 'Cập nhật chi nhánh thất bại!' : 'Tạo chi nhánh thất bại!');
+      toast.error(message);
+    } finally {
+      setSavingClubs(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(branchId);
+        return newSet;
+      });
+    }
+  };
+
+  const handleEditToggle = (idx: number) => {
+    const branch = branches[idx];
+    const branchId = branch.id || `new-${idx}`;
+    
+    if (editingBranches.has(branchId)) {
+      
+      handleSaveClub(idx);
+    } else {
+      
+      setEditingBranches(prev => new Set(prev).add(branchId));
+    }
+  };
+
   const isFormValid = branches.every(branch => 
     branch.name && branch.address && branch.deviceCount && branch.phone
   );
@@ -151,7 +258,7 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
     <>
       <form className="w-full max-w-4xl mx-auto flex flex-col gap-8 items-start px-0 pb-8" onSubmit={handleSubmit}>
         <div className="w-full">
-          {/* Nút quay lại bước trước */}
+          
           <div className="mb-4">
             <Button
               type="button"
@@ -222,6 +329,8 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
                       onChange={e => handleBranchChange(idx, 'name', e.target.value)}
                       placeholder="Nhập Tên Chi Nhánh..."
                       required
+                      disabled={branch.id ? !editingBranches.has(branch.id) : false}
+                      className={branch.id ? (editingBranches.has(branch.id) ? '' : '!bg-gray-100 text-gray-500') : ''}
                     />
                   </div>
                   <div>
@@ -233,6 +342,8 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
                       onChange={e => handleBranchChange(idx, 'deviceCount', e.target.value)}
                       placeholder="Nhập Số Bàn..."
                       required
+                      disabled={branch.id ? !editingBranches.has(branch.id) : false}
+                      className={branch.id ? (editingBranches.has(branch.id) ? '' : '!bg-gray-100 text-gray-500') : ''}
                     />
                   </div>
                   <div>
@@ -244,6 +355,8 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
                       onChange={e => handleBranchChange(idx, 'address', e.target.value)}
                       placeholder="Nhập Địa Chỉ"
                       required
+                      disabled={branch.id ? !editingBranches.has(branch.id) : false}
+                      className={branch.id ? (editingBranches.has(branch.id) ? '' : '!bg-gray-100 text-gray-500') : ''}
                     />
                   </div>
                   <div>
@@ -255,45 +368,77 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
                       onChange={e => handleBranchChange(idx, 'phone', e.target.value)}
                       placeholder="Nhập Số Điện Thoại..."
                       required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">
-                      Số Camera <span className="text-red-500">*</span>
-                    </label>
-                    <Input
-                      value={branch.deviceCount}
-                      onChange={e => handleBranchChange(idx, 'deviceCount', e.target.value)}
-                      placeholder="Nhập Số Camera..."
-                      required
+                      disabled={branch.id ? !editingBranches.has(branch.id) : false}
+                      className={branch.id ? (editingBranches.has(branch.id) ? '' : '!bg-gray-100 text-gray-500') : ''}
                     />
                   </div>
                 </div>
+                
+                {mode === 'edit' && (
+                  <div className="flex justify-end gap-2 mt-4">
+                    {branch.id && editingBranches.has(branch.id) && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          // Cancel editing - reset to original values and exit edit mode
+                          const branchId = branch.id;
+                          if (!branchId) return;
+                          setEditingBranches(prev => {
+                            const newSet = new Set(prev);
+                            newSet.delete(branchId);
+                            return newSet;
+                          });
+                          // Reset to original values if it's an existing branch
+                          if (initialBranches) {
+                            const originalBranch = initialBranches.find(b => b.id === branch.id);
+                            if (originalBranch) {
+                              const updatedBranches = branches.map((b, i) => 
+                                i === idx ? originalBranch : b
+                              );
+                              setBranches(updatedBranches);
+                              onChange?.(updatedBranches);
+                            }
+                          }
+                        }}
+                        className="px-4 py-2 rounded-md bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition"
+                      >
+                        Hủy
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleEditToggle(idx)}
+                      disabled={savingClubs.has(branch.id || `new-${idx}`)}
+                      className="px-4 py-2 rounded-md bg-lime-500 hover:bg-lime-600 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition"
+                    >
+                      {savingClubs.has(branch.id || `new-${idx}`) 
+                        ? 'Đang lưu...' 
+                        : branch.id 
+                          ? (editingBranches.has(branch.id) ? 'Lưu' : 'Chỉnh sửa')
+                          : 'Tạo mới'
+                      }
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
-          {/* Yêu cầu camera */}
-          <div className="text-xs text-red-600 mt-2 w-full">
-            <b>*YÊU CẦU:</b>
-            <ul className="list-disc ml-4 mt-1">
-              <li>Camera độ phân giải full HD.</li>
-              <li>Tốc độ khung hình tối thiểu 60 fps.</li>
-              <li>Camera được đặt tại trung tâm mặt bàn hướng từ trên xuống.</li>
-            </ul>
-          </div>
-          <div className="mt-8">
-                         <Button 
-               type="submit" 
-               variant="lime" 
-               fullWidth
-               disabled={!isFormValid || isLoading}
-             >
-               {isLoading 
-                 ? (initialBranches && initialBranches.length > 0 ? 'Đang cập nhật...' : 'Đang chuẩn bị...') 
-                 : (initialBranches && initialBranches.length > 0 ? 'Cập nhật và tiếp tục' : 'Xác nhận thông tin')
-               }
-             </Button>
-          </div>
+
+          {mode !== 'edit' && (
+            <div className="mt-8">
+              <Button 
+                type="submit" 
+                variant="lime" 
+                fullWidth
+                disabled={!isFormValid || isLoading}
+              >
+                {isLoading 
+                  ? (initialBranches && initialBranches.length > 0 ? 'Đang cập nhật...' : 'Đang chuẩn bị...') 
+                  : (initialBranches && initialBranches.length > 0 ? 'Cập nhật và tiếp tục' : 'Xác nhận thông tin')
+                }
+              </Button>
+            </div>
+          )}
         </div>
       </form>
       {/* Popup xác nhận cả brandInfo và branchInfo */}
@@ -344,13 +489,23 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
                 <div className="space-y-2">
                   <InfoRow label="Địa chỉ" value={branch.address} />
                   <InfoRow label="Số bàn" value={branch.deviceCount} />
-                  <InfoRow label="Số camera" value={branch.deviceCount} />
                   <InfoRow label="Số điện thoại" value={branch.phone} />
                 </div>
               </div>
             ))}
           </div>
         </div>
+      </ConfirmPopup>
+      {/* Popup xác nhận xóa chi nhánh */}
+      <ConfirmPopup
+        open={showDeleteConfirm}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        title="Xác nhận xóa chi nhánh"
+        confirmText="Xóa"
+        cancelText="Hủy"
+      >
+        <p className="text-sm text-gray-800 text-center">Bạn có chắc chắn muốn xóa chi nhánh này không?</p>
       </ConfirmPopup>
     </>
   );
