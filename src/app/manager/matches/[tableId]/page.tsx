@@ -366,14 +366,15 @@ export default function TableDetailPage() {
         toast.error('Không xác định được trận đấu để cập nhật');
         return;
       }
-      await Promise.all([
-        managerMatchService.updateTeamMembers(activeMatchId, 0, {
-          members: updatedTeamA.map((name) => ({ guestName: name })),
-        }),
-        managerMatchService.updateTeamMembers(activeMatchId, 1, {
-          members: updatedTeamB.map((name) => ({ guestName: name })),
-        }),
-      ]);
+
+      // Sử dụng API mới để cập nhật cả 2 team cùng lúc
+      await managerMatchService.updateTeamMembers(activeMatchId, {
+        teams: [
+          updatedTeamA.map((name) => ({ guestName: name })),
+          updatedTeamB.map((name) => ({ guestName: name }))
+        ]
+      });
+
       setTeamA(updatedTeamA);
       setTeamB(updatedTeamB);
       setIsEditing(false);
@@ -381,6 +382,26 @@ export default function TableDetailPage() {
     } catch (error) {
       console.error('Error updating team members:', error);
       toast.error('Cập nhật thành viên thất bại!');
+    }
+  };
+
+  const handleCancelMatch = async () => {
+    try {
+      if (!activeMatchId) {
+        toast.error('Không xác định được trận đấu để hủy');
+        return;
+      }
+
+      const res = await managerMatchService.deleteMatch(activeMatchId) as Record<string, unknown>;
+      if (res?.success) {
+        toast.success('Hủy trận đấu thành công!');
+        router.push('/manager/dashboard');
+      } else {
+        toast.error((res?.message as string) || 'Hủy trận đấu thất bại!');
+      }
+    } catch (error) {
+      console.error('Error canceling match:', error);
+      toast.error('Hủy trận đấu thất bại!');
     }
   };
 
@@ -540,6 +561,7 @@ export default function TableDetailPage() {
                     }}
                     onBack={() => router.push('/manager/dashboard')}
                     onEndMatch={handleEndMatch}
+                    onCancelMatch={handleCancelMatch}
                     onEdit={() => setShowEditModal(true)}
                     onStartMatch={handleStartMatch}
                     matchStatus={matchStatus}
