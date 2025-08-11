@@ -8,6 +8,7 @@ import { getFeedbackDetail, updateFeedback } from '@/lib/saFeedbackService';
 import { useSuperAdminAuthGuard } from '@/lib/hooks/useSuperAdminAuthGuard';
 import toast from 'react-hot-toast';
 import FeedbackDetailLayout from "@/components/shared/FeedbackDetailLayout";
+import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 
 interface Feedback {
   _id: string;
@@ -154,11 +155,13 @@ export default function FeedbackDetailPage() {
     return latestItem?.note || '';
   };
 
-  if (isChecking) {
-    return <div className="flex items-center justify-center min-h-screen">Đang kiểm tra...</div>;
+  if (isChecking || loading) {
+    return (
+      <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
+        <ScoreLensLoading text="Đang tải..." />
+      </div>
+    );
   }
-
-  if (loading) return <div className="p-4 text-center">Đang tải...</div>;
   if (!feedback) return <div className="p-4 text-center text-red-500">Không tìm thấy feedback</div>;
 
   return (
