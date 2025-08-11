@@ -12,12 +12,16 @@ const nextConfig: NextConfig = {
       },
 
       // Cho phép ảnh từ scorelens.io.vn để deploy BE r sửa (prod)
-      // {
-      //   protocol: "https",
-      //   hostname: "scorelens.io.vn",
-      //   port: "",
-      //   pathname: "/static/uploads/**",
-      // },
+      {
+        protocol: "https",
+        hostname: "https://scorelens-backend.onrender.com",
+        pathname: "/static/uploads/**",
+      },
+      {
+        protocol: "https",
+        hostname: "https://scorelens.io.vn",
+        pathname: "/static/uploads/**",
+      },
     ],
   },
 };
