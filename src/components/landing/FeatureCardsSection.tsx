@@ -32,7 +32,7 @@ const features: FeatureCardProps[] = [
       "Hỗ trợ theo dõi hoạt động của từng bàn theo thời gian thực",
       "Dễ sử dụng, phù hợp với mọi mô hình quản lý CLB",
     ],
-    backgroundImage: "/images/clubManagement.png", // Placeholder
+    backgroundImage: "/images/clubManagement.jpg", // Placeholder
   },
   {
     title: "HỆ THỐNG HỘI VIÊN",
