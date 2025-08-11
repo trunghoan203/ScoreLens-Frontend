@@ -38,7 +38,6 @@ export default function SuperAdminAccessPage() {
       const err = error as { response?: { data?: { message?: string } } };
       const message = err.response?.data?.message;
       if (message) {
-        // Xử lý trường hợp tài khoản chưa xác minh
         if (message.includes('not verified') || message.includes('verification')) {
           toast.error('Tài khoản chưa được xác minh. Vui lòng kiểm tra email để lấy mã xác thực.');
         } else {
