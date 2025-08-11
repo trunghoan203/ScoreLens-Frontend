@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      // Cho phép ảnh từ localhost:8000 (dev)
+
       {
         protocol: "http",
         hostname: "localhost",
@@ -11,13 +11,16 @@ const nextConfig: NextConfig = {
         pathname: "/static/uploads/**",
       },
 
-      // Cho phép ảnh từ scorelens.io.vn để deploy BE r sửa (prod)
-      // {
-      //   protocol: "https",
-      //   hostname: "scorelens.io.vn",
-      //   port: "",
-      //   pathname: "/static/uploads/**",
-      // },
+      {
+        protocol: "https",
+        hostname: "scorelens-backend.onrender.com",
+        pathname: "/static/uploads/**",
+      },
+      {
+        protocol: "https",
+        hostname: "scorelens.io.vn",
+        pathname: "/static/uploads/**",
+      },
     ],
   },
 };

@@ -11,19 +11,10 @@ export default function SuperAdminAccessPage() {
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState<{ email?: string; general?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
- 
-  const validateForm = () => {
-    const newErrors: typeof errors = {};
-    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
-      newErrors.email = 'Vui lòng nhập đúng định dạng email';
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
 
     setIsLoading(true);
     setErrors({});
@@ -37,7 +28,6 @@ export default function SuperAdminAccessPage() {
       const err = error as { response?: { data?: { message?: string } } };
       const message = err.response?.data?.message;
       if (message) {
-        // Xử lý trường hợp tài khoản chưa xác minh
         if (message.includes('not verified') || message.includes('verification')) {
           toast.error('Tài khoản chưa được xác minh. Vui lòng kiểm tra email để lấy mã xác thực.');
         } else {
@@ -56,7 +46,6 @@ export default function SuperAdminAccessPage() {
     <AuthLayout
       title="Truy cập vào ScoreLens dành cho Super Admin"
       description=""
-    //imageUrl="/images/billiards.png" // Đặt ảnh phù hợp
     >
 
 
