@@ -6,25 +6,15 @@ import { Input } from '@/components/ui/input';
 import { AuthLayout } from '@/components/shared/AuthLayout';
 import toast from 'react-hot-toast';
 import { loginSuperAdmin } from '@/lib/saService';
-import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 
 export default function SuperAdminAccessPage() {
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState<{ email?: string; general?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
 
-  const validateForm = () => {
-    const newErrors: typeof errors = {};
-    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
-      newErrors.email = 'Vui lòng nhập đúng định dạng email';
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
 
     setIsLoading(true);
     setErrors({});
@@ -51,14 +41,6 @@ export default function SuperAdminAccessPage() {
       setIsLoading(false);
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
-        <ScoreLensLoading text="Đang gửi..." />
-      </div>
-    );
-  }
 
   return (
     <AuthLayout

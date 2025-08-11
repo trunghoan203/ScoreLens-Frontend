@@ -7,15 +7,10 @@ import { AuthLayout } from '@/components/shared/AuthLayout';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import { verifySuperAdminLogin } from '@/lib/saService';
-import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 
 export default function SuperAdminVerificationPage() {
   return (
-    <Suspense fallback={
-      <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
-        <ScoreLensLoading text="Đang tải..." />
-      </div>
-    }>
+    <Suspense fallback={<div>Loading...</div>}>
       <SuperAdminVerificationPageInner />
     </Suspense>
   );
@@ -96,13 +91,6 @@ function SuperAdminVerificationPageInner() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
-        <ScoreLensLoading text="Đang xác thực..." />
-      </div>
-    );
-  }
 
   return (
     <AuthLayout

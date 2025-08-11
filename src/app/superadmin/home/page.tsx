@@ -100,14 +100,10 @@ function SuperAdminHomeContent() {
 
   return (
     <>
-      {(isChecking || loading) && (
-        <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
-          <ScoreLensLoading text="Đang tải..." />
-        </div>
-      )}
+      {(isChecking || loading) && (<ScoreLensLoading text="Đang tải..." />)}
       <HeaderSuperAdmin />
       <PageBanner title={activeTab === 'approval' ? 'DANH SÁCH ADMIN' : 'DANH SÁCH PHẢN HỒI'} />
-      <div className="bg-[#EEEDED] w-full px-4 md:px-8 py-8">
+      <div className="bg-[#EEEDED] w-full px-4 md:px-8 py-8 min-h-[calc(100vh-200px)]">
         <div className="max-w-6xl mx-auto space-y-6 md:space-y-8">
           {/* Toggle Tabs */}
           <div className="flex justify-center">
@@ -179,9 +175,7 @@ function SuperAdminHomeContent() {
 export default function SuperAdminHomePage() {
   return (
     <Suspense fallback={
-      <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
         <ScoreLensLoading text="Đang tải..." />
-      </div>
     }>
       <SuperAdminHomeContent />
     </Suspense>

@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { getAdminDetail, approveAdmin, rejectAdmin } from '@/lib/saAdminService';
-import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 
 interface Club {
   clubId: string;
@@ -105,11 +104,7 @@ export default function AdminDetailPage() {
 
   const MotionButton = motion(Button);
 
-  if (loading) return (
-    <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
-      <ScoreLensLoading text="Đang tải..." />
-    </div>
-  );
+  if (loading) return <div className="p-4 text-center">Đang tải...</div>;
   if (!admin) return <div className="p-4 text-center text-red-500">Không tìm thấy admin với ID: {id}</div>;
 
   return (
