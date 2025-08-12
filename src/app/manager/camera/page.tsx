@@ -104,7 +104,7 @@ export default function CameraPage() {
   const formatCategory = (category: string) => {
     switch (category) {
       case 'pool-8':
-        return 'Pool-8';
+        return 'Pool 8';
       case 'carom':
         return 'Carom';
       default:
@@ -150,13 +150,11 @@ export default function CameraPage() {
           </div>
           <div className="p-10">
             <CameraPageBanner />
-            {cameras.length > 0 && (
-              <CameraSearchBar
-                search={search}
-                setSearch={setSearch}
-                onAddCamera={isAdding ? () => { } : handleAddCamera}
-              />
-            )}
+            <CameraSearchBar
+              search={search}
+              setSearch={setSearch}
+              onAddCamera={isAdding ? () => { } : handleAddCamera}
+            />
             {loading ? (
               <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>
             ) : error ? (
@@ -168,9 +166,9 @@ export default function CameraPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
                 }
-                title="Không tìm thấy camera phù hợp"
+                title={search ? 'Không tìm thấy camera phù hợp' : 'Chưa có camera nào'}
                 description="Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy camera phù hợp"
-                secondaryAction={{
+                secondaryAction={search ? {
                   label: 'Xem tất cả',
                   onClick: () => setSearch(''),
                   icon: (
@@ -178,8 +176,8 @@ export default function CameraPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h16M4 12h16M4 20h16" />
                     </svg>
                   )
-                }}
-                showAdditionalInfo={false}
+                } : undefined}
+                showAdditionalInfo={!search}
               />
             ) : (
               <CameraGrid

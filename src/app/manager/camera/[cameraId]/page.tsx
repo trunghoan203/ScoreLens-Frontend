@@ -47,7 +47,7 @@ export default function CameraDetailPage() {
   const formatCategory = (category: string) => {
     switch (category) {
       case 'pool-8':
-        return 'Pool-8';
+        return 'Pool 8';
       case 'carom':
         return 'Carom';
       default:
@@ -99,7 +99,6 @@ export default function CameraDetailPage() {
       });
   }, [cameraId]);
 
-  // Theo dõi scroll để thay đổi viền header
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;

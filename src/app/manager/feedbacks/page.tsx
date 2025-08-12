@@ -153,9 +153,9 @@ export default function FeedbacksPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
                 }
-                title="Không tìm thấy phản hồi phù hợp"
+                title={search || statusFilter !== 'managerP' || dateFilter ? 'Không tìm thấy phản hồi phù hợp' : 'Chưa có phản hồi nào'}
                 description="Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy phản hồi phù hợp"
-                secondaryAction={{
+                secondaryAction={search || statusFilter !== 'managerP' || dateFilter ? {
                   label: 'Xem tất cả',
                   onClick: () => {
                     setSearch('');
@@ -167,8 +167,8 @@ export default function FeedbacksPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h16M4 12h16M4 20h16" />
                     </svg>
                   )
-                }}
-                showAdditionalInfo={false}
+                } : undefined}
+                showAdditionalInfo={!(search || statusFilter !== 'managerP' || dateFilter)}
               />
             ) : (
               <FeedbackGrid
