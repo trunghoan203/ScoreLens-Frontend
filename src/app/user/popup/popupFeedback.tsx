@@ -10,16 +10,14 @@ interface PopupFeedbackProps {
 export default function PopupFeedback({ onClose, onConfirm }: PopupFeedbackProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Overlay mờ xám */}
       <div
         className="absolute inset-0 bg-black/20 backdrop-blur-sm"
-        onClick={onClose} // <-- Dùng onClose tại đây
+        onClick={onClose}
       ></div>
 
-      {/* Popup nội dung */}
       <div
         className="relative bg-white rounded-xl shadow-lg p-6 w-11/12 max-w-sm text-center space-y-4"
-        onClick={(e) => e.stopPropagation()} // Ngăn click overlay truyền vào popup
+        onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg sm:text-xl font-bold text-black">
           Cảm ơn quý khách đã sử dụng dịch vụ ScoreLens!

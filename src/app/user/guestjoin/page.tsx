@@ -9,14 +9,14 @@ import { userMatchService } from '@/lib/userMatchService';
 import { toast } from 'react-hot-toast';
 import { io, Socket } from 'socket.io-client';
 
-function HomeRandomContent() {
+function GuestJoinContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const tableNumber = searchParams!.get('table') || '??';
   const tableId = searchParams!.get('tableId') || '';
   const existingCode = searchParams!.get('code') || '';
   const existingMatchId = searchParams!.get('matchId') || '';
-  const creatorName = searchParams!.get('name') || searchParams!.get('fullName') || '';
+  const guestName = searchParams!.get('name') || searchParams!.get('guestName') || '';
 
   const [roomCode, setRoomCode] = useState(existingCode);
   const [loading, setLoading] = useState(true);
@@ -73,51 +73,72 @@ function HomeRandomContent() {
   };
 
   useEffect(() => {
-    if (!roomCode || !matchId) return;
+    if (!matchId) return;
 
     let retryCount = 0;
     const maxRetries = 3;
     const retryDelay = 2000; 
+    let isConnecting = false;
 
     const connectSocket = () => {
-       const socketUrl = 'http://localhost:8000';
+      if (isConnecting || socketRef.current?.connected) return;
+      
+      isConnecting = true;
+      const socketUrl = 'http://localhost:8000';
 
       try {
         const socket = io(socketUrl, {
           transports: ['websocket', 'polling'],
           autoConnect: true,
-          timeout: 10000
+          timeout: 10000,
+          reconnection: true,
+          reconnectionAttempts: 3,
+          reconnectionDelay: 1000
         });
 
         socketRef.current = socket;
 
-         socket.on('connect', () => {
-           setIsWebSocketConnected(true);
-           socket.emit('join_match_room', matchId);
-         });
+        socket.on('connect', () => {
+          isConnecting = false;
+          setIsWebSocketConnected(true);
+          socket.emit('join_match_room', matchId);
+        });
 
-                 socket.on('disconnect', () => {
-           setIsWebSocketConnected(false);
-         });
+        socket.on('disconnect', () => {
+          isConnecting = false;
+          setIsWebSocketConnected(false);
+          
+          if (retryCount < maxRetries) {
+            retryCount++;
+            setTimeout(connectSocket, retryDelay);
+          }
+        });
 
-                 socket.on('connect_error', (error) => {
-           setIsWebSocketConnected(false);
-           
-           if (retryCount < maxRetries) {
-             retryCount++;
-             setTimeout(connectSocket, retryDelay);
-           }
-         });
+        socket.on('connect_error', (error) => {
+          isConnecting = false;
+          setIsWebSocketConnected(false);
+          
+          if (retryCount < maxRetries) {
+            retryCount++;
+            setTimeout(connectSocket, retryDelay);
+          }
+        });
 
-         socket.on('guest_joined', (data) => {
-           toast.success(`${data.guestName || 'Người chơi mới'} đã tham gia phòng!`);
-         });
+        socket.on('guest_joined', (data) => {
+          toast.success(`${data.guestName || 'Người chơi mới'} đã tham gia phòng!`);
+        });
 
-                 socket.on('guest_left', (data) => {
-           toast(`${data.guestName || 'Người chơi'} đã rời khỏi phòng`);
-         });
+        socket.on('guest_left', (data) => {
+          toast(`${data.guestName || 'Người chơi'} đã rời khỏi phòng`);
+        });
 
-                 socket.on('match_updated', (data) => {
+        socket.on('match_updated', (data) => {
+          if (data.status === 'ongoing') {
+            toast.success('Trận đấu đã bắt đầu!');
+            const redirectUrl = `/user/screencontrol?table=${tableNumber}&room=${roomCode}&matchId=${matchId}&tableId=${tableId}`;
+            router.push(redirectUrl);
+            return;
+          }
 
           if (data.teams && Array.isArray(data.teams)) {
             const guests: Array<{ id: string, name: string, team: 'A' | 'B', joinedAt: Date }> = [];
@@ -145,7 +166,7 @@ function HomeRandomContent() {
                 }
               });
 
-               setTeamA(teamAMembers);
+              setTeamA(teamAMembers);
             }
 
             if (data.teams[1]?.members && Array.isArray(data.teams[1].members)) {
@@ -171,28 +192,30 @@ function HomeRandomContent() {
                 }
               });
 
-               setTeamB(teamBMembers);
+              setTeamB(teamBMembers);
             }
 
-             setConnectedGuests(guests);
-             
-             const currentTotalMembers = (data.teams[0]?.members?.length || 0) + (data.teams[1]?.members?.length || 0);
-             if (currentTotalMembers > connectedGuests.length) {
-             }
+            setConnectedGuests(guests);
+            
+            const currentTotalMembers = (data.teams[0]?.members?.length || 0) + (data.teams[1]?.members?.length || 0);
+            if (currentTotalMembers > (connectedGuests?.length || 0)) {
+              toast.success('Có người chơi mới tham gia phòng!');
+            }
           }
         });
 
-                 socket.on('match_deleted', (data) => {
-           toast('Trận đấu đã bị hủy');
-         });
+        socket.on('match_deleted', (data) => {
+          toast('Trận đấu đã bị hủy');
+        });
 
-         socket.on('error', (error) => {
-           setIsWebSocketConnected(false);
-         });
+        socket.on('error', (error) => {
+          setIsWebSocketConnected(false);
+        });
 
-             } catch (error) {
-         setIsWebSocketConnected(false);
-       }
+      } catch (error) {
+        isConnecting = false;
+        setIsWebSocketConnected(false);
+      }
     };
 
     connectSocket();
@@ -203,112 +226,126 @@ function HomeRandomContent() {
         socketRef.current = null;
       }
     };
-  }, [roomCode, matchId, creatorName]);
+  }, [matchId, tableNumber, roomCode, tableId]);
 
   useEffect(() => {
     if (!matchId) return;
 
     const fetchConnectedGuests = async () => {
-             try {
-         const matchData = await userMatchService.getMatchById(matchId) as Record<string, any>;
-         
-         const teams = matchData?.data?.teams || matchData?.teams || [];
+      try {
+        const matchData = await userMatchService.getMatchById(matchId) as Record<string, any>;
+        
+        const teams = matchData?.data?.teams || matchData?.teams || [];
 
         if (teams && Array.isArray(teams)) {
           const guests: Array<{ id: string, name: string, team: 'A' | 'B', joinedAt: Date }> = [];
 
-           if (teams[0]?.members && Array.isArray(teams[0].members)) {
-             const teamAMembers: string[] = [];
-             teams[0].members.forEach((member: any, index: number) => {
-               const memberName =
-                 member.guestName ||
-                 member.membershipName ||
-                 member.fullName ||
-                 member.name ||
-                 member.userName ||
-                 member.displayName ||
-                 '';
-               
-               if (memberName) {
-                 teamAMembers.push(memberName);
-                 guests.push({
-                   id: `teamA-${index}`,
-                   name: memberName,
-                   team: 'A' as const,
-                   joinedAt: new Date()
-                 });
-               }
-             });
-             
-             setTeamA(teamAMembers);
-           }
+          // Process Team A (index 0) - only update if we have data
+          if (teams[0]?.members && Array.isArray(teams[0].members)) {
+            const teamAMembers: string[] = [];
+            teams[0].members.forEach((member: any, index: number) => {
+              const memberName =
+                member.guestName ||
+                member.membershipName ||
+                member.fullName ||
+                member.name ||
+                member.userName ||
+                member.displayName ||
+                '';
+              
+              if (memberName) {
+                teamAMembers.push(memberName);
+                guests.push({
+                  id: `teamA-${index}`,
+                  name: memberName,
+                  team: 'A' as const,
+                  joinedAt: new Date()
+                });
+              }
+            });
+            
+            // Only update Team A if we have members from API
+            if (teamAMembers.length > 0) {
+              // Only update Team A if we have members from API
+              if (teamAMembers.length > 0) {
+                setTeamA(teamAMembers);
+              }
+            }
+          }
 
-           if (teams[1]?.members && Array.isArray(teams[1].members)) {
-             const teamBMembers: string[] = [];
-             teams[1].members.forEach((member: any, index: number) => {
-               const memberName =
-                 member.guestName ||
-                 member.membershipName ||
-                 member.fullName ||
-                 member.name ||
-                 member.userName ||
-                 member.displayName ||
-                 '';
-               
-               if (memberName) {
-                 teamBMembers.push(memberName);
-                 guests.push({
-                   id: `teamB-${index}`,
-                   name: memberName,
-                   team: 'B' as const,
-                   joinedAt: new Date()
-                 });
-               }
-             });
-             
-             setTeamB(teamBMembers);
-           }
+          // Process Team B (index 1) - only update if we have data
+          if (teams[1]?.members && Array.isArray(teams[1].members)) {
+            const teamBMembers: string[] = [];
+            teams[1].members.forEach((member: any, index: number) => {
+              const memberName =
+                member.guestName ||
+                member.membershipName ||
+                member.fullName ||
+                member.name ||
+                member.userName ||
+                member.displayName ||
+                '';
+              
+              if (memberName) {
+                teamBMembers.push(memberName);
+                guests.push({
+                  id: `teamB-${index}`,
+                  name: memberName,
+                  team: 'B' as const,
+                  joinedAt: new Date()
+                });
+              }
+            });
+            
+            // Only update Team B if we have members from API
+            if (teamBMembers.length > 0) {
+              // Only update Team B if we have members from API
+              if (teamBMembers.length > 0) {
+                setTeamB(teamBMembers);
+              }
+            }
+          }
 
-                     setConnectedGuests(guests);
-           setLastUpdateTime(new Date());
-           setIsPolling(false);
-
+          setConnectedGuests(guests);
+          setLastUpdateTime(new Date());
+          setIsPolling(false);
         }
-             } catch (error) {
-       }
+      } catch (error) {
+        // Silent error handling
+      }
     };
 
     fetchConnectedGuests();
 
     let pollingInterval: NodeJS.Timeout;
 
-         const startPolling = () => {
-       setIsPolling(true);
-       pollingInterval = setInterval(() => {
-         setIsPolling(true);
-         fetchConnectedGuests();
-       }, 5000); 
-     };
+    const startPolling = () => {
+      setIsPolling(true);
+      pollingInterval = setInterval(() => {
+        setIsPolling(true);
+        fetchConnectedGuests();
+      }, 5000); 
+    };
 
-         const stopPolling = () => {
-       if (pollingInterval) {
-         clearInterval(pollingInterval);
-         setIsPolling(false);
-       }
-     };
+    const stopPolling = () => {
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
+        setIsPolling(false);
+      }
+    };
 
     startPolling();
 
-     const checkSocketHealth = () => {
-       if (isWebSocketConnected && connectedGuests.length > 0) {
-         stopPolling();
-         setTimeout(() => {
-           if (isWebSocketConnected) {
-             startPolling();
-           }
-         }, 10000); 
-       }
-     };
+    const checkSocketHealth = () => {
+      if (isWebSocketConnected && connectedGuests.length > 0) {
+        stopPolling();
+        setTimeout(() => {
+          if (isWebSocketConnected) {
+            startPolling();
+          }
+        }, 10000); 
+      }
+    };
 
     const healthCheckInterval = setInterval(checkSocketHealth, 10000);
 
@@ -333,22 +370,42 @@ function HomeRandomContent() {
     }
   }, [tableId]);
 
+  // Try to get tableId from match data if not available
+  useEffect(() => {
+    if (matchId && !tableId) {
+      const getTableIdFromMatch = async () => {
+        try {
+          const matchData = await userMatchService.getMatchById(matchId);
+          const responseData = (matchData as any)?.data || matchData;
+          const tableIdFromMatch = responseData?.tableId || responseData?.table?.id;
+          
+          if (tableIdFromMatch) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('tableId', tableIdFromMatch);
+            window.history.replaceState({}, '', url.toString());
+          }
+        } catch (error) {
+          console.error('Error getting tableId from match:', error);
+        }
+      };
+      
+      getTableIdFromMatch();
+    }
+  }, [matchId, tableId]);
+
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined;
     const init = async () => {
       try {
-        if (creatorName) {
-          setTeamA([creatorName]);
-        }
-
+        
         if (existingMatchId) {
           setMatchId(existingMatchId);
+          
           if (existingCode) {
             setRoomCode(existingCode);
           } else {
             try {
               const data = (await userMatchService.getMatchById(existingMatchId)) as Record<string, any>;
-
               const responseData = data?.data || data;
               const codeCandidate =
                 responseData?.matchCode ||
@@ -356,32 +413,27 @@ function HomeRandomContent() {
                 responseData?.joinCode ||
                 responseData?.roomCode ||
                 '';
-              if (codeCandidate) setRoomCode(String(codeCandidate));
-
-              if (!creatorName) {
-                const matchCreatorName =
-                  responseData?.createdBy?.fullName ||
-                  responseData?.createdBy?.name ||
-                  '';
-                if (matchCreatorName) {
-                  setTeamA([matchCreatorName]);
-                }
+              if (codeCandidate) {
+                setRoomCode(String(codeCandidate));
               }
             } catch (error) {
-              console.error('Error loading match info:', error);
+              console.error('Error getting match by ID:', error);
             }
           }
-        }
-        
-        if (existingCode) {
+        } else if (existingCode) {
           setRoomCode(existingCode);
-        }
-        
-        if (!tableId) {
-          const digits = '123456789';
-          let code = '';
-          for (let i = 0; i < 6; i++) code += digits[Math.floor(Math.random() * digits.length)];
-          setRoomCode(code);
+          
+          // Nếu chỉ có code, thử lấy matchId từ API
+          try {
+            const data = await userMatchService.getMatchByCode(existingCode);
+            const responseData = (data as any)?.data || data;
+            const matchIdFromCode = responseData?.matchId || responseData?.id;
+            if (matchIdFromCode) {
+              setMatchId(matchIdFromCode);
+            }
+          } catch (error) {
+            console.error('Error getting match by code:', error);
+          }
         }
       } finally {
         timer = setTimeout(() => setLoading(false), 800);
@@ -391,93 +443,32 @@ function HomeRandomContent() {
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [tableId, existingCode, existingMatchId, creatorName]);
+  }, [tableId, existingCode, existingMatchId]);
 
-  const handleStart = async () => {
-    try {
-      // Kiểm tra matchId trước
-      if (!matchId) {
-        toast.error('Không có matchId. Vui lòng kiểm tra lại.');
-        return;
-      }
-
-      // Call API start match
-      const startMatchPayload: any = {};
-      
-      // Lấy thông tin từ searchParams
-      const guestToken = searchParams?.get('guestToken');
-      const membershipId = searchParams?.get('membershipId');
-      
-      if (guestToken && guestToken.trim() !== '') {
-        startMatchPayload.actorGuestToken = guestToken;
-      }
-      
-      if (membershipId && membershipId.trim() !== '') {
-        startMatchPayload.actorMembershipId = membershipId;
-      }
-
-        if (Object.keys(startMatchPayload).length === 0) {
-          try {
-            const matchData = await userMatchService.getMatchById(matchId);
-            const responseData = (matchData as any)?.data || matchData;
-            
-            // Sử dụng thông tin từ match data
-            if (responseData?.creatorGuestToken) {
-              startMatchPayload.actorGuestToken = responseData.creatorGuestToken;
-            } else if (responseData?.createdByMembershipId) {
-              startMatchPayload.actorMembershipId = responseData.createdByMembershipId;
-            } else {
-              toast.error('Không thể xác thực quyền start match. Vui lòng liên hệ admin.');
-              return;
-            }
-          } catch (matchError) {
-            console.error('Không thể lấy thông tin match:', matchError);
-            toast.error('Không thể xác thực quyền start match. Vui lòng thử lại.');
-            return;
-          }
-        }
-
-      const response = await userMatchService.startMatch(matchId, startMatchPayload);
-      
-      if (response && typeof response === 'object' && 'success' in response && response.success) {
-        toast.success('Trận đấu đã bắt đầu!');
-        // Navigate to screen control page
-        router.push(`/user/screencontrol?table=${tableNumber}&room=${roomCode}&matchId=${matchId}&tableId=${tableId}`);
-      } else {
-        toast.error('Không thể bắt đầu trận đấu. Vui lòng thử lại.');
-      }
-    } catch (error) {
-      console.error('Error starting match:', error);
-      
-      // Log từng thông tin riêng biệt
-      if (error instanceof Error) {
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
-      } else {
-        console.error('Error type:', typeof error);
-        console.error('Error value:', error);
-      }
-      
-      toast.error('Có lỗi xảy ra khi bắt đầu trận đấu.');
+  const handleLeaveRoom = () => {
+    if (socketRef.current && socketRef.current.connected) {
+      socketRef.current.emit('leave_match', { matchId, guestName });
     }
+    
+    router.push('/user/guest');
   };
 
-  if (loading) return <ScoreLensLoading text="Đang tạo mã phòng..." />;
+  if (loading) return <ScoreLensLoading text="Đang tham gia phòng..." />;
 
-     return (
-     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 pt-20 overflow-hidden">
-       <HeaderUser />
- 
-       <main className="flex-1 flex flex-col px-4 py-8 overflow-y-auto scroll-smooth">
-         <div className="text-center mb-8">
-           <h2 className="text-2xl sm:text-3xl font-bold text-black">
-             {tableNumber} - {tableInfo?.category ? tableInfo.category.toUpperCase() : (tableId ? 'Đang tải...' : 'Pool 8 Ball')}
-           </h2>
-           <p className="text-sm sm:text-base text-black font-medium">Nhập mã bên dưới để tham gia phòng</p>
-         </div>
- 
-         <div className="flex-1 flex justify-center overflow-y-auto scroll-smooth">
-           <div className="w-full max-w-sm space-y-6 pb-8">
+  return (
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 pt-20 overflow-hidden">
+      <HeaderUser />
+
+      <main className="flex-1 flex flex-col px-4 py-8 overflow-y-auto scroll-smooth">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-black">
+            {tableNumber} - {tableInfo?.category ? tableInfo.category.toUpperCase() : (tableId ? 'Đang tải...' : 'Pool 8 Ball')}
+          </h2>
+          <p className="text-sm sm:text-base text-black font-medium">Bạn đã tham gia phòng với tên: {guestName}</p>
+        </div>
+
+        <div className="flex-1 flex justify-center overflow-y-auto scroll-smooth">
+          <div className="w-full max-w-sm space-y-6 pb-8">
             <div className="space-y-3 flex flex-col items-center justify-center w-full">
               <p className="text-base font-medium text-black">Mã Tham Gia</p>
               <div className="px-6 py-4 rounded-2xl bg-white border border-black/80 shadow-sm mx-auto">
@@ -494,6 +485,7 @@ function HomeRandomContent() {
               </div>
               <p className="text-xs text-black/70">Chia sẻ mã này cho người chơi để tham gia phòng</p>
             </div>
+
             <div className="space-y-4 w-full">
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
                 <h3 className="font-bold text-black mb-3">Đội A</h3>
@@ -535,27 +527,20 @@ function HomeRandomContent() {
 
       <FooterButton>
         <button
-          onClick={() => {
-            handleStart();
-          }}
-          disabled={!matchId || loading}
-          className={`w-full font-semibold py-3 rounded-xl text-base sm:text-base transition ${
-            !matchId || loading 
-              ? 'bg-gray-400 cursor-not-allowed' 
-              : 'bg-lime-500 hover:bg-lime-600 text-white'
-          }`}
+          onClick={handleLeaveRoom}
+          className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-xl text-base sm:text-base transition"
         >
-          {loading ? 'Đang tải...' : !matchId ? 'Chưa sẵn sàng' : 'Bắt đầu'}
+          Rời phòng
         </button>
       </FooterButton>
     </div>
   );
 }
 
-export default function HomeRandomPage() {
+export default function GuestJoinPage() {
   return (
     <Suspense fallback={<ScoreLensLoading text="Đang tải..." />}>
-      <HomeRandomContent />
+      <GuestJoinContent />
     </Suspense>
   );
 }
