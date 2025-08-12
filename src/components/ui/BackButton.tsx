@@ -9,10 +9,9 @@ interface BackButtonProps {
 export const BackButton: React.FC<BackButtonProps> = ({ onClick, className = '', ariaLabel = 'Quay lại' }) => (
   <button
     onClick={onClick}
-    className={`flex items-center px-2 py-1 rounded-full bg-white shadow-md hover:shadow-lg active:scale-95 hover:scale-105 transition-transform duration-150 border border-gray-200 ${className}`}
+    className={`flex items-center p-1 rounded-full bg-transparent active:scale-95 transition-transform duration-150 ${className}`}
     aria-label={ariaLabel}
     type="button"
-    style={{ boxShadow: '0 2px 8px 0 rgba(52,199,89,0.10), 0 1.5px 4px 0 rgba(0,0,0,0.08)' }}
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"

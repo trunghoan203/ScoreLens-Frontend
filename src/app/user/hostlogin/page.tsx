@@ -2,30 +2,86 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ScoreLensLogo } from '@/components/icons/LogoBlack';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
-import { BackButton } from '@/components/ui/BackButton';
+import HeaderUser from '@/components/user/HeaderUser';
+import toast from 'react-hot-toast';
+import { userMatchService } from '@/lib/userMatchService';
 
 function HostLoginContent() {
   const [teamAPlayers, setTeamAPlayers] = useState(2);
   const [teamBPlayers, setTeamBPlayers] = useState(2);
   const [tableNumber, setTableNumber] = useState('');
+  const [tableId, setTableId] = useState('');
+  const [hostName, setHostName] = useState('');
+  const [createdByMembershipId, setCreatedByMembershipId] = useState('');
   const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const table = searchParams.get('table');
+    const table = searchParams!.get('table');
+    const tId = searchParams!.get('tableId');
+    const name = searchParams!.get('name');
+    const membershipId = searchParams!.get('membershipId');
     if (table) setTableNumber(table);
+    if (tId) setTableId(tId);
+    if (name) setHostName(name);
+    if (membershipId) setCreatedByMembershipId(membershipId);
 
     const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
   }, [searchParams]);
 
-  const handleNext = () => {
-    router.push(
-      `/user/homerandom?table=${tableNumber}&teamA=${teamAPlayers}&teamB=${teamBPlayers}`
-    );
+  const handleNext = async () => {
+    if (!tableId) {
+      router.push(
+        `/user/homerandom?table=${tableNumber}&teamA=${teamAPlayers}&teamB=${teamBPlayers}`
+      );
+      return;
+    }
+
+    try {
+      setCreating(true);
+      const payload = {
+        tableId,
+        gameType: 'pool-8' as const,
+        createdByMembershipId: createdByMembershipId || undefined,
+        isAiAssisted: false,
+        teams: [
+          {
+            teamName: 'Team A',
+            members: createdByMembershipId ? [] : [{ guestName: hostName || 'Khách' }],
+          },
+          { teamName: 'Team B', members: [] },
+        ],
+      };
+      const data = (await userMatchService.createMatch(payload)) as Record<string, any>;
+      
+      const responseData = data?.data || data;
+      let matchId = responseData?.matchId || responseData?.id || '';
+      const code = responseData?.matchCode || responseData?.code || '';
+      
+      if (!matchId && code) {
+        try {
+          const byCode = (await userMatchService.getMatchByCode(code)) as Record<string, any>;
+          const byCodeData = byCode?.data || byCode;
+          matchId = byCodeData?.matchId || byCodeData?.id || '';
+        } catch {
+        }
+      }
+      toast.success('Tạo trận đấu thành công');
+      router.push(
+        `/user/homerandom?tableId=${encodeURIComponent(tableId)}&table=${encodeURIComponent(
+          tableNumber
+        )}&matchId=${encodeURIComponent(matchId)}&code=${encodeURIComponent(code)}`
+      );
+    } catch (e) {
+      console.error(e);
+      toast.error('Không thể tạo trận đấu. Vui lòng thử lại.');
+    } finally {
+      setCreating(false);
+    }
   };
 
   const handleChange = (team: 'A' | 'B', delta: number) => {
@@ -42,7 +98,6 @@ function HostLoginContent() {
     value: number
   ) => (
     <div className="relative overflow-hidden rounded-2xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl bg-white border border-gray-200">
-      {/* Background pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 bg-[#8ADB10]"></div>
         <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full -ml-12 -mb-12 bg-[#8ADB10]"></div>
@@ -85,15 +140,11 @@ function HostLoginContent() {
     </div>
   );
 
-  if (loading) return <ScoreLensLoading text="Đang tải..." />;
+  if (loading || creating)
+    return <ScoreLensLoading text={creating ? 'Đang tạo trận...' : 'Đang tải...'} />;
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Nút Back ở góc trên bên trái */}
-      <div className="absolute top-4 left-4 z-20">
-        <BackButton onClick={() => router.back()} />
-      </div>
-      {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#8ADB10] rounded-full mix-blend-multiply filter blur-xl opacity-5 animate-blob"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#8ADB10] rounded-full mix-blend-multiply filter blur-xl opacity-5 animate-blob animation-delay-2000"></div>
@@ -101,38 +152,25 @@ function HostLoginContent() {
       </div>
 
       <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Header */}
-        <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
-          <div className="w-full max-w-md mx-auto space-y-8">
-            {/* Logo */}
-            <div className="flex justify-center mb-8">
-              <div className="sm:w-28 sm:h-28">
-                <ScoreLensLogo />
-              </div>
+        <HeaderUser showBack={true}>
+          <div className="text-center space-y-3">
+            <div className="inline-flex items-center px-4 py-2 bg-[#8ADB10]/10 rounded-full border border-[#8ADB10]/20">
+              <span className="text-[#8ADB10] text-sm font-medium">Bàn {tableNumber || '...'}</span>
             </div>
-
-            {/* Title */}
-            <div className="text-center space-y-3">
-              <div className="inline-flex items-center px-4 py-2 bg-[#8ADB10]/10 rounded-full border border-[#8ADB10]/20">
-                <span className="text-[#8ADB10] text-sm font-medium">Bàn {tableNumber || '...'}</span>
-              </div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
-                Pool 8 Ball
-              </h1>
-              <p className="text-gray-600 text-lg font-medium">
-                Tạo đội chơi
-              </p>
-            </div>
-
-            {/* Team cards */}
-            <div className="space-y-4">
-              {renderTeamCard('Đội A', 'A', teamAPlayers)}
-              {renderTeamCard('Đội B', 'B', teamBPlayers)}
-            </div>
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
+              Pool 8 Ball
+            </h1>
+            <p className="text-gray-600 text-lg font-medium">
+              Tạo đội chơi
+            </p>
           </div>
-        </div>
 
-        {/* Bottom button */}
+          <div className="space-y-4">
+            {renderTeamCard('Đội A', 'A', teamAPlayers)}
+            {renderTeamCard('Đội B', 'B', teamBPlayers)}
+          </div>
+        </HeaderUser>
+
         <div className="p-6 bg-gray-50 border-t border-gray-200">
           <button
             onClick={handleNext}
