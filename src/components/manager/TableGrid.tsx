@@ -25,19 +25,6 @@ export default function TableGrid({ tables, onTableClick }: TableGridProps) {
     }
   };
 
-  const formatStatus = (status: string) => {
-    switch (status) {
-      case 'empty':
-        return 'Trống';
-      case 'inuse':
-        return 'Đang sử dụng';
-      case 'maintenance':
-        return 'Bảo trì';
-      default:
-        return status;
-    }
-  };
-
   return (
     <div className="rounded-lg overflow-hidden space-y-2">
       <div className="grid grid-cols-12 bg-[#000000] text-[#FFFFFF] font-semibold text-center">
