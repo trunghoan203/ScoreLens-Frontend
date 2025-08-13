@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import HeaderUser from '@/components/user/HeaderUser';
@@ -10,8 +10,7 @@ import { userMatchService } from '@/lib/userMatchService';
 import { useWebSocket } from '@/lib/hooks/useWebSocket';
 import toast from 'react-hot-toast';
 
-
-export default function EndMatchPage() {
+function EndMatchPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
@@ -290,5 +289,13 @@ export default function EndMatchPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function EndMatchPage() {
+  return (
+    <Suspense fallback={<ScoreLensLoading text="Đang tải..." />}>
+      <EndMatchPageContent />
+    </Suspense>
   );
 }
