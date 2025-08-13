@@ -37,9 +37,15 @@ class SocketService {
     }
   }
 
+  joinMatch(matchId: string) {
+    if (this.socket) {
+      this.socket.emit('join_match_room', matchId);
+    }
+  }
+
   joinMatchRoom(matchId: string) {
     if (this.socket) {
-      this.socket.emit('join_match', { matchId });
+      this.socket.emit('join_match_room', matchId);
     }
   }
 
@@ -61,9 +67,34 @@ class SocketService {
     }
   }
 
+  onMatchEnded(callback: (data: unknown) => void) {
+    if (this.socket) {
+      this.socket.on('match_ended', callback);
+    }
+  }
+
   onTimeUpdate(callback: (data: { matchId: string; elapsedTime: string }) => void) {
     if (this.socket) {
       this.socket.on('time_update', callback);
+    }
+  }
+
+  emitScoreUpdate(matchId: string, teamIndex: number, score: number) {
+    if (this.socket) {
+      this.socket.emit('score_updated', {
+        matchId,
+        teamIndex,
+        score
+      });
+    }
+  }
+
+  emitMatchEnd(matchId: string, matchData: any) {
+    if (this.socket) {
+      this.socket.emit('match_ended', {
+        matchId,
+        ...matchData
+      });
     }
   }
 
