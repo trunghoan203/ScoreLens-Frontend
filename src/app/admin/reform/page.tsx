@@ -13,11 +13,13 @@ import { CheckCircle } from "lucide-react";
 import { BrandInfoForm } from "../register/BrandInfoForm";
 import { BranchInfoForm } from "../register/BranchInfoForm";
 import { ConfirmPopup } from "@/components/ui/ConfirmPopup";
+import { ConfirmPopupDetail } from "@/components/admin/ConfirmPopupDetail";
 import Image from "next/image";
 import { Image as LucideImage } from "lucide-react";
 import axios from "@/lib/axios";
 import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
 import toast from "react-hot-toast";
+import { motion, AnimatePresence } from "framer-motion";
 
 const InfoRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <div className="flex justify-between items-center py-2 border-b border-gray-100">
@@ -53,6 +55,8 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
   const [showDeleteAccountPopup, setShowDeleteAccountPopup] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [countdown, setCountdown] = useState(5);
+  
   type EditableBrand = {
     brandName: string;
     phoneNumber: string;
@@ -122,7 +126,7 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
           router.push('/admin/pending')
         }
 
-        if (adminIdFromQuery && currentProfile.adminId && adminIdFromQuery !== currentProfile.adminId) {
+        if (adminIdFromQuery) {
           setWarning('Tài khoản đăng nhập không khớp với liên kết. Hiển thị dữ liệu của tài khoản hiện tại.');
         }
 
@@ -148,7 +152,56 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
     };
 
     fetchData();
-  }, [isCheckingAuth, adminIdFromQuery]);
+  }, [isCheckingAuth, adminIdFromQuery, router]);
+
+  useEffect(() => {
+    if (step === 4) {
+      setCountdown(5);
+
+      try {
+        adminService.updateStatus().catch((error) => {
+          console.error('Error updating status:', error);
+        });
+      } catch (error) {
+        console.error('Error starting updateStatus:', error);
+      }
+   
+      const interval = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+   
+      const timeout = setTimeout(() => {
+        try {
+          const token = localStorage.getItem('adminAccessToken');
+          if (token) {
+
+            axios.post(
+              '/admin/sendmail',
+              {},
+              {
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                },
+              }
+            ).catch((error) => {
+              console.error('Error sending email:', error);
+            });
+          }
+        } catch (error) {
+          console.error('Error starting sendmail request:', error);
+        }
+      
+        router.push("/admin/pending");
+      }, 5000);
+      
+   
+      return () => {
+        clearInterval(interval);
+        clearTimeout(timeout);
+      };
+    }
+  }, [step, router]);
 
   const handleFinishClick = () => {
     setShowConfirmPopup(true);
@@ -229,6 +282,22 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
               </div>
               </div>
               <div className="text-2xl font-bold text-black text-center mb-2 animate-success-pop">Cảm ơn bạn đã đăng ký!</div>
+              <p className="text-sm text-gray-500 text-center">
+              Bạn sẽ được chuyển hướng tự động trong{" "}
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={countdown} // Mỗi lần countdown đổi thì animate lại
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 1.5 }}
+                  transition={{ duration: 0.4 }}
+                  className="font-bold text-lg text-lime-500 inline-block"
+                >
+                  {countdown}
+                </motion.span>
+              </AnimatePresence>{" "}
+              giây...
+            </p>
             </div>
           )}
 
@@ -443,7 +512,7 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
                   onClick={handleFinishClick}
                   className="px-8 py-3 text-lg"
                 >
-                  Hoàn tất
+                  Xác nhận thông tin
                 </Button>
               </div>
             </>
@@ -451,12 +520,12 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
         </div>
       </div>
       
-      <ConfirmPopup
+      <ConfirmPopupDetail
         open={showConfirmPopup}
         onConfirm={handleConfirmFinish}
         onCancel={handleCancelFinish}
         title="Xác nhận thông tin đăng ký"
-        confirmText="Hoàn tất"
+        confirmText="Xác nhận"
         cancelText="Hủy"
       >
         <div className="space-y-6 w-full">
@@ -502,7 +571,7 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
             ))}
           </div>
         </div>
-      </ConfirmPopup>
+      </ConfirmPopupDetail>
       
       <ConfirmPopup
         open={showDeleteAccountPopup}
