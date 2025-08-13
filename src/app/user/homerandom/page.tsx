@@ -46,16 +46,16 @@ function HomeRandomContent() {
     if (current.length >= 4) {
       toast.error('Không thể thêm quá 4 người chơi!', {
         style: {
-          background: '#ef4444',
-          color: '#fff',
+          background: '#FF0000',
+          color: '#FFFFFF',
           fontWeight: 'bold',
           fontSize: '1rem',
           borderRadius: '0.75rem',
           boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
         },
         iconTheme: {
-          primary: '#fff',
-          secondary: '#ef4444'
+          primary: '#FFFFFF',
+          secondary: '#FF0000'
         }
       });
       return;
@@ -395,16 +395,13 @@ function HomeRandomContent() {
 
   const handleStart = async () => {
     try {
-      // Kiểm tra matchId trước
       if (!matchId) {
         toast.error('Không có matchId. Vui lòng kiểm tra lại.');
         return;
       }
 
-      // Call API start match
       const startMatchPayload: any = {};
       
-      // Lấy thông tin từ searchParams
       const guestToken = searchParams?.get('guestToken');
       const membershipId = searchParams?.get('membershipId');
       
@@ -421,7 +418,6 @@ function HomeRandomContent() {
             const matchData = await userMatchService.getMatchById(matchId);
             const responseData = (matchData as any)?.data || matchData;
             
-            // Sử dụng thông tin từ match data
             if (responseData?.creatorGuestToken) {
               startMatchPayload.actorGuestToken = responseData.creatorGuestToken;
             } else if (responseData?.createdByMembershipId) {
@@ -441,7 +437,6 @@ function HomeRandomContent() {
       
       if (response && typeof response === 'object' && 'success' in response && response.success) {
         toast.success('Trận đấu đã bắt đầu!');
-        // Navigate to screen control page
         router.push(`/user/screencontrol?table=${tableNumber}&room=${roomCode}&matchId=${matchId}&tableId=${tableId}`);
       } else {
         toast.error('Không thể bắt đầu trận đấu. Vui lòng thử lại.');
@@ -470,33 +465,33 @@ function HomeRandomContent() {
  
        <main className="flex-1 flex flex-col px-4 py-8 overflow-y-auto scroll-smooth">
          <div className="text-center mb-8">
-           <h2 className="text-2xl sm:text-3xl font-bold text-black">
+           <h2 className="text-2xl sm:text-3xl font-bold text-[#000000]">
              {tableNumber} - {tableInfo?.category ? tableInfo.category.toUpperCase() : (tableId ? 'Đang tải...' : 'Pool 8 Ball')}
            </h2>
-           <p className="text-sm sm:text-base text-black font-medium">Nhập mã bên dưới để tham gia phòng</p>
+           <p className="text-sm sm:text-base text-[#000000] font-medium">Nhập mã bên dưới để tham gia phòng</p>
          </div>
  
          <div className="flex-1 flex justify-center overflow-y-auto scroll-smooth">
            <div className="w-full max-w-sm space-y-6 pb-8">
             <div className="space-y-3 flex flex-col items-center justify-center w-full">
-              <p className="text-base font-medium text-black">Mã Tham Gia</p>
-              <div className="px-6 py-4 rounded-2xl bg-white border border-black/80 shadow-sm mx-auto">
+              <p className="text-base font-medium text-[#000000]">Mã Tham Gia</p>
+              <div className="px-6 py-4 rounded-2xl bg-white border border-[#000000]/80 shadow-sm mx-auto">
                 <div className="flex items-center justify-center gap-3 select-all">
                   {roomCode.split('').map((ch, idx) => (
                     <span
                       key={idx}
-                      className="w-6 sm:w-7 text-center font-mono tabular-nums font-extrabold text-3xl sm:text-4xl text-black leading-none"
+                      className="w-6 sm:w-7 text-center font-mono tabular-nums font-extrabold text-3xl sm:text-4xl text-[#000000] leading-none"
                     >
                       {ch}
                     </span>
                   ))}
                 </div>
               </div>
-              <p className="text-xs text-black/70">Chia sẻ mã này cho người chơi để tham gia phòng</p>
+              <p className="text-xs text-[#000000]/70">Chia sẻ mã này cho người chơi để tham gia phòng</p>
             </div>
             <div className="space-y-4 w-full">
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-                <h3 className="font-bold text-black mb-3">Đội A</h3>
+                <h3 className="font-bold text-[#000000] mb-3">Đội A</h3>
                 <div className="space-y-3 max-h-64 overflow-y-auto scroll-smooth">
                   {teamA.map((player, index) => (
                     <div key={index} className="flex items-center gap-2">
@@ -505,7 +500,7 @@ function HomeRandomContent() {
                         placeholder={`Người Chơi ${index + 1}`}
                         value={player}
                         onChange={(e) => handleChange('A', index, e.target.value)}
-                        className="flex w-full border border-gray-300 rounded-md bg-white px-4 py-3 text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all"
+                        className="flex w-full border border-gray-300 rounded-md bg-white px-4 py-3 text-sm text-[#000000] placeholder:text-gray-500 focus:outline-none focus:border-[#8ADB10] hover:border-lime-400 transition-all"
                       />
                     </div>
                   ))}
@@ -513,7 +508,7 @@ function HomeRandomContent() {
               </div>
 
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-                <h3 className="font-bold text-black mb-3">Đội B</h3>
+                <h3 className="font-bold text-[#000000] mb-3">Đội B</h3>
                 <div className="space-y-3 max-h-64 overflow-y-auto scroll-smooth">
                   {teamB.map((player, index) => (
                     <div key={index} className="flex items-center gap-2">
@@ -522,7 +517,7 @@ function HomeRandomContent() {
                         placeholder={`Người Chơi ${index + 1}`}
                         value={player}
                         onChange={(e) => handleChange('B', index, e.target.value)}
-                        className="flex w-full border border-gray-300 rounded-md bg-white px-4 py-3 text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all"
+                        className="flex w-full border border-gray-300 rounded-md bg-white px-4 py-3 text-sm text-[#000000] placeholder:text-gray-500 focus:outline-none focus:border-[#8ADB10] hover:border-lime-400 transition-all"
                       />
                     </div>
                   ))}
@@ -542,7 +537,7 @@ function HomeRandomContent() {
           className={`w-full font-semibold py-3 rounded-xl text-base sm:text-base transition ${
             !matchId || loading 
               ? 'bg-gray-400 cursor-not-allowed' 
-              : 'bg-lime-500 hover:bg-lime-600 text-white'
+              : 'bg-[#8ADB10] hover:bg-lime-600 text-[#FFFFFF]'
           }`}
         >
           {loading ? 'Đang tải...' : !matchId ? 'Chưa sẵn sàng' : 'Bắt đầu'}

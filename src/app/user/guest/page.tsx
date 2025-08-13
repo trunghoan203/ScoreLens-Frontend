@@ -72,6 +72,13 @@ function GuestJoinContent() {
 
       if (resultData?.success && resultData?.isMember) {
         const responseData = resultData?.data || resultData;
+        
+        if (responseData?.status === 'inactive') {
+          setVerifyMemberStatus('error');
+          toast.error('Tài khoản của bạn đang bị cấm');
+          return;
+        }
+        
         const membershipFullName = responseData?.fullName || '';
         const membershipId = responseData?.membershipId || '';
         setFullName(membershipFullName);
@@ -207,10 +214,10 @@ function GuestJoinContent() {
       
       <main className="flex-1 flex flex-col px-4 py-8">
         <div className="text-center">
-          <h1 className="text-2xl sm:text-3xl font-bold text-black">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#000000]">
             {tableNumber || '...'} - {tableInfo?.category ? tableInfo.category.toUpperCase() : (tableId ? 'Đang tải...' : 'Pool 8 Ball')}
           </h1>
-          <p className="text-sm sm:text-base text-black font-medium">
+          <p className="text-sm sm:text-base text-[#000000] font-medium">
             Nhập tên để tham gia phòng {roomCode || '...'}
           </p>
         </div>
@@ -218,7 +225,7 @@ function GuestJoinContent() {
         <div className="flex-1 flex justify-center mt-25">
           <div className="w-full max-w-sm space-y-4 text-left">
             <div>
-              <label className="block text-sm font-semibold text-black mb-1 text-center">
+              <label className="block text-sm font-semibold text-[#000000] mb-1 text-center">
                 Họ và Tên
               </label>
               <input
@@ -226,12 +233,12 @@ function GuestJoinContent() {
                 placeholder="Nhập họ và tên ..."
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="border border-black rounded-xl px-5 py-3 text-base w-full text-black text-center font-medium placeholder-black/60 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all duration-200"
+                className="border border-[#000000] rounded-xl px-5 py-3 text-base w-full text-[#000000] text-center font-medium placeholder-[#000000]/60 focus:outline-none focus:border-[#8ADB10] hover:border-lime-400 transition-all duration-200"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-black mb-1 text-center">
+              <label className="block text-sm font-semibold text-[#000000] mb-1 text-center">
                 Số Điện Thoại
               </label>
               <div className="space-y-2">
@@ -240,13 +247,13 @@ function GuestJoinContent() {
                   placeholder="Nhập số điện thoại ..."
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="border border-black rounded-xl px-5 py-3 text-base w-full text-black text-center font-medium placeholder-black/60 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all duration-200"
+                  className="border border-[#000000] rounded-xl px-5 py-3 text-base w-full text-black text-center font-medium placeholder-[#000000]/60 focus:outline-none focus:border-[#8ADB10] hover:border-lime-400 transition-all duration-200"
                 />
                 <button
                   type="button"
                   onClick={handleVerifyMembership}
                   disabled={verifyingMember}
-                  className="w-full py-3 px-4 rounded-xl bg-lime-500 hover:bg-lime-600 disabled:bg-gray-300 text-white font-semibold text-sm"
+                  className="w-full py-3 px-4 rounded-xl bg-[#8ADB10] hover:bg-lime-600 disabled:bg-gray-300 text-[#FFFFFF] font-semibold text-sm"
                 >
                   {verifyingMember ? 'Đang xác thực...' : 'Xác thực'}
                 </button>
@@ -254,7 +261,7 @@ function GuestJoinContent() {
               {verifyMemberStatus !== 'idle' && (
                 <p
                   className={`mt-2 text-center text-sm ${
-                    verifyMemberStatus === 'success' ? 'text-green-600' : 'text-red-600'
+                    verifyMemberStatus === 'success' ? 'text-green-600' : 'text-[#FF0000]'
                   }`}
                 >
                   {verifyMemberMessage}
@@ -262,7 +269,7 @@ function GuestJoinContent() {
               )}
             </div>
 
-            <p className="text-sm text-red-500 font-medium text-center">
+            <p className="text-sm text-[#FF0000] font-medium text-center">
               * Nếu chưa có mã hội viên, hãy liên hệ nhân viên để đăng ký!
             </p>
           </div>
@@ -272,7 +279,7 @@ function GuestJoinContent() {
       <FooterButton>
         <button
           onClick={handleContinue}
-          className="w-full bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-base sm:text-lg transition"
+          className="w-full bg-[#8ADB10] hover:bg-lime-600 text-[#FFFFFF] font-semibold py-3 rounded-xl text-base sm:text-lg transition"
         >
           Tiếp tục
         </button>
@@ -281,7 +288,7 @@ function GuestJoinContent() {
       {showTeamPopup && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-lg text-center">
-            <h2 className="text-xl font-bold text-black mb-6">
+            <h2 className="text-xl font-bold text-[#000000] mb-6">
               Chọn đội để tham gia
             </h2>
             
@@ -290,8 +297,8 @@ function GuestJoinContent() {
                 onClick={() => setSelectedTeam(0)}
                 className={`w-full p-4 rounded-xl border-2 transition-all ${
                   selectedTeam === 0 
-                    ? 'border-lime-500 bg-lime-50 text-lime-700' 
-                    : 'border-gray-200 hover:border-lime-300'
+                    ? 'border-[#8ADB10] bg-lime-50 text-lime-700' 
+                    : 'border-gray-200 hover:border-[#8ADB10]'
                 }`}
               >
                 <div className="text-center">
@@ -303,8 +310,8 @@ function GuestJoinContent() {
                 onClick={() => setSelectedTeam(1)}
                 className={`w-full p-4 rounded-xl border-2 transition-all ${
                   selectedTeam === 1 
-                    ? 'border-lime-500 bg-lime-50 text-lime-700' 
-                    : 'border-gray-200 hover:border-lime-300'
+                    ? 'border-[#8ADB10] bg-lime-50 text-lime-700' 
+                    : 'border-gray-200 hover:border-[#8ADB10]'
                 }`}
               >
                 <div className="text-center">
@@ -316,14 +323,14 @@ function GuestJoinContent() {
             <div className="flex gap-4">
               <button
                 onClick={() => setShowTeamPopup(false)}
-                className="w-full bg-[#FF0000] hover:bg-red-500 text-white font-semibold py-3 rounded-xl text-sm sm:text-base"
+                className="w-full bg-[#FF0000] hover:bg-red-500 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base"
               >
                 Hủy
               </button>
               <button
                 onClick={handleTeamSelection}
                 disabled={isCreatingMatch}
-                className="w-full bg-[#8ADB10] hover:bg-lime-500 text-white font-semibold py-3 rounded-xl text-sm sm:text-base disabled:bg-gray-300"
+                className="w-full bg-[#8ADB10] hover:bg-lime-500 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base disabled:bg-gray-300"
               >
                 {isCreatingMatch ? 'Đang xử lý...' : 'Xác nhận'}
               </button>
