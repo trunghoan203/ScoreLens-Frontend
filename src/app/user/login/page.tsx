@@ -55,7 +55,6 @@ function StartSessionContent() {
           
           const resultData = result as Record<string, any>;
           
-          // Handle both old and new API response structures
           const responseData = resultData?.data || resultData;
           setTableInfo(responseData); // Set tableInfo state
           if (responseData?.tableName) {
@@ -145,29 +144,58 @@ function StartSessionContent() {
       setVerifyingMember(true);
       setVerifyMemberStatus('idle');
       setVerifyMemberMessage('');
+      
       const res = (await userMatchService.verifyMembership({ phoneNumber: phone })) as Record<string, any>;
-      // Handle both old and new API response structures
+      
+      if (!res || typeof res !== 'object') {
+        throw new Error('Response không hợp lệ');
+      }
+
+      if (res.success === false) {
+        throw new Error(res.message || 'Xác thực thất bại');
+      }
+
+      if (res.isMember === false) {
+        setVerifyMemberStatus('error');
+        toast.error('Bạn chưa đăng ký hội viên');
+        return;
+      }
+
       const responseData = res?.data || res;
       const info = responseData ?? {};
+      
+      if (info?.status === 'inactive') {
+        setVerifyMemberStatus('error');
+        setVerifyMemberMessage('Tài khoản của bạn đang bị cấm');
+        toast.error('Tài khoản của bạn đang bị cấm');
+        return;
+      }
+      
       const returnedFullName = typeof info.fullName === 'string' ? info.fullName : '';
-      if (returnedFullName) setFullName(returnedFullName);
       const returnedMembershipId = typeof info.membershipId === 'string' ? info.membershipId : '';
-      const returnedIsMember = typeof res.isMember === 'boolean' ? res.isMember : true;
-      if (returnedMembershipId) setVerifiedMembershipId(returnedMembershipId);
-      setIsMember(returnedIsMember);
+      
+      if (returnedFullName) {
+        setFullName(returnedFullName);
+      }
+      if (returnedMembershipId) {
+        setVerifiedMembershipId(returnedMembershipId);
+      }
+      
+      setIsMember(true);
+      setVerifyMemberStatus('success');
+      
       const display = returnedFullName
         ? `Chào mừng ${returnedFullName}`
         : 'Chào mừng bạn';
-      setVerifyMemberStatus('success');
-      if (typeof display === 'string') {
-        toast.success(`${display}`);
-      } else {
-        toast.success('Xác thực hội viên thành công');
-      }
-    } catch (e) {
+      
+      toast.success(display);
+      
+    } catch (e: any) {
+      console.error('Error verifying membership:', e);
       setVerifyMemberStatus('error');
-      setVerifyMemberMessage('Bạn chưa đăng ký hội viên');
-      toast.error('Bạn chưa đăng ký hội viên');
+      const errorMessage = e?.message || 'Bạn chưa đăng ký hội viên';
+      setVerifyMemberMessage(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setVerifyingMember(false);
     }
@@ -181,10 +209,10 @@ function StartSessionContent() {
       
       <main className="flex-1 flex flex-col px-4 py-8">
         <div className="text-center">
-          <h1 className="text-2xl sm:text-3xl font-bold text-black">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#000000]">
             Chào mừng bạn đến với ScoreLens
           </h1>
-          <p className="text-sm sm:text-base text-black font-medium">
+          <p className="text-sm sm:text-base text-[#000000] font-medium">
             {tableName ? `${tableName}` : `${tableNumber || '??'}`} - {tableInfo?.category ? tableInfo.category.toUpperCase() : (tableId ? 'Đang tải...' : 'Pool 8 Ball')}
           </p>
         </div>
@@ -192,7 +220,7 @@ function StartSessionContent() {
         <div className="flex-1 flex justify-center mt-25">
           <div className="w-full max-w-sm space-y-4 text-left">
             <div>
-              <label className="block text-sm font-semibold text-black mb-1 text-center">
+              <label className="block text-sm font-semibold text-[#000000] mb-1 text-center">
                 Họ và Tên
               </label>
               <input
@@ -200,12 +228,12 @@ function StartSessionContent() {
                 placeholder="Nhập họ và tên ..."
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="border border-black rounded-xl px-5 py-3 text-base w-full text-black text-center font-medium placeholder-black/60 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all duration-200"
+                className="border border-[#000000] rounded-xl px-5 py-3 text-base w-full text-[#000000] text-center font-medium placeholder-[#000000]/60 focus:outline-none focus:border-[#8ADB10] hover:border-lime-400 transition-all duration-200"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-black mb-1 text-center">
+              <label className="block text-sm font-semibold text-[#000000] mb-1 text-center">
                 Mã Hội Viên
               </label>
               <div className="space-y-2">
@@ -214,13 +242,13 @@ function StartSessionContent() {
                   placeholder="Nhập mã hội viên ..."
                   value={memberId}
                   onChange={(e) => setMemberId(e.target.value)}
-                  className="border border-black rounded-xl px-5 py-3 text-base w-full text-black text-center font-medium placeholder-black/60 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all duration-200"
+                  className="border border-[#000000] rounded-xl px-5 py-3 text-base w-full text-[#000000] text-center font-medium placeholder-[#000000]/60 focus:outline-none focus:border-[#8ADB10] hover:border-lime-400 transition-all duration-200"
                 />
                 <button
                   type="button"
                   onClick={handleVerifyMembership}
                   disabled={verifyingMember}
-                  className="w-full py-3 px-4 rounded-xl bg-lime-500 hover:bg-lime-600 disabled:bg-gray-300 text-white font-semibold text-sm"
+                  className="w-full py-3 px-4 rounded-xl bg-[#8ADB10] hover:bg-lime-600 disabled:bg-gray-300 text-[#FFFFFF] font-semibold text-sm"
                 >
                   {verifyingMember ? 'Đang xác thực...' : 'Xác thực'}
                 </button>
@@ -236,7 +264,7 @@ function StartSessionContent() {
               )}
             </div>
 
-            <p className="text-sm text-red-500 font-medium text-center">
+            <p className="text-sm text-[#FF0000] font-medium text-center">
               * Nếu chưa có mã hội viên, hãy liên hệ nhân viên để đăng ký!
             </p>
           </div>
@@ -247,13 +275,13 @@ function StartSessionContent() {
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
           <button
             onClick={handleJoin}
-            className="w-full flex items-center justify-center bg-[#8ADB10] hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base transition"
+            className="w-full flex items-center justify-center bg-[#8ADB10] hover:bg-lime-600 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base transition"
           >
             Tham gia
           </button>
           <button
             onClick={handleCreateMatchClick}
-            className="w-full flex items-center justify-center bg-[#8ADB10] hover:bg-[#8ADB10] text-white font-semibold py-3 rounded-xl text-sm sm:text-base transition"
+            className="w-full flex items-center justify-center bg-[#8ADB10] hover:bg-[#8ADB10] text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base transition"
           >
             Tạo trận đấu
           </button>

@@ -138,10 +138,10 @@ function GuestLoginContent() {
 
       <main className="flex-1 flex flex-col px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-black">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#000000]">
             {tableName ? `${tableName}` : `${tableNumber || '??'}`} - {tableInfo?.category ? tableInfo.category.toUpperCase() : (tableId ? 'Đang tải...' : 'Pool 8 Ball')}
           </h1>
-          <p className="text-base sm:text-lg text-black font-medium">
+          <p className="text-base sm:text-lg text-[#000000] font-medium">
             Hãy nhập mã phòng để tiếp tục
           </p>
         </div>
@@ -154,9 +154,9 @@ function GuestLoginContent() {
                   key={index}
                   className={`relative w-12 aspect-square flex items-center justify-center rounded-full border-2 transition-all duration-200 bg-white shadow-md cursor-pointer
                     ${focusedIndex === index
-                      ? 'border-lime-500 shadow-lg'
+                      ? 'border-[#8ADB10] shadow-lg'
                       : digit
-                      ? 'border-lime-400'
+                      ? 'border-[#8ADB10]'
                       : 'border-gray-300'}`}
                   onClick={() => inputRefs.current[index]?.focus()}
                 >
@@ -196,7 +196,8 @@ function GuestLoginContent() {
         <button
           onClick={handleContinue}
           disabled={roomCode.join('').length !== 6}
-          className="w-full bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-base sm:text-base transition"
+          style={{ backgroundColor: '#8ADB10' }}
+          className="w-full hover:bg-lime-600 text-[#FFFFFF] font-semibold py-3 rounded-xl text-base sm:text-base transition"
         >
           Tiếp tục
         </button>

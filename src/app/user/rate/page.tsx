@@ -61,19 +61,19 @@ export default function RatePage() {
       
       <main className="flex-1 flex flex-col px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-black">ĐÁNH GIÁ</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#000000]">ĐÁNH GIÁ</h1>
         </div>
 
         <div className="flex-1 flex justify-center mt-25">
           <div className="w-full max-w-md space-y-4">
-            <div className="bg-lime-400 rounded-xl px-4 py-3 text-left space-y-2 w-full">
-              <p className="text-white font-semibold text-sm">PHẢN HỒI:</p>
+            <div className="bg-[#8ADB10] rounded-xl px-4 py-3 text-left space-y-2 w-full">
+              <p className="text-[#FFFFFF] font-semibold text-sm">PHẢN HỒI:</p>
               <div className="bg-white rounded-xl p-2">
                 <textarea
                   value={feedback}
                   onChange={(e) => setFeedback(e.target.value)}
                   rows={5}
-                  className="w-full rounded-lg p-2 outline-none text-black text-sm resize-none bg-transparent"
+                  className="w-full rounded-lg p-2 outline-none text-[#000000] text-sm resize-none bg-transparent"
                   placeholder="Nhập phản hồi của bạn..."
                   disabled={submitting}
                 />
@@ -87,7 +87,7 @@ export default function RatePage() {
         <button
           onClick={handleSubmit}
           disabled={submitting}
-          className="w-full bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-base sm:text-lg transition"
+          className="w-full bg-[#8ADB10] hover:bg-lime-600 text-[#FFFFFF] font-semibold py-3 rounded-xl text-base sm:text-lg transition"
         >
           {submitting ? 'Đang gửi...' : 'Gửi phản hồi'}
         </button>

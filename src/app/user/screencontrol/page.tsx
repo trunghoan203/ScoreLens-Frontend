@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import PopupEditScore from '@/app/user/popup/popupEditScore';
 import PopupEndMatch from '@/app/user/popup/popupEndMatch';
+import PopupEditChoice from '@/app/user/popup/popupEditChoice';
+import PopupEditMembers from '@/app/user/popup/popupEditMembers';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import HeaderUser from '@/components/user/HeaderUser';
 import { userMatchService } from '@/lib/userMatchService';
@@ -13,13 +15,15 @@ import { useWebSocket } from '@/lib/hooks/useWebSocket';
 import socketService from '@/lib/socketService';
 
 
-export default function ScoreboardPage() {
+function ScoreboardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [scoreA, setScoreA] = useState(0);
   const [scoreB, setScoreB] = useState(0);
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [showEndPopup, setShowEndPopup] = useState(false);
+  const [showEditChoicePopup, setShowEditChoicePopup] = useState(false);
+  const [showEditMembersPopup, setShowEditMembersPopup] = useState(false);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
@@ -37,7 +41,6 @@ export default function ScoreboardPage() {
   const [matchStartTime, setMatchStartTime] = useState<Date | null>(null);
   const [elapsedTime, setElapsedTime] = useState<string>('00:00:00');
 
-  // WebSocket hook
   const { isConnected } = useWebSocket({
     matchId,
     matchStatus: matchInfo?.status || 'pending',
@@ -45,7 +48,6 @@ export default function ScoreboardPage() {
       setElapsedTime(elapsedTime);
     },
     onMatchUpdate: (updatedMatch: any) => {
-      // Cập nhật điểm số realtime từ WebSocket
       const matchData = updatedMatch as any;
       if (matchData?.teams) {
         const newScoreA = matchData.teams[0]?.score ?? scoreA;
@@ -58,8 +60,100 @@ export default function ScoreboardPage() {
           setScoreB(newScoreB);
         }
       }
+    },
+    onMatchEnded: (matchData: any) => {
+      if (matchData && matchData.matchId === matchId) {
+        toast.success('Trận đấu đã kết thúc!');
+        const params = new URLSearchParams();
+        if (matchData.matchId) params.set('matchId', matchData.matchId);
+        if (matchData.tableName) params.set('tableName', matchData.tableName);
+        if (matchData.matchCode) params.set('matchCode', matchData.matchCode);
+        if (matchData.scoreA !== undefined) params.set('scoreA', matchData.scoreA.toString());
+        if (matchData.scoreB !== undefined) params.set('scoreB', matchData.scoreB.toString());
+        if (matchData.teamA) params.set('teamA', matchData.teamA.join(','));
+        if (matchData.teamB) params.set('teamB', matchData.teamB.join(','));
+        if (matchData.tableId) params.set('tableId', matchData.tableId);
+        
+        router.push(`/user/endmatch?${params.toString()}`);
+      }
     }
   });
+
+  useEffect(() => {
+    if (matchInfo?.teams) {
+      const teamAMembers = matchInfo.teams[0]?.members?.map((member: any) => 
+        member.guestName || member.membershipName || member.fullName || ''
+      ) || [''];
+      const teamBMembers = matchInfo.teams[1]?.members?.map((member: any) => 
+        member.guestName || member.membershipName || member.fullName || ''
+      ) || [''];
+      
+      setTeamA(teamAMembers);
+      setTeamB(teamBMembers);
+    }
+  }, [matchInfo]);
+
+  useEffect(() => {
+    if (matchId && isConnected) {
+      socketService.joinMatchRoom(matchId);
+    }
+  }, [matchId, isConnected]);
+
+  useEffect(() => {
+    if (matchId && socketService.isSocketConnected()) {
+      const handleMatchEnded = (data: any) => {
+        if (data && data.matchId === matchId) {
+          
+          const params = new URLSearchParams();
+          if (data.matchId) params.set('matchId', data.matchId);
+          if (data.tableName) params.set('tableName', data.tableName);
+          if (data.matchCode) params.set('matchCode', data.matchCode);
+          if (data.scoreA !== undefined) params.set('scoreA', data.scoreA.toString());
+          if (data.scoreB !== undefined) params.set('scoreB', data.scoreB.toString());
+          if (data.teamA) params.set('teamA', data.teamA.join(','));
+          if (data.teamB) params.set('teamB', data.teamB.join(','));
+          if (data.tableId) params.set('tableId', data.tableId);
+          
+          router.push(`/user/endmatch?${params.toString()}`);
+        }
+      };
+
+      socketService.onMatchEnded(handleMatchEnded);
+
+      return () => {
+        if (socketService.isSocketConnected()) {
+          socketService.removeAllListeners();
+        }
+      };
+    }
+  }, [matchId, router]);
+
+  const handleTeamChange = (team: 'A' | 'B', index: number, value: string) => {
+    const setter = team === 'A' ? setTeamA : setTeamB;
+    const current = team === 'A' ? teamA : teamB;
+    const updated = [...current];
+    updated[index] = value;
+    setter(updated);
+  };
+
+  const handleAddPlayer = (team: 'A' | 'B') => {
+    const setter = team === 'A' ? setTeamA : setTeamB;
+    const current = team === 'A' ? teamA : teamB;
+    if (current.length >= 4) {
+      toast.error('Không thể thêm quá 4 người chơi!');
+      return;
+    }
+    setter([...current, '']);
+  };
+
+  const handleRemovePlayer = (team: 'A' | 'B', index: number) => {
+    if (index === 0) return; 
+    const setter = team === 'A' ? setTeamA : setTeamB;
+    const current = team === 'A' ? teamA : teamB;
+    const updated = [...current];
+    updated.splice(index, 1);
+    setter(updated);
+  };
 
   const exampleResults = [
     'Team A - Bi số 5 vào đúng lỗ giữa.',
@@ -176,7 +270,7 @@ export default function ScoreboardPage() {
     return () => clearInterval(timer);
   }, [matchStartTime]);
 
-  const handleEditScore = () => setShowEditPopup(true);
+  const handleEditScore = () => setShowEditChoicePopup(true);
   const handleEndMatch = () => setShowEndPopup(true);
 
   const persistScores = async (newA: number, newB: number) => {
@@ -207,13 +301,31 @@ export default function ScoreboardPage() {
         <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-100 px-4">
           <HeaderUser>
             <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl font-bold text-black">
+              <h1 className="text-2xl sm:text-3xl font-bold text-[#000000]">
                 {tableInfo?.name || 'Bàn'} - {tableInfo?.category ? tableInfo.category.toUpperCase() : (tableId ? 'Đang tải...' : 'Pool 8 Ball')}
               </h1>
-              <p className="text-sm sm:text-base text-black font-medium">BẢNG ĐIỂM</p>
+              <p className="text-sm sm:text-base text-[#000000] font-medium">BẢNG ĐIỂM</p>
             </div>
 
+
+
             <div className="bg-lime-400 text-white rounded-2xl px-8 py-8 space-y-2 shadow-md w-full">
+              <div className="text-center mb-4">
+                <p className="text-sm font-medium text-white mb-2">Mã Tham Gia</p>
+                <div className="px-4 py-2 rounded-xl bg-white/20 border border-white/30 mx-auto inline-block">
+                  <div className="flex items-center justify-center gap-2 select-all">
+                    {(matchCode || '000000').split('').map((ch, idx) => (
+                      <span
+                        key={idx}
+                        className="w-5 sm:w-6 text-center font-mono tabular-nums font-extrabold text-xl sm:text-2xl text-white leading-none"
+                      >
+                        {ch}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
               <div className="flex items-center justify-between gap-4">
                 <div className="text-center flex flex-col items-center w-20">
                   <p className="text-sm font-semibold">Team A</p>
@@ -221,7 +333,7 @@ export default function ScoreboardPage() {
                   {teamA.length > 0 && (
                     <div className="text-xs mt-1 text-center space-y-1">
                       {teamA.map((member, index) => (
-                        <p key={index} className="text-xs">{member}</p>
+                        <p key={index} className="text-xs">{member || `Người Chơi ${index + 1}`}</p>
                       ))}
                     </div>
                   )}
@@ -231,7 +343,7 @@ export default function ScoreboardPage() {
                   <div className="text-3xl font-bold">{updating ? '...' : `${scoreA} : ${scoreB}`}</div>
                   <div className="text-lg font-semibold mt-2">
                     {matchStartTime ? (
-                      <div className="text-base font-bold text-lime-600">{elapsedTime}</div>
+                      <div className="text-[#FFFFFF] font-bold text-[#8ADB10]">{elapsedTime}</div>
                     ) : 'Đang tải...'}
                   </div>
                 </div>
@@ -242,7 +354,7 @@ export default function ScoreboardPage() {
                   {teamB.length > 0 && (
                     <div className="text-xs mt-1 text-center space-y-1">
                       {teamB.map((member, index) => (
-                        <p key={index} className="text-xs">{member}</p>
+                        <p key={index} className="text-xs">{member || `Người Chơi ${index + 1}`}</p>
                       ))}
                     </div>
                   )}
@@ -253,8 +365,8 @@ export default function ScoreboardPage() {
             <div className="text-left w-full space-y-2">
               {matchInfo?.isAiAssisted ? (
                 <>
-                  <p className="text-sm font-semibold text-black mb-1">Kết Quả AI</p>
-                  <div className="border border-gray-300 rounded-md p-3 text-sm text-black bg-white shadow-sm space-y-1">
+                  <p className="text-sm font-semibold text-[#000000] mb-1">Kết Quả AI</p>
+                  <div className="border border-gray-300 rounded-md p-3 text-sm text-[#000000] bg-white shadow-sm space-y-1">
                     {(aiResults.length > 0 ? aiResults : exampleResults).map((item, index) => (
                       <p key={index}>[AI]: {item}</p>
                     ))}
@@ -262,7 +374,7 @@ export default function ScoreboardPage() {
                 </>
               ) : (
                 <>
-                  <p className="text-sm font-semibold text-black mb-2">Thao tác nhanh</p>
+                  <p className="text-sm font-semibold text-[#000000] mb-2">Thao tác nhanh</p>
                   <div className="grid grid-cols-2 gap-3">
                     <Button 
                       variant="outline" 
@@ -272,7 +384,6 @@ export default function ScoreboardPage() {
                           return;
                         }
                         
-                        // Kiểm tra có actor identifier không
                         if (!actorGuestToken && !matchInfo?.createdByMembershipId) {
                           toast.error('Không có quyền chỉnh sửa điểm');
                           return;
@@ -288,14 +399,13 @@ export default function ScoreboardPage() {
                             actorMembershipId: matchInfo?.createdByMembershipId || undefined,
                           });
                           
-                          // Emit WebSocket event để cập nhật realtime
                           socketService.emitScoreUpdate(matchId, 0, newScore);
                         } catch (error) {
                           toast.error('Cập nhật điểm Team A thất bại');
-                          setScoreA(scoreA); // Revert score
+                          setScoreA(scoreA); 
                         }
                       }}
-                      className="text-black"
+                      className="text-[#000000]"
                     >
                       +1 Team A
                     </Button>
@@ -307,7 +417,6 @@ export default function ScoreboardPage() {
                           return;
                         }
                         
-                        // Kiểm tra có actor identifier không
                         if (!actorGuestToken && !matchInfo?.createdByMembershipId) {
                           toast.error('Không có quyền chỉnh sửa điểm');
                           return;
@@ -325,10 +434,10 @@ export default function ScoreboardPage() {
                           socketService.emitScoreUpdate(matchId, 1, newScore);
                         } catch (error) {
                           toast.error('Cập nhật điểm Team B thất bại');
-                          setScoreB(scoreB); // Revert score
+                          setScoreB(scoreB); 
                         }
                       }}
-                      className="text-black"
+                      className="text-[#000000]"
                     >
                       +1 Team B
                     </Button>
@@ -340,7 +449,6 @@ export default function ScoreboardPage() {
                           return;
                         }
                         
-                        // Kiểm tra có actor identifier không
                         if (!actorGuestToken && !matchInfo?.createdByMembershipId) {
                           toast.error('Không có quyền chỉnh sửa điểm');
                           return;
@@ -356,14 +464,13 @@ export default function ScoreboardPage() {
                             actorMembershipId: matchInfo?.createdByMembershipId || undefined,
                           });
                           
-                          // Emit WebSocket event để cập nhật realtime
                           socketService.emitScoreUpdate(matchId, 0, newScore);
                         } catch (error) {
                           toast.error('Cập nhật điểm Team A thất bại');
-                          setScoreA(scoreA); // Revert score
+                          setScoreA(scoreA); 
                         }
                       }}
-                      className="text-black"
+                      className="text-[#000000]"
                     >
                       -1 Team A
                     </Button>
@@ -375,7 +482,6 @@ export default function ScoreboardPage() {
                           return;
                         }
                         
-                        // Kiểm tra có actor identifier không
                         if (!actorGuestToken && !matchInfo?.createdByMembershipId) {
                           toast.error('Không có quyền chỉnh sửa điểm');
                           return;
@@ -391,14 +497,13 @@ export default function ScoreboardPage() {
                             actorMembershipId: matchInfo?.createdByMembershipId || undefined,
                           });
                           
-                          // Emit WebSocket event để cập nhật realtime
                           socketService.emitScoreUpdate(matchId, 1, newScore);
                         } catch (error) {
                           toast.error('Cập nhật điểm Team B thất bại');
-                          setScoreB(scoreB); // Revert score
+                          setScoreB(scoreB); 
                         }
                       }}
-                      className="text-black"
+                      className="text-[#000000]"
                     >
                       -1 Team B
                     </Button>
@@ -412,13 +517,15 @@ export default function ScoreboardPage() {
             <div className="flex flex-row gap-4 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
               <Button
                 onClick={handleEditScore}
-                className="w-1/2 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center"
+                style={{ backgroundColor: '#FF0000' }}
+                className="w-1/2 hover:bg-red-600 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center"
               >
                 Chỉnh sửa
               </Button>
               <Button
                 onClick={handleEndMatch}
-                className="w-1/2 bg-lime-500 hover:bg-lime-600 text-white font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center"
+                style={{ backgroundColor: '#8ADB10' }}
+                className="w-1/2 hover:bg-lime-600 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center"
               >
                 Kết thúc
               </Button>
@@ -437,30 +544,149 @@ export default function ScoreboardPage() {
             />
           )}
 
+          {showEditChoicePopup && (
+            <PopupEditChoice
+              onClose={() => setShowEditChoicePopup(false)}
+              onEditScore={() => {
+                setShowEditChoicePopup(false);
+                setShowEditPopup(true);
+              }}
+              onEditMembers={() => {
+                setShowEditChoicePopup(false);
+                setShowEditMembersPopup(true);
+              }}
+            />
+          )}
+
+          {showEditMembersPopup && (
+            <PopupEditMembers
+              onClose={() => setShowEditMembersPopup(false)}
+              onSave={(newTeamA, newTeamB) => {
+                setTeamA(newTeamA);
+                setTeamB(newTeamB);
+                setShowEditMembersPopup(false);
+              }}
+              initialTeamA={teamA}
+              initialTeamB={teamB}
+              matchId={matchId}
+              actorGuestToken={actorGuestToken}
+              actorMembershipId={matchInfo?.createdByMembershipId}
+            />
+          )}
+
           {showEndPopup && (
             <PopupEndMatch
               onClose={() => setShowEndPopup(false)}
-              onConfirm={() => {
-                const end = async () => {
-                  if (matchId) {
-                    try {
-                      await userMatchService.endMatch(matchId, {
-                        actorGuestToken: actorGuestToken || undefined,
-                      });
-                    } catch (e) {
-                      toast.error('Kết thúc trận đấu thất bại');
-                    }
-                  }
+              onConfirm={async () => {
+                if (!matchId) {
+                  toast.error('Không tìm thấy thông tin trận đấu');
                   setShowEndPopup(false);
-                  router.push('/user/endmatch');
-                };
-                void end();
+                  return;
+                }
+                
+                if (!actorGuestToken && !matchInfo?.createdByMembershipId) {
+                  toast.error('Không thể xác thực người dùng để kết thúc trận đấu');
+                  setShowEndPopup(false);
+                  return;
+                }
+                
+                try {
+                  const endMatchPayload: any = {};
+                  
+                  if (actorGuestToken) {
+                    endMatchPayload.actorGuestToken = actorGuestToken;
+                  } else if (matchInfo?.createdByMembershipId) {
+                    endMatchPayload.actorMembershipId = matchInfo.createdByMembershipId;
+                  }
+                  
+                  await userMatchService.endMatch(matchId, endMatchPayload);
+                  
+                  toast.success('Trận đấu đã kết thúc thành công!');
+                  
+                  if (socketService.isSocketConnected()) {
+                    socketService.emitMatchEnd(matchId, {
+                      matchId,
+                      tableName: tableInfo?.name,
+                      matchCode,
+                      scoreA,
+                      scoreB,
+                      teamA,
+                      teamB,
+                      tableId,
+                      endTime: new Date().toISOString()
+                    });
+                  }
+                  
+                  if (!matchId) {
+                    toast.error('Thiếu thông tin trận đấu');
+                    return;
+                  }
+                  
+                  const params = new URLSearchParams();
+                  
+                  if (matchId) params.set('matchId', matchId);
+                  if (tableInfo?.name) params.set('tableName', tableInfo.name);
+                  if (matchCode) params.set('matchCode', matchCode);
+                  if (scoreA !== undefined) params.set('scoreA', scoreA.toString());
+                  if (scoreB !== undefined) params.set('scoreB', scoreB.toString());
+                  if (teamA.length > 0) params.set('teamA', teamA.join(','));
+                  if (teamB.length > 0) params.set('teamB', teamB.join(','));
+                  if (tableId) params.set('tableId', tableId);
+                  
+                  const targetUrl = `/user/endmatch?${params.toString()}`;
+                  
+                  setShowEndPopup(false);
+                  
+                  setShowEndPopup(false);
+                  
+                  if (router && typeof router.push === 'function') {
+                    try {
+                      router.push(targetUrl);
+                      
+                      setTimeout(() => {
+                        if (window.location.pathname !== '/user/endmatch') {
+                          window.location.href = targetUrl;
+                        }
+                      }, 500);
+                      
+                    } catch (routerError) {
+                      window.location.href = targetUrl;
+                    }
+                  } else {
+                    window.location.href = targetUrl;
+                  }
+                  
+                } catch (e: any) {
+                  let errorMessage = 'Kết thúc trận đấu thất bại';
+                  
+                  if (e.message?.includes('actor identifier')) {
+                    errorMessage = 'Không thể xác thực người dùng để kết thúc trận đấu';
+                  } else if (e.message?.includes('not found')) {
+                    errorMessage = 'Không tìm thấy trận đấu';
+                  } else if (e.message?.includes('unauthorized')) {
+                    errorMessage = 'Bạn không có quyền kết thúc trận đấu này';
+                  } else if (e.message) {
+                    errorMessage += ': ' + e.message;
+                  }
+                  
+                  toast.error(errorMessage);
+                  
+                  setShowEndPopup(false);
+                }
               }}
             />
           )}
         </div>
       )}
     </>
+  );
+}
+
+export default function ScreenControlPage() {
+  return (
+    <Suspense fallback={<ScoreLensLoading text="Đang tải..." />}>
+      <ScoreboardPage />
+    </Suspense>
   );
 }
 
