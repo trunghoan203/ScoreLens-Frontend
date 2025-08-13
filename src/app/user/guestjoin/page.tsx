@@ -30,6 +30,7 @@ function GuestJoinContent() {
   const [isWebSocketConnected, setIsWebSocketConnected] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
   const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date());
+  const [isLeaving, setIsLeaving] = useState(false);
   const socketRef = useRef<Socket | null>(null);
 
   const handleChange = (team: 'A' | 'B', index: number, value: string) => {
@@ -46,16 +47,16 @@ function GuestJoinContent() {
     if (current.length >= 4) {
       toast.error('Không thể thêm quá 4 người chơi!', {
         style: {
-          background: '#ef4444',
-          color: '#fff',
+          background: '#FF0000',
+          color: '#FFFFFF',
           fontWeight: 'bold',
           fontSize: '1rem',
           borderRadius: '0.75rem',
           boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
         },
         iconTheme: {
-          primary: '#fff',
-          secondary: '#ef4444'
+          primary: '#FFFFFF',
+          secondary: '#FF0000'
         }
       });
       return;
@@ -206,6 +207,24 @@ function GuestJoinContent() {
 
         socket.on('match_deleted', (data) => {
           toast('Trận đấu đã bị hủy');
+        });
+
+        socket.on('match_ended', (data) => {
+          toast.success('Trận đấu đã kết thúc!');
+          
+          // Navigate to endmatch page with match data
+          const params = new URLSearchParams();
+          if (data.matchId) params.set('matchId', data.matchId);
+          if (data.tableName) params.set('tableName', data.tableName);
+          if (data.matchCode) params.set('matchCode', data.matchCode);
+          if (data.scoreA !== undefined) params.set('scoreA', data.scoreA.toString());
+          if (data.scoreB !== undefined) params.set('scoreB', data.scoreB.toString());
+          if (data.teamA) params.set('teamA', data.teamA.join(','));
+          if (data.teamB) params.set('teamB', data.teamB.join(','));
+          if (data.tableId) params.set('tableId', data.tableId);
+          
+          // Use router.push for navigation
+          router.push(`/user/endmatch?${params.toString()}`);
         });
 
         socket.on('error', (error) => {
@@ -445,12 +464,41 @@ function GuestJoinContent() {
     };
   }, [tableId, existingCode, existingMatchId]);
 
-  const handleLeaveRoom = () => {
-    if (socketRef.current && socketRef.current.connected) {
-      socketRef.current.emit('leave_match', { matchId, guestName });
-    }
+  const handleLeaveRoom = async () => {
+    if (isLeaving) return; // Prevent multiple clicks
     
-    router.push('/user/guest');
+    try {
+      setIsLeaving(true);
+      
+      // Gọi API leaveMatch trước
+      if (roomCode && guestName) {
+        try {
+          await userMatchService.leaveMatch({
+            matchCode: roomCode,
+            leaverInfo: { guestName: guestName }
+          });
+          toast.success('Đã rời khỏi phòng thành công');
+        } catch (error: any) {
+          console.error('Error leaving match:', error);
+          // Vẫn tiếp tục rời phòng ngay cả khi API fail
+          toast.error('Có lỗi khi rời phòng, nhưng vẫn sẽ chuyển trang');
+        }
+      }
+      
+      // Emit socket event nếu có kết nối
+      if (socketRef.current && socketRef.current.connected) {
+        socketRef.current.emit('leave_match', { matchId, guestName });
+      }
+      
+      // Chuyển trang sau khi xử lý xong
+      router.push('/user/guest');
+      
+    } catch (error) {
+      console.error('Error in handleLeaveRoom:', error);
+      toast.error('Có lỗi xảy ra khi rời phòng');
+    } finally {
+      setIsLeaving(false);
+    }
   };
 
   if (loading) return <ScoreLensLoading text="Đang tham gia phòng..." />;
@@ -461,34 +509,34 @@ function GuestJoinContent() {
 
       <main className="flex-1 flex flex-col px-4 py-8 overflow-y-auto scroll-smooth">
         <div className="text-center mb-8">
-          <h2 className="text-2xl sm:text-3xl font-bold text-black">
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#000000]">
             {tableNumber} - {tableInfo?.category ? tableInfo.category.toUpperCase() : (tableId ? 'Đang tải...' : 'Pool 8 Ball')}
           </h2>
-          <p className="text-sm sm:text-base text-black font-medium">Bạn đã tham gia phòng với tên: {guestName}</p>
+          <p className="text-sm sm:text-base text-[#000000] font-medium">Bạn đã tham gia phòng với tên: {guestName}</p>
         </div>
 
         <div className="flex-1 flex justify-center overflow-y-auto scroll-smooth">
           <div className="w-full max-w-sm space-y-6 pb-8">
             <div className="space-y-3 flex flex-col items-center justify-center w-full">
-              <p className="text-base font-medium text-black">Mã Tham Gia</p>
-              <div className="px-6 py-4 rounded-2xl bg-white border border-black/80 shadow-sm mx-auto">
+              <p className="text-base font-medium text-[#000000]">Mã Tham Gia</p>
+              <div className="px-6 py-4 rounded-2xl bg-white border border-[#000000]/80 shadow-sm mx-auto">
                 <div className="flex items-center justify-center gap-3 select-all">
                   {roomCode.split('').map((ch, idx) => (
                     <span
                       key={idx}
-                      className="w-6 sm:w-7 text-center font-mono tabular-nums font-extrabold text-3xl sm:text-4xl text-black leading-none"
+                      className="w-6 sm:w-7 text-center font-mono tabular-nums font-extrabold text-3xl sm:text-4xl text-[#000000] leading-none"
                     >
                       {ch}
                     </span>
                   ))}
                 </div>
               </div>
-              <p className="text-xs text-black/70">Chia sẻ mã này cho người chơi để tham gia phòng</p>
+              <p className="text-xs text-[#000000]/70">Chia sẻ mã này cho người chơi để tham gia phòng</p>
             </div>
 
             <div className="space-y-4 w-full">
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-                <h3 className="font-bold text-black mb-3">Đội A</h3>
+                <h3 className="font-bold text-[#000000] mb-3">Đội A</h3>
                 <div className="space-y-3 max-h-64 overflow-y-auto scroll-smooth">
                   {teamA.map((player, index) => (
                     <div key={index} className="flex items-center gap-2">
@@ -497,7 +545,7 @@ function GuestJoinContent() {
                         placeholder={`Người Chơi ${index + 1}`}
                         value={player}
                         onChange={(e) => handleChange('A', index, e.target.value)}
-                        className="flex w-full border border-gray-300 rounded-md bg-white px-4 py-3 text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all"
+                        className="flex w-full border border-gray-300 rounded-md bg-white px-4 py-3 text-sm text-[#000000] placeholder:text-gray-500 focus:outline-none focus:border-[#8ADB10] hover:border-lime-400 transition-all"
                       />
                     </div>
                   ))}
@@ -505,7 +553,7 @@ function GuestJoinContent() {
               </div>
 
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-                <h3 className="font-bold text-black mb-3">Đội B</h3>
+                <h3 className="font-bold text-[#000000] mb-3">Đội B</h3>
                 <div className="space-y-3 max-h-64 overflow-y-auto scroll-smooth">
                   {teamB.map((player, index) => (
                     <div key={index} className="flex items-center gap-2">
@@ -514,7 +562,7 @@ function GuestJoinContent() {
                         placeholder={`Người Chơi ${index + 1}`}
                         value={player}
                         onChange={(e) => handleChange('B', index, e.target.value)}
-                        className="flex w-full border border-gray-300 rounded-md bg-white px-4 py-3 text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all"
+                        className="flex w-full border border-gray-300 rounded-md bg-white px-4 py-3 text-sm text-[#000000] placeholder:text-gray-500 focus:outline-none focus:border-[#8ADB10] hover:border-lime-400 transition-all"
                       />
                     </div>
                   ))}
@@ -528,9 +576,14 @@ function GuestJoinContent() {
       <FooterButton>
         <button
           onClick={handleLeaveRoom}
-          className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-xl text-base sm:text-base transition"
+          disabled={isLeaving}
+          className={`w-full font-semibold py-3 rounded-xl text-base sm:text-base transition ${
+            isLeaving 
+              ? 'bg-gray-400 cursor-not-allowed' 
+              : 'bg-[#FF0000] hover:bg-red-600 text-[#FFFFFF]'
+          }`}
         >
-          Rời phòng
+          {isLeaving ? 'Đang rời phòng...' : 'Rời phòng'}
         </button>
       </FooterButton>
     </div>

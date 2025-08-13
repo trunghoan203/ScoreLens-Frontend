@@ -37,6 +37,14 @@ export interface JoinMatchRequest {
   };
 }
 
+export interface LeaveMatchRequest {
+  matchCode: string;
+  leaverInfo: {
+    phoneNumber?: string;
+    guestName?: string;
+  };
+}
+
 export interface UpdateScoreRequest {
   teamIndex: number;
   score: number;
@@ -103,6 +111,15 @@ class UserMatchService {
   async joinMatch(payload: JoinMatchRequest) {
     try {
       const res = await axios.post('/membership/matches/join', payload);
+      return res.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async leaveMatch(payload: LeaveMatchRequest) {
+    try {
+      const res = await axios.post('/membership/matches/leave', payload);
       return res.data;
     } catch (error) {
       throw this.handleError(error);

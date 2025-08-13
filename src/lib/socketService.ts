@@ -67,6 +67,12 @@ class SocketService {
     }
   }
 
+  onMatchEnded(callback: (data: unknown) => void) {
+    if (this.socket) {
+      this.socket.on('match_ended', callback);
+    }
+  }
+
   onTimeUpdate(callback: (data: { matchId: string; elapsedTime: string }) => void) {
     if (this.socket) {
       this.socket.on('time_update', callback);
@@ -79,6 +85,15 @@ class SocketService {
         matchId,
         teamIndex,
         score
+      });
+    }
+  }
+
+  emitMatchEnd(matchId: string, matchData: any) {
+    if (this.socket) {
+      this.socket.emit('match_ended', {
+        matchId,
+        ...matchData
       });
     }
   }
