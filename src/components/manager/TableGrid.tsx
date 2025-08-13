@@ -1,4 +1,5 @@
 import React from 'react';
+import StatusBadge from './StatusBadge';
 
 interface Table {
   id: string;
@@ -42,14 +43,7 @@ export default function TableGrid({ tables, onTableClick }: TableGridProps) {
             <div className="col-span-4 py-4 font-semibold text-[#000000] text-lg">{table.name}</div>
             <div className="col-span-4 py-4 uppercase text-gray-700 text-base">{formatCategory(table.type)}</div>
             <div className="col-span-4 py-4 flex justify-center items-center gap-2">
-              <span
-                className={`w-4 h-4 rounded-full inline-block mr-2
-                  ${table.status === 'empty' ? 'bg-green-500'
-                    : table.status === 'inuse' ? 'bg-red-400'
-                      : table.status === 'maintenance' ? 'bg-yellow-400'
-                        : 'bg-gray-200'}
-                `}
-              ></span>
+              <StatusBadge status={table.status} />
             </div>
           </div>
         ))}

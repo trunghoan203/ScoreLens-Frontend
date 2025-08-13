@@ -36,11 +36,13 @@ export default function CameraGrid({ cameras, onCameraClick }: CameraGridProps) 
           <div className="col-span-3 py-4 text-gray-700 text-base">{camera.ip}</div>
           <div className="col-span-2 py-4 text-gray-700 text-base">{camera.username}</div>
           <div className="col-span-3 py-4 text-gray-700 text-base">{'•'.repeat(8)}</div>
-          <div className="col-span-2 py-4 flex justify-center">
-            <span
-              className={`w-4 h-4 rounded-full inline-block ${camera.status === 'active' ? 'bg-green-500' : 'bg-red-500'
-                }`}
-            ></span>
+          <div className="col-span-2 py-4 flex justify-center items-center gap-2">
+            <span className={`w-30 px-4 py-2 rounded-full text-white font-semibold text-sm min-w-[120px] text-center
+              ${camera.status === 'active' ? 'bg-green-500'
+                : 'bg-red-500'}`}
+            >
+              {camera.status === 'active' ? 'Đã kết nối' : 'Chưa kết nối'}
+            </span>
           </div>
         </div>
       ))}
