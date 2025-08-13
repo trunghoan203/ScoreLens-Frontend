@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
+import { ConfirmPopupDetail } from '@/components/admin/ConfirmPopupDetail'
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import axios from '@/lib/axios';
@@ -442,14 +443,14 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
         </div>
       </form>
       {/* Popup xác nhận cả brandInfo và branchInfo */}
-             <ConfirmPopup
+        <ConfirmPopupDetail
          open={showConfirm}
          onConfirm={handleConfirm}
          onCancel={handleCancel}
          title="Xác nhận thông tin đăng ký"
-         confirmText={isLoading ? 'Đang tạo...' : 'Tạo thương hiệu và chi nhánh'}
+         confirmText={isLoading ? 'Đang tạo...' : 'Xác nhận'}
          cancelText="Hủy"
-       >
+        >
         <div className="space-y-6 w-full">
           {/* Thông tin thương hiệu */}
           {brandInfo && (
@@ -495,7 +496,7 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
             ))}
           </div>
         </div>
-      </ConfirmPopup>
+      </ConfirmPopupDetail>
       {/* Popup xác nhận xóa chi nhánh */}
       <ConfirmPopup
         open={showDeleteConfirm}

@@ -107,7 +107,7 @@ export default function ClubInfoPage() {
   const handleConfirm = () => {
     setShowConfirm(false);
     toast.success("Đã lưu thông tin câu lạc bộ!");
-    setIsEditing(false); // <--- Sau khi lưu xong, quay lại chế độ chỉ xem
+    setIsEditing(false);
   };
 
   const handleCancel = () => {
