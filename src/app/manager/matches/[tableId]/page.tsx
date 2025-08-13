@@ -15,6 +15,7 @@ import { managerMatchService } from '@/lib/managerMatchService';
 import { MatchSummaryModal } from '@/components/manager/MatchSummaryModal';
 import { EditMatchModal } from '@/components/manager/EditMatchModal';
 import { EditScoreModal } from '@/components/manager/EditScoreModal';
+import { AISelectionModal } from '@/components/manager/AISelectionModal';
 import toast from 'react-hot-toast';
 
 interface TableData {
@@ -84,6 +85,12 @@ export default function TableDetailPage() {
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showEditScoreModal, setShowEditScoreModal] = useState(false);
+  const [showAISelectionModal, setShowAISelectionModal] = useState(false);
+  const [pendingTeams, setPendingTeams] = useState<{
+    teamA: Array<{ guestName?: string; phoneNumber?: string }>;
+    teamB: Array<{ guestName?: string; phoneNumber?: string }>;
+  } | null>(null);
+  const [isAiAssisted, setIsAiAssisted] = useState<boolean>(false);
   const [matchData, setMatchData] = useState<MatchData | null>(null);
   const [elapsedTime, setElapsedTime] = useState<string>('00:00:00');
   const [matchStartTime, setMatchStartTime] = useState<Date | null>(null);
@@ -135,6 +142,9 @@ export default function TableDetailPage() {
                 setTableStatus('using');
                 setActiveMatchId(activeMatch.matchId);
                 setMatchStatus(activeMatch.status || 'pending');
+                if (activeMatch.isAiAssisted !== undefined) {
+                  setIsAiAssisted(activeMatch.isAiAssisted as boolean);
+                }
                 if (activeMatch.startTime) {
                   const startTime = new Date(activeMatch.startTime);
                   setMatchStartTime(startTime);
@@ -164,6 +174,9 @@ export default function TableDetailPage() {
                   setTableStatus('using');
                   setActiveMatchId(pendingMatch.matchId);
                   setMatchStatus(pendingMatch.status || 'pending');
+                  if (pendingMatch.isAiAssisted !== undefined) {
+                    setIsAiAssisted(pendingMatch.isAiAssisted as boolean);
+                  }
                   if (pendingMatch.startTime) {
                     const startTime = new Date(pendingMatch.startTime);
                     setMatchStartTime(startTime);
@@ -262,7 +275,14 @@ export default function TableDetailPage() {
   }, [matchStatus, matchStartTime]);
 
 
-  const handleCreateMatch = async (teamA: string[], teamB: string[]) => {
+  const handleCreateMatch = async (teamA: Array<{ guestName?: string; phoneNumber?: string }>, teamB: Array<{ guestName?: string; phoneNumber?: string }>) => {
+    setPendingTeams({ teamA, teamB });
+    setShowAISelectionModal(true);
+  };
+
+  const handleConfirmAISelection = async (isAiAssisted: boolean) => {
+    if (!pendingTeams) return;
+
     setCreatingMatch(true);
     try {
       const createdByMembershipId = localStorage.getItem('membershipId') || undefined;
@@ -271,15 +291,15 @@ export default function TableDetailPage() {
         tableId,
         gameType: (table?.type === 'carom' ? 'carom' : 'pool-8') as 'carom' | 'pool-8',
         createdByMembershipId,
-        isAiAssisted: false,
+        isAiAssisted,
         teams: [
           {
             teamName: 'Team A',
-            members: teamA.map(name => ({ guestName: name }))
+            members: pendingTeams.teamA
           },
           {
             teamName: 'Team B',
-            members: teamB.map(name => ({ guestName: name }))
+            members: pendingTeams.teamB
           }
         ]
       };
@@ -288,13 +308,36 @@ export default function TableDetailPage() {
 
       if (response.success) {
         toast.success('Tạo trận đấu thành công!');
-        setTeamA(teamA);
-        setTeamB(teamB);
+
+        const responseData = response.data as Record<string, unknown>;
+        if (responseData?.teams && Array.isArray(responseData.teams)) {
+          const teamA = responseData.teams[0] as Record<string, unknown>;
+          const teamB = responseData.teams[1] as Record<string, unknown>;
+
+          if (teamA?.members && Array.isArray(teamA.members)) {
+            const teamAMembers = teamA.members.map((m: Record<string, unknown>) =>
+              (m.membershipName as string) || (m.guestName as string) || 'Unknown'
+            );
+            setTeamA(teamAMembers);
+          }
+
+          if (teamB?.members && Array.isArray(teamB.members)) {
+            const teamBMembers = teamB.members.map((m: Record<string, unknown>) =>
+              (m.membershipName as string) || (m.guestName as string) || 'Unknown'
+            );
+            setTeamB(teamBMembers);
+          }
+        }
+
         setTableStatus('using');
         setIsEditing(false);
-        const responseData = response.data as Record<string, unknown>;
+
         if (responseData?.matchId) {
           setActiveMatchId(responseData.matchId as string);
+        }
+
+        if (responseData?.isAiAssisted !== undefined) {
+          setIsAiAssisted(responseData.isAiAssisted as boolean);
         }
 
       } else {
@@ -305,6 +348,8 @@ export default function TableDetailPage() {
       toast.error('Tạo trận đấu thất bại!');
     } finally {
       setCreatingMatch(false);
+      setShowAISelectionModal(false);
+      setPendingTeams(null);
     }
   };
 
@@ -360,23 +405,43 @@ export default function TableDetailPage() {
     }
   };
 
-  const handleUpdateTeams = async (updatedTeamA: string[], updatedTeamB: string[]) => {
+  const handleUpdateTeams = async (updatedTeamA: Array<{ guestName?: string; phoneNumber?: string }>, updatedTeamB: Array<{ guestName?: string; phoneNumber?: string }>) => {
     try {
       if (!activeMatchId) {
         toast.error('Không xác định được trận đấu để cập nhật');
         return;
       }
 
-      // Sử dụng API mới để cập nhật cả 2 team cùng lúc
       await managerMatchService.updateTeamMembers(activeMatchId, {
         teams: [
-          updatedTeamA.map((name) => ({ guestName: name })),
-          updatedTeamB.map((name) => ({ guestName: name }))
+          updatedTeamA,
+          updatedTeamB
         ]
       });
 
-      setTeamA(updatedTeamA);
-      setTeamB(updatedTeamB);
+      const matchResponse = await managerMatchService.getMatchById(activeMatchId) as Record<string, unknown>;
+      if (matchResponse?.success) {
+        const currentMatch = matchResponse.data as Record<string, unknown>;
+        if (currentMatch?.teams && Array.isArray(currentMatch.teams)) {
+          const teamA = currentMatch.teams[0] as Record<string, unknown>;
+          const teamB = currentMatch.teams[1] as Record<string, unknown>;
+
+          if (teamA?.members && Array.isArray(teamA.members)) {
+            const teamAMembers = teamA.members.map((m: Record<string, unknown>) =>
+              (m.membershipName as string) || (m.guestName as string) || 'Unknown'
+            );
+            setTeamA(teamAMembers);
+          }
+
+          if (teamB?.members && Array.isArray(teamB.members)) {
+            const teamBMembers = teamB.members.map((m: Record<string, unknown>) =>
+              (m.membershipName as string) || (m.guestName as string) || 'Unknown'
+            );
+            setTeamB(teamBMembers);
+          }
+        }
+      }
+
       setIsEditing(false);
       toast.success('Cập nhật thành viên thành công!');
     } catch (error) {
@@ -540,7 +605,11 @@ export default function TableDetailPage() {
               <div className="bg-white rounded-lg shadow p-6">
                 {tableStatus === 'available' || isEditing ? (
                   <TableAvailableView
-                    table={{ id: table.id, name: table.name }}
+                    table={{
+                      id: table.id,
+                      name: table.name,
+                      category: table.type === 'pool-8' ? 'Pool 8' : table.type === 'carom' ? 'Carom' : table.type
+                    }}
                     onReady={isEditing ? handleUpdateTeams : handleCreateMatch}
                     loading={creatingMatch}
                     isEditing={isEditing}
@@ -557,7 +626,8 @@ export default function TableDetailPage() {
                       teamB,
                       teamAScore,
                       teamBScore,
-                      time: table.time || '00:00:00'
+                      time: table.time || '00:00:00',
+                      category: table.type === 'pool-8' ? 'Pool 8' : table.type === 'carom' ? 'Carom' : table.type
                     }}
                     onBack={() => router.push('/manager/dashboard')}
                     onEndMatch={handleEndMatch}
@@ -566,6 +636,7 @@ export default function TableDetailPage() {
                     onStartMatch={handleStartMatch}
                     matchStatus={matchStatus}
                     elapsedTime={elapsedTime}
+                    isAiAssisted={isAiAssisted}
                   />
                 )}
               </div>
@@ -597,6 +668,12 @@ export default function TableDetailPage() {
         teamBScore={teamBScore}
         onSave={handleSaveScores}
         onCancel={() => setShowEditScoreModal(false)}
+      />
+
+      <AISelectionModal
+        open={showAISelectionModal}
+        onConfirm={handleConfirmAISelection}
+        onCancel={() => setShowAISelectionModal(false)}
       />
     </>
   );

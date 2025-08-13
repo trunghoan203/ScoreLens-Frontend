@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import TableStatusBadge from './TableStatusBadge';
@@ -7,8 +7,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 interface TableAvailableViewProps {
-  table: { id: string; name: string };
-  onReady: (teamA: string[], teamB: string[]) => void;
+  table: { id: string; name: string; category?: string };
+  onReady: (teamA: Array<{ guestName?: string; phoneNumber?: string }>, teamB: Array<{ guestName?: string; phoneNumber?: string }>) => void;
   loading?: boolean;
   teamA?: string[];
   teamB?: string[];
@@ -22,9 +22,13 @@ export default function TableAvailableView({ table, onReady, loading = false, te
   const [teamB, setTeamB] = useState<string[]>(initialTeamB && initialTeamB.length > 0 ? initialTeamB : ['']);
   const router = useRouter();
 
-  React.useEffect(() => {
-    if (initialTeamA && initialTeamA.length > 0) setTeamA(initialTeamA);
-    if (initialTeamB && initialTeamB.length > 0) setTeamB(initialTeamB);
+  useEffect(() => {
+    if (initialTeamA && initialTeamA.length > 0) {
+      setTeamA(initialTeamA);
+    }
+    if (initialTeamB && initialTeamB.length > 0) {
+      setTeamB(initialTeamB);
+    }
   }, [initialTeamA, initialTeamB]);
 
   const handleChange = (team: 'A' | 'B', index: number, value: string) => {
@@ -67,18 +71,53 @@ export default function TableAvailableView({ table, onReady, loading = false, te
     setter(updated);
   };
 
-  const handleReady = () => {
-    onReady(teamA, teamB);
+  const handleReady = async () => {
+    try {
+      const processedTeamA = [];
+      const processedTeamB = [];
+
+      for (const player of teamA) {
+        if (player.trim()) {
+          if (player.length >= 10 && /^\d+$/.test(player)) {
+            processedTeamA.push({ phoneNumber: player });
+          } else {
+            processedTeamA.push({ guestName: player });
+          }
+        }
+      }
+
+      for (const player of teamB) {
+        if (player.trim()) {
+          if (player.length >= 10 && /^\d+$/.test(player)) {
+            processedTeamB.push({ phoneNumber: player });
+          } else {
+            processedTeamB.push({ guestName: player });
+          }
+        }
+      }
+
+      if (processedTeamA.length === 0 || processedTeamB.length === 0) {
+        toast.error('Trận đấu cần có ít nhất 1 người chơi!');
+        return;
+      }
+
+      onReady(processedTeamA, processedTeamB);
+
+    } catch (error) {
+      console.error('Error processing teams:', error);
+      toast.error('Có lỗi xảy ra khi xử lý thông tin team!');
+    }
   };
 
   return (
     <div className="border border-lime-200 rounded-lg p-8 bg-[#FFFFFF] mx-auto text-[#000000]">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-lg font-semibold">Tạo trận đấu</h2>
+        <h2 className="text-lg font-semibold">{isEditing ? 'Chỉnh sửa trận đấu' : 'Tạo trận đấu'}</h2>
         <TableStatusBadge status={isEditing ? "using" : "available"} />
       </div>
       <div className="text-center mb-6">
         <h3 className="text-2xl font-bold">{table.name}</h3>
+        {table.category && <p className="text-lg text-gray-600 mt-2">{table.category}</p>}
       </div>
       <div className="flex justify-center gap-8 mb-6">
         <div>
