@@ -16,6 +16,7 @@ export interface Member {
   membershipId: string;
   fullName: string;
   phoneNumber: string;
+  status: 'active' | 'inactive';
   _id?: string;
 }
 
@@ -43,6 +44,7 @@ export default function MembersPage() {
             membershipId: obj.membershipId || obj._id || '',
             fullName: obj.fullName || '',
             phoneNumber: obj.phoneNumber || '',
+            status: obj.status || 'active',
           };
         });
         setMembers(mappedMembers);
@@ -96,13 +98,11 @@ export default function MembersPage() {
           </div>
           <div className="p-10">
             <MemberPageBanner />
-            {members.length > 0 && (
-              <MemberSearchBar
-                search={search}
-                setSearch={setSearch}
-                onAddMember={isAdding ? () => { } : handleAddMember}
-              />
-            )}
+            <MemberSearchBar
+              search={search}
+              setSearch={setSearch}
+              onAddMember={isAdding ? () => { } : handleAddMember}
+            />
             {loading ? (
               <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>
             ) : error ? (
@@ -114,9 +114,9 @@ export default function MembersPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                   </svg>
                 }
-                title="Không tìm thấy hội viên phù hợp"
+                title={search ? 'Không tìm thấy hội viên phù hợp' : 'Chưa có hội viên nào'}
                 description="Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy hội viên phù hợp"
-                secondaryAction={{
+                secondaryAction={search ? {
                   label: 'Xem tất cả',
                   onClick: () => setSearch(''),
                   icon: (
@@ -124,8 +124,8 @@ export default function MembersPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h16M4 12h16M4 20h16" />
                     </svg>
                   )
-                }}
-                showAdditionalInfo={false}
+                } : undefined}
+                showAdditionalInfo={!search}
               />
             ) : (
               <MemberGrid
@@ -133,6 +133,7 @@ export default function MembersPage() {
                   id: m.membershipId,
                   name: m.fullName,
                   phone: m.phoneNumber,
+                  status: m.status,
                 }))}
                 onMemberClick={handleMemberClick}
               />

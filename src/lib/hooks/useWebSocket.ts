@@ -6,18 +6,20 @@ interface UseWebSocketProps {
   matchStatus: 'pending' | 'ongoing' | 'completed';
   onTimeUpdate: (elapsedTime: string) => void;
   onMatchUpdate?: (matchData: unknown) => void;
+  onMatchEnded?: (matchData: unknown) => void;
 }
 
 export const useWebSocket = ({
   matchId,
   matchStatus,
   onTimeUpdate,
-  onMatchUpdate
+  onMatchUpdate,
+  onMatchEnded
 }: UseWebSocketProps) => {
   const isConnected = useRef(false);
 
   useEffect(() => {
-    if (matchId && matchStatus === 'ongoing' && !isConnected.current) {
+    if (matchId && (matchStatus === 'ongoing' || matchStatus === 'completed') && !isConnected.current) {
       // Connect to WebSocket
       socketService.connect();
 
@@ -42,6 +44,16 @@ export const useWebSocket = ({
         });
       }
 
+      // Listen for match ended
+      if (onMatchEnded) {
+        socketService.onMatchEnded((matchData) => {
+          const match = matchData as { matchId: string };
+          if (match.matchId === matchId) {
+            onMatchEnded(matchData);
+          }
+        });
+      }
+
       isConnected.current = true;
     }
 
@@ -53,7 +65,7 @@ export const useWebSocket = ({
         isConnected.current = false;
       }
     };
-  }, [matchId, matchStatus, onMatchUpdate, onTimeUpdate]);
+  }, [matchId, matchStatus, onMatchUpdate, onTimeUpdate, onMatchEnded]);
 
   return {
     isConnected: socketService.isSocketConnected(),

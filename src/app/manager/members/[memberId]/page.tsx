@@ -13,6 +13,7 @@ interface Member {
   membershipId: string;
   fullName: string;
   phoneNumber: string;
+  status: 'active' | 'inactive';
   _id?: string;
 }
 
@@ -23,6 +24,7 @@ export default function MemberDetailPage() {
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [status, setStatus] = useState<'active' | 'inactive'>('active');
   const [showConfirm, setShowConfirm] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -42,6 +44,7 @@ export default function MemberDetailPage() {
           const memberObj = found as Partial<Member>;
           setName(memberObj.fullName || '');
           setPhone(memberObj.phoneNumber || '');
+          setStatus(memberObj.status || 'active');
         } else {
           toast.error('Không tìm thấy hội viên');
         }
@@ -63,7 +66,7 @@ export default function MemberDetailPage() {
 
   const handleSave = async () => {
     try {
-      await managerMemberService.updateMember(memberId, { fullName: name, phoneNumber: phone });
+      await managerMemberService.updateMember(memberId, { fullName: name, phoneNumber: phone, status });
       toast.success('Đã lưu hội viên thành công!');
       setIsEditMode(false);
     } catch (error) {
@@ -137,12 +140,30 @@ export default function MemberDetailPage() {
               <></>
             </ConfirmPopup>
             <div className="w-full mb-6">
+              <label className="block text-sm font-semibold mb-2 text-gray-500">Mã Hội Viên<span className="text-red-500">*</span></label>
+              <Input
+                value={phone}
+                onChange={e => setPhone(e.target.value)}
+                required
+                disabled={true}
+                className="bg-gray-100 text-gray-500 cursor-not-allowed"
+              />
+            </div>
+            <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Tên Hội Viên<span className="text-red-500">*</span></label>
               <Input value={name} onChange={e => setName(e.target.value)} required disabled={!isEditMode} />
             </div>
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Số Điện Thoại<span className="text-red-500">*</span></label>
-              <Input value={phone} onChange={e => setPhone(e.target.value)} required disabled={!isEditMode} />
+            <div className="w-full mb-10">
+              <label className="block text-sm font-semibold mb-2 text-black">Trạng thái<span className="text-red-500">*</span></label>
+              <select
+                value={status}
+                onChange={e => setStatus(e.target.value as 'active' | 'inactive')}
+                disabled={!isEditMode}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              >
+                <option value="active">Hoạt động</option>
+                <option value="inactive">Không hoạt động</option>
+              </select>
             </div>
           </AddFormLayout>
         </div>

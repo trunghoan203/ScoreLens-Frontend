@@ -50,7 +50,6 @@ export default function AddCameraPage() {
       });
   }, []);
 
-  // Theo dõi scroll để thay đổi viền header
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
@@ -80,8 +79,6 @@ export default function AddCameraPage() {
     } catch (error) {
       console.error(error);
       toast.error('Thêm camera thất bại.');
-    } finally {
-      // setLoading(false);
     }
   };
 
@@ -89,51 +86,50 @@ export default function AddCameraPage() {
     <div className="min-h-screen flex bg-[#18191A]">
       <SidebarManager />
       <main className="flex-1 bg-white min-h-screen">
-        <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${
-          isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
-        }`}>
+        <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
+          }`}>
           <HeaderManager />
         </div>
         <div className="p-10">
-        <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-          <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
-            QUẢN LÝ CAMERA
-          </span>
-        </div>
-        <AddFormLayout
-          title="THÊM CAMERA"
-          onSubmit={handleSubmit}
-          onBack={() => router.push('/manager/camera')}
-        >
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Bàn<span className="text-red-500">*</span></label>
-            <Select 
-              className="text-black" 
-              value={tableId} 
-              onChange={e => setTableId(e.target.value)} 
-              required
-            >
-              <option className="text-black" value="">Chọn bàn</option>
-              {tables.map(table => (
-                <option className="text-black" key={table.tableId} value={table.tableId}>
-                  {table.name} - {table.category}
-                </option>
-              ))}
-            </Select>
+          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
+            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+              QUẢN LÝ CAMERA
+            </span>
           </div>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">IP<span className="text-red-500">*</span></label>
-            <Input value={ip} onChange={e => setIp(e.target.value)} required placeholder="Nhập địa chỉ IP" />
-          </div>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Username<span className="text-red-500">*</span></label>
-            <Input value={username} onChange={e => setUsername(e.target.value)} required placeholder="Nhập username" />
-          </div>
-          <div className="w-full mb-10">
-            <label className="block text-sm font-semibold mb-2 text-black">Mật khẩu<span className="text-red-500">*</span></label>
-            <PasswordInput value={password} onChange={e => setPassword(e.target.value)} required placeholder="Nhập mật khẩu" />
-          </div>
-        </AddFormLayout>
+          <AddFormLayout
+            title="THÊM CAMERA"
+            onSubmit={handleSubmit}
+            onBack={() => router.push('/manager/camera')}
+          >
+            <div className="w-full mb-6">
+              <label className="block text-sm font-semibold mb-2 text-black">Bàn<span className="text-red-500">*</span></label>
+              <Select
+                className="text-black"
+                value={tableId}
+                onChange={e => setTableId(e.target.value)}
+                required
+              >
+                <option className="text-black" value="">Chọn bàn</option>
+                {tables.map(table => (
+                  <option className="text-black" key={table.tableId} value={table.tableId}>
+                    {table.name} - {table.category === 'pool-8' ? 'Pool 8' : table.category === 'carom' ? 'Carom' : table.category}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <div className="w-full mb-6">
+              <label className="block text-sm font-semibold mb-2 text-black">IP<span className="text-red-500">*</span></label>
+              <Input value={ip} onChange={e => setIp(e.target.value)} required placeholder="Nhập địa chỉ IP" />
+            </div>
+            <div className="w-full mb-6">
+              <label className="block text-sm font-semibold mb-2 text-black">Username<span className="text-red-500">*</span></label>
+              <Input value={username} onChange={e => setUsername(e.target.value)} required placeholder="Nhập username" />
+            </div>
+            <div className="w-full mb-10">
+              <label className="block text-sm font-semibold mb-2 text-black">Mật khẩu<span className="text-red-500">*</span></label>
+              <PasswordInput value={password} onChange={e => setPassword(e.target.value)} required placeholder="Nhập mật khẩu" />
+            </div>
+          </AddFormLayout>
         </div>
       </main>
     </div>

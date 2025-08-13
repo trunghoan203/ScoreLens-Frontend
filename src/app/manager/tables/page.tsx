@@ -107,15 +107,13 @@ export default function TablesPage() {
           </div>
           <div className="p-10">
             <TablePageBanner />
-            {tables.length > 0 && (
-              <TableSearchBar
-                search={search}
-                setSearch={setSearch}
-                categoryFilter={categoryFilter}
-                setCategoryFilter={setCategoryFilter}
-                onAddTable={isAdding ? () => { } : handleAddTable}
-              />
-            )}
+            <TableSearchBar
+              search={search}
+              setSearch={setSearch}
+              categoryFilter={categoryFilter}
+              setCategoryFilter={setCategoryFilter}
+              onAddTable={isAdding ? () => { } : handleAddTable}
+            />
             {loading ? (
               <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>
             ) : error ? (
@@ -130,7 +128,7 @@ export default function TablesPage() {
                 }
                 title="Không tìm thấy bàn phù hợp"
                 description="Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy bàn phù hợp"
-                secondaryAction={{
+                secondaryAction={search || categoryFilter ? {
                   label: 'Xem tất cả',
                   onClick: () => {
                     setSearch('');
@@ -141,7 +139,7 @@ export default function TablesPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h16M4 12h16M4 20h16" />
                     </svg>
                   )
-                }}
+                } : undefined}
                 showAdditionalInfo={false}
               />
             ) : (

@@ -218,7 +218,7 @@ export default function ManagerDashboardPage() {
           <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
             <HeaderManager />
           </div>
-          <div className="p-10">
+          <div className="px-10 pb-10">
             <div className="w-full mx-auto">
               {loadingStats ? (
                 <div className="my-6">
