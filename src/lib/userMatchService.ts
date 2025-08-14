@@ -155,7 +155,30 @@ class UserMatchService {
 
   async updateTeamMembers(matchId: string, teamIndex: number, payload: UpdateTeamMembersRequest) {
     try {
-      const res = await axios.put(`/membership/matches/${matchId}/teams/${teamIndex}/members`, payload);
+      // Lấy thông tin match hiện tại để có đủ 2 teams
+      const currentMatch = await this.getMatchById(matchId) as Record<string, any>;
+      
+      const currentTeams = currentMatch?.data?.teams || currentMatch?.teams || [];
+      
+      // Cập nhật team được chỉ định
+      const updatedTeams = [...currentTeams];
+      updatedTeams[teamIndex] = {
+        ...updatedTeams[teamIndex],
+        members: payload.members
+      };
+      
+      // Backend expect teams là mảng các mảng members, không phải mảng các object team
+      const teamsForBackend = updatedTeams.map(team => team.members);
+      
+      const requestBody = {
+        teams: teamsForBackend,
+        actorGuestToken: payload.actorGuestToken,
+        actorMembershipId: payload.actorMembershipId
+      };
+      
+      // Gửi cả 2 teams theo format backend expect
+      const res = await axios.put(`/membership/matches/${matchId}/teams`, requestBody);
+      
       return res.data;
     } catch (error) {
       throw this.handleError(error);
