@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import toast from 'react-hot-toast';
 import { userMatchService } from '@/lib/userMatchService';
+import socketService from '@/lib/socketService';
 
 interface Props {
   onClose: () => void;
@@ -66,15 +67,14 @@ export default function PopupEditMembers({ onClose, onSave, initialTeamA, initia
 
     try {
       const teamAMembers = teamA.filter(name => name.trim() !== '').map(name => ({ guestName: name }));
+      const teamBMembers = teamB.filter(name => name.trim() !== '').map(name => ({ guestName: name }));
+      
       await userMatchService.updateTeamMembers(matchId, 0, {
         actorGuestToken: actorGuestToken || undefined,
         actorMembershipId: actorMembershipId || undefined,
         members: teamAMembers
       });
 
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      const teamBMembers = teamB.filter(name => name.trim() !== '').map(name => ({ guestName: name }));
       await userMatchService.updateTeamMembers(matchId, 1, {
         actorGuestToken: actorGuestToken || undefined,
         actorMembershipId: actorMembershipId || undefined,
@@ -82,18 +82,14 @@ export default function PopupEditMembers({ onClose, onSave, initialTeamA, initia
       });
 
       toast.success('Cập nhật thành viên thành công!');
-      onSave(teamA, teamB);
-      onClose();
+      
+      setTimeout(() => {
+        onSave(teamA, teamB);
+        onClose();
+      }, 100);
     } catch (error: any) {
       const errorMessage = error?.message || 'Cập nhật thành viên thất bại';
       toast.error(errorMessage);
-      console.error('Update team members error:', error);
-      
-      // Log chi tiết hơn để debug
-      if (error?.response) {
-        console.error('Response data:', error.response.data);
-        console.error('Response status:', error.response.status);
-      }
     }
   };
 

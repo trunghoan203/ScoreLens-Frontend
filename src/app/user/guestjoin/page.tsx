@@ -212,7 +212,6 @@ function GuestJoinContent() {
         socket.on('match_ended', (data) => {
           toast.success('Trận đấu đã kết thúc!');
           
-          // Navigate to endmatch page with match data
           const params = new URLSearchParams();
           if (data.matchId) params.set('matchId', data.matchId);
           if (data.tableName) params.set('tableName', data.tableName);
@@ -223,7 +222,6 @@ function GuestJoinContent() {
           if (data.teamB) params.set('teamB', data.teamB.join(','));
           if (data.tableId) params.set('tableId', data.tableId);
           
-          // Use router.push for navigation
           router.push(`/user/endmatch?${params.toString()}`);
         });
 
@@ -259,7 +257,6 @@ function GuestJoinContent() {
         if (teams && Array.isArray(teams)) {
           const guests: Array<{ id: string, name: string, team: 'A' | 'B', joinedAt: Date }> = [];
 
-          // Process Team A (index 0) - only update if we have data
           if (teams[0]?.members && Array.isArray(teams[0].members)) {
             const teamAMembers: string[] = [];
             teams[0].members.forEach((member: any, index: number) => {
@@ -283,16 +280,13 @@ function GuestJoinContent() {
               }
             });
             
-            // Only update Team A if we have members from API
             if (teamAMembers.length > 0) {
-              // Only update Team A if we have members from API
               if (teamAMembers.length > 0) {
                 setTeamA(teamAMembers);
               }
             }
           }
 
-          // Process Team B (index 1) - only update if we have data
           if (teams[1]?.members && Array.isArray(teams[1].members)) {
             const teamBMembers: string[] = [];
             teams[1].members.forEach((member: any, index: number) => {
@@ -316,9 +310,7 @@ function GuestJoinContent() {
               }
             });
             
-            // Only update Team B if we have members from API
             if (teamBMembers.length > 0) {
-              // Only update Team B if we have members from API
               if (teamBMembers.length > 0) {
                 setTeamB(teamBMembers);
               }
@@ -330,7 +322,6 @@ function GuestJoinContent() {
           setIsPolling(false);
         }
       } catch (error) {
-        // Silent error handling
       }
     };
 
@@ -389,7 +380,6 @@ function GuestJoinContent() {
     }
   }, [tableId]);
 
-  // Try to get tableId from match data if not available
   useEffect(() => {
     if (matchId && !tableId) {
       const getTableIdFromMatch = async () => {
@@ -441,9 +431,7 @@ function GuestJoinContent() {
           }
         } else if (existingCode) {
           setRoomCode(existingCode);
-          
-          // Nếu chỉ có code, thử lấy matchId từ API
-          try {
+                    try {
             const data = await userMatchService.getMatchByCode(existingCode);
             const responseData = (data as any)?.data || data;
             const matchIdFromCode = responseData?.matchId || responseData?.id;
@@ -465,33 +453,31 @@ function GuestJoinContent() {
   }, [tableId, existingCode, existingMatchId]);
 
   const handleLeaveRoom = async () => {
-    if (isLeaving) return; // Prevent multiple clicks
-    
+    if (isLeaving) return; 
     try {
       setIsLeaving(true);
       
-      // Gọi API leaveMatch trước
       if (roomCode && guestName) {
         try {
           await userMatchService.leaveMatch({
             matchCode: roomCode,
             leaverInfo: { guestName: guestName }
           });
-          toast.success('Đã rời khỏi phòng thành công');
+          toast.success('Đã rời khỏi phòng');
         } catch (error: any) {
           console.error('Error leaving match:', error);
-          // Vẫn tiếp tục rời phòng ngay cả khi API fail
-          toast.error('Có lỗi khi rời phòng, nhưng vẫn sẽ chuyển trang');
         }
       }
       
-      // Emit socket event nếu có kết nối
       if (socketRef.current && socketRef.current.connected) {
         socketRef.current.emit('leave_match', { matchId, guestName });
       }
       
-      // Chuyển trang sau khi xử lý xong
-      router.push('/user/guest');
+      const loginParams = new URLSearchParams();
+      if (tableId) loginParams.set('tableId', tableId);
+      if (tableNumber) loginParams.set('table', tableNumber);
+      
+      router.push(`/user/login?${loginParams.toString()}`);
       
     } catch (error) {
       console.error('Error in handleLeaveRoom:', error);
@@ -545,7 +531,8 @@ function GuestJoinContent() {
                         placeholder={`Người Chơi ${index + 1}`}
                         value={player}
                         onChange={(e) => handleChange('A', index, e.target.value)}
-                        className="flex w-full border border-gray-300 rounded-md bg-white px-4 py-3 text-sm text-[#000000] placeholder:text-gray-500 focus:outline-none focus:border-[#8ADB10] hover:border-lime-400 transition-all"
+                        disabled={true}
+                        className="flex w-full border border-gray-300 rounded-md bg-gray-100 px-4 py-3 text-sm text-[#000000] placeholder:text-gray-500 cursor-not-allowed opacity-75"
                       />
                     </div>
                   ))}
@@ -562,7 +549,8 @@ function GuestJoinContent() {
                         placeholder={`Người Chơi ${index + 1}`}
                         value={player}
                         onChange={(e) => handleChange('B', index, e.target.value)}
-                        className="flex w-full border border-gray-300 rounded-md bg-white px-4 py-3 text-sm text-[#000000] placeholder:text-gray-500 focus:outline-none focus:border-[#8ADB10] hover:border-lime-400 transition-all"
+                        disabled={true}
+                        className="flex w-full border border-gray-300 rounded-md bg-gray-100 px-4 py-3 text-sm text-[#000000] placeholder:text-gray-500 cursor-not-allowed opacity-75"
                       />
                     </div>
                   ))}
