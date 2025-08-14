@@ -18,7 +18,7 @@ export default function AddBranchPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!clubName || !address || !phoneNumber || tableNumber <= 0) {
       toast.error('Vui lòng điền đầy đủ thông tin');
       return;
@@ -26,13 +26,13 @@ export default function AddBranchPage() {
 
     try {
       setIsSubmitting(true);
-      
+
       const clubData: Club = {
         clubName,
         address,
         phoneNumber,
         tableNumber,
-        status: 'maintenance'
+        status: 'open'
       };
 
       await clubsService.createClub(clubData);
@@ -64,39 +64,39 @@ export default function AddBranchPage() {
         >
           <div className="w-full mb-6">
             <label className="block text-sm font-semibold mb-2 text-black">Tên Chi Nhánh<span className="text-red-500">*</span></label>
-            <Input 
-              value={clubName} 
-              onChange={e => setClubName(e.target.value)} 
-              required 
-              placeholder="Nhập tên chi nhánh" 
+            <Input
+              value={clubName}
+              onChange={e => setClubName(e.target.value)}
+              required
+              placeholder="Nhập tên chi nhánh"
             />
           </div>
           <div className="w-full mb-6">
             <label className="block text-sm font-semibold mb-2 text-black">Địa chỉ<span className="text-red-500">*</span></label>
-            <Input 
-              value={address} 
-              onChange={e => setAddress(e.target.value)} 
-              required 
-              placeholder="Nhập địa chỉ" 
+            <Input
+              value={address}
+              onChange={e => setAddress(e.target.value)}
+              required
+              placeholder="Nhập địa chỉ"
             />
           </div>
           <div className="w-full mb-6">
             <label className="block text-sm font-semibold mb-2 text-black">Số điện thoại<span className="text-red-500">*</span></label>
-            <Input 
-              value={phoneNumber} 
-              onChange={e => setPhoneNumber(e.target.value)} 
-              required 
-              placeholder="Nhập số điện thoại" 
+            <Input
+              value={phoneNumber}
+              onChange={e => setPhoneNumber(e.target.value)}
+              required
+              placeholder="Nhập số điện thoại"
             />
           </div>
           <div className="w-full mb-10">
             <label className="block text-sm font-semibold mb-2 text-black">Số bàn<span className="text-red-500">*</span></label>
-            <Input 
-              type="number" 
-              value={tableNumber} 
-              onChange={e => setTableNumber(Number(e.target.value))} 
-              required 
-              placeholder="Nhập số bàn" 
+            <Input
+              type="number"
+              value={tableNumber}
+              onChange={e => setTableNumber(Number(e.target.value))}
+              required
+              placeholder="Nhập số bàn"
               min="1"
             />
           </div>
