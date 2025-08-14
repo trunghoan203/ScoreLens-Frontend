@@ -17,14 +17,13 @@ function StartSessionContent() {
   const [verifyMemberMessage, setVerifyMemberMessage] = useState<string>('');
   const [memberId, setMemberId] = useState('');
   const [fullName, setFullName] = useState('');
-  const [tableNumber, setTableNumber] = useState('');
-  const [tableId, setTableId] = useState('');
-  const [tableName, setTableName] = useState('');
   const [verifiedMembershipId, setVerifiedMembershipId] = useState<string>('');
-  const [isMember, setIsMember] = useState<boolean>(false);
+  const [, setIsMember] = useState<boolean>(false);
   const [showAiPopup, setShowAiPopup] = useState(false);
   const [isAiAssisted, setIsAiAssisted] = useState(false);
-  const [tableInfo, setTableInfo] = useState<any>(null);
+  const [tableId, setTableId] = useState<string | null>(null);
+  const [tableName, setTableName] = useState<string | null>(null);
+  const [tableCategory, setTableCategory] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -45,15 +44,19 @@ function StartSessionContent() {
     if (tableNumber) {
       setTableName(tableNumber);
     }
-  }, [tableNumber]);
+  };
 
   useEffect(() => {
-    const autoVerifyTable = async () => {
-      if (tableId) {
-        try {
-          const result = await userMatchService.verifyTable({ tableId });
+    const initializePageFromUrl = async () => {
+      const idFromUrl = searchParams.get('tableId');
+      const nameFromUrl = searchParams.get('tableName');
 
-          const resultData = result as Record<string, any>;
+      if (!idFromUrl) {
+        console.error("Không tìm thấy tableId trên URL.");
+        toast.error("URL không hợp lệ, vui lòng quét lại mã QR.");
+        setLoading(false);
+        return;
+      }
 
           const responseData = resultData?.data || resultData;
           setTableInfo(responseData);
@@ -68,17 +71,23 @@ function StartSessionContent() {
           toast.success('Chào mừng bạn đến với ScoreLens');
         } catch (error) {
         }
+      } catch (error: any) {
+        console.error('Xác thực bàn thất bại:', error);
+        const message = error?.response?.data?.message || 'Không thể xác thực bàn. Vui lòng thử lại.';
+        toast.error(message);
+        setTableId(null);
+      } finally {
+        setLoading(false);
       }
     };
 
-    if (tableId) {
-      autoVerifyTable();
-    }
-  }, [tableId]);
+    initializePageFromUrl();
+
+  }, [searchParams]);
 
   const handleJoin = () => {
     const safeName = fullName.trim() || 'Khách';
-    router.push(`/user/guestlogin?table=${tableNumber}&tableId=${tableId}&name=${encodeURIComponent(safeName)}`);
+    router.push(`/user/guestlogin?table=${tableName}&tableId=${tableId}&name=${encodeURIComponent(safeName)}`);
   };
 
   const handleCreateMatchClick = () => {
@@ -108,7 +117,7 @@ function StartSessionContent() {
 
       const payload = {
         tableId: mockTableId,
-        gameType: gameType as any,
+        gameType,
         createdByMembershipId: verifiedMembershipId || undefined,
         isAiAssisted: aiAssisted,
         teams: [
@@ -136,6 +145,7 @@ function StartSessionContent() {
       if (matchId) params.set('matchId', String(matchId));
       if (code) params.set('code', String(code));
       if (fullName.trim()) params.set('name', fullName.trim());
+      if (tableCategory) params.set('category', tableCategory);
       router.push(`/user/homerandom?${params.toString()}`);
     } catch (e) {
       toast.error('Bàn đang được sử dụng, không thể tạo trận đấu');
@@ -227,6 +237,15 @@ function StartSessionContent() {
 
   if (loading || verifying) return <ScoreLensLoading text={verifying ? 'Đang kiểm tra bàn...' : 'Đang tải...'} />;
 
+  if (!tableId) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <h1 className="text-xl font-bold text-red-600">Lỗi: Không tìm thấy thông tin bàn</h1>
+        <p>Vui lòng quét lại mã QR trên bàn để bắt đầu.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 pt-20">
       <HeaderUser showBack={true} />
@@ -237,7 +256,7 @@ function StartSessionContent() {
             Chào mừng bạn đến với ScoreLens
           </h1>
           <p className="text-sm sm:text-base text-[#000000] font-medium">
-            {tableName ? `${tableName}` : `${tableNumber || '??'}`} - {tableInfo?.category ? tableInfo.category.toUpperCase() : (tableId ? 'Đang tải...' : 'Pool 8 Ball')}
+            {tableName ? `${tableName}` : `'??'`} - {tableCategory ? formatTableCategory(tableCategory) : 'Đang tải...'}
           </p>
         </div>
 

@@ -13,6 +13,17 @@ interface TableGridProps {
 }
 
 export default function TableGrid({ tables, onTableClick }: TableGridProps) {
+  const formatCategory = (category: string) => {
+    switch (category) {
+      case 'pool-8':
+        return 'Pool 8';
+      case 'carom':
+        return 'Carom';
+      default:
+        return category;
+    }
+  };
+
   return (
     <div className="rounded-lg overflow-hidden space-y-2"> 
       <div className="grid grid-cols-12 bg-[#000000] text-[#FFFFFF] font-semibold text-center">
