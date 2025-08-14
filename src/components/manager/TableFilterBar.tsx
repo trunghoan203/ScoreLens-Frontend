@@ -40,7 +40,7 @@ export default function TableFilterBar({ search, onSearchChange, type, onTypeCha
               className="w-full text-base font-bold text-[#000000] bg-white/80 border border-gray-200 rounded-xl py-2 pl-4 pr-10 shadow-sm focus:border-[#8ADB10] focus:ring-2 focus:ring-lime-100 appearance-none cursor-pointer transition-all"
             >
               <option value="">Tất cả</option>
-              <option value="pool-8">Pool-8</option>
+              <option value="pool-8">Pool 8</option>
               <option value="carom">Carom</option>
             </select>
             <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-lime-500">

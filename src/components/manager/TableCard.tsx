@@ -10,11 +10,10 @@ interface TableCardProps {
   time?: string;
   matchStatus?: 'pending' | 'ongoing' | 'completed';
   elapsedTime?: string;
-  isAiAssisted?: boolean;
   onDetail?: () => void;
 }
 
-export default function TableCard({ name, type, status, teamA, teamB, time, matchStatus, elapsedTime, isAiAssisted = false, onDetail }: TableCardProps) {
+export default function TableCard({ name, type, status, teamA, teamB, time, matchStatus, elapsedTime, onDetail }: TableCardProps) {
   const getDisplayStatus = (status: string) => {
     switch (status) {
       case 'inuse':
@@ -57,10 +56,10 @@ export default function TableCard({ name, type, status, teamA, teamB, time, matc
     }
   };
 
-  const getStatusText = (status: string, isAiAssisted: boolean) => {
+  const getStatusText = (status: string) => {
     switch (status) {
       case 'using':
-        return isAiAssisted ? 'Đang sử dụng - AI' : 'Đang sử dụng';
+        return 'Đang sử dụng';
       case 'available':
         return 'Bàn trống';
       case 'maintenance':
@@ -73,10 +72,10 @@ export default function TableCard({ name, type, status, teamA, teamB, time, matc
   return (
     <div className="border-2 border-[#8ADB10] rounded-2xl shadow bg-[#FFFFFF] p-4 flex flex-col items-center min-w-[220px] h-[280px] relative">
       <div className="flex w-full justify-between items-center mb-3">
-        <span className={`text-xs font-bold px-3 py-1 rounded-full ${getStatusStyle(displayStatus)} uppercase tracking-wide text-center whitespace-nowrap`}>
-          {getStatusText(displayStatus, isAiAssisted)}
+        <span className={`text-xs font-bold px-3 py-1 rounded-full ${getStatusStyle(displayStatus)} uppercase tracking-wide w-33 text-center`}>
+          {getStatusText(displayStatus)}
         </span>
-        <span className="text-xs text-[#000000] font-semibold">{displayType === 'pool-8' ? 'Bida Pool-8' : 'Bida Carom'}</span>
+        <span className="text-xs text-[#000000] font-semibold">{displayType === 'pool-8' ? 'Bida Pool 8' : 'Bida Carom'}</span>
       </div>
 
       <div className="font-bold text-base mb-3 text-center text-gray-700">{name}</div>

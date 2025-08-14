@@ -29,7 +29,6 @@ interface TableData {
   matchId?: string;
   matchStatus?: 'pending' | 'ongoing' | 'completed';
   elapsedTime?: string;
-  isAiAssisted?: boolean;
 }
 
 interface RawTableData {
@@ -67,7 +66,7 @@ export default function ManagerDashboardPage() {
   const [loadingStats, setLoadingStats] = useState(true);
   const [tables, setTables] = useState<TableData[]>([]);
   const [loadingTables, setLoadingTables] = useState(true);
-  const [activeMatches, setActiveMatches] = useState<Map<string, { matchId: string; status: string; startTime: Date | null; isAiAssisted?: boolean }>>(new Map());
+  const [activeMatches, setActiveMatches] = useState<Map<string, { matchId: string; status: string; startTime: Date | null }>>(new Map());
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -101,8 +100,7 @@ export default function ManagerDashboardPage() {
                 tableId: table.id,
                 matchId: match.matchId,
                 status: match.status,
-                startTime: match.startTime ? new Date(match.startTime) : (match.status === 'ongoing' ? new Date() : null),
-                isAiAssisted: match.isAiAssisted
+                startTime: match.startTime ? new Date(match.startTime) : (match.status === 'ongoing' ? new Date() : null)
               };
             }
 
@@ -113,8 +111,7 @@ export default function ManagerDashboardPage() {
                 tableId: table.id,
                 matchId: match.matchId,
                 status: match.status,
-                startTime: match.startTime ? new Date(match.startTime) : (match.status === 'ongoing' ? new Date() : null),
-                isAiAssisted: match.isAiAssisted
+                startTime: match.startTime ? new Date(match.startTime) : (match.status === 'ongoing' ? new Date() : null)
               };
             }
           } catch (error) {
@@ -197,8 +194,7 @@ export default function ManagerDashboardPage() {
       ...table,
       matchId: matchData?.matchId,
       matchStatus: matchData?.status as 'pending' | 'ongoing' | 'completed',
-      elapsedTime,
-      isAiAssisted: matchData?.isAiAssisted
+      elapsedTime
     };
   }).filter(table => {
     const matchSearch = table.name.toLowerCase().includes(search.toLowerCase());
