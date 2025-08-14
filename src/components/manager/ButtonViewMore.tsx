@@ -1,11 +1,11 @@
 import React from 'react';
 
-interface ButtonXemThemProps {
+interface ButtonViewMoreProps {
   onClick?: () => void;
   children?: React.ReactNode;
 }
 
-export default function ButtonXemThem({ onClick, children }: ButtonXemThemProps) {
+export default function ButtonViewMore({ onClick, children }: ButtonViewMoreProps) {
   return (
     <div className="flex justify-center">
       <button

@@ -23,9 +23,21 @@ function StartSessionContent() {
   const [isAiAssisted, setIsAiAssisted] = useState(false);
   const [tableId, setTableId] = useState<string | null>(null);
   const [tableName, setTableName] = useState<string | null>(null);
-  const [, setTableCategory] = useState<string | null>(null);
+  const [tableCategory, setTableCategory] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // Function để format category của bàn
+  const formatTableCategory = (category: string): string => {
+    switch (category) {
+      case 'pool-8':
+        return 'Pool 8';
+      case 'carom':
+        return 'Carom';
+      default:
+        return category;
+    }
+  };
 
   useEffect(() => {
     const initializePageFromUrl = async () => {
@@ -87,9 +99,13 @@ function StartSessionContent() {
       setVerifying(true);
       const mockTableId = tableId || 'TB-1754380493077';
       const displayTableName = tableName || '??';
+
+      // Sử dụng tableCategory thực tế, fallback về pool-8 nếu không có
+      const gameType = (tableCategory === 'carom' ? 'carom' : 'pool-8') as 'carom' | 'pool-8';
+
       const payload = {
         tableId: mockTableId,
-        gameType: 'pool-8' as const,
+        gameType,
         createdByMembershipId: verifiedMembershipId || undefined,
         isAiAssisted: aiAssisted,
         teams: [
@@ -117,6 +133,7 @@ function StartSessionContent() {
       if (matchId) params.set('matchId', String(matchId));
       if (code) params.set('code', String(code));
       if (fullName.trim()) params.set('name', fullName.trim());
+      if (tableCategory) params.set('category', tableCategory);
       router.push(`/user/homerandom?${params.toString()}`);
     } catch (e) {
       console.error(e);
@@ -216,7 +233,7 @@ function StartSessionContent() {
             Chào mừng bạn đến với ScoreLens
           </h1>
           <p className="text-sm sm:text-base text-[#000000] font-medium">
-            {tableName ? `${tableName}` : `'??'`} - {tableId ? 'Đang tải...' : 'Pool 8 Ball'}
+            {tableName ? `${tableName}` : `'??'`} - {tableCategory ? formatTableCategory(tableCategory) : 'Đang tải...'}
           </p>
         </div>
 
