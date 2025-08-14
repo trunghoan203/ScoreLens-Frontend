@@ -12,6 +12,7 @@ interface Table {
   matchId?: string;
   matchStatus?: 'pending' | 'ongoing' | 'completed';
   elapsedTime?: string;
+  isAiAssisted?: boolean;
 }
 
 interface TableCardListProps {
@@ -33,6 +34,7 @@ export default function TableCardList({ tables, onDetail }: TableCardListProps) 
           time={table.time}
           matchStatus={table.matchStatus}
           elapsedTime={table.elapsedTime}
+          isAiAssisted={table.isAiAssisted}
           onDetail={onDetail ? () => onDetail(table.id) : () => { }}
         />
       ))}

@@ -18,37 +18,20 @@ function StartSessionContent() {
   const [memberId, setMemberId] = useState('');
   const [fullName, setFullName] = useState('');
   const [verifiedMembershipId, setVerifiedMembershipId] = useState<string>('');
-  const [isMember, setIsMember] = useState<boolean>(false);
+  const [, setIsMember] = useState<boolean>(false);
   const [showAiPopup, setShowAiPopup] = useState(false);
   const [isAiAssisted, setIsAiAssisted] = useState(false);
   const [tableId, setTableId] = useState<string | null>(null);
   const [tableName, setTableName] = useState<string | null>(null);
-  const [tableCategory, setTableCategory] = useState<string | null>(null);
+  const [, setTableCategory] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
-<<<<<<< HEAD
-=======
-
-  useEffect(() => {
-    const table = searchParams!.get('table');
-    const tId = searchParams!.get('tableId');
-    if (table) setTableNumber(table);
-    if (tId) setTableId(tId);
-
-    if (!table) setTableNumber('??');
-    if (!tId) setTableId('TB-1754380493077');
-
-    const timer = setTimeout(() => setLoading(false), 1200);
-    return () => clearTimeout(timer);
-  }, [searchParams]);
->>>>>>> 3c76ae50129b3c3746d4ecb4f5477ac5e965660d
 
   useEffect(() => {
     const initializePageFromUrl = async () => {
       const idFromUrl = searchParams.get('tableId');
       const nameFromUrl = searchParams.get('tableName');
 
-<<<<<<< HEAD
       if (!idFromUrl) {
         console.error("Không tìm thấy tableId trên URL.");
         toast.error("URL không hợp lệ, vui lòng quét lại mã QR.");
@@ -68,30 +51,9 @@ function StartSessionContent() {
         if (responseData && responseData.name) {
           setTableName(responseData.name);
           setTableCategory(responseData.category || 'Không rõ');
-          toast.success(`Chào mừng bạn đến Bàn ${responseData.name}`);
+          toast.success(`Chào mừng bạn đến ${responseData.name}`);
         } else {
           throw new Error("Dữ liệu bàn nhận về không hợp lệ");
-=======
-  useEffect(() => {
-    const autoVerifyTable = async () => {
-      if (tableId) {
-        try {
-          const result = await userMatchService.verifyTable({ tableId });
-
-          const resultData = result as Record<string, any>;
-
-          const responseData = resultData?.data || resultData;
-          setTableInfo(responseData); // Set tableInfo state
-          if (responseData?.tableName) {
-            setTableName(responseData.tableName);
-          } else if (responseData?.name) {
-            setTableName(responseData.name);
-          }
-
-          toast.success('Chào mừng bạn đến với ScoreLens');
-        } catch (error) {
-          console.warn('Table verification failed:', error);
->>>>>>> 3c76ae50129b3c3746d4ecb4f5477ac5e965660d
         }
       } catch (error: any) {
         console.error('Xác thực bàn thất bại:', error);
@@ -124,28 +86,10 @@ function StartSessionContent() {
     try {
       setVerifying(true);
       const mockTableId = tableId || 'TB-1754380493077';
-<<<<<<< HEAD
       const displayTableName = tableName || '??';
-=======
-      const displayTableName = tableName || tableNumber || '??';
-      let gameType: string = 'pool-8';
-      if (tableInfo?.category) {
-        const category = tableInfo.category.toLowerCase();
-        console.log('Table category from API:', tableInfo.category);
-        console.log('Normalized category:', category);
-        if (category === 'carom') {
-          gameType = 'carom';
-        }
-        else if (category === 'pool-8') {
-          gameType = 'pool-8';
-        }
-      }
-      console.log('Final gameType for match creation:', gameType);
-
->>>>>>> 3c76ae50129b3c3746d4ecb4f5477ac5e965660d
       const payload = {
         tableId: mockTableId,
-        gameType: gameType as any,
+        gameType: 'pool-8' as const,
         createdByMembershipId: verifiedMembershipId || undefined,
         isAiAssisted: aiAssisted,
         teams: [
