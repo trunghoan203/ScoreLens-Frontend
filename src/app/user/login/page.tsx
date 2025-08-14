@@ -27,7 +27,7 @@ function StartSessionContent() {
   const [tableInfo, setTableInfo] = useState<any>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
- 
+
   useEffect(() => {
     const table = searchParams!.get('table');
     const tId = searchParams!.get('tableId');
@@ -52,9 +52,9 @@ function StartSessionContent() {
       if (tableId) {
         try {
           const result = await userMatchService.verifyTable({ tableId });
-          
+
           const resultData = result as Record<string, any>;
-          
+
           const responseData = resultData?.data || resultData;
           setTableInfo(responseData); // Set tableInfo state
           if (responseData?.tableName) {
@@ -62,7 +62,7 @@ function StartSessionContent() {
           } else if (responseData?.name) {
             setTableName(responseData.name);
           }
-          
+
           toast.success('Chào mừng bạn đến với ScoreLens');
         } catch (error) {
           console.warn('Table verification failed:', error);
@@ -93,9 +93,23 @@ function StartSessionContent() {
       setVerifying(true);
       const mockTableId = tableId || 'TB-1754380493077';
       const displayTableName = tableName || tableNumber || '??';
+      let gameType: string = 'pool-8';
+      if (tableInfo?.category) {
+        const category = tableInfo.category.toLowerCase();
+        console.log('Table category from API:', tableInfo.category);
+        console.log('Normalized category:', category);
+        if (category === 'carom') {
+          gameType = 'carom';
+        }
+        else if (category === 'pool-8') {
+          gameType = 'pool-8';
+        }
+      }
+      console.log('Final gameType for match creation:', gameType);
+
       const payload = {
         tableId: mockTableId,
-        gameType: 'pool-8' as const,
+        gameType: gameType as any,
         createdByMembershipId: verifiedMembershipId || undefined,
         isAiAssisted: aiAssisted,
         teams: [
@@ -110,13 +124,13 @@ function StartSessionContent() {
       const responseData = data?.data || data;
       let matchId = (responseData?.matchId || responseData?.id || '') as string;
       const code = (responseData?.matchCode || responseData?.code || '') as string;
-      
+
       if (!matchId && code) {
         try {
           const byCode = (await userMatchService.getMatchByCode(code)) as Record<string, any>;
           const byCodeData = byCode?.data || byCode;
           matchId = (byCodeData?.matchId || byCodeData?.id || '') as string;
-        } catch {}
+        } catch { }
       }
       toast.success('Tạo trận đấu thành công');
       const params = new URLSearchParams({ table: displayTableName, tableId: mockTableId });
@@ -144,9 +158,9 @@ function StartSessionContent() {
       setVerifyingMember(true);
       setVerifyMemberStatus('idle');
       setVerifyMemberMessage('');
-      
+
       const res = (await userMatchService.verifyMembership({ phoneNumber: phone })) as Record<string, any>;
-      
+
       if (!res || typeof res !== 'object') {
         throw new Error('Response không hợp lệ');
       }
@@ -163,33 +177,33 @@ function StartSessionContent() {
 
       const responseData = res?.data || res;
       const info = responseData ?? {};
-      
+
       if (info?.status === 'inactive') {
         setVerifyMemberStatus('error');
         setVerifyMemberMessage('Tài khoản của bạn đang bị cấm');
         toast.error('Tài khoản của bạn đang bị cấm');
         return;
       }
-      
+
       const returnedFullName = typeof info.fullName === 'string' ? info.fullName : '';
       const returnedMembershipId = typeof info.membershipId === 'string' ? info.membershipId : '';
-      
+
       if (returnedFullName) {
         setFullName(returnedFullName);
       }
       if (returnedMembershipId) {
         setVerifiedMembershipId(returnedMembershipId);
       }
-      
+
       setIsMember(true);
       setVerifyMemberStatus('success');
-      
+
       const display = returnedFullName
         ? `Chào mừng ${returnedFullName}`
         : 'Chào mừng bạn';
-      
+
       toast.success(display);
-      
+
     } catch (e: any) {
       console.error('Error verifying membership:', e);
       setVerifyMemberStatus('error');
@@ -206,7 +220,7 @@ function StartSessionContent() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 pt-20">
       <HeaderUser showBack={true} />
-      
+
       <main className="flex-1 flex flex-col px-4 py-8">
         <div className="text-center">
           <h1 className="text-2xl sm:text-3xl font-bold text-[#000000]">
@@ -255,9 +269,8 @@ function StartSessionContent() {
               </div>
               {verifyMemberStatus !== 'idle' && (
                 <p
-                  className={`mt-2 text-center text-sm ${
-                    verifyMemberStatus === 'success' ? 'text-green-600' : 'text-red-600'
-                  }`}
+                  className={`mt-2 text-center text-sm ${verifyMemberStatus === 'success' ? 'text-green-600' : 'text-red-600'
+                    }`}
                 >
                   {verifyMemberMessage}
                 </p>
@@ -270,7 +283,7 @@ function StartSessionContent() {
           </div>
         </div>
       </main>
-      
+
       <FooterButton>
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
           <button

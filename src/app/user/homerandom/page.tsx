@@ -91,23 +91,23 @@ function HomeRandomContent() {
 
         socketRef.current = socket;
 
-         socket.on('connect', () => {
-           setIsWebSocketConnected(true);
-           socket.emit('join_match_room', matchId);
-         });
+                 socket.on('connect', () => {
+          setIsWebSocketConnected(true);
+          socket.emit('join_match_room', matchId);
+        });
 
-                 socket.on('disconnect', () => {
-           setIsWebSocketConnected(false);
-         });
+                         socket.on('disconnect', () => {
+          setIsWebSocketConnected(false);
+        });
 
-                 socket.on('connect_error', (error) => {
-           setIsWebSocketConnected(false);
-           
-           if (retryCount < maxRetries) {
-             retryCount++;
-             setTimeout(connectSocket, retryDelay);
-           }
-         });
+                         socket.on('connect_error', (error) => {
+          setIsWebSocketConnected(false);
+          
+          if (retryCount < maxRetries) {
+            retryCount++;
+            setTimeout(connectSocket, retryDelay);
+          }
+        });
 
          socket.on('guest_joined', (data) => {
            toast.success(`${data.guestName || 'Người chơi mới'} đã tham gia phòng!`);
@@ -118,7 +118,6 @@ function HomeRandomContent() {
          });
 
                  socket.on('match_updated', (data) => {
-
           if (data.teams && Array.isArray(data.teams)) {
             const guests: Array<{ id: string, name: string, team: 'A' | 'B', joinedAt: Date }> = [];
 
@@ -186,9 +185,9 @@ function HomeRandomContent() {
            toast('Trận đấu đã bị hủy');
          });
 
-         socket.on('error', (error) => {
-           setIsWebSocketConnected(false);
-         });
+                 socket.on('error', (error) => {
+          setIsWebSocketConnected(false);
+        });
 
              } catch (error) {
          setIsWebSocketConnected(false);
@@ -497,10 +496,11 @@ function HomeRandomContent() {
                     <div key={index} className="flex items-center gap-2">
                       <input
                         type="text"
-                        placeholder={`Người Chơi ${index + 1}`}
+                        placeholder={index === 0 ? "Tên chủ phòng" : `Tên người chơi ${index + 1}`}
                         value={player}
                         onChange={(e) => handleChange('A', index, e.target.value)}
-                        className="flex w-full border border-gray-300 rounded-md bg-white px-4 py-3 text-sm text-[#000000] placeholder:text-gray-500 focus:outline-none focus:border-[#8ADB10] hover:border-lime-400 transition-all"
+                        disabled={true}
+                        className="flex w-full border border-gray-300 rounded-md bg-gray-100 px-4 py-3 text-sm text-[#000000] placeholder:text-gray-500 cursor-not-allowed opacity-75"
                       />
                     </div>
                   ))}
@@ -514,10 +514,11 @@ function HomeRandomContent() {
                     <div key={index} className="flex items-center gap-2">
                       <input
                         type="text"
-                        placeholder={`Người Chơi ${index + 1}`}
+                        placeholder={index === 0 ? "Tên người chơi chính" : `Tên người chơi ${index + 1}`}
                         value={player}
                         onChange={(e) => handleChange('B', index, e.target.value)}
-                        className="flex w-full border border-gray-300 rounded-md bg-white px-4 py-3 text-sm text-[#000000] placeholder:text-gray-500 focus:outline-none focus:border-[#8ADB10] hover:border-lime-400 transition-all"
+                        disabled={true}
+                        className="flex w-full border border-gray-500 rounded-md bg-gray-100 px-4 py-3 text-sm text-[#000000] placeholder:text-gray-500 cursor-not-allowed opacity-75"
                       />
                     </div>
                   ))}

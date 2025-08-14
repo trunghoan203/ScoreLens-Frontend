@@ -57,7 +57,9 @@ class SocketService {
 
   onMatchUpdated(callback: (data: unknown) => void) {
     if (this.socket) {
-      this.socket.on('match_updated', callback);
+      this.socket.on('match_updated', (data) => {
+        callback(data);
+      });
     }
   }
 
@@ -107,6 +109,8 @@ class SocketService {
   isSocketConnected() {
     return this.isConnected;
   }
+
+
 }
 
 export const socketService = new SocketService();
