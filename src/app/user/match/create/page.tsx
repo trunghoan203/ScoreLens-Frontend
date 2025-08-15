@@ -65,8 +65,8 @@ function StartSessionContent() {
       const categoryFromUrl = searchParams.get('category');
 
       if (!idFromUrl) {
-        console.error("Không tìm thấy tableId trên URL.");
-        toast.error("URL không hợp lệ, vui lòng quét lại mã QR.");
+        console.error('Không tìm thấy tableId trên URL.');
+        toast.error('URL không hợp lệ, vui lòng quét lại mã QR.');
         setLoading(false);
         return;
       }
@@ -262,9 +262,7 @@ function StartSessionContent() {
 
       setIsMember(true);
 
-      const display = returnedFullName
-        ? `Chào mừng ${returnedFullName}`
-        : 'Chào mừng bạn';
+      const display = returnedFullName ? `Chào mừng ${returnedFullName}` : 'Chào mừng bạn';
 
       toast.success(display);
 
@@ -294,9 +292,7 @@ function StartSessionContent() {
 
       <main className="flex-1 flex flex-col px-4 py-8">
         <div className="text-center">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#000000]">
-            Chào mừng bạn đến với ScoreLens
-          </h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#000000]">Chào mừng bạn đến với ScoreLens</h1>
           <p className="text-sm sm:text-base text-[#000000] font-medium">
             {tableName ? `${tableName}` : 'Bàn chơi'} - {tableCategory ? formatTableCategory(tableCategory) : 'Pool 8 Ball'}
           </p>
@@ -305,9 +301,7 @@ function StartSessionContent() {
         <div className="flex-1 flex justify-center mt-25">
           <div className="w-full max-w-sm space-y-4 text-left">
             <div>
-              <label className="block text-sm font-semibold text-[#000000] mb-1 text-center">
-                Họ và Tên
-              </label>
+              <label className="block text-sm font-semibold text-[#000000] mb-1 text-center">Họ và Tên</label>
               <input
                 type="text"
                 placeholder="Nhập họ và tên ..."
@@ -318,9 +312,7 @@ function StartSessionContent() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-[#000000] mb-1 text-center">
-                Mã Hội Viên
-              </label>
+              <label className="block text-sm font-semibold text-[#000000] mb-1 text-center">Mã Hội Viên</label>
               <div className="space-y-2">
                 <input
                   type="text"
@@ -339,18 +331,13 @@ function StartSessionContent() {
                 </button>
               </div>
               {verifyMemberStatus !== 'idle' && (
-                <p
-                  className={`mt-2 text-center text-sm ${verifyMemberStatus === 'success' ? 'text-green-600' : 'text-red-600'
-                    }`}
-                >
+                <p className={`mt-2 text-center text-sm ${verifyMemberStatus === 'success' ? 'text-green-600' : 'text-red-600'}`}>
                   {verifyMemberMessage}
                 </p>
               )}
             </div>
 
-            <p className="text-sm text-[#FF0000] font-medium text-center">
-              * Nếu chưa có mã hội viên, hãy liên hệ nhân viên để đăng ký!
-            </p>
+            <p className="text-sm text-[#FF0000] font-medium text-center">* Nếu chưa có mã hội viên, hãy liên hệ nhân viên để đăng ký!</p>
           </div>
         </div>
       </main>
