@@ -38,6 +38,35 @@ class ManagerService {
   }
 
   /**
+   * Lấy thông tin manager hiện tại đang đăng nhập
+   */
+  async getCurrentManager() {
+    try {
+      const res = await axios.get('/manager/profile');
+      return res.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Lấy managerId từ session hiện tại
+   */
+  getManagerIdFromSession(): string | null {
+    if (typeof window !== 'undefined') {
+      const managerId = localStorage.getItem('managerId');
+      // Chỉ trả về nếu không phải JWT token
+      if (managerId && !managerId.includes('eyJ')) {
+        return managerId;
+      }
+      return null;
+    }
+    return null;
+  }
+
+  // Các tiện ích lấy managerId từ token không còn được dùng; giữ lại getManagerIdFromSession đơn giản
+
+  /**
    * Lấy danh sách manager theo brandId (hoặc tất cả nếu không có brandId)
    */
   async getManagers(brandId?: string | null) {

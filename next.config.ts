@@ -1,9 +1,30 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   images: {
-    domains: ['localhost'],
+    remotePatterns: [
+
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "8000",
+        pathname: "/static/uploads/**",
+      },
+
+      {
+        protocol: "https",
+        hostname: "scorelens-backend.onrender.com",
+        pathname: "/static/uploads/**",
+      },
+      {
+        protocol: "https",
+        hostname: "scorelens.io.vn",
+        pathname: "/static/uploads/**",
+      },
+    ],
   },
 };
 

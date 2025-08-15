@@ -9,8 +9,17 @@ export const verifySuperAdminLogin = (email: string, activationCode: string) =>
     axios.post('/superAdmin/login/verify', { email, activationCode });
 
 // Đăng xuất
-export const logoutSuperAdmin = () =>
-    axios.post('/superAdmin/logout');
+export const logoutSuperAdmin = async (refreshToken?: string) => {
+    try {
+        if (refreshToken) {
+            await axios.post('/superAdmin/logout', { refreshToken });
+        }
+        return { success: true };
+    } catch (error) {
+        console.error('Logout API error:', error);
+        return { success: true };
+    }
+};
 
 // Gửi lại mã xác thực
 export const resendLoginCode = (email: string) =>

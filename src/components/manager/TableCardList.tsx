@@ -9,6 +9,10 @@ interface Table {
   teamA?: string;
   teamB?: string;
   time?: string;
+  matchId?: string;
+  matchStatus?: 'pending' | 'ongoing' | 'completed';
+  elapsedTime?: string;
+  isAiAssisted?: boolean;
 }
 
 interface TableCardListProps {
@@ -28,7 +32,10 @@ export default function TableCardList({ tables, onDetail }: TableCardListProps) 
           teamA={table.teamA}
           teamB={table.teamB}
           time={table.time}
-          onDetail={onDetail ? () => onDetail(table.id) : () => {}}
+          matchStatus={table.matchStatus}
+          elapsedTime={table.elapsedTime}
+          isAiAssisted={table.isAiAssisted}
+          onDetail={onDetail ? () => onDetail(table.id) : () => { }}
         />
       ))}
     </div>

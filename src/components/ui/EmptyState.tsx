@@ -30,10 +30,10 @@ export default function EmptyState({
 }: EmptyStateProps) {
   return (
     <div className="relative overflow-hidden">
-      <div className="relative py-20 px-8 flex flex-col items-center justify-center">
-        <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl p-12 max-w-2xl w-full">
+      <div className="relative py-12 flex flex-col items-center justify-center w-full">
+        <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl p-8 w-full">
           {/* Icon Section */}
-          <div className="relative mb-10 flex justify-center">
+          <div className="relative mb-6 flex justify-center">
             <div className="relative">
               {/* Main Icon Container */}
               <div className="w-28 h-28 bg-gradient-to-br from-lime-400 to-lime-600 rounded-full flex items-center justify-center shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-500">
@@ -60,7 +60,7 @@ export default function EmptyState({
             </h2>
 
             {/* Description */}
-            <p className="text-gray-600 text-lg leading-relaxed mb-10 max-w-lg mx-auto">
+            <p className="text-gray-600 text-lg leading-relaxed mb-6">
               {description}
             </p>
 
@@ -115,7 +115,7 @@ export default function EmptyState({
 
             {/* Additional Info */}
             {showAdditionalInfo && additionalInfo && (
-              <div className="pt-8 border-t border-lime-100">
+              <div className="pt-8">
                 <div className="flex items-center justify-center text-sm text-gray-500 mb-4">
                   <svg className="w-4 h-4 mr-2 text-lime-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

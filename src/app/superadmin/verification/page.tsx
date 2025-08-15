@@ -77,10 +77,10 @@ function SuperAdminVerificationPageInner() {
     setIsLoading(true);
     try {
       const res = await verifySuperAdminLogin(email, otpString);
-      // Lưu access_token vào localStorage
+
       const data = res.data as { accessToken?: string };
       if (data.accessToken) {
-        localStorage.setItem('adminAccessToken', data.accessToken);
+        localStorage.setItem('superAdminAccessToken', data.accessToken);
       }
       toast.success('Xác thực thành công!');
       router.push(`/superadmin/home`);
@@ -91,23 +91,11 @@ function SuperAdminVerificationPageInner() {
     }
   };
 
-  // Gửi lại mã
-  // const handleResend = async () => {
-  //   try {
-  //     await resendLoginCode(email);
-  //     toast.success('Đã gửi lại mã xác thực!');
-  //   } catch {
-  //     toast.error('Không gửi lại được mã xác thực');
-  //   }
-  // };
 
   return (
     <AuthLayout
-      title={
-        <div className="text-center space-y-2">
-          <p className="text-lg font-semibold">Nhập mã xác minh</p>
-        </div>
-      }
+      title="Xác thực đăng nhập"
+      description="Nhập mã OTP đã được gửi đến email của bạn"
     >
       <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6" onPaste={handlePaste}>
         <div className="flex gap-3 justify-center mb-4">
@@ -164,7 +152,6 @@ function SuperAdminVerificationPageInner() {
           {isLoading ? 'Đang gửi...' : 'Gửi'}
         </Button>
 
-        {/* Nút quay lại trang chủ */}
         <div className="flex justify-center">
           <div
             onClick={() => router.push('/superadmin/login')}
