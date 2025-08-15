@@ -5,7 +5,7 @@ import HeaderManager from '@/components/manager/HeaderManager';
 import DashboardSummary from '@/components/manager/DashboardSummary';
 import TableFilterBar from '@/components/manager/TableFilterBar';
 import TableCardList from '@/components/manager/TableCardList';
-import ButtonXemThem from '@/components/manager/ButtonXemThem';
+import ButtonViewMore from '@/components/manager/ButtonViewMore';
 import { useRouter } from 'next/navigation';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
@@ -290,9 +290,9 @@ export default function ManagerDashboardPage() {
                 )}
                 {filteredTables.length > 9 && (
                   <div className="flex justify-center mt-6">
-                    <ButtonXemThem onClick={handleXemThem}>
+                    <ButtonViewMore onClick={handleXemThem}>
                       {actionLoading ? <LoadingSpinner size="sm" /> : 'Xem thêm'}
-                    </ButtonXemThem>
+                    </ButtonViewMore>
                   </div>
                 )}
               </div>

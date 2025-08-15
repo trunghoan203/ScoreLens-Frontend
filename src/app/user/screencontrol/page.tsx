@@ -49,7 +49,10 @@ function ScoreboardPage() {
     },
     onMatchUpdate: (updatedMatch: any) => {
       const matchData = updatedMatch as any;
+
+      
       if (matchData?.teams) {
+        // Cập nhật điểm số
         const newScoreA = matchData.teams[0]?.score ?? scoreA;
         const newScoreB = matchData.teams[1]?.score ?? scoreB;
         
@@ -59,6 +62,24 @@ function ScoreboardPage() {
         if (newScoreB !== scoreB) {
           setScoreB(newScoreB);
         }
+        
+        // ✅ THÊM CODE: Cập nhật thành viên teams
+        if (matchData.teams[0]?.members) {
+          const teamAMembers = matchData.teams[0].members.map((member: any) => 
+            member.guestName || member.membershipName || member.fullName || ''
+          );
+          setTeamA(teamAMembers);
+        }
+        
+        if (matchData.teams[1]?.members) {
+          const teamBMembers = matchData.teams[1].members.map((member: any) => 
+            member.guestName || member.membershipName || member.fullName || ''
+          );
+          setTeamB(teamBMembers);
+        }
+        
+        // Cập nhật matchInfo để trigger re-render
+        setMatchInfo(matchData);
       }
     },
     onMatchEnded: (matchData: any) => {

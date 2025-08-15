@@ -17,7 +17,7 @@ export default function TableGrid({ tables, onTableClick }: TableGridProps) {
   const formatCategory = (category: string) => {
     switch (category) {
       case 'pool-8':
-        return 'Pool-8';
+        return 'Pool 8';
       case 'carom':
         return 'Carom';
       default:
