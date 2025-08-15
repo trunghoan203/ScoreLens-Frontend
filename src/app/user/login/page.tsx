@@ -41,46 +41,28 @@ function StartSessionContent() {
     }
   };
 
-  useEffect(() => {
-    const table = searchParams!.get('table');
-    const tId = searchParams!.get('tableId');
-    if (table) setTableName(table);
-    if (tId) setTableId(tId);
-
-    if (!table) setTableName('??');
-    if (!tId) setTableId('TB-1755160186911');
-
-
-      try {
-        const result = await userMatchService.verifyTable({ tableId: idFromUrl });
-        const responseData = (result as any)?.data || result;
-
-  useEffect(() => {
-    if (tableName) {
-    }
-  }, [tableName]);
-
+  // Khởi tạo từ URL và verify table
   useEffect(() => {
     const initializePageFromUrl = async () => {
       if (!searchParams) return;
-      
+
       const idFromUrl = searchParams.get('tableId');
       const nameFromUrl = searchParams.get('tableName');
       const categoryFromUrl = searchParams.get('category');
 
       if (!idFromUrl) {
-        console.error("Không tìm thấy tableId trên URL.");
-        toast.error("URL không hợp lệ, vui lòng quét lại mã QR.");
+        console.error('Không tìm thấy tableId trên URL.');
+        toast.error('URL không hợp lệ, vui lòng quét lại mã QR.');
         setLoading(false);
         return;
       }
 
       setTableId(idFromUrl);
-      
+
       if (nameFromUrl) {
         setTableName(decodeURIComponent(nameFromUrl));
       }
-      
+
       if (categoryFromUrl) {
         setTableCategory(categoryFromUrl);
       }
@@ -92,9 +74,9 @@ function StartSessionContent() {
         if (responseData && responseData.name) {
           setTableName(responseData.name);
           setTableCategory(responseData.category || categoryFromUrl || 'pool-8');
-          
+
           setTableInfo(responseData);
-          
+
           toast.success(`Chào mừng bạn đến ${responseData.name}`);
         } else {
           if (!tableName) {
@@ -107,24 +89,22 @@ function StartSessionContent() {
         }
       } catch (error: any) {
         console.error('Xác thực bàn thất bại:', error);
-        
+
         if (!tableName) {
           setTableName('Bàn chơi');
         }
         if (!tableCategory) {
           setTableCategory('pool-8');
         }
-        
+
         const message = error?.response?.data?.message || 'Không thể xác thực bàn. Vui lòng thử lại.';
         toast.error(message);
-        
       } finally {
         setLoading(false);
       }
     };
 
     initializePageFromUrl();
-
   }, [searchParams]);
 
   const handleJoin = () => {
@@ -143,18 +123,17 @@ function StartSessionContent() {
   const handleCreateMatch = async (aiAssisted: boolean) => {
     try {
       setVerifying(true);
-      
+
       if (!tableId) {
         toast.error('Không tìm thấy thông tin bàn. Vui lòng quét lại mã QR.');
         return;
       }
-      
+
       const displayTableName = tableName || 'Bàn chơi';
       const gameType = (tableCategory === 'carom' ? 'carom' : 'pool-8') as 'carom' | 'pool-8';
 
       const payload = {
         tableId: tableId,
-
         gameType,
         createdByMembershipId: verifiedMembershipId || undefined,
         isAiAssisted: aiAssisted,
@@ -166,7 +145,7 @@ function StartSessionContent() {
           { teamName: 'Team B', members: [] },
         ],
       };
-      
+
       const data = (await userMatchService.createMatch(payload)) as Record<string, any>;
       const responseData = data?.data || data;
       let matchId = (responseData?.matchId || responseData?.id || '') as string;
@@ -177,16 +156,13 @@ function StartSessionContent() {
           const byCode = (await userMatchService.getMatchByCode(code)) as Record<string, any>;
           const byCodeData = byCode?.data || byCode;
           matchId = (byCodeData?.matchId || byCodeData?.id || '') as string;
-        } catch { }
+        } catch {}
       }
-      
+
       toast.success('Tạo trận đấu thành công');
-      
-      const params = new URLSearchParams({ 
-        table: displayTableName, 
-        tableId: tableId 
-      });
-      
+
+      const params = new URLSearchParams({ table: displayTableName, tableId: tableId });
+
       if (matchId) params.set('matchId', String(matchId));
       if (code) params.set('code', String(code));
       if (fullName.trim()) params.set('name', fullName.trim());
@@ -214,11 +190,7 @@ function StartSessionContent() {
       setVerifyMemberStatus('idle');
       setVerifyMemberMessage('');
 
-      const res = await userMatchService.verifyMembership({ 
-        phoneNumber: phone, 
-        clubId: tableInfo.clubId 
-      });
-
+      const res = await userMatchService.verifyMembership({ phoneNumber: phone, clubId: tableInfo.clubId });
 
       if (!res || typeof res !== 'object') {
         throw new Error('Response không hợp lệ');
@@ -236,13 +208,12 @@ function StartSessionContent() {
 
       if (!res.isBrandCompatible) {
         setVerifyMemberStatus('error');
-        setVerifyMemberMessage(res.message || 'Bạn không phải là hội viên của thương hiệu này.');
         toast.error(res.message || 'Bạn không phải là hội viên của thương hiệu này.');
         return;
       }
 
       const responseData = res?.data || res;
-      const info = responseData as any ?? {};
+      const info = (responseData as any) ?? {};
 
       if (info?.status === 'inactive') {
         setVerifyMemberStatus('error');
@@ -264,12 +235,9 @@ function StartSessionContent() {
       setIsMember(true);
       setVerifyMemberStatus('success');
 
-      const display = returnedFullName
-        ? `Chào mừng ${returnedFullName}`
-        : 'Chào mừng bạn';
+      const display = returnedFullName ? `Chào mừng ${returnedFullName}` : 'Chào mừng bạn';
 
       toast.success(display);
-
     } catch (e: any) {
       console.error('Error verifying membership:', e);
       setVerifyMemberStatus('error');
@@ -298,21 +266,16 @@ function StartSessionContent() {
 
       <main className="flex-1 flex flex-col px-4 py-8">
         <div className="text-center">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#000000]">
-            Chào mừng bạn đến với ScoreLens
-          </h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#000000]">Chào mừng bạn đến với ScoreLens</h1>
           <p className="text-sm sm:text-base text-[#000000] font-medium">
             {tableName ? `${tableName}` : 'Bàn chơi'} - {tableCategory ? formatTableCategory(tableCategory) : 'Pool 8 Ball'}
-
           </p>
         </div>
 
         <div className="flex-1 flex justify-center mt-25">
           <div className="w-full max-w-sm space-y-4 text-left">
             <div>
-              <label className="block text-sm font-semibold text-[#000000] mb-1 text-center">
-                Họ và Tên
-              </label>
+              <label className="block text-sm font-semibold text-[#000000] mb-1 text-center">Họ và Tên</label>
               <input
                 type="text"
                 placeholder="Nhập họ và tên ..."
@@ -323,9 +286,7 @@ function StartSessionContent() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-[#000000] mb-1 text-center">
-                Mã Hội Viên
-              </label>
+              <label className="block text-sm font-semibold text-[#000000] mb-1 text-center">Mã Hội Viên</label>
               <div className="space-y-2">
                 <input
                   type="text"
@@ -344,18 +305,13 @@ function StartSessionContent() {
                 </button>
               </div>
               {verifyMemberStatus !== 'idle' && (
-                <p
-                  className={`mt-2 text-center text-sm ${verifyMemberStatus === 'success' ? 'text-green-600' : 'text-red-600'
-                    }`}
-                >
+                <p className={`mt-2 text-center text-sm ${verifyMemberStatus === 'success' ? 'text-green-600' : 'text-red-600'}`}>
                   {verifyMemberMessage}
                 </p>
               )}
             </div>
 
-            <p className="text-sm text-[#FF0000] font-medium text-center">
-              * Nếu chưa có mã hội viên, hãy liên hệ nhân viên để đăng ký!
-            </p>
+            <p className="text-sm text-[#FF0000] font-medium text-center">* Nếu chưa có mã hội viên, hãy liên hệ nhân viên để đăng ký!</p>
           </div>
         </div>
       </main>
