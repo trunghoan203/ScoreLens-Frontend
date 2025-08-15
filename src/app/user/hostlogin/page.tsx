@@ -57,11 +57,11 @@ function HostLoginContent() {
         ],
       };
       const data = (await userMatchService.createMatch(payload)) as Record<string, any>;
-      
+
       const responseData = data?.data || data;
       let matchId = responseData?.matchId || responseData?.id || '';
       const code = responseData?.matchCode || responseData?.code || '';
-      
+
       if (!matchId && code) {
         try {
           const byCode = (await userMatchService.getMatchByCode(code)) as Record<string, any>;
@@ -102,7 +102,7 @@ function HostLoginContent() {
         <div className="absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 bg-[#8ADB10]"></div>
         <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full -ml-12 -mb-12 bg-[#8ADB10]"></div>
       </div>
-      
+
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
           <div>
