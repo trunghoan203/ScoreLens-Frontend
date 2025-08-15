@@ -38,17 +38,23 @@ interface BranchInfoFormProps {
   onDeleteClub?: (clubId: string) => Promise<void>;
 }
 
+/** FIX scroll ngang: dùng grid + min-w-0 + break-words */
 const InfoRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
-  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+  <div className="flex flex-col py-2 border-b border-gray-100">
     <span className="text-gray-500 font-medium">{label}</span>
-    <span className="text-gray-900 font-semibold text-right">{value}</span>
+    <span className="text-gray-900 font-semibold break-words">
+      {value}
+    </span>
   </div>
 );
 
-export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initialBranches, mode = 'create', onSaveClub, onCreateClub, onDeleteClub }: BranchInfoFormProps) {
+export function BranchInfoForm({
+  onSuccess, onChange, brandInfo, onBack, initialBranches, mode = 'create',
+  onSaveClub, onCreateClub, onDeleteClub
+}: BranchInfoFormProps) {
   const [branches, setBranches] = useState<Branch[]>(
-    initialBranches && initialBranches.length > 0 
-      ? initialBranches 
+    initialBranches && initialBranches.length > 0
+      ? initialBranches
       : [{ name: '', address: '', deviceCount: '', phone: '' }]
   );
   const [showConfirm, setShowConfirm] = useState(false);
@@ -58,7 +64,6 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletingClubId, setDeletingClubId] = useState<string | null>(null);
 
-  // Cập nhật branches khi initialBranches thay đổi
   useEffect(() => {
     if (initialBranches && initialBranches.length > 0) {
       setBranches(initialBranches);
@@ -91,11 +96,10 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
 
   const handleConfirmDelete = async () => {
     if (!deletingClubId || !onDeleteClub) return;
-    
+
     setShowDeleteConfirm(false);
     try {
       await onDeleteClub(deletingClubId);
-      // Remove from local state after successful deletion
       const updatedBranches = branches.filter(b => b.id !== deletingClubId);
       setBranches(updatedBranches);
       onChange?.(updatedBranches);
@@ -122,7 +126,7 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
   const handleConfirm = async () => {
     setShowConfirm(false);
     setIsLoading(true);
-    
+
     try {
       if (mode === 'edit') {
         onSuccess(branches);
@@ -130,8 +134,7 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
         return;
       }
       let brandId = brandInfo?.brandId;
-      
-      // Nếu chưa có brandId, tạo brand trước
+
       if (!brandId) {
         const brandResponse = await axios.post('/admin/brands', {
           brandName: brandInfo?.brandName,
@@ -142,23 +145,18 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
         });
         const brandData = brandResponse.data as { brandId?: string; _id?: string };
         brandId = brandData.brandId || brandData._id || '';
-        
-        // Cập nhật brandInfo với brandId mới
-        if (brandInfo) {
-          brandInfo.brandId = brandId;
-        }
+
+        if (brandInfo) brandInfo.brandId = brandId;
       }
 
-      // Chuyển đổi branches thành format API clubs
       const clubsData = branches.map(branch => ({
         clubName: branch.name,
         address: branch.address,
         phoneNumber: branch.phone,
         tableNumber: parseInt(branch.deviceCount) || 0,
-        status: 'open' // Mặc định status open
+        status: 'open'
       }));
 
-      // Tạo clubs mới
       await axios.post('/admin/clubs', clubsData);
       toast.success('Tạo thương hiệu và câu lạc bộ thành công!');
       try {
@@ -166,15 +164,11 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
       } catch {
         toast.error('Không thể cập nhật trạng thái admin về pending.');
       }
-      
-      // Truyền brandId mới về nếu đã tạo brand
+
       if (brandId && brandId !== brandInfo?.brandId) {
-        // Cập nhật brandInfo với brandId mới trong state
-        if (brandInfo) {
-          brandInfo.brandId = brandId;
-        }
+        if (brandInfo) brandInfo.brandId = brandId;
       }
-      
+
       onSuccess(branches);
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
@@ -192,34 +186,29 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
   const handleSaveClub = async (idx: number) => {
     const branch = branches[idx];
     if (!onSaveClub && !onCreateClub) return;
-    
+
     const clubData = {
       clubName: branch.name,
       address: branch.address,
       phoneNumber: branch.phone,
       tableNumber: parseInt(branch.deviceCount) || 0,
     };
-    
+
     const branchId = branch.id || `new-${idx}`;
     setSavingClubs(prev => new Set(prev).add(branchId));
-    
+
     try {
       if (branch.id && onSaveClub) {
-        
         await onSaveClub(branch.id, clubData);
         toast.success('Cập nhật chi nhánh thành công!');
       } else if (!branch.id && onCreateClub) {
-        
         const newClubId = await onCreateClub(clubData);
-        
-        const updatedBranches = branches.map((b, i) => 
-          i === idx ? { ...b, id: newClubId } : b
-        );
+        const updatedBranches = branches.map((b, i) => i === idx ? { ...b, id: newClubId } : b);
         setBranches(updatedBranches);
         onChange?.(updatedBranches);
         toast.success('Tạo chi nhánh thành công!');
       }
-      
+
       setEditingBranches(prev => {
         const newSet = new Set(prev);
         newSet.delete(branchId);
@@ -241,17 +230,15 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
   const handleEditToggle = (idx: number) => {
     const branch = branches[idx];
     const branchId = branch.id || `new-${idx}`;
-    
+
     if (editingBranches.has(branchId)) {
-      
       handleSaveClub(idx);
     } else {
-      
       setEditingBranches(prev => new Set(prev).add(branchId));
     }
   };
 
-  const isFormValid = branches.every(branch => 
+  const isFormValid = branches.every(branch =>
     branch.name && branch.address && branch.deviceCount && branch.phone
   );
 
@@ -259,7 +246,6 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
     <>
       <form className="w-full max-w-4xl mx-auto flex flex-col gap-8 items-start px-0 pb-8" onSubmit={handleSubmit}>
         <div className="w-full">
-          
           <div className="mb-4">
             <Button
               type="button"
@@ -286,12 +272,15 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
               ← Quay lại bước trước
             </Button>
           </div>
+
           <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">Thông tin chi nhánh</h2>
-          <div className="space-y-6">
+
+          {/* FIX overflow ngang danh sách card */}
+          <div className="space-y-6 overflow-x-hidden">
             {branches.map((branch, idx) => (
               <div
                 key={idx}
-                className="relative p-6 border rounded-xl bg-white shadow-md transition-shadow hover:shadow-lg"
+                className="relative p-6 border rounded-xl bg-white shadow-md transition-shadow hover:shadow-lg max-w-full overflow-hidden"
               >
                 {/* Action buttons */}
                 <div className="absolute top-4 right-4 flex gap-2">
@@ -316,12 +305,14 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
                     </button>
                   )}
                 </div>
+
                 <div className="mb-4">
                   <span className="text-base font-semibold text-lime-600">Chi nhánh {idx + 1}</span>
                 </div>
+
                 {/* Layout input 2 dòng 3 cột */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="col-span-3">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 min-w-0">
+                  <div className="col-span-3 min-w-0">
                     <label className="block text-xs font-medium text-gray-500 mb-1">
                       Tên Câu Lạc Bộ <span className="text-red-500">*</span>
                     </label>
@@ -331,10 +322,11 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
                       placeholder="Nhập Tên Chi Nhánh..."
                       required
                       disabled={branch.id ? !editingBranches.has(branch.id) : false}
-                      className={branch.id ? (editingBranches.has(branch.id) ? '' : '!bg-gray-100 text-gray-500') : ''}
+                      className={`${branch.id ? (editingBranches.has(branch.id) ? '' : '!bg-gray-100 text-gray-500') : ''} w-full truncate`}
                     />
                   </div>
-                  <div>
+
+                  <div className="min-w-0">
                     <label className="block text-xs font-medium text-gray-500 mb-1">
                       Số Bàn <span className="text-red-500">*</span>
                     </label>
@@ -344,10 +336,11 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
                       placeholder="Nhập Số Bàn..."
                       required
                       disabled={branch.id ? !editingBranches.has(branch.id) : false}
-                      className={branch.id ? (editingBranches.has(branch.id) ? '' : '!bg-gray-100 text-gray-500') : ''}
+                      className={`${branch.id ? (editingBranches.has(branch.id) ? '' : '!bg-gray-100 text-gray-500') : ''} w-full truncate`}
                     />
                   </div>
-                  <div>
+
+                  <div className="min-w-0">
                     <label className="block text-xs font-medium text-gray-500 mb-1">
                       Địa Chỉ <span className="text-red-500">*</span>
                     </label>
@@ -357,10 +350,11 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
                       placeholder="Nhập Địa Chỉ"
                       required
                       disabled={branch.id ? !editingBranches.has(branch.id) : false}
-                      className={branch.id ? (editingBranches.has(branch.id) ? '' : '!bg-gray-100 text-gray-500') : ''}
+                      className={`${branch.id ? (editingBranches.has(branch.id) ? '' : '!bg-gray-100 text-gray-500') : ''} w-full truncate`}
                     />
                   </div>
-                  <div>
+
+                  <div className="min-w-0">
                     <label className="block text-xs font-medium text-gray-500 mb-1">
                       Số Điện Thoại <span className="text-red-500">*</span>
                     </label>
@@ -370,18 +364,17 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
                       placeholder="Nhập Số Điện Thoại..."
                       required
                       disabled={branch.id ? !editingBranches.has(branch.id) : false}
-                      className={branch.id ? (editingBranches.has(branch.id) ? '' : '!bg-gray-100 text-gray-500') : ''}
+                      className={`${branch.id ? (editingBranches.has(branch.id) ? '' : '!bg-gray-100 text-gray-500') : ''} w-full truncate`}
                     />
                   </div>
                 </div>
-                
+
                 {mode === 'edit' && (
                   <div className="flex justify-end gap-2 mt-4">
                     {branch.id && editingBranches.has(branch.id) && (
                       <button
                         type="button"
                         onClick={() => {
-                          // Cancel editing - reset to original values and exit edit mode
                           const branchId = branch.id;
                           if (!branchId) return;
                           setEditingBranches(prev => {
@@ -389,11 +382,10 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
                             newSet.delete(branchId);
                             return newSet;
                           });
-                          // Reset to original values if it's an existing branch
                           if (initialBranches) {
                             const originalBranch = initialBranches.find(b => b.id === branch.id);
                             if (originalBranch) {
-                              const updatedBranches = branches.map((b, i) => 
+                              const updatedBranches = branches.map((b, i) =>
                                 i === idx ? originalBranch : b
                               );
                               setBranches(updatedBranches);
@@ -412,9 +404,9 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
                       disabled={savingClubs.has(branch.id || `new-${idx}`)}
                       className="px-4 py-2 rounded-md bg-lime-500 hover:bg-lime-600 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition"
                     >
-                      {savingClubs.has(branch.id || `new-${idx}`) 
-                        ? 'Đang lưu...' 
-                        : branch.id 
+                      {savingClubs.has(branch.id || `new-${idx}`)
+                        ? 'Đang lưu...'
+                        : branch.id
                           ? (editingBranches.has(branch.id) ? 'Lưu' : 'Chỉnh sửa')
                           : 'Tạo mới'
                       }
@@ -427,14 +419,14 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
 
           {mode !== 'edit' && (
             <div className="mt-8">
-              <Button 
-                type="submit" 
-                variant="lime" 
+              <Button
+                type="submit"
+                variant="lime"
                 fullWidth
                 disabled={!isFormValid || isLoading}
               >
-                {isLoading 
-                  ? (initialBranches && initialBranches.length > 0 ? 'Đang cập nhật...' : 'Đang chuẩn bị...') 
+                {isLoading
+                  ? (initialBranches && initialBranches.length > 0 ? 'Đang cập nhật...' : 'Đang chuẩn bị...')
                   : (initialBranches && initialBranches.length > 0 ? 'Cập nhật và tiếp tục' : 'Xác nhận thông tin')
                 }
               </Button>
@@ -442,16 +434,18 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
           )}
         </div>
       </form>
+
       {/* Popup xác nhận cả brandInfo và branchInfo */}
-        <ConfirmPopupDetail
-         open={showConfirm}
-         onConfirm={handleConfirm}
-         onCancel={handleCancel}
-         title="Xác nhận thông tin đăng ký"
-         confirmText={isLoading ? 'Đang tạo...' : 'Xác nhận'}
-         cancelText="Hủy"
-        >
-        <div className="space-y-6 w-full">
+      <ConfirmPopupDetail
+        open={showConfirm}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+        title="Xác nhận thông tin đăng ký"
+        confirmText={isLoading ? 'Đang tạo...' : 'Xác nhận'}
+        cancelText="Hủy"
+      >
+        {/* FIX overflow ngang trong popup */}
+        <div className="space-y-6 w-full overflow-x-hidden [&_*]:min-w-0">
           {/* Thông tin thương hiệu */}
           {brandInfo && (
             <div className="p-4 border rounded-lg bg-gray-50">
@@ -479,6 +473,7 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
               </div>
             </div>
           )}
+
           {/* Thông tin chi nhánh */}
           <div className="space-y-4">
             <h3 className="text-lg font-bold text-gray-800 border-b pb-2">Thông tin chi nhánh</h3>
@@ -497,6 +492,7 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
           </div>
         </div>
       </ConfirmPopupDetail>
+
       {/* Popup xác nhận xóa chi nhánh */}
       <ConfirmPopup
         open={showDeleteConfirm}
@@ -510,4 +506,4 @@ export function BranchInfoForm({ onSuccess, onChange, brandInfo, onBack, initial
       </ConfirmPopup>
     </>
   );
-} 
+}
