@@ -33,12 +33,12 @@ export default function Sidebar() {
   return (
     <aside className="w-64 bg-[#181818] text-white flex flex-col py-8 px-4 min-h-screen sticky top-0 h-screen z-30">
       <div className="flex flex-col items-center mb-10">
-        <ScoreLensLogo href="/admin/clubs" />
+        <ScoreLensLogo href="/admin/branches" />
       </div>
       <nav className="flex-1 space-y-2">
         <Link
-          href="/admin/clubs"
-          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/admin/clubs') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
+          href="/admin/branches"
+          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/admin/branches') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
         >
           Chi nhánh
         </Link>
@@ -49,8 +49,8 @@ export default function Sidebar() {
           Quản lý
         </Link>
         <Link
-          href="/admin/brand"
-          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/admin/brand') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
+          href="/admin/club"
+          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/admin/club') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
         >
           Thông tin câu lạc bộ
         </Link>
