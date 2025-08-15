@@ -8,6 +8,21 @@ export interface VerifyTableRequest {
 
 export interface VerifyMembershipRequest {
   phoneNumber: string;
+  clubId: string; 
+}
+
+export interface VerifyMembershipResponse {
+  success: boolean;
+  isMember: boolean;
+  isBrandCompatible?: boolean;  
+  message: string;
+  data?: {
+    membershipId: string;
+    fullName: string;
+    phoneNumber: string;
+    status: string;
+    brandId: string;
+  };
 }
 
 export type GameType = 'pool-8' | 'carom';
@@ -55,7 +70,31 @@ export interface UpdateScoreRequest {
 export interface UpdateTeamMembersRequest {
   actorGuestToken?: string;
   actorMembershipId?: string;
-  members: CreateMatchTeamMember[];
+  members: Array<{
+    guestName?: string;
+    phoneNumber?: string;
+  }>;
+}
+
+// Interface mới cho API cập nhật cả 2 teams
+export interface UpdateTeamMembersRequestV2 {
+  teams: Array<Array<{
+    guestName?: string;
+    phoneNumber?: string;
+  }>>;
+  actorGuestToken?: string;
+  actorMembershipId?: string;
+}
+
+export interface PopupEditMembersProps {
+  onClose: () => void;
+  onSave: (teamAMembers: string[], teamBMembers: string[]) => void;
+  initialTeamA: string[];
+  initialTeamB: string[];
+  matchId: string | null;
+  actorGuestToken: string | null;
+  actorMembershipId: string | null;
+  clubId: string | null;
 }
 
 export interface StartOrEndMatchRequest {
@@ -90,10 +129,10 @@ class UserMatchService {
 
 
 
-  async verifyMembership(payload: VerifyMembershipRequest) {
+  async verifyMembership(payload: VerifyMembershipRequest): Promise<VerifyMembershipResponse> {
     try {
       const res = await axios.post('/membership/matches/verify-membership', payload);
-      return res.data;
+      return res.data as VerifyMembershipResponse;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -155,30 +194,21 @@ class UserMatchService {
 
   async updateTeamMembers(matchId: string, teamIndex: number, payload: UpdateTeamMembersRequest) {
     try {
-      // Lấy thông tin match hiện tại để có đủ 2 teams
-      const currentMatch = await this.getMatchById(matchId) as Record<string, any>;
-      
-      const currentTeams = currentMatch?.data?.teams || currentMatch?.teams || [];
-      
-      // Cập nhật team được chỉ định
-      const updatedTeams = [...currentTeams];
-      updatedTeams[teamIndex] = {
-        ...updatedTeams[teamIndex],
-        members: payload.members
+      const res = await axios.put(`/membership/matches/${matchId}/teams/${teamIndex}/members`, payload);
+      return res.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async updateTeamMembersV2(matchId: string, teams: Array<Array<{ guestName?: string; phoneNumber?: string }>>, actorGuestToken?: string, actorMembershipId?: string) {
+    try {
+      const payload: UpdateTeamMembersRequestV2 = { 
+        teams,
+        actorGuestToken,
+        actorMembershipId
       };
-      
-      // Backend expect teams là mảng các mảng members, không phải mảng các object team
-      const teamsForBackend = updatedTeams.map(team => team.members);
-      
-      const requestBody = {
-        teams: teamsForBackend,
-        actorGuestToken: payload.actorGuestToken,
-        actorMembershipId: payload.actorMembershipId
-      };
-      
-      // Gửi cả 2 teams theo format backend expect
-      const res = await axios.put(`/membership/matches/${matchId}/teams`, requestBody);
-      
+      const res = await axios.put(`/membership/matches/${matchId}/teams`, payload);
       return res.data;
     } catch (error) {
       throw this.handleError(error);
