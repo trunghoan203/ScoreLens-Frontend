@@ -41,7 +41,7 @@ export default function HeaderManager() {
   return (
     <div className="flex items-center justify-between w-full h-full">
       <div className="px-6 rounded-lg">
-        <h1 className="text-2xl font-bold text-black">
+        <h1 className="text-2xl font-bold">
           {clubName}
         </h1>
       </div>
