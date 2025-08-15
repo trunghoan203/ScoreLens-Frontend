@@ -10,6 +10,7 @@ import { AdminTable } from '@/components/features/AdminTable';
 import { FeedbackTable } from '@/components/features/FeedbackTable';
 import { getAdminList } from '@/lib/saAdminService';
 import { useSuperAdminAuthGuard } from '@/lib/hooks/useSuperAdminAuthGuard';
+import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import toast from 'react-hot-toast';
 
 interface ApiAdmin {
@@ -41,8 +42,7 @@ function SuperAdminHomeContent() {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [admins, setAdmins] = useState<TableAdmin[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -54,9 +54,7 @@ function SuperAdminHomeContent() {
 
   useEffect(() => {
     if (activeTab === 'approval') {
-      if (isInitialLoad || statusFilter !== '') {
-        setLoading(true);
-      }
+      setLoading(true);
 
       getAdminList({
         search: debouncedSearchTerm,
@@ -81,16 +79,15 @@ function SuperAdminHomeContent() {
           }));
           setAdmins(mappedAdmins);
           setLoading(false);
-          setIsInitialLoad(false);
         })
         .catch(() => {
           toast.error('Không lấy được danh sách admin');
           setAdmins([]);
-          setLoading(false);
-          setIsInitialLoad(false);
-        });
+        })
+    } else {
+      setLoading(false);
     }
-  }, [debouncedSearchTerm, statusFilter, activeTab, isInitialLoad]);
+  }, [debouncedSearchTerm, statusFilter, activeTab]);
 
   const handleRowClick = (adminId: string) => {
     router.push(`/superadmin/admin/${adminId}`);
@@ -101,15 +98,12 @@ function SuperAdminHomeContent() {
     router.push(`/superadmin/home?tab=${tab}`, { scroll: false });
   };
 
-  if (isChecking) {
-    return <div className="flex items-center justify-center min-h-screen">Đang kiểm tra...</div>;
-  }
-
   return (
     <>
+      {(isChecking || loading) && (<ScoreLensLoading text="Đang tải..." />)}
       <HeaderSuperAdmin />
       <PageBanner title={activeTab === 'approval' ? 'DANH SÁCH ADMIN' : 'DANH SÁCH PHẢN HỒI'} />
-      <div className="bg-[#EEEDED] w-full px-4 md:px-8 py-8">
+      <div className="bg-[#EEEDED] w-full px-4 md:px-8 py-8 min-h-[calc(100vh-200px)]">
         <div className="max-w-6xl mx-auto space-y-6 md:space-y-8">
           {/* Toggle Tabs */}
           <div className="flex justify-center">
@@ -152,16 +146,12 @@ function SuperAdminHomeContent() {
                   onSearchChange={setSearchTerm}
                   onStatusChange={setStatusFilter}
                 />
-                {loading ? (
-                  <div className="text-center py-8">Đang tải...</div>
-                ) : (
-                  <AdminTable
-                    admins={admins}
-                    onRowClick={handleRowClick}
-                    searchTerm={searchTerm}
-                    statusFilter={statusFilter}
-                  />
-                )}
+                <AdminTable
+                  admins={admins}
+                  onRowClick={handleRowClick}
+                  searchTerm={searchTerm}
+                  statusFilter={statusFilter}
+                />
               </motion.div>
             ) : (
               <motion.div
@@ -184,7 +174,9 @@ function SuperAdminHomeContent() {
 
 export default function SuperAdminHomePage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={
+        <ScoreLensLoading text="Đang tải..." />
+    }>
       <SuperAdminHomeContent />
     </Suspense>
   );

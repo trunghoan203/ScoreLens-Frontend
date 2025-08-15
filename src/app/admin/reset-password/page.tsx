@@ -1,16 +1,16 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { PasswordInput } from '@/components/ui/PasswordInput';
 import { AuthLayout } from '@/components/shared/AuthLayout';
+import { SearchParamsWrapper } from '@/components/shared/SearchParamsWrapper';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { Check, ArrowLeft } from 'lucide-react';
 
-function AdminResetPasswordPageInner() {
-  const searchParams = useSearchParams();
+function AdminResetPasswordPageInner({ searchParams }: { searchParams: URLSearchParams | null }) {
   const email = searchParams?.get('email');
   const router = useRouter();
 
@@ -133,8 +133,8 @@ function AdminResetPasswordPageInner() {
 
 export default function AdminResetPasswordPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <AdminResetPasswordPageInner />
-    </Suspense>
+    <SearchParamsWrapper>
+      {(searchParams) => <AdminResetPasswordPageInner searchParams={searchParams} />}
+    </SearchParamsWrapper>
   );
 } 

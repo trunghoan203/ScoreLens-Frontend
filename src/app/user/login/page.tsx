@@ -24,7 +24,9 @@ function StartSessionContent() {
   const [tableId, setTableId] = useState<string | null>(null);
   const [tableName, setTableName] = useState<string | null>(null);
   const [tableCategory, setTableCategory] = useState<string | null>(null);
+
   const [tableInfo, setTableInfo] = useState<any>(null);
+
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -48,9 +50,10 @@ function StartSessionContent() {
     if (!table) setTableName('??');
     if (!tId) setTableId('TB-1755160186911');
 
-    const timer = setTimeout(() => setLoading(false), 1200);
-    return () => clearTimeout(timer);
-  }, [searchParams]);
+
+      try {
+        const result = await userMatchService.verifyTable({ tableId: idFromUrl });
+        const responseData = (result as any)?.data || result;
 
   useEffect(() => {
     if (tableName) {
@@ -151,6 +154,7 @@ function StartSessionContent() {
 
       const payload = {
         tableId: tableId,
+
         gameType,
         createdByMembershipId: verifiedMembershipId || undefined,
         isAiAssisted: aiAssisted,
@@ -187,9 +191,10 @@ function StartSessionContent() {
       if (code) params.set('code', String(code));
       if (fullName.trim()) params.set('name', fullName.trim());
       if (tableCategory) params.set('category', tableCategory);
-      
+
       router.push(`/user/homerandom?${params.toString()}`);
     } catch (e) {
+      console.error(e);
       toast.error('Bàn đang được sử dụng, không thể tạo trận đấu');
     } finally {
       setVerifying(false);
@@ -204,13 +209,6 @@ function StartSessionContent() {
       setVerifyMemberMessage('Vui lòng nhập số điện thoại hội viên.');
       return;
     }
-    
-    if (!tableInfo?.clubId) {
-      setVerifyMemberStatus('error');
-      setVerifyMemberMessage('Không thể xác định club. Vui lòng thử lại.');
-      return;
-    }
-    
     try {
       setVerifyingMember(true);
       setVerifyMemberStatus('idle');
@@ -222,11 +220,15 @@ function StartSessionContent() {
       });
 
 
-      if (!res.success) {
+      if (!res || typeof res !== 'object') {
+        throw new Error('Response không hợp lệ');
+      }
+
+      if (res.success === false) {
         throw new Error(res.message || 'Xác thực thất bại');
       }
 
-      if (!res.isMember) {
+      if (res.isMember === false) {
         setVerifyMemberStatus('error');
         toast.error('Bạn chưa đăng ký hội viên');
         return;
@@ -244,6 +246,7 @@ function StartSessionContent() {
 
       if (info?.status === 'inactive') {
         setVerifyMemberStatus('error');
+        setVerifyMemberMessage('Tài khoản của bạn đang bị cấm');
         toast.error('Tài khoản của bạn đang bị cấm');
         return;
       }
@@ -268,8 +271,10 @@ function StartSessionContent() {
       toast.success(display);
 
     } catch (e: any) {
+      console.error('Error verifying membership:', e);
       setVerifyMemberStatus('error');
       const errorMessage = e?.message || 'Bạn chưa đăng ký hội viên';
+      setVerifyMemberMessage(errorMessage);
       toast.error(errorMessage);
     } finally {
       setVerifyingMember(false);
@@ -298,6 +303,7 @@ function StartSessionContent() {
           </h1>
           <p className="text-sm sm:text-base text-[#000000] font-medium">
             {tableName ? `${tableName}` : 'Bàn chơi'} - {tableCategory ? formatTableCategory(tableCategory) : 'Pool 8 Ball'}
+
           </p>
         </div>
 

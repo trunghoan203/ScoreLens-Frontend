@@ -29,6 +29,7 @@ interface TableData {
   matchId?: string;
   matchStatus?: 'pending' | 'ongoing' | 'completed';
   elapsedTime?: string;
+  isAiAssisted?: boolean;
 }
 
 interface RawTableData {
@@ -66,8 +67,7 @@ export default function ManagerDashboardPage() {
   const [loadingStats, setLoadingStats] = useState(true);
   const [tables, setTables] = useState<TableData[]>([]);
   const [loadingTables, setLoadingTables] = useState(true);
-  const [activeMatches, setActiveMatches] = useState<Map<string, { matchId: string; status: string; startTime: Date | null }>>(new Map());
-  // Remove unused globalTimer state
+  const [activeMatches, setActiveMatches] = useState<Map<string, { matchId: string; status: string; startTime: Date | null; isAiAssisted?: boolean }>>(new Map());
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -101,7 +101,8 @@ export default function ManagerDashboardPage() {
                 tableId: table.id,
                 matchId: match.matchId,
                 status: match.status,
-                startTime: match.startTime ? new Date(match.startTime) : (match.status === 'ongoing' ? new Date() : null)
+                startTime: match.startTime ? new Date(match.startTime) : (match.status === 'ongoing' ? new Date() : null),
+                isAiAssisted: match.isAiAssisted
               };
             }
 
@@ -112,7 +113,8 @@ export default function ManagerDashboardPage() {
                 tableId: table.id,
                 matchId: match.matchId,
                 status: match.status,
-                startTime: match.startTime ? new Date(match.startTime) : (match.status === 'ongoing' ? new Date() : null)
+                startTime: match.startTime ? new Date(match.startTime) : (match.status === 'ongoing' ? new Date() : null),
+                isAiAssisted: match.isAiAssisted
               };
             }
           } catch (error) {
@@ -160,7 +162,6 @@ export default function ManagerDashboardPage() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      // Remove global timer update
     }, 1000);
 
     return () => clearInterval(interval);
@@ -196,7 +197,8 @@ export default function ManagerDashboardPage() {
       ...table,
       matchId: matchData?.matchId,
       matchStatus: matchData?.status as 'pending' | 'ongoing' | 'completed',
-      elapsedTime
+      elapsedTime,
+      isAiAssisted: matchData?.isAiAssisted
     };
   }).filter(table => {
     const matchSearch = table.name.toLowerCase().includes(search.toLowerCase());
@@ -220,7 +222,7 @@ export default function ManagerDashboardPage() {
           <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
             <HeaderManager />
           </div>
-          <div className="p-10">
+          <div className="px-10 pb-10">
             <div className="w-full mx-auto">
               {loadingStats ? (
                 <div className="my-6">
@@ -256,20 +258,7 @@ export default function ManagerDashboardPage() {
                       </svg>
                     }
                     title={search ? 'Không tìm thấy bàn phù hợp' : 'Chưa có bàn nào'}
-                    description={
-                      search
-                        ? 'Thử thay đổi từ khóa tìm kiếm hoặc thêm bàn mới để mở rộng cơ sở vật chất'
-                        : 'Bắt đầu thiết lập hệ thống bàn chơi chuyên nghiệp cho câu lạc bộ của bạn'
-                    }
-                    primaryAction={{
-                      label: 'Thêm bàn mới',
-                      onClick: () => router.push('/manager/tables/add'),
-                      icon: (
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                      )
-                    }}
+                    description={'Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy bàn phù hợp'}
                     secondaryAction={search ? {
                       label: 'Xem tất cả',
                       onClick: () => {
@@ -283,7 +272,6 @@ export default function ManagerDashboardPage() {
                         </svg>
                       )
                     } : undefined}
-                    additionalInfo="Bàn chơi sẽ giúp bạn cung cấp dịch vụ chất lượng và thu hút hội viên"
                     showAdditionalInfo={!search}
                   />
                 ) : (

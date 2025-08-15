@@ -26,7 +26,7 @@ interface UpdateScoreData {
 }
 
 interface UpdateTeamMembersData {
-  members: MatchTeamMember[];
+  teams: MatchTeamMember[][];
 }
 
 class ManagerMatchService {
@@ -95,9 +95,9 @@ class ManagerMatchService {
   }
 
   // Update Team Members
-  async updateTeamMembers(matchId: string, teamIndex: number, membersData: UpdateTeamMembersData) {
+  async updateTeamMembers(matchId: string, teamsData: UpdateTeamMembersData) {
     try {
-      const res = await axios.put(`/manager/matches/${matchId}/teams/${teamIndex}/members`, membersData);
+      const res = await axios.put(`/manager/matches/${matchId}/teams`, teamsData);
       return res.data;
     } catch (error) {
       throw this.handleError(error);
