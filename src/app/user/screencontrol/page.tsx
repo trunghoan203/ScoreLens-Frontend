@@ -52,7 +52,6 @@ function ScoreboardPage() {
 
       
       if (matchData?.teams) {
-        // Cập nhật điểm số
         const newScoreA = matchData.teams[0]?.score ?? scoreA;
         const newScoreB = matchData.teams[1]?.score ?? scoreB;
         
@@ -63,7 +62,6 @@ function ScoreboardPage() {
           setScoreB(newScoreB);
         }
         
-        // ✅ THÊM CODE: Cập nhật thành viên teams
         if (matchData.teams[0]?.members) {
           const teamAMembers = matchData.teams[0].members.map((member: any) => 
             member.guestName || member.membershipName || member.fullName || ''
@@ -78,7 +76,6 @@ function ScoreboardPage() {
           setTeamB(teamBMembers);
         }
         
-        // Cập nhật matchInfo để trigger re-render
         setMatchInfo(matchData);
       }
     },
@@ -573,6 +570,11 @@ function ScoreboardPage() {
                 setShowEditPopup(true);
               }}
               onEditMembers={() => {
+                // Kiểm tra clubId trước khi mở popup edit members
+                if (!tableInfo?.clubId) {
+                  toast.error('Không thể xác định club để chỉnh sửa thành viên');
+                  return;
+                }
                 setShowEditChoicePopup(false);
                 setShowEditMembersPopup(true);
               }}
@@ -582,16 +584,41 @@ function ScoreboardPage() {
           {showEditMembersPopup && (
             <PopupEditMembers
               onClose={() => setShowEditMembersPopup(false)}
-              onSave={(newTeamA, newTeamB) => {
+              onSave={async (newTeamA, newTeamB) => {
                 setTeamA(newTeamA);
                 setTeamB(newTeamB);
                 setShowEditMembersPopup(false);
+                
+                // ✅ RE-FETCH MATCHINFO: Để cập nhật giao diện với tên membership mới
+                if (matchId) {
+                  try {
+                    const updatedMatchInfo = await userMatchService.getMatchById(matchId);
+                    const responseData = (updatedMatchInfo as any)?.data || updatedMatchInfo;
+                    setMatchInfo(responseData);
+                    
+                    // Cập nhật teams từ matchInfo mới
+                    if (responseData?.teams) {
+                      const teamAMembers = responseData.teams[0]?.members?.map((member: any) => 
+                        member.guestName || member.membershipName || member.fullName || ''
+                      ) || [''];
+                      const teamBMembers = responseData.teams[1]?.members?.map((member: any) => 
+                        member.guestName || member.membershipName || member.fullName || ''
+                      ) || [''];
+                      
+                      setTeamA(teamAMembers);
+                      setTeamB(teamBMembers);
+                    }
+                  } catch (error) {
+                    console.error('Error re-fetching match info:', error);
+                  }
+                }
               }}
               initialTeamA={teamA}
               initialTeamB={teamB}
               matchId={matchId}
               actorGuestToken={actorGuestToken}
               actorMembershipId={matchInfo?.createdByMembershipId}
+              clubId={tableInfo?.clubId} // Thêm clubId để validation membership
             />
           )}
 

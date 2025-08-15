@@ -47,7 +47,7 @@ function GuestLoginContent() {
     if (mId) setMatchId(mId);
 
     if (!table) setTableNumber('??');
-    if (!tId) setTableId('TB-1754380493077');
+    if (!tId) setTableId('TB-1755160186911');
 
     const timer = setTimeout(() => setLoading(false), 800);
     return () => clearTimeout(timer);
@@ -71,7 +71,7 @@ function GuestLoginContent() {
           
           toast.success('Chào mừng bạn đến với ScoreLens');
         } catch (error) {
-          console.warn('Table verification failed:', error);
+          // Table verification failed
         }
       }
     };
