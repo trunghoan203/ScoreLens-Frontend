@@ -4,6 +4,23 @@ export interface VerifyTableRequest {
   tableId: string;
 }
 
+interface ClubInfo {
+  clubId: string;
+  clubName: string;
+  status: string;
+}
+
+interface VerifyTableResponse {
+  success: boolean;
+  data: {
+    tableId: string;
+    name: string;
+    category: string;
+    status: string;
+    clubId: string;
+    club?: ClubInfo;
+  };
+}
 
 
 export interface VerifyMembershipRequest {
@@ -26,6 +43,13 @@ export interface CreateMatchRequest {
     teamName: string;
     members: CreateMatchTeamMember[];
   }>;
+}
+
+interface CreateMatchResponse {
+  success: boolean;
+  data: any;
+  club?: ClubInfo;
+  message?: string;
 }
 
 export interface JoinMatchRequest {
@@ -79,10 +103,10 @@ class UserMatchService {
     return new Error('Đã xảy ra lỗi không xác định');
   }
 
-  async verifyTable(payload: VerifyTableRequest) {
+  async verifyTable(payload: VerifyTableRequest): Promise<VerifyTableResponse> {
     try {
       const res = await axios.post('/membership/matches/verify-table', payload);
-      return res.data;
+      return res.data as VerifyTableResponse;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -99,10 +123,10 @@ class UserMatchService {
     }
   }
 
-  async createMatch(payload: CreateMatchRequest) {
+  async createMatch(payload: CreateMatchRequest): Promise<CreateMatchResponse> {
     try {
       const res = await axios.post('/membership/matches', payload);
-      return res.data;
+      return res.data as CreateMatchResponse;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -157,28 +181,28 @@ class UserMatchService {
     try {
       // Lấy thông tin match hiện tại để có đủ 2 teams
       const currentMatch = await this.getMatchById(matchId) as Record<string, any>;
-      
+
       const currentTeams = currentMatch?.data?.teams || currentMatch?.teams || [];
-      
+
       // Cập nhật team được chỉ định
       const updatedTeams = [...currentTeams];
       updatedTeams[teamIndex] = {
         ...updatedTeams[teamIndex],
         members: payload.members
       };
-      
+
       // Backend expect teams là mảng các mảng members, không phải mảng các object team
       const teamsForBackend = updatedTeams.map(team => team.members);
-      
+
       const requestBody = {
         teams: teamsForBackend,
         actorGuestToken: payload.actorGuestToken,
         actorMembershipId: payload.actorMembershipId
       };
-      
+
       // Gửi cả 2 teams theo format backend expect
       const res = await axios.put(`/membership/matches/${matchId}/teams`, requestBody);
-      
+
       return res.data;
     } catch (error) {
       throw this.handleError(error);
@@ -205,8 +229,8 @@ class UserMatchService {
 
   async deleteMatch(matchId: string, payload: StartOrEndMatchRequest) {
     try {
-      const res = await axios.delete(`/membership/matches/${matchId}`, { 
-        data: payload 
+      const res = await axios.delete(`/membership/matches/${matchId}`, {
+        data: payload
       } as any);
       return res.data;
     } catch (error) {
