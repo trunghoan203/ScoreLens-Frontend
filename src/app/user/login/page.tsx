@@ -24,6 +24,9 @@ function StartSessionContent() {
   const [tableId, setTableId] = useState<string | null>(null);
   const [tableName, setTableName] = useState<string | null>(null);
   const [tableCategory, setTableCategory] = useState<string | null>(null);
+
+  const [tableInfo, setTableInfo] = useState<any>(null);
+
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -39,9 +42,31 @@ function StartSessionContent() {
   };
 
   useEffect(() => {
+    const table = searchParams!.get('table');
+    const tId = searchParams!.get('tableId');
+    if (table) setTableName(table);
+    if (tId) setTableId(tId);
+
+    if (!table) setTableName('??');
+    if (!tId) setTableId('TB-1755160186911');
+
+
+      try {
+        const result = await userMatchService.verifyTable({ tableId: idFromUrl });
+        const responseData = (result as any)?.data || result;
+
+  useEffect(() => {
+    if (tableName) {
+    }
+  }, [tableName]);
+
+  useEffect(() => {
     const initializePageFromUrl = async () => {
+      if (!searchParams) return;
+      
       const idFromUrl = searchParams.get('tableId');
       const nameFromUrl = searchParams.get('tableName');
+      const categoryFromUrl = searchParams.get('category');
 
       if (!idFromUrl) {
         console.error("Không tìm thấy tableId trên URL.");
@@ -51,8 +76,13 @@ function StartSessionContent() {
       }
 
       setTableId(idFromUrl);
+      
       if (nameFromUrl) {
         setTableName(decodeURIComponent(nameFromUrl));
+      }
+      
+      if (categoryFromUrl) {
+        setTableCategory(categoryFromUrl);
       }
 
       try {
@@ -61,16 +91,33 @@ function StartSessionContent() {
 
         if (responseData && responseData.name) {
           setTableName(responseData.name);
-          setTableCategory(responseData.category || 'Không rõ');
+          setTableCategory(responseData.category || categoryFromUrl || 'pool-8');
+          
+          setTableInfo(responseData);
+          
           toast.success(`Chào mừng bạn đến ${responseData.name}`);
         } else {
-          throw new Error("Dữ liệu bàn nhận về không hợp lệ");
+          if (!tableName) {
+            setTableName('Bàn chơi');
+          }
+          if (!tableCategory) {
+            setTableCategory('pool-8');
+          }
+          toast.success('Chào mừng bạn đến với ScoreLens');
         }
       } catch (error: any) {
         console.error('Xác thực bàn thất bại:', error);
+        
+        if (!tableName) {
+          setTableName('Bàn chơi');
+        }
+        if (!tableCategory) {
+          setTableCategory('pool-8');
+        }
+        
         const message = error?.response?.data?.message || 'Không thể xác thực bàn. Vui lòng thử lại.';
         toast.error(message);
-        setTableId(null);
+        
       } finally {
         setLoading(false);
       }
@@ -96,13 +143,18 @@ function StartSessionContent() {
   const handleCreateMatch = async (aiAssisted: boolean) => {
     try {
       setVerifying(true);
-      const mockTableId = tableId || 'TB-1754380493077';
-      const displayTableName = tableName || '??';
-
+      
+      if (!tableId) {
+        toast.error('Không tìm thấy thông tin bàn. Vui lòng quét lại mã QR.');
+        return;
+      }
+      
+      const displayTableName = tableName || 'Bàn chơi';
       const gameType = (tableCategory === 'carom' ? 'carom' : 'pool-8') as 'carom' | 'pool-8';
 
       const payload = {
-        tableId: mockTableId,
+        tableId: tableId,
+
         gameType,
         createdByMembershipId: verifiedMembershipId || undefined,
         isAiAssisted: aiAssisted,
@@ -114,6 +166,7 @@ function StartSessionContent() {
           { teamName: 'Team B', members: [] },
         ],
       };
+      
       const data = (await userMatchService.createMatch(payload)) as Record<string, any>;
       const responseData = data?.data || data;
       let matchId = (responseData?.matchId || responseData?.id || '') as string;
@@ -126,12 +179,19 @@ function StartSessionContent() {
           matchId = (byCodeData?.matchId || byCodeData?.id || '') as string;
         } catch { }
       }
+      
       toast.success('Tạo trận đấu thành công');
-      const params = new URLSearchParams({ table: displayTableName, tableId: mockTableId });
+      
+      const params = new URLSearchParams({ 
+        table: displayTableName, 
+        tableId: tableId 
+      });
+      
       if (matchId) params.set('matchId', String(matchId));
       if (code) params.set('code', String(code));
       if (fullName.trim()) params.set('name', fullName.trim());
       if (tableCategory) params.set('category', tableCategory);
+
       router.push(`/user/homerandom?${params.toString()}`);
     } catch (e) {
       console.error(e);
@@ -154,7 +214,11 @@ function StartSessionContent() {
       setVerifyMemberStatus('idle');
       setVerifyMemberMessage('');
 
-      const res = (await userMatchService.verifyMembership({ phoneNumber: phone })) as Record<string, any>;
+      const res = await userMatchService.verifyMembership({ 
+        phoneNumber: phone, 
+        clubId: tableInfo.clubId 
+      });
+
 
       if (!res || typeof res !== 'object') {
         throw new Error('Response không hợp lệ');
@@ -170,8 +234,15 @@ function StartSessionContent() {
         return;
       }
 
+      if (!res.isBrandCompatible) {
+        setVerifyMemberStatus('error');
+        setVerifyMemberMessage(res.message || 'Bạn không phải là hội viên của thương hiệu này.');
+        toast.error(res.message || 'Bạn không phải là hội viên của thương hiệu này.');
+        return;
+      }
+
       const responseData = res?.data || res;
-      const info = responseData ?? {};
+      const info = responseData as any ?? {};
 
       if (info?.status === 'inactive') {
         setVerifyMemberStatus('error');
@@ -231,7 +302,8 @@ function StartSessionContent() {
             Chào mừng bạn đến với ScoreLens
           </h1>
           <p className="text-sm sm:text-base text-[#000000] font-medium">
-            {tableName ? `${tableName}` : `'??'`} - {tableCategory ? formatTableCategory(tableCategory) : 'Đang tải...'}
+            {tableName ? `${tableName}` : 'Bàn chơi'} - {tableCategory ? formatTableCategory(tableCategory) : 'Pool 8 Ball'}
+
           </p>
         </div>
 
