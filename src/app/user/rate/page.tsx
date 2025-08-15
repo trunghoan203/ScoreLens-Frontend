@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import PopupFeedback from '@/app/user/popup/popupFeedback';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
@@ -9,33 +9,81 @@ import HeaderUser from '@/components/user/HeaderUser';
 import FooterButton from '@/components/user/FooterButton';
 import { MessageCircleHeart } from 'lucide-react';
 import { userFeedbackService } from '@/lib/userFeedbackService';
+import { userMatchService } from '@/lib/userMatchService';
 import toast from 'react-hot-toast';
 
 export default function RatePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [feedback, setFeedback] = useState('');
   const [showPopup, setShowPopup] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [tableInfo, setTableInfo] = useState<any>(null);
+  
+  const matchId = searchParams?.get('matchId') || '';
+  const tableId = searchParams?.get('tableId') || '';
+  const clubId = searchParams?.get('clubId') || '';
+  const membershipId = searchParams?.get('membershipId') || '';
+  const guestToken = searchParams?.get('guestToken') || '';
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    if (tableId) {
+      const loadTableInfo = async () => {
+        try {
+          const tableData = await userMatchService.verifyTable({ tableId });
+          const responseData = (tableData as any)?.data || tableData;
+          setTableInfo(responseData);
+        } catch (error) {
+        }
+      };
+      loadTableInfo();
+    }
+  }, [tableId]);
+
   const handleSubmit = async () => {
     if (!feedback.trim()) {
       toast.error('Vui lòng nhập phản hồi!');
       return;
     }
+    
+    if (!tableId) {
+      toast.error('Thiếu thông tin bàn để gửi phản hồi!');
+      return;
+    }
+    
+    const finalClubId = clubId || tableInfo?.clubId;
+    
+    if (!finalClubId) {
+      toast.error('Không thể xác định thông tin câu lạc bộ!');
+      return;
+    }
+    
+    if (!membershipId && !guestToken) {
+      toast.error('Thiếu thông tin xác thực người dùng!');
+      return;
+    }
+    
     setSubmitting(true);
     try {
-      await userFeedbackService.createFeedback({
-        clubId: 'CLB-1751950292581-3267',
-        tableId: 'TB-1752296882416',
-        content: feedback,
-        createdBy: { type: 'guest' },
-      });
+      const createdBy = membershipId 
+        ? { userId: membershipId, type: 'membership' as const }
+        : { userId: guestToken, type: 'guest' as const };
+      
+      const feedbackData = {
+        createdBy,
+        clubInfo: { clubId: finalClubId },
+        tableInfo: { tableId },
+        content: feedback.trim()
+      };
+      
+      await userFeedbackService.createFeedback(feedbackData);
+      
       setShowPopup(true);
       setFeedback('');
       toast.success('Gửi phản hồi thành công!');

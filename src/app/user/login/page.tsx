@@ -27,7 +27,6 @@ function StartSessionContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Function để format category của bàn
   const formatTableCategory = (category: string): string => {
     switch (category) {
       case 'pool-8':
@@ -100,7 +99,6 @@ function StartSessionContent() {
       const mockTableId = tableId || 'TB-1754380493077';
       const displayTableName = tableName || '??';
 
-      // Sử dụng tableCategory thực tế, fallback về pool-8 nếu không có
       const gameType = (tableCategory === 'carom' ? 'carom' : 'pool-8') as 'carom' | 'pool-8';
 
       const payload = {

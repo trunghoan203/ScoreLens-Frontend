@@ -21,7 +21,7 @@ function GuestJoinContent() {
   const [verifyMemberStatus, setVerifyMemberStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [verifyMemberMessage, setVerifyMemberMessage] = useState('');
   const [showTeamPopup, setShowTeamPopup] = useState(false);
-  const [selectedTeam, setSelectedTeam] = useState<0 | 1>(0); // 0: Team A, 1: Team B
+  const [selectedTeam, setSelectedTeam] = useState<0 | 1>(0);
   const [isCreatingMatch, setIsCreatingMatch] = useState(false);
   const [verifiedMembershipId, setVerifiedMembershipId] = useState('');
   const [isMember, setIsMember] = useState(false);
@@ -50,7 +50,6 @@ function GuestJoinContent() {
           const responseData = (tableData as any)?.data || tableData;
           setTableInfo(responseData);
         } catch (error) {
-          console.error('Error loading table info:', error);
         }
       };
       loadTableInfo();
@@ -63,36 +62,60 @@ function GuestJoinContent() {
       return;
     }
 
+    if (!tableInfo?.clubId) {
+      setVerifyMemberStatus('error');
+      setVerifyMemberMessage('Không thể xác định club. Vui lòng thử lại.');
+      return;
+    }
+
     setVerifyingMember(true);
     setVerifyMemberStatus('idle');
 
     try {
-      const result = await userMatchService.verifyMembership({ phoneNumber: phoneNumber.trim() });
-      const resultData = result as Record<string, any>;
+      const result = await userMatchService.verifyMembership({ 
+        phoneNumber: phoneNumber.trim(),
+        clubId: tableInfo.clubId 
+      });
 
-      if (resultData?.success && resultData?.isMember) {
-        const responseData = resultData?.data || resultData;
-        
-        if (responseData?.status === 'inactive') {
-          setVerifyMemberStatus('error');
-          toast.error('Tài khoản của bạn đang bị cấm');
-          return;
-        }
-        
-        const membershipFullName = responseData?.fullName || '';
-        const membershipId = responseData?.membershipId || '';
-        setFullName(membershipFullName);
-        setVerifiedMembershipId(membershipId);
-        setIsMember(true);
-        setVerifyMemberStatus('success');
-        toast.success(`Chào mừng ${membershipFullName} đến với ScoreLens`);
-      } else {
+      if (!result.success) {
+        throw new Error(result.message || 'Xác thực thất bại');
+      }
+
+      if (!result.isMember) {
         setVerifyMemberStatus('error');
         toast.error('Bạn chưa đăng ký hội viên');
+        return;
       }
-    } catch (error) {
+
+      if (!result.isBrandCompatible) {
+        setVerifyMemberStatus('error');
+        toast.error(result.message || 'Bạn không phải là hội viên của thương hiệu này.');
+        return;
+      }
+
+      const responseData = result.data;
+      if (!responseData) {
+        throw new Error('Không có thông tin membership');
+      }
+      
+      if (responseData.status === 'inactive') {
+        setVerifyMemberStatus('error');
+        toast.error('Tài khoản của bạn đang bị cấm');
+        return;
+      }
+      
+      const membershipFullName = responseData.fullName || '';
+      const membershipId = responseData.membershipId || '';
+      setFullName(membershipFullName);
+      setVerifiedMembershipId(membershipId);
+      setIsMember(true);
+      setVerifyMemberStatus('success');
+      toast.success(`Chào mừng ${membershipFullName} đến với ScoreLens`);
+    } catch (error: any) {
       setVerifyMemberStatus('error');
-      toast.error('Bạn chưa đăng ký hội viên');
+      const errorMessage = error?.message || 'Bạn chưa đăng ký hội viên';
+      setVerifyMemberMessage(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setVerifyingMember(false);
     }
@@ -145,12 +168,11 @@ function GuestJoinContent() {
           
           router.push(`/user/guestjoin?${params.toString()}`);
           return; 
-        } catch (joinError) {
-          console.log('Không thể join match, sẽ tạo match mới:', joinError);
-        }
+                 } catch (joinError) {
+         }
       }
 
-      const mockTableId = 'TB-1754380493077'; // Mock data
+      const mockTableId = tableId || 'TB-1755160186911';
       const payload = {
         tableId: mockTableId,
         gameType: 'pool-8' as const,
@@ -193,13 +215,12 @@ function GuestJoinContent() {
         code: code,
         matchId: newMatchId,
         name: fullName.trim(),
-        tableId: mockTableId
+        tableId: tableId || mockTableId  
       });
       
       router.push(`/user/guestjoin?${params.toString()}`);
-    } catch (error) {
-      console.error('Lỗi khi tham gia/tạo phòng:', error);
-      toast.error('Có lỗi xảy ra, vui lòng thử lại.');
+         } catch (error) {
+       toast.error('Có lỗi xảy ra, vui lòng thử lại.');
     } finally {
       setIsCreatingMatch(false);
       setShowTeamPopup(false);
