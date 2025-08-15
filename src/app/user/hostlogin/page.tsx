@@ -58,16 +58,6 @@ function HostLoginContent() {
       };
       const data = (await userMatchService.createMatch(payload)) as Record<string, any>;
 
-      // Kiểm tra club status trước khi xử lý response
-      if (data.success && data.club) {
-        const club = data.club as Record<string, unknown>;
-        if (club.status === 'maintenance') {
-          toast.error(`Club ${club.clubName} đang bảo trì`);
-          setCreating(false);
-          return;
-        }
-      }
-
       const responseData = data?.data || data;
       let matchId = responseData?.matchId || responseData?.id || '';
       const code = responseData?.matchCode || responseData?.code || '';

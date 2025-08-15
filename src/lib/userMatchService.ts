@@ -3,26 +3,6 @@ import axios from './axios';
 export interface VerifyTableRequest {
   tableId: string;
 }
-
-interface ClubInfo {
-  clubId: string;
-  clubName: string;
-  status: string;
-}
-
-interface VerifyTableResponse {
-  success: boolean;
-  data: {
-    tableId: string;
-    name: string;
-    category: string;
-    status: string;
-    clubId: string;
-    club?: ClubInfo;
-  };
-}
-
-
 export interface VerifyMembershipRequest {
   phoneNumber: string;
 }
@@ -43,13 +23,6 @@ export interface CreateMatchRequest {
     teamName: string;
     members: CreateMatchTeamMember[];
   }>;
-}
-
-interface CreateMatchResponse {
-  success: boolean;
-  data: any;
-  club?: ClubInfo;
-  message?: string;
 }
 
 export interface JoinMatchRequest {
@@ -103,10 +76,10 @@ class UserMatchService {
     return new Error('Đã xảy ra lỗi không xác định');
   }
 
-  async verifyTable(payload: VerifyTableRequest): Promise<VerifyTableResponse> {
+  async verifyTable(payload: VerifyTableRequest) {
     try {
       const res = await axios.post('/membership/matches/verify-table', payload);
-      return res.data as VerifyTableResponse;
+      return res.data;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -123,10 +96,10 @@ class UserMatchService {
     }
   }
 
-  async createMatch(payload: CreateMatchRequest): Promise<CreateMatchResponse> {
+  async createMatch(payload: CreateMatchRequest) {
     try {
       const res = await axios.post('/membership/matches', payload);
-      return res.data as CreateMatchResponse;
+      return res.data;
     } catch (error) {
       throw this.handleError(error);
     }
