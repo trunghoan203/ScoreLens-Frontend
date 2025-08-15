@@ -35,7 +35,7 @@ function StartSessionContent() {
     if (tId) setTableId(tId);
 
     if (!table) setTableNumber('??');
-    if (!tId) setTableId('TB-1754380493077');
+    if (!tId) setTableId('TB-1755160186911');
 
     const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
@@ -56,7 +56,9 @@ function StartSessionContent() {
           const resultData = result as Record<string, any>;
 
           const responseData = resultData?.data || resultData;
-          setTableInfo(responseData); // Set tableInfo state
+          setTableInfo(responseData);
+          
+          
           if (responseData?.tableName) {
             setTableName(responseData.tableName);
           } else if (responseData?.name) {
@@ -65,7 +67,6 @@ function StartSessionContent() {
 
           toast.success('Chào mừng bạn đến với ScoreLens');
         } catch (error) {
-          console.warn('Table verification failed:', error);
         }
       }
     };
@@ -91,13 +92,12 @@ function StartSessionContent() {
   const handleCreateMatch = async (aiAssisted: boolean) => {
     try {
       setVerifying(true);
-      const mockTableId = tableId || 'TB-1754380493077';
+      
+      const mockTableId = tableId || 'TB-1755160186911';
       const displayTableName = tableName || tableNumber || '??';
       let gameType: string = 'pool-8';
       if (tableInfo?.category) {
         const category = tableInfo.category.toLowerCase();
-        console.log('Table category from API:', tableInfo.category);
-        console.log('Normalized category:', category);
         if (category === 'carom') {
           gameType = 'carom';
         }
@@ -105,7 +105,6 @@ function StartSessionContent() {
           gameType = 'pool-8';
         }
       }
-      console.log('Final gameType for match creation:', gameType);
 
       const payload = {
         tableId: mockTableId,
@@ -139,7 +138,6 @@ function StartSessionContent() {
       if (fullName.trim()) params.set('name', fullName.trim());
       router.push(`/user/homerandom?${params.toString()}`);
     } catch (e) {
-      console.error(e);
       toast.error('Bàn đang được sử dụng, không thể tạo trận đấu');
     } finally {
       setVerifying(false);
@@ -154,33 +152,47 @@ function StartSessionContent() {
       setVerifyMemberMessage('Vui lòng nhập số điện thoại hội viên.');
       return;
     }
+    
+    if (!tableInfo?.clubId) {
+      setVerifyMemberStatus('error');
+      setVerifyMemberMessage('Không thể xác định club. Vui lòng thử lại.');
+      return;
+    }
+    
     try {
       setVerifyingMember(true);
       setVerifyMemberStatus('idle');
       setVerifyMemberMessage('');
 
-      const res = (await userMatchService.verifyMembership({ phoneNumber: phone })) as Record<string, any>;
+      const res = await userMatchService.verifyMembership({ 
+        phoneNumber: phone,
+        clubId: tableInfo.clubId 
+      });
 
-      if (!res || typeof res !== 'object') {
-        throw new Error('Response không hợp lệ');
-      }
 
-      if (res.success === false) {
+      if (!res.success) {
         throw new Error(res.message || 'Xác thực thất bại');
       }
 
-      if (res.isMember === false) {
+      if (!res.isMember) {
         setVerifyMemberStatus('error');
         toast.error('Bạn chưa đăng ký hội viên');
         return;
       }
 
-      const responseData = res?.data || res;
-      const info = responseData ?? {};
-
-      if (info?.status === 'inactive') {
+      if (!res.isBrandCompatible) {
         setVerifyMemberStatus('error');
-        setVerifyMemberMessage('Tài khoản của bạn đang bị cấm');
+        toast.error(res.message || 'Bạn không phải là hội viên của thương hiệu này.');
+        return;
+      }
+
+      const info = res.data;
+      if (!info) {
+        throw new Error('Không có thông tin membership');
+      }
+
+      if (info.status === 'inactive') {
+        setVerifyMemberStatus('error');
         toast.error('Tài khoản của bạn đang bị cấm');
         return;
       }
@@ -205,10 +217,8 @@ function StartSessionContent() {
       toast.success(display);
 
     } catch (e: any) {
-      console.error('Error verifying membership:', e);
       setVerifyMemberStatus('error');
       const errorMessage = e?.message || 'Bạn chưa đăng ký hội viên';
-      setVerifyMemberMessage(errorMessage);
       toast.error(errorMessage);
     } finally {
       setVerifyingMember(false);

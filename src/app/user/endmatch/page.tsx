@@ -107,13 +107,11 @@ export default function EndMatchPage() {
               if (tableResponseData?.name) {
                 setActualTableName(tableResponseData.name);
               }
-            } catch (tableError) {
-              console.error('Error loading table info:', tableError);
-            }
+                         } catch (tableError) {
+             }
           }
-        } catch (error) {
-          console.error('Error loading match data:', error);
-        }
+                 } catch (error) {
+         }
       }
       
       setTimeout(() => setLoading(false), 800);
@@ -133,6 +131,14 @@ export default function EndMatchPage() {
       teamB: teamB.join(','),
       tableId
     });
+    
+    if (matchInfo?.createdByMembershipId) {
+      params.set('membershipId', matchInfo.createdByMembershipId);
+    }
+    if (matchInfo?.creatorGuestToken) {
+      params.set('guestToken', matchInfo.creatorGuestToken);
+    }
+    
     router.push(`/user/rate?${params.toString()}`);
   };
   
@@ -147,6 +153,14 @@ export default function EndMatchPage() {
       teamB: teamB.join(','),
       tableId
     });
+    
+    if (matchInfo?.createdByMembershipId) {
+      params.set('membershipId', matchInfo.createdByMembershipId);
+    }
+    if (matchInfo?.creatorGuestToken) {
+      params.set('guestToken', matchInfo.creatorGuestToken);
+    }
+    
     router.push(`/user/thanh-toan?${params.toString()}`);
   };
 
