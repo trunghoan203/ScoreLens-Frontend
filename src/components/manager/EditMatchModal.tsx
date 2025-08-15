@@ -39,7 +39,7 @@ export const EditMatchModal: React.FC<EditMatchModalProps> = ({
 
           <button
             type="button"
-            className="w-full border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 rounded-lg transition text-lg"
+            className="w-full bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
             onClick={onEditScores}
           >
             <div className="flex items-center justify-center gap-3">

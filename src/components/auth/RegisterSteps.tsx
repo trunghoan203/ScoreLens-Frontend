@@ -1,16 +1,17 @@
 import React from 'react';
 
 interface RegisterStepsProps {
-  currentStep: number; // 1, 2, 3, 4
+  currentStep: number;
+  steps?: string[];
 }
 
-const steps = [
+const defaultSteps = [
   'Thông tin thương hiệu',
   'Thông tin chi nhánh',
   'Xác nhận',
 ];
 
-export function RegisterSteps({ currentStep }: RegisterStepsProps) {
+export function RegisterSteps({ currentStep, steps = defaultSteps }: RegisterStepsProps) {
   return (
     <div className="flex flex-row justify-center mb-10 w-full max-w-5xl mx-auto">
       {steps.map((label, idx) => {

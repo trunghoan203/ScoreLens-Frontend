@@ -14,6 +14,7 @@ export default function Home() {
     const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
   }, []);
+  
   return (
     <>
       {loading && <ScoreLensLoading text="Đang tải..." />}

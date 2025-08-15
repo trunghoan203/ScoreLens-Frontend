@@ -17,68 +17,72 @@ function StartSessionContent() {
   const [verifyMemberMessage, setVerifyMemberMessage] = useState<string>('');
   const [memberId, setMemberId] = useState('');
   const [fullName, setFullName] = useState('');
-  const [tableNumber, setTableNumber] = useState('');
-  const [tableId, setTableId] = useState('');
-  const [tableName, setTableName] = useState('');
   const [verifiedMembershipId, setVerifiedMembershipId] = useState<string>('');
-  const [isMember, setIsMember] = useState<boolean>(false);
+  const [, setIsMember] = useState<boolean>(false);
   const [showAiPopup, setShowAiPopup] = useState(false);
   const [isAiAssisted, setIsAiAssisted] = useState(false);
-  const [tableInfo, setTableInfo] = useState<any>(null);
+  const [tableId, setTableId] = useState<string | null>(null);
+  const [tableName, setTableName] = useState<string | null>(null);
+  const [tableCategory, setTableCategory] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  useEffect(() => {
-    const table = searchParams!.get('table');
-    const tId = searchParams!.get('tableId');
-    if (table) setTableNumber(table);
-    if (tId) setTableId(tId);
-
-    if (!table) setTableNumber('??');
-    if (!tId) setTableId('TB-1755160186911');
-
-    const timer = setTimeout(() => setLoading(false), 1200);
-    return () => clearTimeout(timer);
-  }, [searchParams]);
-
-  useEffect(() => {
-    if (tableNumber) {
-      setTableName(tableNumber);
+  const formatTableCategory = (category: string): string => {
+    switch (category) {
+      case 'pool-8':
+        return 'Pool 8';
+      case 'carom':
+        return 'Carom';
+      default:
+        return category;
     }
-  }, [tableNumber]);
+  };
 
   useEffect(() => {
-    const autoVerifyTable = async () => {
-      if (tableId) {
-        try {
-          const result = await userMatchService.verifyTable({ tableId });
+    const initializePageFromUrl = async () => {
+      const idFromUrl = searchParams.get('tableId');
+      const nameFromUrl = searchParams.get('tableName');
 
-          const resultData = result as Record<string, any>;
+      if (!idFromUrl) {
+        console.error("Không tìm thấy tableId trên URL.");
+        toast.error("URL không hợp lệ, vui lòng quét lại mã QR.");
+        setLoading(false);
+        return;
+      }
 
-          const responseData = resultData?.data || resultData;
-          setTableInfo(responseData);
-          
-          
-          if (responseData?.tableName) {
-            setTableName(responseData.tableName);
-          } else if (responseData?.name) {
-            setTableName(responseData.name);
-          }
+      setTableId(idFromUrl);
+      if (nameFromUrl) {
+        setTableName(decodeURIComponent(nameFromUrl));
+      }
 
-          toast.success('Chào mừng bạn đến với ScoreLens');
-        } catch (error) {
+      try {
+        const result = await userMatchService.verifyTable({ tableId: idFromUrl });
+        const responseData = (result as any)?.data || result;
+
+        if (responseData && responseData.name) {
+          setTableName(responseData.name);
+          setTableCategory(responseData.category || 'Không rõ');
+          toast.success(`Chào mừng bạn đến ${responseData.name}`);
+        } else {
+          throw new Error("Dữ liệu bàn nhận về không hợp lệ");
         }
+      } catch (error: any) {
+        console.error('Xác thực bàn thất bại:', error);
+        const message = error?.response?.data?.message || 'Không thể xác thực bàn. Vui lòng thử lại.';
+        toast.error(message);
+        setTableId(null);
+      } finally {
+        setLoading(false);
       }
     };
 
-    if (tableId) {
-      autoVerifyTable();
-    }
-  }, [tableId]);
+    initializePageFromUrl();
+
+  }, [searchParams]);
 
   const handleJoin = () => {
     const safeName = fullName.trim() || 'Khách';
-    router.push(`/user/guestlogin?table=${tableNumber}&tableId=${tableId}&name=${encodeURIComponent(safeName)}`);
+    router.push(`/user/guestlogin?table=${tableName}&tableId=${tableId}&name=${encodeURIComponent(safeName)}`);
   };
 
   const handleCreateMatchClick = () => {
@@ -92,23 +96,14 @@ function StartSessionContent() {
   const handleCreateMatch = async (aiAssisted: boolean) => {
     try {
       setVerifying(true);
-      
-      const mockTableId = tableId || 'TB-1755160186911';
-      const displayTableName = tableName || tableNumber || '??';
-      let gameType: string = 'pool-8';
-      if (tableInfo?.category) {
-        const category = tableInfo.category.toLowerCase();
-        if (category === 'carom') {
-          gameType = 'carom';
-        }
-        else if (category === 'pool-8') {
-          gameType = 'pool-8';
-        }
-      }
+      const mockTableId = tableId || 'TB-1754380493077';
+      const displayTableName = tableName || '??';
+
+      const gameType = (tableCategory === 'carom' ? 'carom' : 'pool-8') as 'carom' | 'pool-8';
 
       const payload = {
         tableId: mockTableId,
-        gameType: gameType as any,
+        gameType,
         createdByMembershipId: verifiedMembershipId || undefined,
         isAiAssisted: aiAssisted,
         teams: [
@@ -136,8 +131,10 @@ function StartSessionContent() {
       if (matchId) params.set('matchId', String(matchId));
       if (code) params.set('code', String(code));
       if (fullName.trim()) params.set('name', fullName.trim());
+      if (tableCategory) params.set('category', tableCategory);
       router.push(`/user/homerandom?${params.toString()}`);
     } catch (e) {
+      console.error(e);
       toast.error('Bàn đang được sử dụng, không thể tạo trận đấu');
     } finally {
       setVerifying(false);
@@ -152,47 +149,33 @@ function StartSessionContent() {
       setVerifyMemberMessage('Vui lòng nhập số điện thoại hội viên.');
       return;
     }
-    
-    if (!tableInfo?.clubId) {
-      setVerifyMemberStatus('error');
-      setVerifyMemberMessage('Không thể xác định club. Vui lòng thử lại.');
-      return;
-    }
-    
     try {
       setVerifyingMember(true);
       setVerifyMemberStatus('idle');
       setVerifyMemberMessage('');
 
-      const res = await userMatchService.verifyMembership({ 
-        phoneNumber: phone,
-        clubId: tableInfo.clubId 
-      });
+      const res = (await userMatchService.verifyMembership({ phoneNumber: phone })) as Record<string, any>;
 
+      if (!res || typeof res !== 'object') {
+        throw new Error('Response không hợp lệ');
+      }
 
-      if (!res.success) {
+      if (res.success === false) {
         throw new Error(res.message || 'Xác thực thất bại');
       }
 
-      if (!res.isMember) {
+      if (res.isMember === false) {
         setVerifyMemberStatus('error');
         toast.error('Bạn chưa đăng ký hội viên');
         return;
       }
 
-      if (!res.isBrandCompatible) {
-        setVerifyMemberStatus('error');
-        toast.error(res.message || 'Bạn không phải là hội viên của thương hiệu này.');
-        return;
-      }
+      const responseData = res?.data || res;
+      const info = responseData ?? {};
 
-      const info = res.data;
-      if (!info) {
-        throw new Error('Không có thông tin membership');
-      }
-
-      if (info.status === 'inactive') {
+      if (info?.status === 'inactive') {
         setVerifyMemberStatus('error');
+        setVerifyMemberMessage('Tài khoản của bạn đang bị cấm');
         toast.error('Tài khoản của bạn đang bị cấm');
         return;
       }
@@ -217,8 +200,10 @@ function StartSessionContent() {
       toast.success(display);
 
     } catch (e: any) {
+      console.error('Error verifying membership:', e);
       setVerifyMemberStatus('error');
       const errorMessage = e?.message || 'Bạn chưa đăng ký hội viên';
+      setVerifyMemberMessage(errorMessage);
       toast.error(errorMessage);
     } finally {
       setVerifyingMember(false);
@@ -226,6 +211,15 @@ function StartSessionContent() {
   };
 
   if (loading || verifying) return <ScoreLensLoading text={verifying ? 'Đang kiểm tra bàn...' : 'Đang tải...'} />;
+
+  if (!tableId) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <h1 className="text-xl font-bold text-red-600">Lỗi: Không tìm thấy thông tin bàn</h1>
+        <p>Vui lòng quét lại mã QR trên bàn để bắt đầu.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 pt-20">
@@ -237,7 +231,7 @@ function StartSessionContent() {
             Chào mừng bạn đến với ScoreLens
           </h1>
           <p className="text-sm sm:text-base text-[#000000] font-medium">
-            {tableName ? `${tableName}` : `${tableNumber || '??'}`} - {tableInfo?.category ? tableInfo.category.toUpperCase() : (tableId ? 'Đang tải...' : 'Pool 8 Ball')}
+            {tableName ? `${tableName}` : `'??'`} - {tableCategory ? formatTableCategory(tableCategory) : 'Đang tải...'}
           </p>
         </div>
 

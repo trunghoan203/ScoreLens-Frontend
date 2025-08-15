@@ -10,10 +10,11 @@ interface TableCardProps {
   time?: string;
   matchStatus?: 'pending' | 'ongoing' | 'completed';
   elapsedTime?: string;
+  isAiAssisted?: boolean;
   onDetail?: () => void;
 }
 
-export default function TableCard({ name, type, status, teamA, teamB, time, matchStatus, elapsedTime, onDetail }: TableCardProps) {
+export default function TableCard({ name, type, status, teamA, teamB, time, matchStatus, elapsedTime, isAiAssisted = false, onDetail }: TableCardProps) {
   const getDisplayStatus = (status: string) => {
     switch (status) {
       case 'inuse':
@@ -31,8 +32,8 @@ export default function TableCard({ name, type, status, teamA, teamB, time, matc
 
   const getDisplayType = (type: string) => {
     switch (type.toLowerCase()) {
-      case 'pool':
-        return 'pool';
+      case 'pool-8':
+        return 'pool-8';
       case 'carom':
         return 'carom';
       default:
@@ -56,10 +57,10 @@ export default function TableCard({ name, type, status, teamA, teamB, time, matc
     }
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (status: string, isAiAssisted: boolean) => {
     switch (status) {
       case 'using':
-        return 'Đang sử dụng';
+        return isAiAssisted ? 'Đang sử dụng - AI' : 'Đang sử dụng';
       case 'available':
         return 'Bàn trống';
       case 'maintenance':
@@ -72,14 +73,14 @@ export default function TableCard({ name, type, status, teamA, teamB, time, matc
   return (
     <div className="border-2 border-[#8ADB10] rounded-2xl shadow bg-[#FFFFFF] p-4 flex flex-col items-center min-w-[220px] h-[280px] relative">
       <div className="flex w-full justify-between items-center mb-3">
-        <span className={`text-xs font-bold px-3 py-1 rounded-full ${getStatusStyle(displayStatus)} uppercase tracking-wide w-33 text-center`}>
-          {getStatusText(displayStatus)}
+        <span className={`text-xs font-bold px-3 py-1 rounded-full ${getStatusStyle(displayStatus)} uppercase tracking-wide text-center whitespace-nowrap`}>
+          {getStatusText(displayStatus, isAiAssisted)}
         </span>
-        <span className="text-xs text-[#000000] font-semibold">{displayType === 'pool' ? 'Bida Pool' : 'Bida Carom'}</span>
+        <span className="text-xs text-[#000000] font-semibold">{displayType === 'pool-8' ? 'Bida Pool-8' : 'Bida Carom'}</span>
       </div>
 
       <div className="font-bold text-base mb-3 text-center text-gray-700">{name}</div>
-      
+
       <div className="flex-1 flex flex-col justify-center items-center w-full pb-16">
         {displayStatus === 'using' && (
           <div className="flex flex-col items-center justify-center w-full">
@@ -118,13 +119,12 @@ export default function TableCard({ name, type, status, teamA, teamB, time, matc
 
       <div className="absolute bottom-4 left-4 right-4">
         <button
-          className={`w-full py-2 rounded-xl font-bold text-base transition ${
-            displayStatus === 'using' 
-              ? 'bg-[#8ADB10] text-[#FFFFFF] hover:bg-[#8ADB10]/80' 
-              : displayStatus === 'available'
+          className={`w-full py-2 rounded-xl font-bold text-base transition ${displayStatus === 'using'
+            ? 'bg-[#8ADB10] text-[#FFFFFF] hover:bg-[#8ADB10]/80'
+            : displayStatus === 'available'
               ? 'bg-[#8ADB10] text-[#FFFFFF] hover:bg-[#8ADB10]/80'
               : 'bg-gray-400 text-white cursor-not-allowed'
-          }`}
+            }`}
           onClick={displayStatus === 'maintenance' ? undefined : onDetail}
           disabled={displayStatus === 'maintenance'}
         >
