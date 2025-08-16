@@ -32,9 +32,7 @@ export default function AdminFeedbacksPage() {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const itemPage = 10;
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -119,6 +117,20 @@ export default function AdminFeedbacksPage() {
 
     return matchesSearch && matchesStatus && matchesDate;
   });
+
+  const totalPages = Math.ceil(filteredFeedbacks.length / itemPage);
+  const startIndex = (currentPage - 1) * itemPage;
+  const endIndex = startIndex + itemPage;
+  const currentFeedbacks = filteredFeedbacks.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter, dateFilter]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const totalPages = Math.ceil(filteredFeedbacks.length / itemPage);
   const startIndex = (currentPage - 1) * itemPage;

@@ -14,7 +14,7 @@ import clubsService, { ClubResponse } from '@/lib/clubsService';
 import toast from 'react-hot-toast';
 import { useAdminAuthGuard } from '@/lib/hooks/useAdminAuthGuard';
 import { Users2, Menu } from 'lucide-react';
-import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
+import { ScoreLensLoading } from "@/components/ui/ScoreLensLoading";
 
 interface Manager {
   name: string;
