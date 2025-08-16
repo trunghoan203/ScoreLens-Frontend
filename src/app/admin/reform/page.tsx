@@ -21,10 +21,11 @@ import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
+/** Unified InfoRow: label trên – value dưới, căn trái, chống tràn */
 const InfoRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
-  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+  <div className="flex flex-col py-2 border-b border-gray-100">
     <span className="text-gray-500 font-medium">{label}</span>
-    <span className="text-gray-900 font-semibold text-right">{value}</span>
+    <span className="text-gray-900 font-semibold break-words">{value}</span>
   </div>
 );
 
@@ -56,7 +57,7 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
   const [showDeleteAccountPopup, setShowDeleteAccountPopup] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [countdown, setCountdown] = useState(5);
-  
+
   type EditableBrand = {
     brandName: string;
     phoneNumber: string;
@@ -86,7 +87,7 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
       citizenCode: brand.citizenCode,
     };
   }, [brand]);
-  
+
   const branchesInitialMemo = useMemo(() => {
     return clubs.map(c => ({ id: c.clubId, name: c.clubName, address: c.address, deviceCount: String(c.tableNumber), phone: c.phoneNumber }));
   }, [clubs]);
@@ -135,7 +136,7 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
         if (brandId) {
           const brandData = await brandService.getBrandById(brandId);
           setBrand(brandData);
-        
+
           const clubsData = await clubsService.getClubsByBrandId(brandId);
           setClubs(clubsData);
         } else {
@@ -165,11 +166,11 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
       } catch (error) {
         console.error('Error starting updateStatus:', error);
       }
-   
+
       const interval = setInterval(() => {
         setCountdown((prev) => prev - 1);
       }, 1000);
-   
+
       const timeout = setTimeout(() => {
         try {
           const token = localStorage.getItem('adminAccessToken');
@@ -191,11 +192,11 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
         } catch (error) {
           console.error('Error starting sendmail request:', error);
         }
-      
+
         router.push("/admin/pending");
       }, 5000);
-      
-   
+
+
       return () => {
         clearInterval(interval);
         clearTimeout(timeout);
@@ -256,10 +257,10 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
     <>
       {(isLoading || isCheckingAuth) && <ScoreLensLoading text="Đang tải..." />}
       <div className="min-h-screen bg-white">
-      <HeaderAdmin />
+        <HeaderAdmin />
         <h1 className="text-3xl md:text-4xl font-bold text-center pt-12 pb-8 text-black">THÔNG TIN BỊ TỪ CHỐI</h1>
         <RegisterSteps currentStep={step} steps={["Thông tin chi tiết", "Thông tin thương hiệu", "Thông tin chi nhánh", "Xác nhận"]} />
-        
+
         <div className="w-full max-w-5xl mx-auto px-4 pb-12">
           {error && (
             <div className="p-4 mb-6 rounded-lg border border-red-200 bg-red-50 text-red-700">
@@ -277,169 +278,174 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
               <h2 className="text-2xl md:text-3xl font-bold text-center text-black mt-8 mb-2">BẠN ĐÃ ĐĂNG KÝ THÀNH CÔNG</h2>
               <p className="text-lg text-center text-gray-700 mb-2">Vui lòng chờ chúng tôi chấp nhận yêu cầu đăng ký của bạn!</p>
               <div className="flex justify-center my-6">
-              <div className="animate-success-bounce">
-                <CheckCircle size={110} strokeWidth={2} className="text-lime-400" fill="none"/>
-              </div>
+                <div className="animate-success-bounce">
+                  <CheckCircle size={110} strokeWidth={2} className="text-lime-400" fill="none"/>
+                </div>
               </div>
               <div className="text-2xl font-bold text-black text-center mb-2 animate-success-pop">Cảm ơn bạn đã đăng ký!</div>
               <p className="text-sm text-gray-500 text-center">
-              Bạn sẽ được chuyển hướng tự động trong{" "}
-              <AnimatePresence mode="wait">
-                <motion.span
-                  key={countdown} // Mỗi lần countdown đổi thì animate lại
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 1.5 }}
-                  transition={{ duration: 0.4 }}
-                  className="font-bold text-lg text-lime-500 inline-block"
-                >
-                  {countdown}
-                </motion.span>
-              </AnimatePresence>{" "}
-              giây...
-            </p>
+                Bạn sẽ được chuyển hướng tự động trong{" "}
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={countdown}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.5 }}
+                    transition={{ duration: 0.4 }}
+                    className="font-bold text-lg text-lime-500 inline-block"
+                  >
+                    {countdown}
+                  </motion.span>
+                </AnimatePresence>{" "}
+                giây...
+              </p>
             </div>
           )}
 
           {step === 1 && adminProfileState && (
             <>
-            <div className="space-y-8">
+              <div className="space-y-8">
 
-              <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
-                <h2 className="text-lg font-semibold text-gray-900 mb-5">
-                  Thông tin Admin
-                </h2>
+                <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-5">
+                    Thông tin Admin
+                  </h2>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
-                  <div>
-                    <span className="block text-gray-500 mb-1">Họ tên</span>
-                    <span className="font-medium text-gray-900">
-                      {adminProfileState.fullName || 'N/A'}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-gray-500 mb-1">Email</span>
-                    <span className="font-medium text-gray-900">
-                      {adminProfileState.email || 'N/A'}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-gray-500 mb-1">Trạng thái</span>
-                    <span
-                      className={`font-bold ${
-                        adminProfileState.status === 'rejected'
-                          ? 'text-red-500'
-                          : 'text-yellow-600'
-                      }`}
-                    >
-                      {adminProfileState.status === 'rejected'
-                        ? 'Đã bị từ chối'
-                        : 'Đang chờ duyệt'}
-                    </span>
-                  </div>
-                  {adminProfileState.rejectedReason && (
-                    <div className="sm:col-span-2">
-                      <span className="block text-gray-500 mb-1">Lý do bị từ chối</span>
-                      <span className="font-bold text-red-500">
-                        {adminProfileState.rejectedReason}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+                    <div>
+                      <span className="block text-gray-500 mb-1">Họ tên</span>
+                      <span className="font-medium text-gray-900 break-words">
+                        {adminProfileState.fullName || 'N/A'}
                       </span>
                     </div>
+                    <div>
+                      <span className="block text-gray-500 mb-1">Email</span>
+                      <span className="font-medium text-gray-900 break-words">
+                        {adminProfileState.email || 'N/A'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="block text-gray-500 mb-1">Trạng thái</span>
+                      <span
+                        className={`font-bold ${
+                          adminProfileState.status === 'rejected'
+                            ? 'text-red-500'
+                            : 'text-yellow-600'
+                        }`}
+                      >
+                        {adminProfileState.status === 'rejected'
+                          ? 'Đã bị từ chối'
+                          : 'Đang chờ duyệt'}
+                      </span>
+                    </div>
+                    {adminProfileState.rejectedReason && (
+                      <div className="sm:col-span-2">
+                        <span className="block text-gray-500 mb-1">Lý do bị từ chối</span>
+                        <span className="font-bold text-red-500 break-words">
+                          {adminProfileState.rejectedReason}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-5">
+                    Thông tin Thương hiệu
+                  </h2>
+                  {brand ? (
+                    <div className="flex flex-col md:flex-row items-start gap-6">
+                      <div className="w-28 h-28 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden">
+                        {brand.logo_url ? (
+                          <Image
+                            src={brand.logo_url}
+                            alt="Logo"
+                            width={112}
+                            height={112}
+                            className="object-cover w-full h-full"
+                          />
+                        ) : (
+                          <LucideImage className="w-10 h-10 text-gray-400" />
+                        )}
+                      </div>
+
+                      {/* Grid 2 cột: label trên – value dưới */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 flex-1 text-sm">
+                        <div>
+                          <span className="block text-gray-500 mb-1">Tên thương hiệu</span>
+                          <span className="font-medium text-gray-900 break-words">{brand.brandName}</span>
+                        </div>
+                        <div>
+                          <span className="block text-gray-500 mb-1">Số điện thoại</span>
+                          <span className="font-medium text-gray-900 break-words">{brand.phoneNumber}</span>
+                        </div>
+                        <div>
+                          <span className="block text-gray-500 mb-1">Website</span>
+                          <span className="font-medium text-gray-900 break-words">{brand.website || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span className="block text-gray-500 mb-1">CCCD</span>
+                          <span className="font-medium text-gray-900 break-words">{brand.citizenCode}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-600">Chưa có thông tin thương hiệu.</div>
+                  )}
+                </div>
+
+                <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-5">
+                    Danh sách Chi nhánh
+                  </h2>
+
+                  {clubs && clubs.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {clubs.map((club) => (
+                        <div
+                          key={club._id}
+                          className="p-4 border border-gray-200 rounded-lg bg-gray-50 hover:shadow-sm transition-shadow"
+                        >
+                          <p className="font-medium text-gray-900 mb-3 break-words">
+                            {club.clubName}
+                          </p>
+                          <div className="space-y-2 text-sm">
+                            <div>
+                              <span className="block text-gray-500 mb-0.5">Địa chỉ</span>
+                              <span className="font-medium text-gray-900 break-words">{club.address}</span>
+                            </div>
+                            <div>
+                              <span className="block text-gray-500 mb-0.5">Số điện thoại</span>
+                              <span className="font-medium text-gray-900 break-words">{club.phoneNumber}</span>
+                            </div>
+                            <div>
+                              <span className="block text-gray-500 mb-0.5">Số bàn</span>
+                              <span className="font-medium text-gray-900">{club.tableNumber}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-600">Chưa có chi nhánh nào.</div>
                   )}
                 </div>
               </div>
 
-              <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
-                <h2 className="text-lg font-semibold text-gray-900 mb-5">
-                  Thông tin Thương hiệu
-                </h2>
-                {brand ? (
-                  <div className="flex flex-col md:flex-row items-start gap-6">
-                    <div className="w-28 h-28 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden">
-                      {brand.logo_url ? (
-                        <Image
-                          src={brand.logo_url}
-                          alt="Logo"
-                          width={112}
-                          height={112}
-                          className="object-cover w-full h-full"
-                        />
-                      ) : (
-                        <LucideImage className="w-10 h-10 text-gray-400" />
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 flex-1 text-sm">
-                      <div>
-                        <span className="block text-gray-500 mb-1">Tên thương hiệu</span>
-                        <span className="font-medium text-gray-900">{brand.brandName}</span>
-                      </div>
-                      <div>
-                        <span className="block text-gray-500 mb-1">Số điện thoại</span>
-                        <span className="font-medium text-gray-900">{brand.phoneNumber}</span>
-                      </div>
-                      <div>
-                        <span className="block text-gray-500 mb-1">Website</span>
-                        <span className="font-medium text-gray-900">{brand.website || 'N/A'}</span>
-                      </div>
-                      <div>
-                        <span className="block text-gray-500 mb-1">CCCD</span>
-                        <span className="font-medium text-gray-900">{brand.citizenCode}</span>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-sm text-gray-600">Chưa có thông tin thương hiệu.</div>
-                )}
-              </div>
-
-              <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
-                <h2 className="text-lg font-semibold text-gray-900 mb-5">
-                  Danh sách Chi nhánh
-                </h2>
-
-                {clubs && clubs.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {clubs.map((club) => (
-                      <div
-                        key={club._id}
-                        className="p-4 border border-gray-200 rounded-lg bg-gray-50 hover:shadow-sm transition-shadow"
-                      >
-                        <p className="font-medium text-gray-900 mb-3">
-                          {club.clubName}
-                        </p>
-                        <div className="space-y-2 text-sm">
-                          <div>
-                            <span className="block text-gray-500 mb-0.5">Địa chỉ</span>
-                            <span className="font-medium text-gray-900">{club.address}</span>
-                          </div>
-                          <div>
-                            <span className="block text-gray-500 mb-0.5">Số điện thoại</span>
-                            <span className="font-medium text-gray-900">{club.phoneNumber}</span>
-                          </div>
-                          <div>
-                            <span className="block text-gray-500 mb-0.5">Số bàn</span>
-                            <span className="font-medium text-gray-900">{club.tableNumber}</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-sm text-gray-600">Chưa có chi nhánh nào.</div>
-                )}
-              </div>
-              </div>
               <div className="flex justify-end gap-3 mt-6">
-                  <Button 
-                    onClick={handleDeleteAccountClick}
-                    className="bg-red-500 hover:bg-red-600 text-white font-medium transition"
-                  >
-                    Xóa tài khoản
-                  </Button>
-                  <Button className="bg-lime-500 hover:bg-lime-600 text-white font-medium transition"
-                  onClick={() => { setEditMode(true); setStep(2); }}>Chỉnh sửa thông tin đăng ký
-                  </Button>
-                </div>
+                <Button
+                  onClick={handleDeleteAccountClick}
+                  className="bg-red-500 hover:bg-red-600 text-white font-medium transition"
+                >
+                  Xóa tài khoản
+                </Button>
+                <Button
+                  className="bg-lime-500 hover:bg-lime-600 text-white font-medium transition"
+                  onClick={() => { setEditMode(true); setStep(2); }}
+                >
+                  Chỉnh sửa thông tin đăng ký
+                </Button>
+              </div>
             </>
           )}
 
@@ -507,8 +513,8 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
                 mode="edit"
               />
               <div className="w-full max-w-4xl mx-auto flex justify-center mt-8">
-                <Button 
-                  variant="lime" 
+                <Button
+                  variant="lime"
                   onClick={handleFinishClick}
                   className="px-8 py-3 text-lg"
                 >
@@ -519,7 +525,8 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
           )}
         </div>
       </div>
-      
+
+      {/* Popup xác nhận */}
       <ConfirmPopupDetail
         open={showConfirmPopup}
         onConfirm={handleConfirmFinish}
@@ -528,7 +535,8 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
         confirmText="Xác nhận"
         cancelText="Hủy"
       >
-        <div className="space-y-6 w-full">
+        {/* chặn overflow và cho phép co chiều rộng */}
+        <div className="space-y-6 w-full overflow-x-hidden [&_*]:min-w-0">
           {editableBrand && (
             <div className="p-4 border rounded-lg bg-gray-50">
               <h3 className="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Thông tin thương hiệu</h3>
@@ -546,7 +554,8 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
                     <LucideImage className="w-12 h-12 text-gray-400" />
                   )}
                 </div>
-                <div className="w-full space-y-2 text-sm">
+                {/* Grid 2 cột cho brand info */}
+                <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
                   <InfoRow label="Tên thương hiệu" value={editableBrand.brandName} />
                   <InfoRow label="Số điện thoại" value={editableBrand.phoneNumber} />
                   <InfoRow label="Website" value={editableBrand.website || 'N/A'} />
@@ -555,11 +564,12 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
               </div>
             </div>
           )}
+
           <div className="space-y-4">
             <h3 className="text-lg font-bold text-gray-800 border-b pb-2">Thông tin chi nhánh</h3>
             {editableClubs.map((club, idx) => (
               <div key={idx} className="relative p-4 border rounded-lg bg-gray-50 text-sm mt-4">
-                <p className="font-bold text-base text-gray-900 mb-3">
+                <p className="font-bold text-base text-gray-900 mb-3 break-words">
                   <span className="text-lime-600">●</span> Chi Nhánh {idx + 1}: {club.clubName}
                 </p>
                 <div className="space-y-2">
@@ -572,7 +582,8 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
           </div>
         </div>
       </ConfirmPopupDetail>
-      
+
+      {/* Popup xóa tài khoản */}
       <ConfirmPopup
         open={showDeleteAccountPopup}
         onConfirm={handleConfirmDeleteAccount}
