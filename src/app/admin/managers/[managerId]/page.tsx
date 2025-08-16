@@ -29,6 +29,7 @@ export default function ManagerDetailPage() {
   const [loading, setLoading] = useState(true);
   const [clubId, setClubId] = useState('');
   const [clubs, setClubs] = useState<ClubResponse[]>([]);
+  const [isActive, setIsActive] = useState(false);
 
   React.useEffect(() => {
     const fetchManager = async () => {
@@ -44,6 +45,7 @@ export default function ManagerDetailPage() {
         setCccd(typeof dataObj.citizenCode === 'string' ? dataObj.citizenCode : '');
         setAddress(typeof dataObj.address === 'string' ? dataObj.address : '');
         setClubId(typeof dataObj.clubId === 'string' ? dataObj.clubId : '');
+        setIsActive(typeof dataObj.isActive === 'boolean' ? dataObj.isActive : false);
       } catch {
         toast.error('Không thể tải chi tiết quản lý');
       } finally {
@@ -61,7 +63,7 @@ export default function ManagerDetailPage() {
           const clubsData = await clubsService.getClubsByBrandId(brandId);
           setClubs(clubsData);
         }
-      } catch {}
+      } catch { }
     };
     fetchClubs();
   }, []);
@@ -77,6 +79,7 @@ export default function ManagerDetailPage() {
         citizenCode: cccd,
         address,
         clubId,
+        isActive,
       });
       toast.success('Lưu quản lý thành công!');
       setIsEditMode(false);
@@ -155,6 +158,15 @@ export default function ManagerDetailPage() {
             <></>
           </ConfirmPopup>
           <div className="w-full mb-6">
+            <label className="block text-sm font-semibold mb-2 text-black">Chọn Club<span className="text-red-500">*</span></label>
+            <Select value={clubId} onChange={e => setClubId(e.target.value)} required disabled={!isEditMode} name="clubId">
+              <option value="">-- Chọn club --</option>
+              {clubs.map(club => (
+                <option key={club.clubId} value={club.clubId}>{club.clubName}</option>
+              ))}
+            </Select>
+          </div>
+          <div className="w-full mb-6">
             <label className="block text-sm font-semibold mb-2 text-black">Tên Quản Lý<span className="text-red-500">*</span></label>
             <Input value={name} onChange={e => setName(e.target.value)} required disabled={!isEditMode} />
           </div>
@@ -179,12 +191,10 @@ export default function ManagerDetailPage() {
             <Input value={address} onChange={e => setAddress(e.target.value)} required disabled={!isEditMode} />
           </div>
           <div className="w-full mb-10">
-            <label className="block text-sm font-semibold mb-2 text-black">Chọn Club<span className="text-red-500">*</span></label>
-            <Select value={clubId} onChange={e => setClubId(e.target.value)} required disabled={!isEditMode} name="clubId">
-              <option value="">-- Chọn club --</option>
-              {clubs.map(club => (
-                <option key={club.clubId} value={club.clubId}>{club.clubName}</option>
-              ))}
+            <label className="block text-sm font-semibold mb-2 text-black">Trạng Thái<span className="text-red-500">*</span></label>
+            <Select value={isActive ? 'active' : 'inactive'} onChange={e => setIsActive(e.target.value === 'active')} required disabled={!isEditMode} name="isActive">
+              <option value="active">Hoạt động</option>
+              <option value="inactive">Không hoạt động</option>
             </Select>
           </div>
         </AddFormLayout>

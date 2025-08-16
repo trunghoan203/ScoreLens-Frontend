@@ -12,7 +12,7 @@ export default function ManagerSearchBar({ search, setSearch, onAddManager }: Ma
       <div className="flex items-center bg-gray-100 rounded-lg px-4 py-2 w-96">
         <input
           type="text"
-          placeholder="Nhập tên tìm kiếm"
+          placeholder="Nhập tên hoặc email để tìm kiếm"
           className="bg-transparent outline-none flex-1 text-gray-700"
           value={search}
           onChange={e => setSearch(e.target.value)}
