@@ -14,7 +14,7 @@ export default function BranchDetailPage() {
   const router = useRouter();
   const params = useParams();
   const clubId = params?.branchId as string;
-  
+
   const [club, setClub] = useState<ClubResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -62,7 +62,7 @@ export default function BranchDetailPage() {
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (isEditMode) {
       try {
         setIsSaving(true);
@@ -183,71 +183,52 @@ export default function BranchDetailPage() {
               Bạn có chắc chắn muốn xóa chi nhánh &quot;{club.clubName}&quot; không?
             </div>
           </ConfirmPopup>
-          
-          {/* Thông tin chỉ đọc */}
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Club ID</label>
-            <Input 
-              value={club?.clubId || ''} 
-              disabled={true}
-              className="bg-gray-100"
-            />
-          </div>
-          
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Brand ID</label>
-            <Input 
-              value={club?.brandId || ''} 
-              disabled={true}
-              className="bg-gray-100"
-            />
-          </div>
-          
+
           <div className="w-full mb-6">
             <label className="block text-sm font-semibold mb-2 text-black">Tên Chi Nhánh<span className="text-red-500">*</span></label>
-            <Input 
-              value={name} 
-              onChange={e => setName(e.target.value)} 
-              required 
+            <Input
+              value={name}
+              onChange={e => setName(e.target.value)}
+              required
               disabled={!isEditMode}
             />
           </div>
-          
+
           <div className="w-full mb-6">
             <label className="block text-sm font-semibold mb-2 text-black">Địa chỉ<span className="text-red-500">*</span></label>
-            <Input 
-              value={address} 
-              onChange={e => setAddress(e.target.value)} 
-              required 
+            <Input
+              value={address}
+              onChange={e => setAddress(e.target.value)}
+              required
               disabled={!isEditMode}
             />
           </div>
-          
+
           <div className="w-full mb-6">
             <label className="block text-sm font-semibold mb-2 text-black">Số điện thoại<span className="text-red-500">*</span></label>
-            <Input 
-              value={phoneNumber} 
-              onChange={e => setPhoneNumber(e.target.value)} 
-              required 
+            <Input
+              value={phoneNumber}
+              onChange={e => setPhoneNumber(e.target.value)}
+              required
               disabled={!isEditMode}
             />
           </div>
-          
+
           <div className="w-full mb-6">
             <label className="block text-sm font-semibold mb-2 text-black">Số bàn<span className="text-red-500">*</span></label>
-            <Input 
-              type="number" 
-              value={tableNumber} 
-              onChange={e => setTableNumber(Number(e.target.value))} 
-              required 
+            <Input
+              type="number"
+              value={tableNumber}
+              onChange={e => setTableNumber(Number(e.target.value))}
+              required
               disabled={!isEditMode}
             />
           </div>
-          
+
           <div className="w-full mb-10">
             <label className="block text-sm font-semibold mb-2 text-black">Trạng thái</label>
-            <select 
-              value={status} 
+            <select
+              value={status}
               onChange={e => setStatus(e.target.value as 'open' | 'closed' | 'maintenance')}
               disabled={!isEditMode}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-500 disabled:bg-gray-100"

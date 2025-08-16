@@ -79,6 +79,15 @@ export default function AddManagerPage() {
         >
           <div className="w-full space-y-6 mb-8">
             <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Chọn Club <span className="text-red-500">*</span></label>
+              <Select name="clubId" value={form.clubId} onChange={handleChange} required disabled={loading}>
+                <option value="">-- Chọn club --</option>
+                {clubs.map(club => (
+                  <option key={club.clubId} value={club.clubId}>{club.clubName}</option>
+                ))}
+              </Select>
+            </div>
+            <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Tên Quản Lý <span className="text-red-500">*</span></label>
               <Input name="fullName" value={form.fullName} onChange={handleChange} placeholder="Nhập Tên..." required />
             </div>
@@ -101,15 +110,6 @@ export default function AddManagerPage() {
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Địa Chỉ <span className="text-red-500">*</span></label>
               <Input name="address" value={form.address} onChange={handleChange} placeholder="Nhập Địa Chỉ..." required />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Chọn Club <span className="text-red-500">*</span></label>
-              <Select name="clubId" value={form.clubId} onChange={handleChange} required disabled={loading}>
-                <option value="">-- Chọn club --</option>
-                {clubs.map(club => (
-                  <option key={club.clubId} value={club.clubId}>{club.clubName}</option>
-                ))}
-              </Select>
             </div>
           </div>
         </AddFormLayout>

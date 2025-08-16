@@ -4,87 +4,122 @@ import Sidebar from "@/components/admin/Sidebar";
 import HeaderAdminPage from "@/components/admin/HeaderAdminPage";
 import FeedbackTable from "@/components/admin/FeedbackTable";
 import FeedbackSearchBar from "@/components/admin/FeedbackSearchBar";
-import { TableSkeleton, LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
+import { useRouter } from "next/navigation";
+import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
+import EmptyState from '@/components/ui/EmptyState';
+import { useAdminAuthGuard } from '@/lib/hooks/useAdminAuthGuard';
 import { adminFeedbackService } from '@/lib/adminFeedbackService';
 import toast from 'react-hot-toast';
-import { useAdminAuthGuard } from '@/lib/hooks/useAdminAuthGuard';
 
-export interface Feedback {
-  feedbackId: string;
-  _id?: string;
-  createdBy: {
-    userId: string;
-    type: 'guest' | 'membership';
-  };
-  clubId: string;
-  tableId: string;
-  content: string;
-  status: 'pending' | 'manager_processing' | 'admin_processing' | 'superadmin_processing' | 'resolved';
-  needSupport: boolean;
-  note?: string;
-  history: Array<{
-    by: string;
-    role: string;
-    action: string;
-    note?: string;
-    date: Date;
-  }>;
+interface Feedback {
+  id: string;
+  branch: string;
+  table: string;
+  time: string;
+  status: 'pending' | 'managerP' | 'adminP' | 'superadminP' | 'resolved';
+  feedback: string;
+  notes: string;
   createdAt: Date;
-  updatedAt: Date;
 }
 
 export default function AdminFeedbacksPage() {
   const { isChecking } = useAdminAuthGuard();
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("adminP");
+  const [dateFilter, setDateFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [tableLoading, setTableLoading] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    if (isChecking) return;
-    setLoading(true);
-    adminFeedbackService.getAllFeedbacks()
-      .then((data: unknown) => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const feedbacksData = await adminFeedbackService.getAllFeedbacks();
         let feedbacksArr: unknown[] = [];
-        if (Array.isArray(data)) feedbacksArr = data;
-        else if (data && typeof data === 'object' && Array.isArray((data as { feedbacks?: unknown[] }).feedbacks)) feedbacksArr = (data as { feedbacks: unknown[] }).feedbacks;
-        else if (data && typeof data === 'object' && Array.isArray((data as { data?: unknown[] }).data)) feedbacksArr = (data as { data: unknown[] }).data;
+        if (Array.isArray(feedbacksData)) feedbacksArr = feedbacksData;
+        else if (feedbacksData && typeof feedbacksData === 'object' && Array.isArray((feedbacksData as { feedbacks?: unknown[] }).feedbacks)) feedbacksArr = (feedbacksData as { feedbacks: unknown[] }).feedbacks;
+        else if (feedbacksData && typeof feedbacksData === 'object' && Array.isArray((feedbacksData as { data?: unknown[] }).data)) feedbacksArr = (feedbacksData as { data: unknown[] }).data;
+
         const mappedFeedbacks: Feedback[] = feedbacksArr.map(f => {
-          const obj = f as Partial<Feedback>;
+          const obj = f as Record<string, unknown>;
+
+          const tableInfo = obj.tableInfo as Record<string, unknown> | undefined;
+          const clubInfo = obj.clubInfo as Record<string, unknown> | undefined;
+
+          // Đảm bảo tableName luôn là string
+          let tableName = 'Không xác định';
+          if (tableInfo?.name) {
+            tableName = String(tableInfo.name);
+          }
+
           return {
-            feedbackId: obj.feedbackId || obj._id || '',
-            createdBy: obj.createdBy || { userId: '', type: 'guest' },
-            clubId: obj.clubId || '',
-            tableId: obj.tableId || '',
-            content: obj.content || '',
-            status: obj.status || 'pending',
-            needSupport: obj.needSupport || false,
-            note: obj.note || '',
-            history: obj.history || [],
-            createdAt: obj.createdAt || new Date(),
-            updatedAt: obj.updatedAt || new Date(),
+            id: String(obj.feedbackId || obj._id || ''),
+            branch: String(clubInfo?.clubName || 'Không xác định'),
+            table: String(tableName),
+            time: String(obj.createdAt ? new Date(obj.createdAt as string).toLocaleString('vi-VN') : 'Không xác định'),
+            status: (obj.status as Feedback['status']) || 'pending',
+            feedback: String(obj.content || ''),
+            notes: String(obj.note || ''),
+            createdAt: obj.createdAt ? new Date(obj.createdAt as string) : new Date(0),
           };
         });
-        setFeedbacks(mappedFeedbacks);
-      })
-      .catch(() => {
+
+        const sortedFeedbacks = mappedFeedbacks.sort((a, b) => {
+          const dateA = a.createdAt.getTime();
+          const dateB = b.createdAt.getTime();
+          return dateB - dateA;
+        });
+
+        setFeedbacks(sortedFeedbacks);
+      } catch (error) {
+        console.error('Error fetching data:', error);
         setError('Không thể tải danh sách phản hồi');
         toast.error('Không thể tải danh sách phản hồi');
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (!isChecking) {
+      fetchData();
+    }
   }, [isChecking]);
 
-  const filteredFeedbacks = feedbacks.filter(f => 
-    f.clubId.toLowerCase().includes(search.toLowerCase()) ||
-    f.tableId.toLowerCase().includes(search.toLowerCase()) ||
-    f.content.toLowerCase().includes(search.toLowerCase())
-  );
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setIsScrolled(scrollTop > 0);
+    };
 
-  const handleSearch = (val: string) => {
-    setSearch(val);
-    setTableLoading(true);
-    setTimeout(() => setTableLoading(false), 900);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const filteredFeedbacks = feedbacks.filter(f => {
+    const branch = (f.branch || '').toString().toLowerCase();
+    const table = (f.table || '').toString().toLowerCase();
+    const searchTerm = search.toLowerCase().trim();
+
+    const matchesSearch = searchTerm === '' ||
+      branch.includes(searchTerm) ||
+      table.includes(searchTerm);
+
+    const matchesStatus = statusFilter === 'all' || f.status === statusFilter;
+
+    let matchesDate = true;
+    if (dateFilter) {
+      const feedbackDate = f.createdAt.toISOString().split('T')[0];
+      matchesDate = feedbackDate === dateFilter;
+    }
+
+    return matchesSearch && matchesStatus && matchesDate;
+  });
+
+  const handleFeedbackClick = (feedbackId: string) => {
+    router.push(`/admin/feedbacks/${feedbackId}`);
   };
 
   if (isChecking) return null;
@@ -93,39 +128,62 @@ export default function AdminFeedbacksPage() {
     <>
       <div className="min-h-screen flex bg-[#18191A]">
         <Sidebar />
-        <main className="flex-1 bg-white p-10 min-h-screen">
-          <HeaderAdminPage />
-          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
-              PHẢN HỒI
-            </span>
+        <main className="flex-1 bg-white min-h-screen">
+          <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
+            }`}>
+            <HeaderAdminPage />
           </div>
-          <FeedbackSearchBar
-            search={search}
-            setSearch={handleSearch}
-          />
-          {loading ? (
-            <div className="mt-6"><TableSkeleton rows={5} /></div>
-          ) : tableLoading ? (
-            <div className="mt-6"><TableSkeleton rows={5} /></div>
-          ) : error ? (
-            <div className="mt-6 text-center text-red-500">{error}</div>
-          ) : filteredFeedbacks.length === 0 ? (
-            <div className="mt-6"><LoadingSkeleton type="card" lines={1} className="w-full max-w-md mx-auto" />
-              <div className="text-center text-gray-500 mt-4">Không tìm thấy phản hồi nào</div>
+          <div className="p-10">
+            {/* Banner Section */}
+            <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
+              <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+                PHẢN HỒI
+              </span>
             </div>
-          ) : (
-            <FeedbackTable feedbacks={filteredFeedbacks.map(f => ({
-              id: f.feedbackId,
-              branch: f.clubId,
-              table: f.tableId,
-              time: new Date(f.createdAt).toLocaleString('vi-VN'),
-              status: f.status,
-              cameraReliability: 85, // Mock data
-              feedback: f.content,
-              notes: f.note || '',
-            }))} />
-          )}
+
+            {/* Search and Filter Section */}
+            <FeedbackSearchBar
+              search={search}
+              setSearch={setSearch}
+              statusFilter={statusFilter}
+              setStatusFilter={setStatusFilter}
+              dateFilter={dateFilter}
+              setDateFilter={setDateFilter}
+            />
+            {loading ? (
+              <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>
+            ) : error ? (
+              <div className="py-8 text-center text-red-500">{error}</div>
+            ) : filteredFeedbacks.length === 0 ? (
+              <EmptyState
+                icon={
+                  <svg className="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                }
+                title={search || statusFilter !== 'adminP' || dateFilter ? 'Không tìm thấy phản hồi phù hợp' : 'Chưa có phản hồi nào'}
+                description="Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy phản hồi phù hợp"
+                secondaryAction={search || statusFilter !== 'adminP' || dateFilter ? {
+                  label: 'Xem tất cả',
+                  onClick: () => {
+                    setSearch('');
+                    setStatusFilter('adminP');
+                    setDateFilter('');
+                  },
+                  icon: (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h16M4 12h16M4 20h16" />
+                    </svg>
+                  )
+                } : undefined}
+                showAdditionalInfo={!(search || statusFilter !== 'adminP' || dateFilter)}
+              />
+            ) : (
+              <FeedbackTable
+                feedbacks={filteredFeedbacks}
+              />
+            )}
+          </div>
         </main>
       </div>
     </>
