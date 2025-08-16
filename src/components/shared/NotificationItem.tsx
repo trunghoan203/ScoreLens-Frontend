@@ -54,12 +54,14 @@ export const NotificationItem = ({ notification, onMarkAsRead, onDelete, role = 
     };
 
     const handleNotificationClick = () => {
-        // Lấy feedbackId từ notification data
         const feedbackId = notification.data?.feedbackId as string;
-        console.log('Notification clicked, feedbackId:', feedbackId, 'notification.data:', notification.data, 'role:', role); // Debug log
+        
+        if (!notification.isRead) {
+            onMarkAsRead(notification.id);
+        }
         
         if (feedbackId) {
-            // Route dựa trên role
+
             switch (role) {
                 case 'superadmin':
                     router.push(`/superadmin/feedback/${feedbackId}`);
@@ -77,7 +79,7 @@ export const NotificationItem = ({ notification, onMarkAsRead, onDelete, role = 
     };
 
     const handleButtonClick = (e: React.MouseEvent, action: () => void) => {
-        e.stopPropagation(); // Ngăn event bubbling lên container
+        e.stopPropagation();
         action();
     };
 

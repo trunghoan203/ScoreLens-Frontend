@@ -14,56 +14,13 @@ export const useSuperAdminNotifications = () => {
     const [unreadCount, setUnreadCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const [socket, setSocket] = useState<Socket | null>(null);
-    const [toastNotification, setToastNotification] = useState<Notification | null>(null);
 
-    const normalizeNewNotification = (payload: unknown): Notification => {
-        if (typeof payload === 'string') {
-            return {
-                id: String(Date.now()),
-                title: 'Thông báo mới',
-                message: payload,
-                type: 'info',
-                isRead: false,
-                createdAt: new Date().toISOString(),
-                data: { raw: payload as unknown }
-            };
-        }
-        const obj = (typeof payload === 'object' && payload !== null) ? payload as Record<string, unknown> : {};
-        const typeValue = typeof obj.type === 'string' && ['info','success','warning','error'].includes(obj.type)
-            ? obj.type as Notification['type']
-            : 'info';
-        return {
-            id: typeof obj.id === 'string' ? obj.id : String(Date.now()),
-            title: typeof obj.title === 'string' ? obj.title : 'Thông báo mới',
-            message: typeof obj.message === 'string' ? obj.message : 'Bạn có thông báo mới',
-            type: typeValue,
-            isRead: false,
-            createdAt: typeof obj.createdAt === 'string' ? obj.createdAt : new Date().toISOString(),
-            data: obj,
-        };
-    };
-
-    const normalizeFeedbackNotification = (payload: unknown): Notification => {
-        const obj = (typeof payload === 'object' && payload !== null) ? payload as Record<string, unknown> : {};
-        return {
-            id: typeof obj.id === 'string' ? obj.id : (typeof obj._id === 'string' ? obj._id : `feedback-${Date.now()}`),
-            title: 'Feedback mới',
-            message: typeof obj.message === 'string' ? obj.message : (typeof obj.content === 'string' ? obj.content : 'Bạn có feedback mới'),
-            type: 'info',
-            isRead: false,
-            createdAt: typeof obj.createdAt === 'string' ? obj.createdAt : new Date().toISOString(),
-            data: obj,
-        };
-    };
-
-    // Kết nối WebSocket
     useEffect(() => {
         const newSocket = io('http://localhost:8000', {
             transports: ['websocket', 'polling'],
             autoConnect: true,
         });
 
-        // Khi kết nối xong: tham gia room theo role
         newSocket.on('connect', () => {
             try {
                 const token = typeof window !== 'undefined' ? localStorage.getItem('superAdminAccessToken') : null;
@@ -75,40 +32,33 @@ export const useSuperAdminNotifications = () => {
                         newSocket.emit('join_role_room', { userId: sAdminId, role: 'superadmin' });
                     }
                 } else {
-                    // Nếu không có token, vẫn join theo role (userId optional)
                     newSocket.emit('join_role_room', { userId: undefined, role: 'superadmin' });
                 }
             } catch {
-                // Fallback join theo role nếu decode lỗi
                 newSocket.emit('join_role_room', { userId: undefined, role: 'superadmin' });
             }
         });
 
-        // Lắng nghe thông báo mới
         newSocket.on('superadmin_notification', (newNotification: Notification) => {
             setNotifications(prev => [newNotification, ...prev]);
             setUnreadCount(prev => prev + 1);
-            // Hiển thị toast notification
-            setToastNotification(newNotification);
         });
 
-        // Lắng nghe sự kiện BE: new_notification
-        newSocket.on('new_notification', (data: unknown) => {
-            const notif = normalizeNewNotification(data);
-            setNotifications(prev => [notif, ...prev]);
-            setUnreadCount(prev => prev + 1);
-            setToastNotification(notif);
-        });
 
-        // Lắng nghe sự kiện BE: feedback_created
+
         newSocket.on('feedback_created', (data: unknown) => {
-            const notif = normalizeFeedbackNotification(data);
-            setNotifications(prev => [notif, ...prev]);
-            setUnreadCount(prev => prev + 1);
-            setToastNotification(notif);
+            const feedbackData = data as Record<string, unknown>;
+            if (feedbackData && feedbackData.status === 'superadminP') {
+                loadNotifications();
+            }
         });
 
-        // Lắng nghe cập nhật thông báo
+        newSocket.on('new_notification', () => {
+            setTimeout(() => {
+                loadNotifications();
+            }, 1000);
+        });
+
         newSocket.on('notification_updated', (updatedNotification: Notification) => {
             setNotifications(prev => 
                 prev.map(notif => 
@@ -117,7 +67,6 @@ export const useSuperAdminNotifications = () => {
             );
         });
 
-        // Lắng nghe xóa thông báo
         newSocket.on('notification_deleted', (notificationId: string) => {
             setNotifications(prev => prev.filter(notif => notif.id !== notificationId));
         });
@@ -129,11 +78,9 @@ export const useSuperAdminNotifications = () => {
         };
     }, []);
 
-    // Tải thông báo ban đầu
     const loadNotifications = useCallback(async () => {
         try {
             setLoading(true);
-            // Lấy sAdminId từ token để gọi API theo dạng /notifications/superadmin/:sAdminId
             let sAdminId: string | null = null;
             try {
                 const token = typeof window !== 'undefined' ? localStorage.getItem('superAdminAccessToken') : null;
@@ -149,7 +96,6 @@ export const useSuperAdminNotifications = () => {
                 sAdminId ? getUnreadNotificationCount(sAdminId) : Promise.resolve({ data: { data: { unreadCount: 0 } } })
             ]);
             
-            // Map BE response to Notification interface
             const mappedNotifications: Notification[] = notificationsRes.data.data.notifications.map(item => ({
                 id: item.notificationId || item._id,
                 title: item.title,
@@ -162,7 +108,7 @@ export const useSuperAdminNotifications = () => {
                     notificationId: item.notificationId,
                     recipientId: item.recipientId,
                     recipientRole: item.recipientRole,
-                    feedbackId: item.feedbackId // Thêm feedbackId vào data
+                    feedbackId: item.feedbackId
                 }
             }));
             
@@ -179,7 +125,6 @@ export const useSuperAdminNotifications = () => {
         loadNotifications();
     }, [loadNotifications]);
 
-    // Đánh dấu thông báo đã đọc
     const markAsRead = useCallback(async (notificationId: string) => {
         try {
             await markNotificationAsRead(notificationId);
@@ -196,7 +141,6 @@ export const useSuperAdminNotifications = () => {
         }
     }, []);
 
-    // Đánh dấu tất cả thông báo đã đọc
     const markAllAsRead = useCallback(async () => {
         try {
             await markAllNotificationsAsRead();
@@ -209,7 +153,7 @@ export const useSuperAdminNotifications = () => {
         }
     }, []);
 
-    // Xóa thông báo
+
     const deleteNotif = useCallback(async (notificationId: string) => {
         try {
             await deleteNotification(notificationId);
@@ -231,8 +175,6 @@ export const useSuperAdminNotifications = () => {
         markAllAsRead,
         deleteNotification: deleteNotif,
         refreshNotifications: loadNotifications,
-        isConnected: socket?.connected || false,
-        toastNotification,
-        clearToast: () => setToastNotification(null)
+        isConnected: socket?.connected || false
     };
 };

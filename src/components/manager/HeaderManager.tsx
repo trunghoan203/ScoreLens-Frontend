@@ -4,7 +4,7 @@ import axios from '@/lib/axios';
 import Image from 'next/image';
 import { useManagerNotifications } from '@/lib/hooks/useManagerNotifications';
 import { NotificationItem } from '@/components/shared/NotificationItem';
-import { NotificationToast } from '@/components/shared/NotificationToast';
+
 
 export default function HeaderManager() {
   const [managerName, setManagerName] = useState<string>('Chưa đăng nhập');
@@ -12,16 +12,13 @@ export default function HeaderManager() {
   const [notificationOpen, setNotificationOpen] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
   
-  // Sử dụng hook thông báo realtime
   const {
     notifications,
     unreadCount,
     loading,
     markAsRead,
     markAllAsRead,
-    deleteNotification,
-    toastNotification,
-    clearToast
+    deleteNotification
   } = useManagerNotifications();
 
   useEffect(() => {
@@ -48,7 +45,6 @@ export default function HeaderManager() {
           if (data.manager && data.manager.clubName) {
             setClubName(data.manager.clubName);
           }
-          console.log("data.manager", data.manager);
         })
         .catch(() => {
           setManagerName('Manager');
@@ -57,7 +53,6 @@ export default function HeaderManager() {
     }
   }, []);
 
-  // Đóng dropdown khi click ra ngoài
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
@@ -77,7 +72,6 @@ export default function HeaderManager() {
           </h1>
         </div>
         <div className="flex items-center gap-6">
-          {/* Chuông thông báo với hiệu ứng hover cải thiện */}
           <div className="relative" ref={notificationRef}>
             <motion.button
               onClick={() => setNotificationOpen(prev => !prev)}
@@ -112,7 +106,6 @@ export default function HeaderManager() {
                 />
               </motion.div>
               
-              {/* Badge hiển thị số thông báo chưa đọc với animation */}
               <AnimatePresence>
                 {unreadCount > 0 && (
                   <motion.span
@@ -137,7 +130,6 @@ export default function HeaderManager() {
                   className="absolute right-0 mt-3 w-96 bg-white shadow-2xl rounded-2xl overflow-hidden z-50 border border-gray-100"
                   style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}
                 >
-                  {/* Header thông báo với gradient */}
                   <div className="bg-gradient-to-r from-slate-50 to-gray-50 p-5 border-b border-gray-200">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -174,7 +166,6 @@ export default function HeaderManager() {
                     </div>
                   </div>
 
-                  {/* Danh sách thông báo */}
                   <div className="max-h-[500px] overflow-y-auto custom-scrollbar">
                     {loading ? (
                       <div className="p-8 text-center">
@@ -234,7 +225,6 @@ export default function HeaderManager() {
             </AnimatePresence>
           </div>
 
-          {/* Avatar manager */}
           <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-100">
             <Image
               src="/images/Avatar.png"
@@ -248,11 +238,7 @@ export default function HeaderManager() {
         </div>
       </div>
 
-      {/* Toast Notification */}
-      <NotificationToast
-        notification={toastNotification}
-        onClose={clearToast}
-      />
+
 
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar {
