@@ -1,6 +1,6 @@
 'use client';
 
-interface PopupAiSelectionProps {
+interface AiSelectionProps {
   onClose: () => void;
   onConfirm: (isAiAssisted: boolean) => void;
   isAiAssisted: boolean;
@@ -8,20 +8,20 @@ interface PopupAiSelectionProps {
   isCreating: boolean;
 }
 
-export default function PopupAiSelection({ 
-  onClose, 
-  onConfirm, 
-  isAiAssisted, 
-  setIsAiAssisted, 
-  isCreating 
-}: PopupAiSelectionProps) {
+export default function AiSelection({
+  onClose,
+  onConfirm,
+  isAiAssisted,
+  setIsAiAssisted,
+  isCreating
+}: AiSelectionProps) {
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-lg text-center">
         <h2 className="text-xl font-bold text-[#000000] mb-6">
           Chọn tính năng AI
         </h2>
-        
+
         <div className="space-y-4 mb-6">
           <div className="text-left">
             <p className="text-sm text-gray-600 mb-3">
@@ -30,11 +30,10 @@ export default function PopupAiSelection({
             <div className="space-y-3">
               <button
                 onClick={() => setIsAiAssisted(true)}
-                className={`w-full p-4 rounded-xl border-2 transition-all ${
-                  isAiAssisted 
-                    ? 'border-lime-500 bg-lime-50 text-lime-700' 
+                className={`w-full p-4 rounded-xl border-2 transition-all ${isAiAssisted
+                    ? 'border-lime-500 bg-lime-50 text-lime-700'
                     : 'border-gray-200 hover:border-lime-300'
-                }`}
+                  }`}
               >
                 <div className="text-center">
                   <div className="font-semibold text-[#000000]">Có sử dụng AI</div>
@@ -43,14 +42,13 @@ export default function PopupAiSelection({
                   </div>
                 </div>
               </button>
-              
+
               <button
                 onClick={() => setIsAiAssisted(false)}
-                className={`w-full p-4 rounded-xl border-2 transition-all ${
-                  !isAiAssisted 
-                    ? 'border-lime-500 bg-lime-50 text-lime-700' 
+                className={`w-full p-4 rounded-xl border-2 transition-all ${!isAiAssisted
+                    ? 'border-lime-500 bg-lime-50 text-lime-700'
                     : 'border-gray-200 hover:border-lime-300'
-                }`}
+                  }`}
               >
                 <div className="text-center">
                   <div className="font-semibold text-[#000000]">Không sử dụng AI</div>
@@ -62,7 +60,7 @@ export default function PopupAiSelection({
             </div>
           </div>
         </div>
-        
+
         <div className="flex gap-4">
           <button
             onClick={onClose}

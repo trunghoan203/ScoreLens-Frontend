@@ -9,6 +9,7 @@ import { Clock, Users } from 'lucide-react';
 import { userMatchService } from '@/lib/userMatchService';
 import { useWebSocket } from '@/lib/hooks/useWebSocket';
 import toast from 'react-hot-toast';
+import Feedback from '@/components/user/Feedback';
 
 function EndMatchPageContent() {
   const router = useRouter();
@@ -24,10 +25,46 @@ function EndMatchPageContent() {
   const teamB = searchParams?.get('teamB')?.split(',').filter(name => name.trim()) || [];
   const tableId = searchParams?.get('tableId') || '';
 
-  const [matchInfo, setMatchInfo] = useState<any>(null);
-  const [tableInfo, setTableInfo] = useState<any>(null);
+  const [matchInfo, setMatchInfo] = useState<{
+    data?: {
+      teams?: Array<{
+        score?: number;
+        members?: Array<{
+          membershipName?: string;
+          guestName?: string;
+        }>;
+      }>;
+      matchCode?: string;
+      startTime?: string;
+      endTime?: string;
+      tableId?: string;
+      gameType?: string;
+      createdByMembershipId?: string;
+      creatorGuestToken?: string;
+    };
+    teams?: Array<{
+      score?: number;
+      members?: Array<{
+        membershipName?: string;
+        guestName?: string;
+      }>;
+    }>;
+    matchCode?: string;
+    startTime?: string;
+    endTime?: string;
+    tableId?: string;
+    gameType?: string;
+    createdByMembershipId?: string;
+    creatorGuestToken?: string;
+  } | null>(null);
+  const [tableInfo, setTableInfo] = useState<{
+    name?: string;
+    category?: string;
+    clubId?: string;
+  } | null>(null);
   const [elapsedTime, setElapsedTime] = useState<string>('00:00:00');
-  
+  const [showFeedback, setShowFeedback] = useState(false);
+
   const [actualScoreA, setActualScoreA] = useState<number>(scoreA);
   const [actualScoreB, setActualScoreB] = useState<number>(scoreB);
   const [actualTeamA, setActualTeamA] = useState<string[]>(teamA);
@@ -37,20 +74,21 @@ function EndMatchPageContent() {
 
   const winner = actualScoreA > actualScoreB ? 'Team A' : actualScoreB > actualScoreA ? 'Team B' : 'Hoà';
 
-  const { isConnected } = useWebSocket({
+  useWebSocket({
     matchId: matchId || null,
     matchStatus: 'completed',
     onTimeUpdate: (elapsedTime: string) => {
       setElapsedTime(elapsedTime);
     },
-    onMatchUpdate: (updatedMatch: any) => {
-      const matchData = updatedMatch as any;
+    onMatchUpdate: (updatedMatch: unknown) => {
+      const matchData = updatedMatch as { matchId?: string };
       if (matchData?.matchId === matchId) {
-        setMatchInfo((prev: any) => ({ ...prev, ...matchData }));
+        setMatchInfo((prev) => ({ ...prev, ...matchData }));
       }
     },
-    onMatchEnded: (matchData: any) => {
-      if (matchData && matchData.matchId === matchId) {
+    onMatchEnded: (matchData: unknown) => {
+      const matchInfo = matchData as { matchId?: string };
+      if (matchInfo && matchInfo.matchId === matchId) {
         toast.success('Trận đấu đã kết thúc!');
       }
     }
@@ -61,34 +99,35 @@ function EndMatchPageContent() {
       if (matchId) {
         try {
           const matchData = await userMatchService.getMatchById(matchId);
-          const responseData = (matchData as any)?.data || matchData;
-          
-          setMatchInfo(responseData);
-          
-          if (responseData?.teams && Array.isArray(responseData.teams)) {
-            const teamAScore = responseData.teams[0]?.score || 0;
-            const teamBScore = responseData.teams[1]?.score || 0;
+          const responseData = (matchData as { data?: { teams?: Array<{ score?: number; members?: Array<{ membershipName?: string; guestName?: string }> }>; matchCode?: string; startTime?: string; endTime?: string; tableId?: string; gameType?: string; createdByMembershipId?: string; creatorGuestToken?: string } })?.data || matchData;
+          const matchInfoData = responseData as { teams?: Array<{ score?: number; members?: Array<{ membershipName?: string; guestName?: string }> }>; matchCode?: string; startTime?: string; endTime?: string; tableId?: string; gameType?: string; createdByMembershipId?: string; creatorGuestToken?: string };
+
+          setMatchInfo(matchInfoData);
+
+          if (matchInfoData?.teams && Array.isArray(matchInfoData.teams)) {
+            const teamAScore = matchInfoData.teams[0]?.score || 0;
+            const teamBScore = matchInfoData.teams[1]?.score || 0;
             setActualScoreA(teamAScore);
             setActualScoreB(teamBScore);
-            
-            const teamAMembers = responseData.teams[0]?.members?.map((member: any) => 
+
+            const teamAMembers = matchInfoData.teams[0]?.members?.map((member: { membershipName?: string; guestName?: string }) =>
               member.membershipName || member.guestName || ''
             ).filter((name: string) => name.trim()) || [];
-            const teamBMembers = responseData.teams[1]?.members?.map((member: any) => 
+            const teamBMembers = matchInfoData.teams[1]?.members?.map((member: { membershipName?: string; guestName?: string }) =>
               member.membershipName || member.guestName || ''
             ).filter((name: string) => name.trim()) || [];
-            
+
             setActualTeamA(teamAMembers);
             setActualTeamB(teamBMembers);
           }
-          
-          if (responseData?.matchCode) {
-            setActualMatchCode(responseData.matchCode);
+
+          if (matchInfoData?.matchCode) {
+            setActualMatchCode(matchInfoData.matchCode);
           }
-          
-          if (responseData?.startTime && responseData?.endTime) {
-            const startTime = new Date(responseData.startTime);
-            const endTime = new Date(responseData.endTime);
+
+          if (matchInfoData?.startTime && matchInfoData?.endTime) {
+            const startTime = new Date(matchInfoData.startTime);
+            const endTime = new Date(matchInfoData.endTime);
             const diffMs = endTime.getTime() - startTime.getTime();
             const hours = Math.floor(diffMs / (1000 * 60 * 60));
             const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
@@ -96,79 +135,47 @@ function EndMatchPageContent() {
             const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             setElapsedTime(timeString);
           }
-          
-          if (responseData?.tableId) {
+
+          if (matchInfoData?.tableId) {
             try {
-              const tableData = await userMatchService.verifyTable({ tableId: responseData.tableId });
-              const tableResponseData = (tableData as any)?.data || tableData;
-              setTableInfo(tableResponseData);
-              
-              if (tableResponseData?.name) {
-                setActualTableName(tableResponseData.name);
+              const tableData = await userMatchService.verifyTable({ tableId: matchInfoData.tableId });
+              const tableResponseData = (tableData as { data?: { name?: string; category?: string; clubId?: string } })?.data || tableData;
+              const tableInfoData = tableResponseData as { name?: string; category?: string; clubId?: string };
+              setTableInfo(tableInfoData);
+
+              if (tableInfoData?.name) {
+                setActualTableName(tableInfoData.name);
               }
-                         } catch (tableError) {
-             }
+            } catch {
+            }
           }
-                 } catch (error) {
-         }
+        } catch {
+        }
       }
-      
+
       setTimeout(() => setLoading(false), 800);
     };
-    
+
     loadMatchData();
   }, [matchId]);
 
   const handleRate = () => {
-    const params = new URLSearchParams({
-      matchId,
-      tableName,
-      matchCode,
-      scoreA: scoreA.toString(),
-      scoreB: scoreB.toString(),
-      teamA: teamA.join(','),
-      teamB: teamB.join(','),
-      tableId
-    });
-    
-    if (matchInfo?.createdByMembershipId) {
-      params.set('membershipId', matchInfo.createdByMembershipId);
-    }
-    if (matchInfo?.creatorGuestToken) {
-      params.set('guestToken', matchInfo.creatorGuestToken);
-    }
-    
-    router.push(`/user/rate?${params.toString()}`);
+    setShowFeedback(true);
   };
-  
-  const handlePayment = () => {
-    const params = new URLSearchParams({
-      matchId,
-      tableName,
-      matchCode,
-      scoreA: scoreA.toString(),
-      scoreB: scoreB.toString(),
-      teamA: teamA.join(','),
-      teamB: teamB.join(','),
-      tableId
-    });
-    
-    if (matchInfo?.createdByMembershipId) {
-      params.set('membershipId', matchInfo.createdByMembershipId);
-    }
-    if (matchInfo?.creatorGuestToken) {
-      params.set('guestToken', matchInfo.creatorGuestToken);
-    }
-    
-    router.push(`/user/thanh-toan?${params.toString()}`);
+
+  const handleFeedbackSuccess = () => {
+    setShowFeedback(false);
+    toast.success('Cảm ơn bạn đã gửi đánh giá!');
   };
+
+
 
   if (loading) return <ScoreLensLoading text="Đang tải..." />;
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 pt-20">
       <HeaderUser />
-            
+
       <main className="flex-1 flex flex-col px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-[#000000]">
@@ -183,16 +190,16 @@ function EndMatchPageContent() {
               <div className="text-center mb-4">
                 <p className="text-sm font-medium text-[#FFFFFF] mb-2">Mã Tham Gia</p>
                 <div className="px-4 py-2 rounded-xl bg-white/20 border border-white/30 mx-auto inline-block">
-                                  <div className="flex items-center justify-center gap-2 select-all">
-                  {(actualMatchCode || '000000').split('').map((ch, idx) => (
-                    <span
-                      key={idx}
-                      className="w-5 sm:w-6 text-center font-mono tabular-nums font-extrabold text-xl sm:text-2xl text-[#FFFFFF] leading-none"
-                    >
-                      {ch}
-                    </span>
-                  ))}
-                </div>
+                  <div className="flex items-center justify-center gap-2 select-all">
+                    {(actualMatchCode || '000000').split('').map((ch, idx) => (
+                      <span
+                        key={idx}
+                        className="w-5 sm:w-6 text-center font-mono tabular-nums font-extrabold text-xl sm:text-2xl text-[#FFFFFF] leading-none"
+                      >
+                        {ch}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -239,7 +246,7 @@ function EndMatchPageContent() {
                       <Users size={16} className="text-lime-600" />
                     </div>
                   </div>
-                  
+
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Thời gian chơi:</span>
@@ -248,21 +255,21 @@ function EndMatchPageContent() {
                         <span className="text-sm font-medium text-[#000000]">{elapsedTime}</span>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Số người chơi:</span>
                       <span className="text-sm font-medium text-[#000000]">
                         {actualTeamA.length + actualTeamB.length} người
                       </span>
                     </div>
-                    
+
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Loại game:</span>
                       <span className="text-sm font-medium text-[#000000]">
                         {tableInfo?.category ? tableInfo.category.toUpperCase() : (matchInfo?.gameType === 'pool-8' ? 'Pool 8 Ball' : matchInfo?.gameType || 'Pool 8 Ball')}
                       </span>
                     </div>
-                    
+
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Đội chiến thắng:</span>
                       <span className="text-sm font-medium text-[#8ADB10] font-bold">
@@ -285,23 +292,38 @@ function EndMatchPageContent() {
       </main>
 
       <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200 p-4 z-50">
-        <div className="flex flex-row gap-4 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
-          <Button
-            onClick={handleRate}
-            style={{ backgroundColor: '#FF0000' }}
-            className="w-1/2 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center hover:opacity-90"
-          >
-            Đánh giá
-          </Button>
-          <Button
-            onClick={handlePayment}
-            style={{ backgroundColor: '#8ADB10' }}
-            className="w-1/2 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center hover:opacity-90"
-          >
-            Thanh toán
-          </Button>
+        <div className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
+          <div className="flex gap-3">
+            <Button
+              onClick={() => router.push('/')}
+              variant="outline"
+              style={{ backgroundColor: '#FF0000' }}
+              className="flex-1 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center hover:opacity-90"
+            >
+              Thoát
+            </Button>
+            <Button
+              onClick={handleRate}
+              style={{ backgroundColor: '#8ADB10' }}
+              className="flex-1 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center hover:opacity-90"
+            >
+              Đánh giá
+            </Button>
+          </div>
         </div>
       </div>
+
+      {showFeedback && (
+        <Feedback
+          onClose={() => setShowFeedback(false)}
+          onSuccess={handleFeedbackSuccess}
+          matchId={matchId}
+          tableId={tableId || matchInfo?.tableId}
+          clubId={tableInfo?.clubId}
+          membershipId={matchInfo?.createdByMembershipId}
+          guestToken={matchInfo?.creatorGuestToken}
+        />
+      )}
     </div>
   );
 }
