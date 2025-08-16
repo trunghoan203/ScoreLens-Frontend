@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
+import { HeaderSuperAdmin } from '@/components/shared/HeaderSuperAdmin';
 import { PageBanner } from '@/components/shared/PageBanner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -109,7 +109,7 @@ export default function AdminDetailPage() {
 
   return (
     <>
-      <HeaderAdmin />
+      <HeaderSuperAdmin />
       <PageBanner title="ADMIN" />
       <div className="min-h-screen bg-gray-50 px-4 md:px-8 py-10">
         <div className="max-w-5xl mx-auto space-y-6">

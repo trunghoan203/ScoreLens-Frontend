@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter, useParams } from "next/navigation";
-import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
+import { HeaderSuperAdmin } from '@/components/shared/HeaderSuperAdmin';
 import { PageBanner } from '@/components/shared/PageBanner';
 import { getFeedbackDetail, updateFeedback } from '@/lib/saFeedbackService';
 import { useSuperAdminAuthGuard } from '@/lib/hooks/useSuperAdminAuthGuard';
@@ -163,7 +163,7 @@ export default function FeedbackDetailPage() {
 
   return (
     <>
-      <HeaderAdmin />
+      <HeaderSuperAdmin />
       <PageBanner title="PHẢN HỒI" />
       <div className="flex flex-col items-center py-10 px-4 min-h-screen w-full">
         <div className="w-full max-w-none">
