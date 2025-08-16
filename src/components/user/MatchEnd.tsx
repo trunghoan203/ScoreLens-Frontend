@@ -7,7 +7,7 @@ interface Props {
   onConfirm: () => void;
 }
 
-export default function PopupEndMatch({ onClose, onConfirm }: Props) {
+export default function MatchEnd({ onClose, onConfirm }: Props) {
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-lg text-center">
