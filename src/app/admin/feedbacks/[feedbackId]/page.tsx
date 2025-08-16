@@ -8,6 +8,7 @@ import { adminFeedbackService } from '@/lib/adminFeedbackService';
 import FeedbackDetailLayout from "@/components/shared/FeedbackDetailLayout";
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
+import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 interface Feedback {
   feedbackId: string;
   _id?: string;
@@ -55,9 +56,11 @@ export default function AdminFeedbackDetailPage() {
   const [needSupport, setNeedSupport] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const feedbackDetailData = await adminFeedbackService.getAllFeedbacks();
         let feedbacksArr: unknown[] = [];
@@ -133,6 +136,8 @@ export default function AdminFeedbackDetailPage() {
         console.error('Error fetching feedback detail:', error);
         setError('Không thể tải dữ liệu phản hồi');
         toast.error('Không thể tải dữ liệu phản hồi');
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -211,14 +216,18 @@ export default function AdminFeedbackDetailPage() {
           }`}>
           <HeaderAdminPage />
         </div>
-        <div className="p-10">
+        <div className="px-10 pb-10">
           <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
             <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
               PHẢN HỒI
             </span>
           </div>
 
-          {error ? (
+          {loading ? (
+            <div className="py-8">
+              <LoadingSkeleton type="card" lines={6} className="w-full max-w-2xl mx-auto" />
+            </div>
+          ) : error ? (
             <div className="text-center py-20">
               <h1 className="text-2xl font-bold text-gray-700 mb-4">{error}</h1>
               <button

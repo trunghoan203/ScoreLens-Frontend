@@ -8,10 +8,10 @@ import React, { useState } from 'react';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
 import toast from 'react-hot-toast';
 import managerService from '@/lib/managerService';
-import { Select } from '@/components/ui/select';
 import clubsService, { ClubResponse } from '@/lib/clubsService';
 import adminService from '@/lib/adminService';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
+import Image from 'next/image';
 
 export default function ManagerDetailPage() {
   const router = useRouter();
@@ -123,86 +123,120 @@ export default function ManagerDetailPage() {
     <div className="min-h-screen flex bg-[#18191A]">
       <Sidebar />
       <main className="flex-1 bg-white p-10 min-h-screen">
-        <HeaderAdminPage />
-        <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-          <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
-            QUẢN LÝ
-          </span>
+        <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+          <HeaderAdminPage />
         </div>
-        <AddFormLayout
-          title={isEditMode ? "CHỈNH SỬA QUẢN LÝ" : "CHI TIẾT QUẢN LÝ"}
-          onBack={() => router.push('/admin/managers')}
-          backLabel="Quay lại"
-          submitLabel={isEditMode ? "Lưu" : "Chỉnh sửa"}
-          extraActions={
-            !isEditMode && (
-              <button
-                type="button"
-                className="w-40 bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded-lg transition text-lg"
-                onClick={() => setShowConfirm(true)}
-              >
-                Xóa
-              </button>
-            )
-          }
-          onSubmit={isEditMode ? handleUpdate : (e) => { e.preventDefault(); setIsEditMode(true); }}
-        >
-          <ConfirmPopup
-            open={showConfirm}
-            title="Bạn có chắc chắn muốn xóa không?"
-            onCancel={() => setShowConfirm(false)}
-            onConfirm={async () => { setShowConfirm(false); await handleDelete(); }}
-            confirmText="Xác nhận"
-            cancelText="Hủy"
+        <div className="px-10 pb-10">
+          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
+            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+              QUẢN LÝ
+            </span>
+          </div>
+          <AddFormLayout
+            title={isEditMode ? "CHỈNH SỬA QUẢN LÝ" : "CHI TIẾT QUẢN LÝ"}
+            onBack={() => router.push('/admin/managers')}
+            backLabel="Quay lại"
+            submitLabel={isEditMode ? "Lưu" : "Chỉnh sửa"}
+            extraActions={
+              !isEditMode && (
+                <button
+                  type="button"
+                  className="w-40 bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded-lg transition text-lg"
+                  onClick={() => setShowConfirm(true)}
+                >
+                  Xóa
+                </button>
+              )
+            }
+            onSubmit={isEditMode ? handleUpdate : (e) => { e.preventDefault(); setIsEditMode(true); }}
           >
-            <></>
-          </ConfirmPopup>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Chọn Club<span className="text-red-500">*</span></label>
-            <Select value={clubId} onChange={e => setClubId(e.target.value)} required disabled={!isEditMode} name="clubId">
-              <option value="">-- Chọn club --</option>
-              {clubs.map(club => (
-                <option key={club.clubId} value={club.clubId}>{club.clubName}</option>
-              ))}
-            </Select>
-          </div>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Tên Quản Lý<span className="text-red-500">*</span></label>
-            <Input value={name} onChange={e => setName(e.target.value)} required disabled={!isEditMode} />
-          </div>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Số Điện Thoại<span className="text-red-500">*</span></label>
-            <Input value={phone} onChange={e => setPhone(e.target.value)} required disabled={!isEditMode} />
-          </div>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Ngày Sinh<span className="text-red-500">*</span></label>
-            <input
-              type="date"
-              value={dob}
-              onChange={(e) => setDob(e.target.value)}
-              className="w-full bg-white border rounded-md border-gray-300 px-4 py-3 text-sm font-base text-black placeholder-gray-500 focus:border-lime-500 outline-none"
-            />
-          </div>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Email<span className="text-red-500">*</span></label>
-            <Input value={email} onChange={e => setEmail(e.target.value)} required disabled={!isEditMode} />
-          </div>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">CCCD<span className="text-red-500">*</span></label>
-            <Input value={cccd} onChange={e => setCccd(e.target.value)} required disabled={!isEditMode} />
-          </div>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Địa Chỉ<span className="text-red-500">*</span></label>
-            <Input value={address} onChange={e => setAddress(e.target.value)} required disabled={!isEditMode} />
-          </div>
-          <div className="w-full mb-10">
-            <label className="block text-sm font-semibold mb-2 text-black">Trạng Thái<span className="text-red-500">*</span></label>
-            <Select value={isActive ? 'active' : 'inactive'} onChange={e => setIsActive(e.target.value === 'active')} required disabled={!isEditMode} name="isActive">
-              <option value="active">Hoạt động</option>
-              <option value="inactive">Không hoạt động</option>
-            </Select>
-          </div>
-        </AddFormLayout>
+            <ConfirmPopup
+              open={showConfirm}
+              title="Bạn có chắc chắn muốn xóa không?"
+              onCancel={() => setShowConfirm(false)}
+              onConfirm={async () => { setShowConfirm(false); await handleDelete(); }}
+              confirmText="Xác nhận"
+              cancelText="Hủy"
+            >
+              <></>
+            </ConfirmPopup>
+            <div className="w-full mb-6">
+              <label className="block text-sm font-semibold mb-2 text-black">Chọn Club<span className="text-red-500">*</span></label>
+              <div className="relative w-full">
+                <select
+                  value={clubId}
+                  onChange={e => setClubId(e.target.value)}
+                  required
+                  disabled={!isEditMode}
+                  name="clubId"
+                  className="w-full border border-gray-300 bg-white rounded-lg px-4 py-3 text-sm text-black outline-none appearance-none"
+                >
+                  <option value="">-- Chọn club --</option>
+                  {clubs.map(club => (
+                    <option key={club.clubId} value={club.clubId}>{club.clubName}</option>
+                  ))}
+                </select>
+                <Image
+                  src="/icon/chevron-down_Black.svg"
+                  alt="Dropdown"
+                  width={20}
+                  height={20}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                />
+              </div>
+            </div>
+            <div className="w-full mb-6">
+              <label className="block text-sm font-semibold mb-2 text-black">Tên Quản Lý<span className="text-red-500">*</span></label>
+              <Input value={name} onChange={e => setName(e.target.value)} required disabled={!isEditMode} />
+            </div>
+            <div className="w-full mb-6">
+              <label className="block text-sm font-semibold mb-2 text-black">Số Điện Thoại<span className="text-red-500">*</span></label>
+              <Input value={phone} onChange={e => setPhone(e.target.value)} required disabled={!isEditMode} />
+            </div>
+            <div className="w-full mb-6">
+              <label className="block text-sm font-semibold mb-2 text-black">Ngày Sinh<span className="text-red-500">*</span></label>
+              <input
+                type="date"
+                value={dob}
+                onChange={(e) => setDob(e.target.value)}
+                className="w-full bg-white border rounded-md border-gray-300 px-4 py-3 text-sm font-base text-black placeholder-gray-500 focus:border-lime-500 outline-none"
+              />
+            </div>
+            <div className="w-full mb-6">
+              <label className="block text-sm font-semibold mb-2 text-black">Email<span className="text-red-500">*</span></label>
+              <Input value={email} onChange={e => setEmail(e.target.value)} required disabled={!isEditMode} />
+            </div>
+            <div className="w-full mb-6">
+              <label className="block text-sm font-semibold mb-2 text-black">CCCD<span className="text-red-500">*</span></label>
+              <Input value={cccd} onChange={e => setCccd(e.target.value)} required disabled={!isEditMode} />
+            </div>
+            <div className="w-full mb-6">
+              <label className="block text-sm font-semibold mb-2 text-black">Địa Chỉ<span className="text-red-500">*</span></label>
+              <Input value={address} onChange={e => setAddress(e.target.value)} required disabled={!isEditMode} />
+            </div>
+            <div className="w-full mb-10">
+              <label className="block text-sm font-semibold mb-2 text-black">Trạng Thái<span className="text-red-500">*</span></label>
+              <div className="relative w-full">
+                <select
+                  value={isActive ? 'active' : 'inactive'}
+                  onChange={e => setIsActive(e.target.value === 'active')}
+                  required
+                  disabled={!isEditMode}
+                  name="isActive"
+                  className="w-full border border-gray-300 bg-white rounded-lg px-4 py-3 text-sm text-black outline-none appearance-none" >
+                  <option value="active">Hoạt động</option>
+                  <option value="inactive">Không hoạt động</option>
+                </select>
+                <Image
+                  src="/icon/chevron-down_Black.svg"
+                  alt="Dropdown"
+                  width={20}
+                  height={20}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+            </div>
+          </AddFormLayout>
+        </div>
       </main>
     </div>
   );

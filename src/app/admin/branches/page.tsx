@@ -4,7 +4,7 @@ import Sidebar from '@/components/admin/Sidebar';
 import HeaderAdminPage from '@/components/admin/HeaderAdminPage';
 import BranchSearchBar from '@/components/admin/BranchSearchBar';
 import BranchTable from '@/components/admin/BranchTable';
-import { TableSkeleton } from '@/components/ui/LoadingSkeleton';
+import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import EmptyState from '@/components/ui/EmptyState';
 import { useRouter } from 'next/navigation';
 import clubsService, { ClubResponse } from '@/lib/clubsService';
@@ -12,6 +12,7 @@ import adminService from '@/lib/adminService';
 import toast from 'react-hot-toast';
 import { useAdminAuthGuard } from '@/lib/hooks/useAdminAuthGuard';
 import { Building2, Menu } from 'lucide-react';
+import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 
 export default function BranchesPage() {
   const { isChecking } = useAdminAuthGuard();
@@ -82,6 +83,7 @@ export default function BranchesPage() {
 
   return (
     <>
+      {isPageLoading && <ScoreLensLoading text="Đang tải..." />}
       <div className="min-h-screen flex bg-[#18191A]">
         <Sidebar />
         <main className="flex-1 bg-white min-h-screen">
@@ -101,11 +103,11 @@ export default function BranchesPage() {
             />
             {isPageLoading ? (
               <div className="py-8">
-                <TableSkeleton rows={5} />
+                <LoadingSkeleton type="card" lines={6} className="w-full max-w-2xl mx-auto" />
               </div>
             ) : isSearching ? (
               <div className="py-8">
-                <TableSkeleton rows={5} />
+                <LoadingSkeleton type="card" lines={6} className="w-full max-w-2xl mx-auto" />
               </div>
             ) : branches.length === 0 ? (
               <EmptyState
