@@ -3,9 +3,6 @@ import axios from './axios';
 export interface VerifyTableRequest {
   tableId: string;
 }
-
-
-
 export interface VerifyMembershipRequest {
   phoneNumber: string;
   clubId: string; 
@@ -234,7 +231,9 @@ class UserMatchService {
 
   async deleteMatch(matchId: string, payload: StartOrEndMatchRequest) {
     try {
-      const res = await axios.post(`/membership/matches/${matchId}/delete`, payload);
+      const res = await axios.delete(`/membership/matches/${matchId}`, {
+        data: payload
+      } as any);
       return res.data;
     } catch (error) {
       throw this.handleError(error);

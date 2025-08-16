@@ -3,11 +3,12 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from "@/components/admin/Sidebar";
 import HeaderAdminPage from "@/components/admin/HeaderAdminPage";
 import { useRouter, useParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import AddFormLayout from "@/components/shared/AddFormLayout";
 import toast from 'react-hot-toast';
 import { adminFeedbackService } from '@/lib/adminFeedbackService';
-
+import FeedbackDetailLayout from "@/components/shared/FeedbackDetailLayout";
+import { Badge } from '@/components/ui/badge';
+import Image from 'next/image';
+import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 interface Feedback {
   feedbackId: string;
   _id?: string;
@@ -17,14 +18,25 @@ interface Feedback {
   };
   clubId: string;
   tableId: string;
+  clubInfo?: {
+    clubId: string;
+    clubName: string;
+    address?: string;
+  };
+  tableInfo?: {
+    tableId: string;
+    tableName: string;
+    tableNumber?: string;
+    category?: string;
+  };
   content: string;
-  status: 'pending' | 'manager_processing' | 'admin_processing' | 'superadmin_processing' | 'resolved';
+  status: 'pending' | 'managerP' | 'adminP' | 'superadminP' | 'resolved';
   needSupport: boolean;
   note?: string;
   history: Array<{
-    by: string;
-    role: string;
-    action: string;
+    byId: string;
+    byName: string;
+    byRole: string;
     note?: string;
     date: Date;
   }>;
@@ -36,67 +48,128 @@ export default function AdminFeedbackDetailPage() {
   const router = useRouter();
   const params = useParams();
   const feedbackId = params?.feedbackId as string;
+
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [status, setStatus] = useState<Feedback['status']>('pending');
   const [notes, setNotes] = useState('');
   const [needSupport, setNeedSupport] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    adminFeedbackService.getAllFeedbacks()
-      .then((data: unknown) => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const feedbackDetailData = await adminFeedbackService.getAllFeedbacks();
         let feedbacksArr: unknown[] = [];
-        if (Array.isArray(data)) feedbacksArr = data;
-        else if (data && typeof data === 'object' && Array.isArray((data as { feedbacks?: unknown[] }).feedbacks)) feedbacksArr = (data as { feedbacks: unknown[] }).feedbacks;
-        else if (data && typeof data === 'object' && Array.isArray((data as { data?: unknown[] }).data)) feedbacksArr = (data as { data: unknown[] }).data;
+        if (Array.isArray(feedbackDetailData)) feedbacksArr = feedbackDetailData;
+        else if (feedbackDetailData && typeof feedbackDetailData === 'object' && Array.isArray((feedbackDetailData as { feedbacks?: unknown[] }).feedbacks)) feedbacksArr = (feedbackDetailData as { feedbacks: unknown[] }).feedbacks;
+        else if (feedbackDetailData && typeof feedbackDetailData === 'object' && Array.isArray((feedbackDetailData as { data?: unknown[] }).data)) feedbacksArr = (feedbackDetailData as { data: unknown[] }).data;
+
         const found = feedbacksArr.find((f) => {
           const obj = f as Partial<Feedback>;
           return obj.feedbackId === feedbackId || obj._id === feedbackId;
         });
+
         if (found) {
-          const feedbackData = found as Partial<Feedback>;
+          const feedbackObj = found as Record<string, unknown>;
+          const tableInfo = feedbackObj.tableInfo as Record<string, unknown> | undefined;
+          const clubInfo = feedbackObj.clubInfo as Record<string, unknown> | undefined;
+          const createdBy = feedbackObj.createdBy as Record<string, unknown> | undefined;
+          const history = feedbackObj.history as Array<Record<string, unknown>> | undefined;
+
           const mappedFeedback: Feedback = {
-            feedbackId: feedbackData.feedbackId || feedbackData._id || '',
-            createdBy: feedbackData.createdBy || { userId: '', type: 'guest' },
-            clubId: feedbackData.clubId || '',
-            tableId: feedbackData.tableId || '',
-            content: feedbackData.content || '',
-            status: feedbackData.status || 'pending',
-            needSupport: feedbackData.needSupport || false,
-            note: feedbackData.note || '',
-            history: feedbackData.history || [],
-            createdAt: feedbackData.createdAt || new Date(),
-            updatedAt: feedbackData.updatedAt || new Date(),
+            feedbackId: String(feedbackObj.feedbackId || feedbackObj._id || ''),
+            createdBy: {
+              userId: String(createdBy?.userId || ''),
+              type: (createdBy?.type as 'guest' | 'membership') || 'guest'
+            },
+            clubId: String(feedbackObj.clubId || ''),
+            tableId: String(feedbackObj.tableId || ''),
+            clubInfo: {
+              clubId: String(clubInfo?.clubId || ''),
+              clubName: String(clubInfo?.clubName || ''),
+              address: String(clubInfo?.address || '')
+            },
+            tableInfo: {
+              tableId: String(feedbackObj.tableId || ''),
+              tableName: String(tableInfo?.name || 'Không xác định'),
+              tableNumber: String(tableInfo?.tableNumber || ''),
+              category: String(tableInfo?.category || 'Không xác định')
+            },
+            content: String(feedbackObj.content || ''),
+            status: (feedbackObj.status as Feedback['status']) || 'pending',
+            needSupport: Boolean(feedbackObj.needSupport),
+            note: String(feedbackObj.note || ''),
+            history: (history || []).map(h => ({
+              byId: String(h.byId || ''),
+              byName: String(h.byName || ''),
+              byRole: String(h.byRole || ''),
+              note: String(h.note || ''),
+              date: h.date ? new Date(h.date as string) : new Date()
+            })),
+            createdAt: feedbackObj.createdAt ? new Date(feedbackObj.createdAt as string) : new Date(),
+            updatedAt: feedbackObj.updatedAt ? new Date(feedbackObj.updatedAt as string) : new Date(),
           };
+
           setFeedback(mappedFeedback);
           setStatus(mappedFeedback.status);
-          setNotes(mappedFeedback.note || '');
+          let latestNote = '';
+          if (mappedFeedback.history && mappedFeedback.history.length > 0) {
+            const sortedHistory = [...mappedFeedback.history].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            latestNote = sortedHistory.find(h => h.note && h.note.trim() !== '')?.note || '';
+          }
+          if (!isEditMode) {
+            setNotes(latestNote || mappedFeedback.note || '');
+          } else {
+            setNotes('');
+          }
           setNeedSupport(mappedFeedback.needSupport);
+          setError(null);
         } else {
+          setError('Không tìm thấy phản hồi');
           toast.error('Không tìm thấy phản hồi');
         }
-      })
-      .catch(() => {
+      } catch (error) {
+        console.error('Error fetching feedback detail:', error);
+        setError('Không thể tải dữ liệu phản hồi');
         toast.error('Không thể tải dữ liệu phản hồi');
-      });
-  }, [feedbackId]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [feedbackId, isEditMode]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setIsScrolled(scrollTop > 0);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const statusOptions = [
-    { value: 'pending', label: 'Chờ xử lý' },
-    { value: 'manager_processing', label: 'Manager đang xử lý' },
-    { value: 'admin_processing', label: 'Admin đang xử lý' },
-    { value: 'superadmin_processing', label: 'Super Admin đang xử lý' },
-    { value: 'resolved', label: 'Đã giải quyết' },
+    { value: 'pending', label: 'Chưa xử lý' },
+    { value: 'managerP', label: 'Manager đang xử lý' },
+    { value: 'adminP', label: 'Admin đang xử lý' },
+    { value: 'superadminP', label: 'Super Admin đang xử lý' },
+    { value: 'resolved', label: 'Đã xử lý' },
   ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-500';
-      case 'resolved': return 'bg-green-500';
-      case 'manager_processing': return 'bg-blue-500';
-      case 'admin_processing': return 'bg-purple-500';
-      case 'superadmin_processing': return 'bg-indigo-500';
-      default: return 'bg-gray-500';
+      case 'resolved': return 'success';
+      case 'pending': return 'danger';
+      case 'managerP': return 'danger';
+      case 'adminP': return 'danger';
+      case 'superadminP': return 'danger';
+      default: return 'danger';
     }
   };
 
@@ -104,9 +177,9 @@ export default function AdminFeedbackDetailPage() {
     switch (status) {
       case 'pending': return 'Chờ xử lý';
       case 'resolved': return 'Đã giải quyết';
-      case 'manager_processing': return 'Manager đang xử lý';
-      case 'admin_processing': return 'Admin đang xử lý';
-      case 'superadmin_processing': return 'Super Admin đang xử lý';
+      case 'managerP': return 'Manager đang xử lý';
+      case 'adminP': return 'Admin đang xử lý';
+      case 'superadminP': return 'Super Admin đang xử lý';
       default: return 'Không xác định';
     }
   };
@@ -120,174 +193,239 @@ export default function AdminFeedbackDetailPage() {
       });
       toast.success('Đã lưu phản hồi thành công!');
       setIsEditMode(false);
+
+      setNotes('');
+
+      window.location.reload();
     } catch (error) {
       console.error(error);
       toast.error('Lưu phản hồi thất bại.');
     }
   };
 
-  if (!feedback) {
-    return (
-      <div className="min-h-screen flex bg-[#18191A]">
-        <Sidebar />
-        <main className="flex-1 bg-white p-10 min-h-screen">
+  const handleEditMode = () => {
+    setIsEditMode(true);
+    setNotes('');
+  };
+
+  return (
+    <div className="min-h-screen flex bg-[#18191A]">
+      <Sidebar />
+      <main className="flex-1 bg-white min-h-screen">
+        <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
+          }`}>
           <HeaderAdminPage />
+        </div>
+        <div className="px-10 pb-10">
           <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
             <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
               PHẢN HỒI
             </span>
           </div>
-          <div className="text-center py-20">
-            <h1 className="text-2xl font-bold text-gray-700 mb-4">Không tìm thấy phản hồi</h1>
-            <Button onClick={() => router.push('/admin/feedbacks')} className="bg-lime-400 hover:bg-lime-500">
-              Quay lại danh sách
-            </Button>
-          </div>
-        </main>
-      </div>
-    );
-  }
 
-  return (
-    <div className="min-h-screen flex bg-[#18191A]">
-      <Sidebar />
-      <main className="flex-1 bg-white p-10 min-h-screen">
-        <HeaderAdminPage />
-        <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-          <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
-            PHẢN HỒI
-          </span>
-        </div>
-        <AddFormLayout
-          title={isEditMode ? "CHỈNH SỬA PHẢN HỒI" : "CHI TIẾT PHẢN HỒI"}
-          onBack={() => router.push('/admin/feedbacks')}
-          backLabel="Quay lại"
-          submitLabel={isEditMode ? "Lưu" : "Chỉnh sửa"}
-          onSubmit={e => {
-            e.preventDefault();
-            if (isEditMode) {
-              handleSave();
-            } else {
-              setIsEditMode(true);
-            }
-          }}
-        >
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Chi nhánh</label>
-            <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback.clubId} disabled />
-          </div>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Bàn</label>
-            <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback.tableId} disabled />
-          </div>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Loại người tạo</label>
-            <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback.createdBy.type === 'guest' ? 'Khách' : 'Hội viên'} disabled />
-          </div>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Thời gian tạo</label>
-            <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={new Date(feedback.createdAt).toLocaleString('vi-VN')} disabled />
-          </div>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Thời gian cập nhật</label>
-            <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={new Date(feedback.updatedAt).toLocaleString('vi-VN')} disabled />
-          </div>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Trạng thái</label>
-            {isEditMode ? (
-              <select
-                className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
-                value={status}
-                onChange={e => setStatus(e.target.value as Feedback['status'])}
+          {loading ? (
+            <div className="py-8">
+              <LoadingSkeleton type="card" lines={6} className="w-full max-w-2xl mx-auto" />
+            </div>
+          ) : error ? (
+            <div className="text-center py-20">
+              <h1 className="text-2xl font-bold text-gray-700 mb-4">{error}</h1>
+              <button
+                onClick={() => router.push('/admin/feedbacks')}
+                className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
               >
-                {statusOptions.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            ) : (
-              <span className={`inline-block px-3 py-1 rounded-full text-base font-semibold text-white ${getStatusColor(status)}`}>
-                {getStatusText(status)}
-              </span>
-            )}
-          </div>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Cần hỗ trợ</label>
-            {isEditMode ? (
-              <select
-                className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
-                value={needSupport ? 'true' : 'false'}
-                onChange={e => setNeedSupport(e.target.value === 'true')}
-              >
-                <option value="false">Không</option>
-                <option value="true">Có</option>
-              </select>
-            ) : (
-              <span className={`inline-block px-3 py-1 rounded-full text-base font-semibold text-white ${needSupport ? 'bg-red-500' : 'bg-green-500'}`}>
-                {needSupport ? 'Cần hỗ trợ' : 'Không cần hỗ trợ'}
-              </span>
-            )}
-          </div>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Nội dung phản hồi</label>
-            <textarea
-              className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
-              value={feedback.content}
-              disabled
-              rows={4}
-            />
-          </div>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Ghi chú xử lý</label>
-            {isEditMode ? (
-              <textarea
-                className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
-                value={notes}
-                onChange={e => setNotes(e.target.value)}
-                rows={3}
-                placeholder="Nhập ghi chú xử lý..."
-              />
-            ) : (
-              <textarea
-                className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
-                value={notes}
-                disabled
-                rows={3}
-              />
-            )}
-          </div>
-
-          {/* Lịch sử xử lý */}
-          {feedback.history && feedback.history.length > 0 && (
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Lịch sử xử lý</label>
-              <div className="bg-gray-50 rounded-lg p-4 max-h-64 overflow-y-auto">
-                <div className="space-y-3">
-                  {feedback.history.map((item, index) => (
-                    <div key={index} className="border-l-4 border-lime-400 pl-4 py-2 bg-white rounded-r-lg">
-                      <div className="flex justify-between items-start mb-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-sm text-gray-800">{item.by}</span>
-                          <span className="text-xs bg-gray-200 px-2 py-1 rounded-full text-gray-600">{item.role}</span>
+                Quay lại danh sách
+              </button>
+            </div>
+          ) : feedback ? (
+            <FeedbackDetailLayout title="QUẢN LÝ PHẢN HỒI">
+              <div className="flex flex-col md:flex-row gap-8">
+                <div className="flex-1 space-y-6 order-1 md:order-none">
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-black">Chi nhánh</label>
+                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.clubInfo?.clubName || feedback?.clubId || ''} disabled />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-black">Bàn</label>
+                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.tableInfo?.tableName || feedback?.tableId || ''} disabled />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-black">Loại bàn</label>
+                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.tableInfo?.category === 'pool-8' ? 'Pool 8' : feedback?.tableInfo?.category === 'carom' ? 'Carom' : feedback?.tableInfo?.category || 'Không xác định'} disabled />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-black">Loại người tạo</label>
+                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.createdBy?.type === 'guest' ? 'Khách' : (feedback?.createdBy?.type === 'membership' ? 'Hội viên' : '')} disabled />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-black">Thời gian tạo</label>
+                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.createdAt ? new Date(feedback.createdAt).toLocaleString('vi-VN') : ''} disabled />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-black">Thời gian cập nhật</label>
+                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.updatedAt ? new Date(feedback.updatedAt).toLocaleString('vi-VN') : ''} disabled />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-black">Trạng thái</label>
+                    {isEditMode ? (
+                      <div className="relative w-full">
+                        <select
+                          className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black outline-none appearance-none"
+                          value={status}
+                          onChange={e => setStatus(e.target.value as Feedback['status'])}
+                        >
+                          {statusOptions.map(opt => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </select>
+                        <Image
+                          src="/icon/chevron-down_Black.svg"
+                          alt="Dropdown"
+                          width={20}
+                          height={20}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                        />
+                      </div>
+                    ) : (
+                      <Badge
+                        variant={getStatusColor(status)}
+                        className="text-sm font-semibold flex-shrink-0 whitespace-nowrap"
+                      >
+                        {getStatusText(status)}
+                      </Badge>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-black">Cần hỗ trợ</label>
+                    {isEditMode ? (
+                      <div className="relative w-full">
+                        <select
+                          className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black outline-none appearance-none"
+                          value={needSupport ? 'true' : 'false'}
+                          onChange={e => setNeedSupport(e.target.value === 'true')}
+                        >
+                          <option value="false">Không</option>
+                          <option value="true">Có</option>
+                        </select>
+                        <Image
+                          src="/icon/chevron-down_Black.svg"
+                          alt="Dropdown"
+                          width={20}
+                          height={20}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                        />
+                      </div>
+                    ) : (
+                      <Badge
+                        variant={needSupport ? 'danger' : 'success'}
+                        className="text-sm font-semibold flex-shrink-0 whitespace-nowrap"
+                      >
+                        {needSupport ? 'Cần hỗ trợ' : 'Không cần hỗ trợ'}
+                      </Badge>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-black">Nội dung phản hồi</label>
+                    <textarea
+                      className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
+                      value={feedback?.content || ''}
+                      disabled
+                      rows={4}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-black">Ghi chú xử lý</label>
+                    {isEditMode ? (
+                      <textarea
+                        className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
+                        value={notes}
+                        onChange={e => setNotes(e.target.value)}
+                        rows={3}
+                        placeholder="Nhập ghi chú xử lý..."
+                      />
+                    ) : (
+                      <textarea
+                        className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
+                        value={notes}
+                        disabled
+                        rows={3}
+                      />
+                    )}
+                  </div>
+                </div>
+                <div className="flex-1 space-y-6 order-2 md:order-none">
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-black text-center">Lịch sử xử lý</label>
+                    <div className="bg-gray-50 rounded-lg p-4 max-h-[925px] overflow-y-auto">
+                      {feedback?.history && feedback.history.length > 0 ? (
+                        <div className="space-y-3">
+                          {feedback.history
+                            .slice()
+                            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                            .slice(0, 15)
+                            .map((item, index) => (
+                              <div key={index} className="border-l-4 border-lime-400 pl-4 py-2 bg-white rounded-r-lg">
+                                <div className="flex justify-between items-start mb-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-semibold text-sm text-gray-800">{item.byName}</span>
+                                    <span className="text-xs bg-gray-200 px-2 py-1 rounded-full text-gray-600">{item.byRole}</span>
+                                  </div>
+                                  <span className="text-xs text-gray-500">
+                                    {item.date ? new Date(item.date).toLocaleString('vi-VN') : ''}
+                                  </span>
+                                </div>
+                                {item.note && (
+                                  <div className="text-sm text-gray-600">
+                                    <span className="font-medium">Ghi chú:</span> {item.note}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
                         </div>
-                        <span className="text-xs text-gray-500">
-                          {new Date(item.date).toLocaleString('vi-VN')}
-                        </span>
-                      </div>
-                      <div className="text-sm text-gray-700 mb-1">
-                        <span className="font-medium">Hành động:</span> {item.action}
-                      </div>
-                      {item.note && (
-                        <div className="text-sm text-gray-600">
-                          <span className="font-medium">Ghi chú:</span> {item.note}
+                      ) : (
+                        <div className="text-center py-8">
+                          <div className="text-gray-400 mb-2">
+                            <svg className="w-12 h-12 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                          <p className="text-gray-500 text-sm font-medium">Chưa có lịch sử xử lý</p>
+                          <p className="text-gray-400 text-xs mt-1">Lịch sử xử lý sẽ hiển thị khi có người cập nhật phản hồi</p>
                         </div>
                       )}
                     </div>
-                  ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </AddFormLayout>
+              <div className="flex flex-col md:flex-row justify-center items-center gap-4 mt-8">
+                <button
+                  type="button"
+                  className="w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 rounded-lg transition text-lg"
+                  onClick={() => router.push('/admin/feedbacks')}
+                >
+                  Quay lại
+                </button>
+                {isEditMode ? (
+                  <button
+                    type="button"
+                    className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
+                    onClick={handleSave}
+                  >
+                    Lưu
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
+                    onClick={handleEditMode}
+                  >
+                    Chỉnh sửa
+                  </button>
+                )}
+              </div>
+            </FeedbackDetailLayout>
+          ) : null}
+        </div>
       </main>
     </div>
   );

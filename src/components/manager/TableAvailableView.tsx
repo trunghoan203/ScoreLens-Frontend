@@ -96,7 +96,8 @@ export default function TableAvailableView({ table, onReady, loading = false, te
         }
       }
 
-      if (processedTeamA.length === 0 || processedTeamB.length === 0) {
+      const totalPlayers = processedTeamA.length + processedTeamB.length;
+      if (totalPlayers === 0) {
         toast.error('Trận đấu cần có ít nhất 1 người chơi!');
         return;
       }

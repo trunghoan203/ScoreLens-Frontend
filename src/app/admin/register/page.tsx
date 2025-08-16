@@ -31,7 +31,6 @@ export default function AdminRegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  // OTP verification state
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isVerifying, setIsVerifying] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
@@ -59,7 +58,6 @@ export default function AdminRegisterPage() {
     }
   }, [resendTimer]);
 
-  // Validate từng bước
   const validateStep1 = () => {
     const newErrors: typeof errors = {};
     if (!formData.fullName) newErrors.fullName = "Họ tên là bắt buộc";
@@ -109,7 +107,7 @@ export default function AdminRegisterPage() {
         password: formData.password,
       });
       toast.success('Đăng ký thành công! Vui lòng kiểm tra email để xác thực.');
-      setStep(3); // sang bước xác minh
+      setStep(3);
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       const errorMessage = err.response?.data?.message || "Đăng ký thất bại. Vui lòng thử lại.";
@@ -119,7 +117,6 @@ export default function AdminRegisterPage() {
     }
   };
 
-  // OTP handlers
   const handleOtpChange = (index: number, value: string) => {
     if (value.length > 1) return;
     const newOtp = [...otp];
@@ -196,7 +193,6 @@ export default function AdminRegisterPage() {
       title="Đăng ký tài khoản Admin"
       description="Vui lòng nhập thông tin để đăng ký tài khoản quản trị viên."
     >
-
       {step === 1 && (
         <form className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]" onSubmit={e => { e.preventDefault(); if (validateStep1()) setStep(2); }}>
           <div>
