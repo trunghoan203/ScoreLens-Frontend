@@ -176,7 +176,12 @@ export default function ManagerDetailPage() {
           </div>
           <div className="w-full mb-6">
             <label className="block text-sm font-semibold mb-2 text-black">Ngày Sinh<span className="text-red-500">*</span></label>
-            <Input type="date" value={dob} onChange={e => setDob(e.target.value)} required disabled={!isEditMode} />
+            <input
+              type="date"
+              value={dob}
+              onChange={(e) => setDob(e.target.value)}
+              className="w-full bg-white border rounded-md border-gray-300 px-4 py-3 text-sm font-base text-black placeholder-gray-500 focus:border-lime-500 outline-none"
+            />
           </div>
           <div className="w-full mb-6">
             <label className="block text-sm font-semibold mb-2 text-black">Email<span className="text-red-500">*</span></label>
