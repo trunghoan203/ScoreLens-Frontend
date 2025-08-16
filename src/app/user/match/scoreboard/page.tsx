@@ -37,6 +37,7 @@ function ScoreboardPage() {
     tableId?: string;
     isAiAssisted?: boolean;
     createdByMembershipId?: string;
+    creatorGuestToken?: string;
     teams?: Array<{
       score?: number;
       members?: Array<{
@@ -66,6 +67,8 @@ function ScoreboardPage() {
     },
     onMatchUpdate: (updatedMatch: unknown) => {
       const matchData = updatedMatch as {
+        createdByMembershipId?: string;
+        creatorGuestToken?: string;
         teams?: Array<{
           score?: number;
           members?: Array<{
@@ -192,7 +195,6 @@ function ScoreboardPage() {
     }
   }, [matchId, router, searchParams]);
 
-  // handleTeamChange, handleAddPlayer, handleRemovePlayer are not used in this component
 
   const exampleResults = [
     'Team A - Bi số 5 vào đúng lỗ giữa.',
@@ -204,11 +206,16 @@ function ScoreboardPage() {
     const mId = searchParams?.get('matchId');
     const code = searchParams?.get('room');
     const guestToken = searchParams?.get('guestToken');
+    const creatorGuestToken = searchParams?.get('creatorGuestToken');
     const tId = searchParams?.get('tableId');
 
     if (mId) setMatchId(mId);
     if (code) setMatchCode(code);
-    if (guestToken) setActorGuestToken(guestToken);
+    if (creatorGuestToken) {
+      setActorGuestToken(creatorGuestToken);
+    } else if (guestToken) {
+      setActorGuestToken(guestToken);
+    }
     if (tId) setTableId(tId);
 
     const handlePopState = (e: PopStateEvent) => {
@@ -223,10 +230,14 @@ function ScoreboardPage() {
       try {
         if (mId) {
           const matchData = await userMatchService.getMatchById(mId);
-          const responseData = (matchData as { data?: { teams?: Array<{ score?: number; members?: Array<{ guestName?: string; membershipName?: string; fullName?: string }> }>; tableId?: string; startTime?: string } })?.data || matchData;
-          const matchInfoData = responseData as { teams?: Array<{ score?: number; members?: Array<{ guestName?: string; membershipName?: string; fullName?: string }> }>; tableId?: string; startTime?: string };
+          const responseData = (matchData as { data?: { teams?: Array<{ score?: number; members?: Array<{ guestName?: string; membershipName?: string; fullName?: string }> }>; tableId?: string; startTime?: string; createdByMembershipId?: string; creatorGuestToken?: string } })?.data || matchData;
+          const matchInfoData = responseData as { teams?: Array<{ score?: number; members?: Array<{ guestName?: string; membershipName?: string; fullName?: string }> }>; tableId?: string; startTime?: string; createdByMembershipId?: string; creatorGuestToken?: string };
 
           setMatchInfo(matchInfoData);
+
+          if (matchInfoData?.creatorGuestToken && !actorGuestToken) {
+            setActorGuestToken(matchInfoData.creatorGuestToken);
+          }
 
           const sA = matchInfoData?.teams?.[0]?.score ?? 0;
           const sB = matchInfoData?.teams?.[1]?.score ?? 0;
@@ -274,7 +285,7 @@ function ScoreboardPage() {
       if (timer) clearTimeout(timer);
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [searchParams]);
+  }, [searchParams, actorGuestToken]);
 
   useEffect(() => {
     const verifyTableInfo = async () => {
@@ -427,6 +438,11 @@ function ScoreboardPage() {
                         }
 
                         if (!actorGuestToken && !matchInfo?.createdByMembershipId) {
+                          console.log('Debug - Quyền chỉnh sửa điểm:', {
+                            actorGuestToken,
+                            createdByMembershipId: matchInfo?.createdByMembershipId,
+                            matchInfo: matchInfo
+                          });
                           toast.error('Không có quyền chỉnh sửa điểm');
                           return;
                         }
