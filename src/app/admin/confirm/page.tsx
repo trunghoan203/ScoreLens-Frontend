@@ -52,7 +52,6 @@ export default function CompleteProfilePage() {
         try {
           const token = localStorage.getItem('adminAccessToken');
           if (token) {
-            // Gọi API nhưng không chờ kết quả
             axios.post(
               '/admin/sendmail',
               {},
@@ -70,7 +69,6 @@ export default function CompleteProfilePage() {
           console.error('Error starting sendmail request:', error);
         }
       
-        // Chuyển trang ngay sau khi gọi API
         router.push("/admin/pending");
       }, 5000);
       
@@ -110,14 +108,12 @@ export default function CompleteProfilePage() {
           BỔ SUNG THÔNG TIN TÀI KHOẢN
         </h1>
         <RegisterSteps currentStep={step} />
-        {/* Bước 1: Thông tin thương hiệu */}
         {step === 1 && (
           <BrandInfoForm
             onSuccess={handleBrandInfoSuccess}
             initialData={brandInfo}
           />
         )}
-        {/* Bước 2: Thông tin chi nhánh */}
         {step === 2 && (
           <BranchInfoForm
             onSuccess={handleBranchInfoSuccess}
@@ -127,7 +123,6 @@ export default function CompleteProfilePage() {
             initialBranches={branches}
           />
         )}
-        {/* Bước 3: Thông báo thành công */}
         {step === 3 && (
           <div className="w-full max-w-lg mx-auto flex flex-col gap-6 items-center px-0 pb-8 animate-success-fade-in">
             <h2 className="text-2xl md:text-3xl font-bold text-center text-black mt-8 mb-2">BẠN ĐÃ ĐĂNG KÝ THÀNH CÔNG</h2>

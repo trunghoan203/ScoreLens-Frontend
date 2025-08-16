@@ -4,7 +4,6 @@ import Sidebar from "@/components/admin/Sidebar";
 import HeaderAdminPage from "@/components/admin/HeaderAdminPage";
 import FeedbackTable from "@/components/admin/FeedbackTable";
 import FeedbackSearchBar from "@/components/admin/FeedbackSearchBar";
-import { useRouter } from "next/navigation";
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import EmptyState from '@/components/ui/EmptyState';
 import { useAdminAuthGuard } from '@/lib/hooks/useAdminAuthGuard';
@@ -34,7 +33,6 @@ export default function AdminFeedbacksPage() {
   const [error, setError] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const router = useRouter();
 
   const itemPage = 10;
 
@@ -134,10 +132,6 @@ export default function AdminFeedbacksPage() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleFeedbackClick = (feedbackId: string) => {
-    router.push(`/admin/feedbacks/${feedbackId}`);
   };
 
   if (isChecking) return null;

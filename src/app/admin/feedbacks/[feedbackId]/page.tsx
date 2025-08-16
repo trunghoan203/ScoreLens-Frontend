@@ -142,7 +142,7 @@ export default function AdminFeedbackDetailPage() {
     };
 
     fetchData();
-  }, [feedbackId]);
+  }, [feedbackId, isEditMode]);
 
   useEffect(() => {
     const handleScroll = () => {

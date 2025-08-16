@@ -14,7 +14,6 @@ export default function AdminForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Ref and state for dynamic image height
   const formRef = useRef<HTMLDivElement>(null);
 
   const [step, setStep] = useState(1);
@@ -23,8 +22,7 @@ export default function AdminForgotPasswordPage() {
 
   useLayoutEffect(() => {
     if (formRef.current) {
-      // Xóa: const formHeight = ...
-    }
+      }
   }, []);
 
   const handleSubmitEmail = async (e: React.FormEvent) => {

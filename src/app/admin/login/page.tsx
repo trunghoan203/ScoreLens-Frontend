@@ -27,7 +27,6 @@ export default function AdminLoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  // Load saved credentials on component mount
   useEffect(() => {
     const savedData = adminService.getRememberMeData();
     if (savedData) {
@@ -65,7 +64,6 @@ export default function AdminLoginPage() {
     setErrors({});
 
     try {
-      // Gửi request login với rememberMe bằng axios
       const response = await axios.post('/admin/login', {
         email: formData.email,
         password: formData.password,
@@ -83,7 +81,6 @@ export default function AdminLoginPage() {
           localStorage.setItem('refreshToken', refreshToken);
         }
 
-        // Lưu thông tin đăng nhập nếu user chọn nhớ mật khẩu
         adminService.saveRememberMeData({
           email: formData.email,
           password: formData.password,
@@ -97,7 +94,6 @@ export default function AdminLoginPage() {
           return;
         }
         
-        // Gọi API lấy profile với accessToken vừa nhận
         try {
           const profileResponse = await axios.get('/admin/profile', {
             headers: {
@@ -120,7 +116,6 @@ export default function AdminLoginPage() {
             router.push('/admin/rejected');
             return;
           }
-          // approved
           if (admin.brandId) {
             router.push('/admin/branches');
           } else {

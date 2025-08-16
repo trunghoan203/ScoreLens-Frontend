@@ -23,14 +23,12 @@ export default function BranchDetailPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Form data
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [tableNumber, setTableNumber] = useState(0);
   const [status, setStatus] = useState<'open' | 'closed' | 'maintenance'>('open');
 
-  // Load club data
   useEffect(() => {
     const loadClub = async () => {
       if (!clubId) {
@@ -60,7 +58,6 @@ export default function BranchDetailPage() {
     loadClub();
   }, [clubId, router]);
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -87,7 +84,6 @@ export default function BranchDetailPage() {
     }
   };
 
-  // Handle delete
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
@@ -103,7 +99,6 @@ export default function BranchDetailPage() {
     }
   };
 
-  // Show loading
   if (isLoading) {
     return (
       <div className="min-h-screen flex bg-[#18191A]">
@@ -123,7 +118,6 @@ export default function BranchDetailPage() {
     );
   }
 
-  // Show error if no club found
   if (!club) {
     return (
       <div className="min-h-screen flex bg-[#18191A]">

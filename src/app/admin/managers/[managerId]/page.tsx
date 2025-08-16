@@ -22,7 +22,7 @@ export default function ManagerDetailPage() {
   const [phone, setPhone] = useState('');
   const [dob, setDob] = useState('');
   const [email, setEmail] = useState('');
-  const [cccd, setCccd] = useState('');
+  const [citizenCode, setCitizenCode] = useState('');
   const [address, setAddress] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -42,7 +42,7 @@ export default function ManagerDetailPage() {
         setPhone(typeof dataObj.phoneNumber === 'string' ? dataObj.phoneNumber : '');
         setDob(typeof dataObj.dateOfBirth === 'string' ? dataObj.dateOfBirth.slice(0, 10) : '');
         setEmail(typeof dataObj.email === 'string' ? dataObj.email : '');
-        setCccd(typeof dataObj.citizenCode === 'string' ? dataObj.citizenCode : '');
+        setCitizenCode(typeof dataObj.citizenCode === 'string' ? dataObj.citizenCode : '');
         setAddress(typeof dataObj.address === 'string' ? dataObj.address : '');
         setClubId(typeof dataObj.clubId === 'string' ? dataObj.clubId : '');
         setIsActive(typeof dataObj.isActive === 'boolean' ? dataObj.isActive : false);
@@ -76,7 +76,7 @@ export default function ManagerDetailPage() {
         email,
         phoneNumber: phone,
         dateOfBirth: dob,
-        citizenCode: cccd,
+        citizenCode: citizenCode,
         address,
         clubId,
         isActive,
@@ -208,7 +208,7 @@ export default function ManagerDetailPage() {
             </div>
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">CCCD<span className="text-red-500">*</span></label>
-              <Input value={cccd} onChange={e => setCccd(e.target.value)} required disabled={!isEditMode} />
+              <Input value={citizenCode} onChange={e => setCitizenCode(e.target.value)} required disabled={!isEditMode} />
             </div>
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Địa Chỉ<span className="text-red-500">*</span></label>
