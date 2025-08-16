@@ -6,7 +6,7 @@ import HeaderAdminPage from "@/components/admin/HeaderAdminPage";
 import ManagerTable from "@/components/admin/ManagerTable";
 import { useRouter } from "next/navigation";
 import ManagerSearchBar from "@/components/admin/ManagerSearchBar";
-import { TableSkeleton } from '@/components/ui/LoadingSkeleton';
+import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import EmptyState from '@/components/ui/EmptyState';
 import managerService from '@/lib/managerService';
 import adminService from '@/lib/adminService';
@@ -14,6 +14,7 @@ import clubsService, { ClubResponse } from '@/lib/clubsService';
 import toast from 'react-hot-toast';
 import { useAdminAuthGuard } from '@/lib/hooks/useAdminAuthGuard';
 import { Users2, Plus, Menu } from 'lucide-react';
+import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 
 interface Manager {
   name: string;
@@ -113,6 +114,7 @@ export default function ManagersPage() {
 
   return (
     <>
+      {loading && <ScoreLensLoading text="Đang tải..." />}
       <div className="min-h-screen flex bg-[#18191A]">
         <Sidebar />
         <main className="flex-1 bg-white min-h-screen">
@@ -132,11 +134,11 @@ export default function ManagersPage() {
             />
             {loading ? (
               <div className="py-8">
-                <TableSkeleton rows={5} />
+                <LoadingSkeleton type="card" lines={6} className="w-full max-w-2xl mx-auto" />
               </div>
             ) : tableLoading ? (
               <div className="py-8">
-                <TableSkeleton rows={5} />
+                <LoadingSkeleton type="card" lines={6} className="w-full max-w-2xl mx-auto" />
               </div>
             ) : (search && filteredManagers.length === 0) || managers.length === 0 ? (
               <EmptyState
