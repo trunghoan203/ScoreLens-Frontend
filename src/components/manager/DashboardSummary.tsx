@@ -23,7 +23,7 @@ export default function DashboardSummary({ totalTables, inUse, available, member
     { label: 'Hội viên', value: members, color: 'bg-white', dot: 'bg-purple-500' },
   ];
   return (
-    <section className="my-6">
+    <section>
       <div className="w-full rounded-xl bg-[#8ADB10] shadow-lg py-6 flex items-center justify-center mb-8">
         <span className="text-2xl font-extrabold text-[#FFFFFF] tracking-widest flex items-center gap-3">BẢNG ĐIỀU KHIỂN</span>
       </div>

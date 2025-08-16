@@ -4,13 +4,13 @@ import HeaderManager from '@/components/manager/HeaderManager';
 import AddFormLayout from '@/components/shared/AddFormLayout';
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/PasswordInput';
-import { Select } from '@/components/ui/select';
 import { useRouter, useParams } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
 import toast from 'react-hot-toast';
 import { managerCameraService } from '@/lib/managerCameraService';
 import { managerTableService } from '@/lib/managerTableService';
+import Image from 'next/image';
 
 interface Table {
   tableId: string;
@@ -42,7 +42,6 @@ export default function CameraDetailPage() {
   const [isConnect, setIsConnect] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
 
   const formatCategory = (category: string) => {
     switch (category) {
@@ -99,16 +98,6 @@ export default function CameraDetailPage() {
       });
   }, [cameraId]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 0);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const handleSave = async () => {
     try {
       await managerCameraService.updateCamera(cameraId, {
@@ -141,11 +130,10 @@ export default function CameraDetailPage() {
     <div className="min-h-screen flex bg-[#18191A]">
       <SidebarManager />
       <main className="flex-1 bg-white min-h-screen">
-        <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
-          }`}>
+        <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
           <HeaderManager />
         </div>
-        <div className="p-10">
+        <div className="px-10 pb-10">
           <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
             <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
               QUẢN LÝ CAMERA
@@ -191,19 +179,28 @@ export default function CameraDetailPage() {
             </ConfirmPopup>
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Bàn<span className="text-red-500">*</span></label>
-              <Select
-                className="text-black"
-                value={tableId}
-                onChange={e => setTableId(e.target.value)}
-                required
-                disabled={!isEditMode}
-              >
-                {tables.map(table => (
-                  <option className="text-black" key={table.tableId} value={table.tableId}>
-                    {table.name} - {formatCategory(table.category)}
-                  </option>
-                ))}
-              </Select>
+              <div className="relative w-full">
+                <select
+                  value={tableId}
+                  onChange={e => setTableId(e.target.value)}
+                  required
+                  disabled={!isEditMode}
+                  className="w-full border border-gray-300 bg-white rounded-lg px-4 py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none"
+                >
+                  {tables.map(table => (
+                    <option className="text-black" key={table.tableId} value={table.tableId}>
+                      {table.name} - {formatCategory(table.category)}
+                    </option>
+                  ))}
+                </select>
+                <Image
+                  src="/icon/chevron-down_Black.svg"
+                  alt="Dropdown"
+                  width={20}
+                  height={20}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                />
+              </div>
             </div>
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">IP<span className="text-red-500">*</span></label>
@@ -219,16 +216,25 @@ export default function CameraDetailPage() {
             </div>
             <div className="w-full mb-10">
               <label className="block text-sm font-semibold mb-2 text-black">Trạng thái kết nối<span className="text-red-500">*</span></label>
-              <Select
-                className="text-black"
-                value={isConnect ? 'true' : 'false'}
-                onChange={e => setIsConnect(e.target.value === 'true')}
-                required
-                disabled={!isEditMode}
-              >
-                <option className="text-black" value="true">Đã kết nối</option>
-                <option className="text-black" value="false">Chưa kết nối</option>
-              </Select>
+              <div className="relative w-full">
+                <select
+                  value={isConnect ? 'true' : 'false'}
+                  onChange={e => setIsConnect(e.target.value === 'true')}
+                  required
+                  disabled={!isEditMode}
+                  className="w-full border border-gray-300 bg-white rounded-lg px-4 py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none"
+                >
+                  <option className="text-black" value="true">Đã kết nối</option>
+                  <option className="text-black" value="false">Chưa kết nối</option>
+                </select>
+                <Image
+                  src="/icon/chevron-down_Black.svg"
+                  alt="Dropdown"
+                  width={20}
+                  height={20}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                />
+              </div>
             </div>
           </AddFormLayout>
         </div>

@@ -10,7 +10,7 @@ interface BranchSearchBarProps {
 export default function BranchSearchBar({ search, setSearch, onAddBranch }: BranchSearchBarProps) {
   return (
     <div className="flex items-center justify-between mb-4">
-      <div className="flex items-center border border-gray-400 bg-gray-100 rounded-lg px-4 py-2 w-96">
+      <div className="flex items-center border border-gray-300 bg-gray-100 rounded-lg px-4 py-2 w-96">
         <input
           type="text"
           placeholder="Nhập tên hoặc địa chỉ để tìm kiếm"

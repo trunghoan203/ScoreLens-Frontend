@@ -31,7 +31,6 @@ export default function AdminFeedbacksPage() {
   const [loading, setLoading] = useState(true);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [isScrolled, setIsScrolled] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemPage = 10;
 
@@ -89,16 +88,6 @@ export default function AdminFeedbacksPage() {
     }
   }, [isChecking]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 0);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const filteredFeedbacks = feedbacks.filter(f => {
     const branch = (f.branch || '').toString().toLowerCase();
     const table = (f.table || '').toString().toLowerCase();
@@ -141,8 +130,7 @@ export default function AdminFeedbacksPage() {
       <div className="min-h-screen flex bg-[#18191A]">
         <Sidebar />
         <main className="flex-1 bg-white min-h-screen">
-          <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
-            }`}>
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
             <HeaderAdminPage />
           </div>
           <div className="px-10 pb-10">
@@ -179,7 +167,7 @@ export default function AdminFeedbacksPage() {
                   label: 'Xem tất cả',
                   onClick: () => {
                     setSearch('');
-                    setStatusFilter('adminP');
+                    setStatusFilter('all');
                     setDateFilter('');
                   },
                   icon: (
@@ -196,7 +184,6 @@ export default function AdminFeedbacksPage() {
                   feedbacks={currentFeedbacks}
                 />
 
-                {/* Pagination */}
                 {totalPages > 1 && (
                   <div className="mt-10 flex items-center justify-center gap-2">
                     <button

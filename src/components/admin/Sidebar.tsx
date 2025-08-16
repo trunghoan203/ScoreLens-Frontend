@@ -52,7 +52,7 @@ export default function Sidebar() {
           href="/admin/club"
           className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/admin/club') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
         >
-          Thông tin thương hiệu
+          Thương hiệu
         </Link>
         <Link
           href="/admin/feedbacks"

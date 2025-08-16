@@ -103,15 +103,19 @@ export default function BranchDetailPage() {
     return (
       <div className="min-h-screen flex bg-[#18191A]">
         <Sidebar />
-        <main className="flex-1 bg-white p-10 min-h-screen">
-          <HeaderAdminPage />
-          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
-              CHI NHÁNH
-            </span>
+        <main className="flex-1 bg-white min-h-screen">
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+            <HeaderAdminPage />
           </div>
-          <div className="py-8">
-            <LoadingSkeleton type="card" lines={6} className="w-full max-w-2xl mx-auto" />
+          <div className="px-10 pb-10">
+            <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
+              <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+                CHI NHÁNH
+              </span>
+            </div>
+            <div className="py-8">
+              <LoadingSkeleton type="card" lines={6} className="w-full max-w-2xl mx-auto" />
+            </div>
           </div>
         </main>
       </div>
@@ -122,15 +126,19 @@ export default function BranchDetailPage() {
     return (
       <div className="min-h-screen flex bg-[#18191A]">
         <Sidebar />
-        <main className="flex-1 bg-white p-10 min-h-screen">
-          <HeaderAdminPage />
-          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
-              CHI NHÁNH
-            </span>
+        <main className="flex-1 bg-white min-h-screen">
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+            <HeaderAdminPage />
           </div>
-          <div className="py-8 text-center">
-            <div className="text-gray-500">Không tìm thấy thông tin chi nhánh</div>
+          <div className="px-10 pb-10">
+            <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
+              <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+                CHI NHÁNH
+              </span>
+            </div>
+            <div className="py-8 text-center">
+              <div className="text-gray-500">Không tìm thấy thông tin chi nhánh</div>
+            </div>
           </div>
         </main>
       </div>
@@ -230,7 +238,7 @@ export default function BranchDetailPage() {
                   value={status}
                   onChange={e => setStatus(e.target.value as 'open' | 'closed' | 'maintenance')}
                   disabled={!isEditMode}
-                  className="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-500 appearance-none"
+                  className="flex w-full border border-gray-300 rounded-md bg-white px-4 py-3 text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all appearance-none"
                 >
                   <option value="open">Mở cửa</option>
                   <option value="closed">Đóng cửa</option>
