@@ -32,7 +32,8 @@ export default function AdminFeedbacksPage() {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
-  const router = useRouter();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemPage = 10;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -132,20 +133,6 @@ export default function AdminFeedbacksPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const totalPages = Math.ceil(filteredFeedbacks.length / itemPage);
-  const startIndex = (currentPage - 1) * itemPage;
-  const endIndex = startIndex + itemPage;
-  const currentFeedbacks = filteredFeedbacks.slice(startIndex, endIndex);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, statusFilter, dateFilter]);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   if (isChecking) return null;
 
   return (
@@ -159,14 +146,12 @@ export default function AdminFeedbacksPage() {
             <HeaderAdminPage />
           </div>
           <div className="px-10 pb-10">
-            {/* Banner Section */}
             <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
               <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
                 PHẢN HỒI
               </span>
             </div>
 
-            {/* Search and Filter Section */}
             <FeedbackSearchBar
               search={search}
               setSearch={setSearch}
@@ -214,7 +199,6 @@ export default function AdminFeedbacksPage() {
                 {/* Pagination */}
                 {totalPages > 1 && (
                   <div className="mt-10 flex items-center justify-center gap-2">
-                    {/* Previous Button */}
                     <button
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
@@ -232,7 +216,6 @@ export default function AdminFeedbacksPage() {
                       />
                     </button>
 
-                    {/* Page Numbers */}
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                       <button
                         key={page}
@@ -246,7 +229,6 @@ export default function AdminFeedbacksPage() {
                       </button>
                     ))}
 
-                    {/* Next Button */}
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
@@ -266,8 +248,7 @@ export default function AdminFeedbacksPage() {
                   </div>
                 )}
 
-                {/* Page Info */}
-                <div className="mt-4 text-center text-gray-600 text-sm">
+                <div className="mt-4 text-center text-gray-400 italic text-xs">
                   Hiển thị {startIndex + 1}-{Math.min(endIndex, filteredFeedbacks.length)} trong tổng số {filteredFeedbacks.length} phản hồi
                 </div>
               </>
