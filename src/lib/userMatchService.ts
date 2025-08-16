@@ -73,7 +73,6 @@ export interface UpdateTeamMembersRequest {
   }>;
 }
 
-// Interface mới cho API cập nhật cả 2 teams
 export interface UpdateTeamMembersRequestV2 {
   teams: Array<Array<{
     guestName?: string;
@@ -83,7 +82,7 @@ export interface UpdateTeamMembersRequestV2 {
   actorMembershipId?: string;
 }
 
-export interface PopupEditMembersProps {
+export interface TeamMembersProps {
   onClose: () => void;
   onSave: (teamAMembers: string[], teamBMembers: string[]) => void;
   initialTeamA: string[];
@@ -105,12 +104,12 @@ class UserMatchService {
       typeof error === 'object' &&
       error !== null &&
       'response' in error &&
-      (error as any).response?.data?.message
+      (error as { response?: { data?: { message?: string } } }).response?.data?.message
     ) {
-      return new Error((error as any).response.data.message);
+      return new Error((error as { response?: { data?: { message?: string } } }).response!.data!.message);
     }
     if (typeof error === 'object' && error !== null && 'message' in error) {
-      return new Error((error as any).message);
+      return new Error((error as { message?: string }).message || 'Đã xảy ra lỗi không xác định');
     }
     return new Error('Đã xảy ra lỗi không xác định');
   }

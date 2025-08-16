@@ -1,21 +1,19 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-
 interface Props {
   onClose: () => void;
   onEditScore: () => void;
   onEditMembers: () => void;
 }
 
-export default function PopupEditChoice({ onClose, onEditScore, onEditMembers }: Props) {
+export default function EditOption({ onClose, onEditScore, onEditMembers }: Props) {
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-lg text-center">
         <h2 className="text-xl font-bold text-[#000000] mb-6">
           Chọn loại chỉnh sửa
         </h2>
-        
+
         <div className="space-y-4 mb-6">
           <div className="text-left">
             <p className="text-sm text-gray-600 mb-3">
@@ -33,7 +31,7 @@ export default function PopupEditChoice({ onClose, onEditScore, onEditMembers }:
                   </div>
                 </div>
               </button>
-              
+
               <button
                 onClick={onEditMembers}
                 className="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-green-300 transition-all hover:bg-green-50"
@@ -48,7 +46,7 @@ export default function PopupEditChoice({ onClose, onEditScore, onEditMembers }:
             </div>
           </div>
         </div>
-        
+
         <div className="flex gap-4">
           <button
             onClick={onClose}
