@@ -50,7 +50,6 @@ export default function ManagersPage() {
           ? (apiRes as Record<string, unknown>).data as unknown[]
           : [];
 
-        // Lấy thông tin chi nhánh để map tên
         let clubsData: ClubResponse[] = [];
         try {
           if (profile.brandId) {
@@ -116,48 +115,52 @@ export default function ManagersPage() {
     <>
       <div className="min-h-screen flex bg-[#18191A]">
         <Sidebar />
-        <main className="flex-1 bg-white p-10 min-h-screen">
-          <HeaderAdminPage />
-          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
-              QUẢN LÝ
-            </span>
+        <main className="flex-1 bg-white min-h-screen">
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+            <HeaderAdminPage />
           </div>
-          <ManagerSearchBar
-            search={search}
-            setSearch={handleSearch}
-            onAddManager={isAdding ? () => { } : handleAddManager}
-          />
-          {loading ? (
-            <div className="py-8">
-              <TableSkeleton rows={5} />
+          <div className="px-10 pb-10">
+            <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
+              <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+                QUẢN LÝ
+              </span>
             </div>
-          ) : tableLoading ? (
-            <div className="py-8">
-              <TableSkeleton rows={5} />
-            </div>
-          ) : (search && filteredManagers.length === 0) || managers.length === 0 ? (
-            <EmptyState
-              icon={
-                <Users2 className="w-14 h-14 text-white" strokeWidth={1.5} />
-              }
-              title={search ? 'Không tìm thấy quản lý phù hợp' : 'Chưa có quản lý nào'}
-              description={
-                search
-                  ? 'Thử thay đổi từ khóa tìm kiếm để tìm thấy quản lý phù hợp'
-                  : 'Sử dụng nút "Thêm quản lý" ở trên để tạo quản lý đầu tiên'
-              }
-              secondaryAction={search ? {
-                label: 'Xem tất cả',
-                onClick: () => setSearch(''),
-                icon: (
-                  <Menu className="w-5 h-5" />
-                )
-              } : undefined}
+            <ManagerSearchBar
+              search={search}
+              setSearch={handleSearch}
+              onAddManager={isAdding ? () => { } : handleAddManager}
             />
-          ) : (
-            <ManagerTable managers={filteredManagers} />
-          )}
+            {loading ? (
+              <div className="py-8">
+                <TableSkeleton rows={5} />
+              </div>
+            ) : tableLoading ? (
+              <div className="py-8">
+                <TableSkeleton rows={5} />
+              </div>
+            ) : (search && filteredManagers.length === 0) || managers.length === 0 ? (
+              <EmptyState
+                icon={
+                  <Users2 className="w-14 h-14 text-white" strokeWidth={1.5} />
+                }
+                title={search ? 'Không tìm thấy quản lý phù hợp' : 'Chưa có quản lý nào'}
+                description={
+                  search
+                    ? 'Thử thay đổi từ khóa tìm kiếm để tìm thấy quản lý phù hợp'
+                    : 'Sử dụng nút "Thêm quản lý" ở trên để tạo quản lý đầu tiên'
+                }
+                secondaryAction={search ? {
+                  label: 'Xem tất cả',
+                  onClick: () => setSearch(''),
+                  icon: (
+                    <Menu className="w-5 h-5" />
+                  )
+                } : undefined}
+              />
+            ) : (
+              <ManagerTable managers={filteredManagers} />
+            )}
+          </div>
         </main>
       </div>
     </>

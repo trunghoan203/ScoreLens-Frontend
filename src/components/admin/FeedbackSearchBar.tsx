@@ -31,11 +31,11 @@ export default function FeedbackSearchBar({
   return (
     <div className="mb-6 backdrop-blur-md bg-white/60 rounded-2xl shadow-l flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 transition-all duration-300">
       {/* Search */}
-      <div className="flex items-center bg-gray-100 rounded-lg px-4 py-2 w-96">
+      <div className="flex items-center border border-gray-400 bg-gray-100 rounded-lg px-4 py-2 w-96">
         <input
           type="text"
-          placeholder="Nhập tên tìm kiếm"
-          className="bg-transparent outline-none flex-1 text-[#000000]"
+          placeholder="Nhập chi nhánh hoặc bàn để tìm kiếm"
+          className="bg-transparent outline-none flex-1 text-gray-700"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -45,7 +45,7 @@ export default function FeedbackSearchBar({
       {/* Status and Date Filters Group */}
       <div className="flex gap-3 w-full sm:w-auto">
         {/* Status Filter */}
-        <div className="relative w-full sm:w-60">
+        <div className="relative w-full">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
