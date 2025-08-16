@@ -104,15 +104,19 @@ export default function ManagerDetailPage() {
     return (
       <div className="min-h-screen flex bg-[#18191A]">
         <Sidebar />
-        <main className="flex-1 bg-white p-10 min-h-screen">
-          <HeaderAdminPage />
-          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
-              QUẢN LÝ
-            </span>
+        <main className="flex-1 bg-white min-h-screen">
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+            <HeaderAdminPage />
           </div>
-          <div className="py-8">
-            <LoadingSkeleton type="card" lines={6} className="w-full max-w-2xl mx-auto" />
+          <div className="px-10 pb-10">
+            <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
+              <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+                QUẢN LÝ
+              </span>
+            </div>
+            <div className="py-8">
+              <LoadingSkeleton type="card" lines={6} className="w-full max-w-2xl mx-auto" />
+            </div>
           </div>
         </main>
       </div>
@@ -122,7 +126,7 @@ export default function ManagerDetailPage() {
   return (
     <div className="min-h-screen flex bg-[#18191A]">
       <Sidebar />
-      <main className="flex-1 bg-white p-10 min-h-screen">
+      <main className="flex-1 bg-white min-h-screen">
         <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
           <HeaderAdminPage />
         </div>
@@ -161,7 +165,7 @@ export default function ManagerDetailPage() {
               <></>
             </ConfirmPopup>
             <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Chọn Club<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-2 text-black">Chọn Chi Nhánh<span className="text-red-500">*</span></label>
               <div className="relative w-full">
                 <select
                   value={clubId}
@@ -169,9 +173,9 @@ export default function ManagerDetailPage() {
                   required
                   disabled={!isEditMode}
                   name="clubId"
-                  className="w-full border border-gray-300 bg-white rounded-lg px-4 py-3 text-sm text-black outline-none appearance-none"
+                  className="w-full border border-gray-300 bg-white rounded-lg px-4 py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none"
                 >
-                  <option value="">-- Chọn club --</option>
+                  <option value="">-- Chọn chi nhánh --</option>
                   {clubs.map(club => (
                     <option key={club.clubId} value={club.clubId}>{club.clubName}</option>
                   ))}
@@ -223,7 +227,7 @@ export default function ManagerDetailPage() {
                   required
                   disabled={!isEditMode}
                   name="isActive"
-                  className="w-full border border-gray-300 bg-white rounded-lg px-4 py-3 text-sm text-black outline-none appearance-none" >
+                  className="w-full border border-gray-300 bg-white rounded-lg px-4 py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none" >
                   <option value="active">Hoạt động</option>
                   <option value="inactive">Không hoạt động</option>
                 </select>

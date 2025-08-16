@@ -12,7 +12,7 @@ import { managerTableService } from '@/lib/managerTableService';
 import QRCode from 'react-qr-code';
 
 const tableTypes = [
-  { value: 'pool-8', label: 'Bida Pool' },
+  { value: 'pool-8', label: 'Bida Pool-8' },
   { value: 'carom', label: 'Bida Carom' },
 ];
 
@@ -30,11 +30,8 @@ export default function TableDetailPage() {
   const router = useRouter();
   const params = useParams();
   const tableId = params?.tableId as string;
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [loading, setLoading] = useState(true);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [table, setTable] = useState<Table | null>(null);
+  const [, setLoading] = useState(true);
+  const [, setTable] = useState<Table | null>(null);
 
   const [name, setName] = useState('');
   const [type, setType] = useState('');
@@ -42,7 +39,6 @@ export default function TableDetailPage() {
   const [qrCodeData, setQrCodeData] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -69,16 +65,6 @@ export default function TableDetailPage() {
       })
       .finally(() => setLoading(false));
   }, [tableId]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 0);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const statusOptions = [
     { value: 'empty', label: 'Trống' },
@@ -109,7 +95,6 @@ export default function TableDetailPage() {
   };
 
   const handleDownloadQR = () => {
-    // Logic để tải ảnh QR về (nếu cần)
     const svg = document.getElementById("QRCode");
     if (svg) {
       const svgData = new XMLSerializer().serializeToString(svg);
@@ -136,11 +121,10 @@ export default function TableDetailPage() {
     <div className="min-h-screen flex bg-[#18191A]">
       <SidebarManager />
       <main className="flex-1 bg-white min-h-screen">
-        <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
-          }`}>
+        <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
           <HeaderManager />
         </div>
-        <div className="p-10">
+        <div className="px-10 pb-10">
           <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
             <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
               QUẢN LÝ BÀN
@@ -205,13 +189,12 @@ export default function TableDetailPage() {
               </Select>
             </div>
 
-            {/* QR Code Image - Hiển thị ngay dưới Trạng thái */}
             {qrCodeData && (
               <div className="w-full mb-6">
                 <div className="flex flex-col items-center">
                   <div className="bg-white p-4 rounded-lg border-2 border-gray-200 shadow-sm">
                     <QRCode
-                      id="QRCode" // ID để có thể tải về nếu cần
+                      id="QRCode"
                       value={qrCodeData}
                       size={200}
                     />

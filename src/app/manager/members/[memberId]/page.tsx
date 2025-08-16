@@ -8,6 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
 import toast from 'react-hot-toast';
 import { managerMemberService } from '@/lib/managerMemberService';
+import Image from 'next/image';
 
 interface Member {
   membershipId: string;
@@ -27,7 +28,6 @@ export default function MemberDetailPage() {
   const [status, setStatus] = useState<'active' | 'inactive'>('active');
   const [showConfirm, setShowConfirm] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     managerMemberService.getAllMembers()
@@ -53,16 +53,6 @@ export default function MemberDetailPage() {
         toast.error('Không thể tải dữ liệu hội viên');
       });
   }, [memberId]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 0);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const handleSave = async () => {
     try {
@@ -91,11 +81,10 @@ export default function MemberDetailPage() {
     <div className="min-h-screen flex bg-[#18191A]">
       <SidebarManager />
       <main className="flex-1 bg-white min-h-screen">
-        <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
-          }`}>
+        <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
           <HeaderManager />
         </div>
-        <div className="p-10">
+        <div className="px-10 pb-10">
           <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
             <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
               QUẢN LÝ HỘI VIÊN
@@ -155,15 +144,24 @@ export default function MemberDetailPage() {
             </div>
             <div className="w-full mb-10">
               <label className="block text-sm font-semibold mb-2 text-black">Trạng thái<span className="text-red-500">*</span></label>
-              <select
-                value={status}
-                onChange={e => setStatus(e.target.value as 'active' | 'inactive')}
-                disabled={!isEditMode}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-              >
-                <option value="active">Hoạt động</option>
-                <option value="inactive">Không hoạt động</option>
-              </select>
+              <div className="relative w-full">
+                <select
+                  value={status}
+                  onChange={e => setStatus(e.target.value as 'active' | 'inactive')}
+                  disabled={!isEditMode}
+                  className="w-full border border-gray-300 bg-white rounded-lg px-4 py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none"
+                >
+                  <option value="active">Hoạt động</option>
+                  <option value="inactive">Không hoạt động</option>
+                </select>
+                <Image
+                  src="/icon/chevron-down_Black.svg"
+                  alt="Dropdown"
+                  width={20}
+                  height={20}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                />
+              </div>
             </div>
           </AddFormLayout>
         </div>
