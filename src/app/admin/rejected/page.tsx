@@ -18,17 +18,13 @@ export default function AdminRejectedPage() {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-gray-50 via-white to-[#fff0f0] overflow-hidden">
-      {/* Header */}
       <HeaderAdmin />
-
-      {/* Animated background */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob-slow" style={{ backgroundColor: '#EF4444' }} />
         <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob-slow animation-delay-3000" style={{ backgroundColor: '#EF4444' }} />
         <div className="absolute top-48 left-48 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob-slow animation-delay-6000" style={{ backgroundColor: '#EF4444' }} />
       </div>
 
-      {/* Main content */}
       <div className="flex justify-center pt-16 px-4">
         <div className="bg-white backdrop-blur-xl rounded-3xl shadow-2xl ring-2 ring-red-400 transition-all p-10 max-w-md w-full text-center animate-fade-in-up">
           <div className="mb-6">
@@ -67,7 +63,6 @@ export default function AdminRejectedPage() {
         </div>
       </div>
 
-      {/* Animations */}
       <style jsx>{`
         @keyframes blob-slow {
           0% {

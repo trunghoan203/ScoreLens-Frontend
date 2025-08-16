@@ -21,7 +21,6 @@ import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
-/** Unified InfoRow: label trên – value dưới, căn trái, chống tràn */
 const InfoRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <div className="flex flex-col py-2 border-b border-gray-100">
     <span className="text-gray-500 font-medium">{label}</span>
@@ -369,7 +368,6 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
                         )}
                       </div>
 
-                      {/* Grid 2 cột: label trên – value dưới */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 flex-1 text-sm">
                         <div>
                           <span className="block text-gray-500 mb-1">Tên thương hiệu</span>
@@ -526,7 +524,6 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
         </div>
       </div>
 
-      {/* Popup xác nhận */}
       <ConfirmPopupDetail
         open={showConfirmPopup}
         onConfirm={handleConfirmFinish}
@@ -535,7 +532,6 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
         confirmText="Xác nhận"
         cancelText="Hủy"
       >
-        {/* chặn overflow và cho phép co chiều rộng */}
         <div className="space-y-6 w-full overflow-x-hidden [&_*]:min-w-0">
           {editableBrand && (
             <div className="p-4 border rounded-lg bg-gray-50">
@@ -554,7 +550,6 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
                     <LucideImage className="w-12 h-12 text-gray-400" />
                   )}
                 </div>
-                {/* Grid 2 cột cho brand info */}
                 <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
                   <InfoRow label="Tên thương hiệu" value={editableBrand.brandName} />
                   <InfoRow label="Số điện thoại" value={editableBrand.phoneNumber} />
@@ -583,7 +578,6 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
         </div>
       </ConfirmPopupDetail>
 
-      {/* Popup xóa tài khoản */}
       <ConfirmPopup
         open={showDeleteAccountPopup}
         onConfirm={handleConfirmDeleteAccount}

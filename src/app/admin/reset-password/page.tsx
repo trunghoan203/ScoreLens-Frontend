@@ -19,9 +19,6 @@ function AdminResetPasswordPageInner({ searchParams }: { searchParams: URLSearch
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  // Ref and state for dynamic image height
-  // const formRef = useRef<HTMLDivElement>(null);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.length < 6) {

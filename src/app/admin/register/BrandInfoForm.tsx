@@ -30,7 +30,6 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
 
-  // Cập nhật form khi initialData thay đổi
   useEffect(() => {
     if (initialData) {
       setLogoUrl(initialData.logo_url || '');
@@ -83,7 +82,6 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
       let brandId = initialData?.brandId;
       
       if (initialData?.brandId) {
-        // Cập nhật thông tin thương hiệu đã tồn tại
         const response = await axios.put(`/admin/brands/${initialData.brandId}`, {
           brandName,
           phoneNumber,
@@ -95,8 +93,7 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
         brandId = brandData.brandId || brandData._id || initialData.brandId || '';
         toast.success('Cập nhật thông tin thương hiệu thành công!');
       } else {
-        // Chỉ lưu dữ liệu vào state, không gọi API tạo brand
-        brandId = ''; // Sẽ được tạo trong BranchInfoForm
+        brandId = '';
         toast.success('Lưu thông tin thương hiệu thành công!');
       }
       
@@ -124,7 +121,6 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
       <h2 className="text-2xl font-bold text-center text-gray-900 mb-4">
         {initialData?.brandId ? 'Chỉnh sửa thông tin thương hiệu' : 'Thông tin thương hiệu'}
       </h2>
-      {/* Image upload */}
       <div className="flex flex-col items-center w-full">
         <label className="block text-lg font-semibold mb-4 w-full text-center">Logo thương hiệu</label>
         <div className="relative w-60 h-60 bg-gray-100 rounded-xl flex items-center justify-center mb-4 border border-gray-200 overflow-hidden">
@@ -148,7 +144,6 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
         {uploading}
         {logoUrl && !uploading}
       </div>
-      {/* Form fields */}
       <div className="w-full space-y-4">
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">Tên thương hiệu <span className="text-red-500">*</span></label>

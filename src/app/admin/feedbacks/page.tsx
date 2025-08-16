@@ -4,12 +4,13 @@ import Sidebar from "@/components/admin/Sidebar";
 import HeaderAdminPage from "@/components/admin/HeaderAdminPage";
 import FeedbackTable from "@/components/admin/FeedbackTable";
 import FeedbackSearchBar from "@/components/admin/FeedbackSearchBar";
-import { useRouter } from "next/navigation";
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import EmptyState from '@/components/ui/EmptyState';
 import { useAdminAuthGuard } from '@/lib/hooks/useAdminAuthGuard';
 import { adminFeedbackService } from '@/lib/adminFeedbackService';
 import toast from 'react-hot-toast';
+import Image from 'next/image';
+import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 
 interface Feedback {
   id: string;
@@ -31,7 +32,8 @@ export default function AdminFeedbacksPage() {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
-  const router = useRouter();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemPage = 10;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,7 +51,6 @@ export default function AdminFeedbacksPage() {
           const tableInfo = obj.tableInfo as Record<string, unknown> | undefined;
           const clubInfo = obj.clubInfo as Record<string, unknown> | undefined;
 
-          // Đảm bảo tableName luôn là string
           let tableName = 'Không xác định';
           if (tableInfo?.name) {
             tableName = String(tableInfo.name);
@@ -118,14 +119,25 @@ export default function AdminFeedbacksPage() {
     return matchesSearch && matchesStatus && matchesDate;
   });
 
-  const handleFeedbackClick = (feedbackId: string) => {
-    router.push(`/admin/feedbacks/${feedbackId}`);
+  const totalPages = Math.ceil(filteredFeedbacks.length / itemPage);
+  const startIndex = (currentPage - 1) * itemPage;
+  const endIndex = startIndex + itemPage;
+  const currentFeedbacks = filteredFeedbacks.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter, dateFilter]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (isChecking) return null;
 
   return (
     <>
+      {loading && <ScoreLensLoading text="Đang tải..." />}
       <div className="min-h-screen flex bg-[#18191A]">
         <Sidebar />
         <main className="flex-1 bg-white min-h-screen">
@@ -134,14 +146,12 @@ export default function AdminFeedbacksPage() {
             <HeaderAdminPage />
           </div>
           <div className="px-10 pb-10">
-            {/* Banner Section */}
             <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
               <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
                 PHẢN HỒI
               </span>
             </div>
 
-            {/* Search and Filter Section */}
             <FeedbackSearchBar
               search={search}
               setSearch={setSearch}
@@ -151,7 +161,9 @@ export default function AdminFeedbacksPage() {
               setDateFilter={setDateFilter}
             />
             {loading ? (
-              <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>
+              <div className="py-8">
+                <LoadingSkeleton type="card" lines={6} className="w-full max-w-2xl mx-auto" />
+              </div>
             ) : error ? (
               <div className="py-8 text-center text-red-500">{error}</div>
             ) : filteredFeedbacks.length === 0 ? (
@@ -179,9 +191,67 @@ export default function AdminFeedbacksPage() {
                 showAdditionalInfo={!(search || statusFilter !== 'adminP' || dateFilter)}
               />
             ) : (
-              <FeedbackTable
-                feedbacks={filteredFeedbacks}
-              />
+              <>
+                <FeedbackTable
+                  feedbacks={currentFeedbacks}
+                />
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="mt-10 flex items-center justify-center gap-2">
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className={`px-3 py-3 w-16 rounded-lg font-medium transition flex items-center justify-center ${currentPage === 1
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        : 'bg-lime-400 hover:bg-lime-500 text-white'
+                        }`}
+                    >
+                      <Image
+                        src="/icon/chevron-left.svg"
+                        alt="Previous"
+                        width={20}
+                        height={20}
+                        className="w-5 h-5"
+                      />
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={`px-3 py-2 w-10 rounded-lg font-medium transition flex items-center justify-center ${currentPage === page
+                          ? 'bg-lime-500 text-white'
+                          : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                          }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className={`px-3 py-3 w-16 rounded-lg font-medium transition flex items-center justify-center ${currentPage === totalPages
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        : 'bg-lime-400 hover:bg-lime-500 text-white'
+                        }`}
+                    >
+                      <Image
+                        src="/icon/chevron-right.svg"
+                        alt="Next"
+                        width={20}
+                        height={20}
+                        className="w-5 h-5"
+                      />
+                    </button>
+                  </div>
+                )}
+
+                <div className="mt-4 text-center text-gray-400 italic text-xs">
+                  Hiển thị {startIndex + 1}-{Math.min(endIndex, filteredFeedbacks.length)} trong tổng số {filteredFeedbacks.length} phản hồi
+                </div>
+              </>
             )}
           </div>
         </main>

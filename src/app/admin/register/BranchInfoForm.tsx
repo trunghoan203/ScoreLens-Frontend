@@ -38,7 +38,6 @@ interface BranchInfoFormProps {
   onDeleteClub?: (clubId: string) => Promise<void>;
 }
 
-/** FIX scroll ngang: dùng grid + min-w-0 + break-words */
 const InfoRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <div className="flex flex-col py-2 border-b border-gray-100">
     <span className="text-gray-500 font-medium">{label}</span>
@@ -275,14 +274,12 @@ export function BranchInfoForm({
 
           <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">Thông tin chi nhánh</h2>
 
-          {/* FIX overflow ngang danh sách card */}
           <div className="space-y-6 overflow-x-hidden">
             {branches.map((branch, idx) => (
               <div
                 key={idx}
                 className="relative p-6 border rounded-xl bg-white shadow-md transition-shadow hover:shadow-lg max-w-full overflow-hidden"
               >
-                {/* Action buttons */}
                 <div className="absolute top-4 right-4 flex gap-2">
                   {branches.length > 1 && (
                     <button
@@ -310,7 +307,6 @@ export function BranchInfoForm({
                   <span className="text-base font-semibold text-lime-600">Chi nhánh {idx + 1}</span>
                 </div>
 
-                {/* Layout input 2 dòng 3 cột */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 min-w-0">
                   <div className="col-span-3 min-w-0">
                     <label className="block text-xs font-medium text-gray-500 mb-1">
@@ -435,7 +431,6 @@ export function BranchInfoForm({
         </div>
       </form>
 
-      {/* Popup xác nhận cả brandInfo và branchInfo */}
       <ConfirmPopupDetail
         open={showConfirm}
         onConfirm={handleConfirm}
@@ -444,9 +439,7 @@ export function BranchInfoForm({
         confirmText={isLoading ? 'Đang tạo...' : 'Xác nhận'}
         cancelText="Hủy"
       >
-        {/* FIX overflow ngang trong popup */}
         <div className="space-y-6 w-full overflow-x-hidden [&_*]:min-w-0">
-          {/* Thông tin thương hiệu */}
           {brandInfo && (
             <div className="p-4 border rounded-lg bg-gray-50">
               <h3 className="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Thông tin thương hiệu</h3>
@@ -474,7 +467,6 @@ export function BranchInfoForm({
             </div>
           )}
 
-          {/* Thông tin chi nhánh */}
           <div className="space-y-4">
             <h3 className="text-lg font-bold text-gray-800 border-b pb-2">Thông tin chi nhánh</h3>
             {branches.map((branch: Branch, idx: number) => (
@@ -493,7 +485,6 @@ export function BranchInfoForm({
         </div>
       </ConfirmPopupDetail>
 
-      {/* Popup xác nhận xóa chi nhánh */}
       <ConfirmPopup
         open={showDeleteConfirm}
         onConfirm={handleConfirmDelete}
