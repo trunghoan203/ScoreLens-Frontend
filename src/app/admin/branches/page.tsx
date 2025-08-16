@@ -11,7 +11,7 @@ import clubsService, { ClubResponse } from '@/lib/clubsService';
 import adminService from '@/lib/adminService';
 import toast from 'react-hot-toast';
 import { useAdminAuthGuard } from '@/lib/hooks/useAdminAuthGuard';
-import { Building2, Plus, Menu } from 'lucide-react';
+import { Building2, Menu } from 'lucide-react';
 
 export default function BranchesPage() {
   const { isChecking } = useAdminAuthGuard();

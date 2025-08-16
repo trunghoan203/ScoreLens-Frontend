@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import { adminFeedbackService } from '@/lib/adminFeedbackService';
 import FeedbackDetailLayout from "@/components/shared/FeedbackDetailLayout";
 import { Badge } from '@/components/ui/badge';
-
+import Image from 'next/image';
 interface Feedback {
   feedbackId: string;
   _id?: string;
@@ -259,15 +259,24 @@ export default function AdminFeedbackDetailPage() {
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">Trạng thái</label>
                     {isEditMode ? (
-                      <select
-                        className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
-                        value={status}
-                        onChange={e => setStatus(e.target.value as Feedback['status'])}
-                      >
-                        {statusOptions.map(opt => (
-                          <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                      </select>
+                      <div className="relative w-full">
+                        <select
+                          className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black outline-none appearance-none"
+                          value={status}
+                          onChange={e => setStatus(e.target.value as Feedback['status'])}
+                        >
+                          {statusOptions.map(opt => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </select>
+                        <Image
+                          src="/icon/chevron-down_Black.svg"
+                          alt="Dropdown"
+                          width={20}
+                          height={20}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                        />
+                      </div>
                     ) : (
                       <Badge
                         variant={getStatusColor(status)}
@@ -280,14 +289,23 @@ export default function AdminFeedbackDetailPage() {
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">Cần hỗ trợ</label>
                     {isEditMode ? (
-                      <select
-                        className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
-                        value={needSupport ? 'true' : 'false'}
-                        onChange={e => setNeedSupport(e.target.value === 'true')}
-                      >
-                        <option value="false">Không</option>
-                        <option value="true">Có</option>
-                      </select>
+                      <div className="relative w-full">
+                        <select
+                          className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black outline-none appearance-none"
+                          value={needSupport ? 'true' : 'false'}
+                          onChange={e => setNeedSupport(e.target.value === 'true')}
+                        >
+                          <option value="false">Không</option>
+                          <option value="true">Có</option>
+                        </select>
+                        <Image
+                          src="/icon/chevron-down_Black.svg"
+                          alt="Dropdown"
+                          width={20}
+                          height={20}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                        />
+                      </div>
                     ) : (
                       <Badge
                         variant={needSupport ? 'danger' : 'success'}
