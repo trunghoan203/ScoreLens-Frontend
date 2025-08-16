@@ -10,7 +10,7 @@ interface Props {
   initialScoreB?: number;
 }
 
-export default function PopupEditScore({ onClose, onSave }: Props) {
+export default function ScoreEditor({ onClose, onSave }: Props) {
   const [scoreA, setScoreA] = useState(0);
   const [scoreB, setScoreB] = useState(0);
   const [note, setNote] = useState('');

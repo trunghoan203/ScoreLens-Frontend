@@ -13,9 +13,12 @@ function GuestJoinContent() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [tableNumber, setTableNumber] = useState('');
   const [tableId, setTableId] = useState('');
-  const [tableInfo, setTableInfo] = useState<any>(null);
+  const [tableInfo, setTableInfo] = useState<{
+    clubId?: string;
+    name?: string;
+    category?: string;
+  } | null>(null);
   const [roomCode, setRoomCode] = useState('');
-  const [matchId, setMatchId] = useState('');
   const [loading, setLoading] = useState(true);
   const [verifyingMember, setVerifyingMember] = useState(false);
   const [verifyMemberStatus, setVerifyMemberStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -31,11 +34,9 @@ function GuestJoinContent() {
   useEffect(() => {
     const table = searchParams!.get('table');
     const room = searchParams!.get('room');
-    const mId = searchParams!.get('matchId');
     const tId = searchParams!.get('tableId');
     if (table) setTableNumber(table);
     if (room) setRoomCode(room);
-    if (mId) setMatchId(mId);
     if (tId) setTableId(tId);
 
     const timer = setTimeout(() => setLoading(false), 1200);
@@ -47,9 +48,10 @@ function GuestJoinContent() {
       const loadTableInfo = async () => {
         try {
           const tableData = await userMatchService.verifyTable({ tableId });
-          const responseData = (tableData as any)?.data || tableData;
-          setTableInfo(responseData);
-        } catch (error) {
+          const responseData = (tableData as { data?: { clubId?: string; name?: string; category?: string } })?.data || tableData;
+          const tableInfoData = responseData as { clubId?: string; name?: string; category?: string };
+          setTableInfo(tableInfoData);
+        } catch {
         }
       };
       loadTableInfo();
@@ -63,7 +65,6 @@ function GuestJoinContent() {
     }
 
     if (!tableInfo?.clubId) {
-      setVerifyMemberStatus('error');
       setVerifyMemberMessage('Không thể xác định club. Vui lòng thử lại.');
       return;
     }
@@ -72,9 +73,9 @@ function GuestJoinContent() {
     setVerifyMemberStatus('idle');
 
     try {
-      const result = await userMatchService.verifyMembership({ 
+      const result = await userMatchService.verifyMembership({
         phoneNumber: phoneNumber.trim(),
-        clubId: tableInfo.clubId 
+        clubId: tableInfo.clubId
       });
 
       if (!result.success) {
@@ -82,13 +83,11 @@ function GuestJoinContent() {
       }
 
       if (!result.isMember) {
-        setVerifyMemberStatus('error');
         toast.error('Bạn chưa đăng ký hội viên');
         return;
       }
 
       if (!result.isBrandCompatible) {
-        setVerifyMemberStatus('error');
         toast.error(result.message || 'Bạn không phải là hội viên của thương hiệu này.');
         return;
       }
@@ -97,13 +96,12 @@ function GuestJoinContent() {
       if (!responseData) {
         throw new Error('Không có thông tin membership');
       }
-      
+
       if (responseData.status === 'inactive') {
-        setVerifyMemberStatus('error');
         toast.error('Tài khoản của bạn đang bị cấm');
         return;
       }
-      
+
       const membershipFullName = responseData.fullName || '';
       const membershipId = responseData.membershipId || '';
       setFullName(membershipFullName);
@@ -111,10 +109,9 @@ function GuestJoinContent() {
       setIsMember(true);
       setVerifyMemberStatus('success');
       toast.success(`Chào mừng ${membershipFullName} đến với ScoreLens`);
-    } catch (error: any) {
+    } catch (error) {
       setVerifyMemberStatus('error');
-      const errorMessage = error?.message || 'Bạn chưa đăng ký hội viên';
-      setVerifyMemberMessage(errorMessage);
+      const errorMessage = (error as { message?: string })?.message || 'Bạn chưa đăng ký hội viên';
       toast.error(errorMessage);
     } finally {
       setVerifyingMember(false);
@@ -140,36 +137,31 @@ function GuestJoinContent() {
     try {
       if (roomCode) {
         try {
-          const joinRes = await userMatchService.joinMatch({
+          await userMatchService.joinMatch({
             matchCode: roomCode,
             teamIndex: selectedTeam,
             joinerInfo: { guestName: fullName.trim() },
-          }) as Record<string, any>;
+          });
 
-          const guestToken = 
-            (joinRes as any)?.guestToken || 
-            (joinRes as any)?.token || 
-            (joinRes as any)?.data?.guestToken || 
-            (joinRes as any)?.data?.token || '';
-
-          const matchInfo = await userMatchService.getMatchByCode(roomCode) as Record<string, any>;
+          const matchInfo = await userMatchService.getMatchByCode(roomCode) as { data?: { matchId?: string; id?: string } };
           const responseData = matchInfo?.data || matchInfo;
-          const matchId = 
-            responseData?.matchId || responseData?.id || '';
+          const matchData = responseData as { matchId?: string; id?: string };
+          const matchId =
+            matchData?.matchId || matchData?.id || '';
 
           toast.success('Tham gia phòng thành công!');
-          
+
           const params = new URLSearchParams({
             table: tableNumber || '??',
             room: roomCode,
             name: fullName.trim(),
             matchId: matchId
           });
-          
-          router.push(`/user/guestjoin?${params.toString()}`);
-          return; 
-                 } catch (joinError) {
-         }
+
+          router.push(`/user/match/lounge?${params.toString()}`);
+          return;
+        } catch {
+        }
       }
 
       const mockTableId = tableId || 'TB-1755160186911';
@@ -190,37 +182,38 @@ function GuestJoinContent() {
         ],
       };
 
-      const data = await userMatchService.createMatch(payload) as Record<string, any>;
-      
+      const data = await userMatchService.createMatch(payload) as { data?: { matchId?: string; id?: string; matchCode?: string; code?: string } };
+
       const responseData = data?.data || data;
-      let newMatchId = 
-        responseData?.matchId || responseData?.id || '';
-      
-      const code = 
-        responseData?.matchCode || responseData?.code || '';
+      const matchData = responseData as { matchId?: string; id?: string; matchCode?: string; code?: string };
+      let newMatchId =
+        matchData?.matchId || matchData?.id || '';
+
+      const code =
+        matchData?.matchCode || matchData?.code || '';
 
       if (!newMatchId && code) {
         try {
-          const byCode = await userMatchService.getMatchByCode(code) as Record<string, any>;
-          newMatchId = 
-            byCode?.id || byCode?.matchId || byCode?.data?.id || 
+          const byCode = await userMatchService.getMatchByCode(code) as { data?: { id?: string; matchId?: string }; id?: string; matchId?: string; match?: { id?: string; matchId?: string } };
+          newMatchId =
+            byCode?.id || byCode?.matchId || byCode?.data?.id ||
             byCode?.data?.matchId || byCode?.match?.id || byCode?.match?.matchId || '';
-        } catch {}
+        } catch { }
       }
 
       toast.success('Tạo phòng thành công!');
-      
+
       const params = new URLSearchParams({
         table: tableNumber || '??',
         code: code,
         matchId: newMatchId,
         name: fullName.trim(),
-        tableId: tableId || mockTableId  
+        tableId: tableId || mockTableId
       });
-      
-      router.push(`/user/guestjoin?${params.toString()}`);
-         } catch (error) {
-       toast.error('Có lỗi xảy ra, vui lòng thử lại.');
+
+      router.push(`/user/match/lobby?${params.toString()}`);
+    } catch {
+      toast.error('Có lỗi xảy ra, vui lòng thử lại.');
     } finally {
       setIsCreatingMatch(false);
       setShowTeamPopup(false);
@@ -232,7 +225,7 @@ function GuestJoinContent() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 pt-20">
       <HeaderUser showBack={true} />
-      
+
       <main className="flex-1 flex flex-col px-4 py-8">
         <div className="text-center">
           <h1 className="text-2xl sm:text-3xl font-bold text-[#000000]">
@@ -281,9 +274,8 @@ function GuestJoinContent() {
               </div>
               {verifyMemberStatus !== 'idle' && (
                 <p
-                  className={`mt-2 text-center text-sm ${
-                    verifyMemberStatus === 'success' ? 'text-green-600' : 'text-[#FF0000]'
-                  }`}
+                  className={`mt-2 text-center text-sm ${verifyMemberStatus === 'success' ? 'text-green-600' : 'text-[#FF0000]'
+                    }`}
                 >
                   {verifyMemberMessage}
                 </p>
@@ -296,7 +288,7 @@ function GuestJoinContent() {
           </div>
         </div>
       </main>
-      
+
       <FooterButton>
         <button
           onClick={handleContinue}
@@ -312,35 +304,33 @@ function GuestJoinContent() {
             <h2 className="text-xl font-bold text-[#000000] mb-6">
               Chọn đội để tham gia
             </h2>
-            
+
             <div className="space-y-4 mb-6">
               <button
                 onClick={() => setSelectedTeam(0)}
-                className={`w-full p-4 rounded-xl border-2 transition-all ${
-                  selectedTeam === 0 
-                    ? 'border-[#8ADB10] bg-lime-50 text-lime-700' 
+                className={`w-full p-4 rounded-xl border-2 transition-all ${selectedTeam === 0
+                    ? 'border-[#8ADB10] bg-lime-50 text-lime-700'
                     : 'border-gray-200 hover:border-[#8ADB10]'
-                }`}
+                  }`}
               >
                 <div className="text-center">
                   <div className="font-semibold text-[#000000]">Đội A</div>
                 </div>
               </button>
-              
+
               <button
                 onClick={() => setSelectedTeam(1)}
-                className={`w-full p-4 rounded-xl border-2 transition-all ${
-                  selectedTeam === 1 
-                    ? 'border-[#8ADB10] bg-lime-50 text-lime-700' 
+                className={`w-full p-4 rounded-xl border-2 transition-all ${selectedTeam === 1
+                    ? 'border-[#8ADB10] bg-lime-50 text-lime-700'
                     : 'border-gray-200 hover:border-[#8ADB10]'
-                }`}
+                  }`}
               >
                 <div className="text-center">
                   <div className="font-semibold text-[#000000]">Đội B</div>
                 </div>
               </button>
             </div>
-            
+
             <div className="flex gap-4">
               <button
                 onClick={() => setShowTeamPopup(false)}
