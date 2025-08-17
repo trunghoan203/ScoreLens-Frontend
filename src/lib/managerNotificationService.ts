@@ -4,7 +4,6 @@ export interface Notification {
     id: string;
     title: string;
     message: string;
-    type: 'info' | 'warning' | 'error' | 'success';
     isRead: boolean;
     createdAt: string;
     data?: Record<string, unknown>;
@@ -17,7 +16,6 @@ export const getManagerNotifications = (managerId: string) =>
         notificationId: string;
         title: string;
         message: string;
-        type: string;
         isRead: boolean;
         createdAt: string;
         recipientId: string;
