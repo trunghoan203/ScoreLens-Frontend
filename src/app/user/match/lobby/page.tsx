@@ -8,6 +8,7 @@ import FooterButton from '@/components/user/FooterButton';
 import { userMatchService } from '@/lib/userMatchService';
 import { toast } from 'react-hot-toast';
 import { io, Socket } from 'socket.io-client';
+import { config } from '@/lib/config';
 
 function HomeRandomContent() {
   const searchParams = useSearchParams();
@@ -53,7 +54,7 @@ function HomeRandomContent() {
     const retryDelay = 2000;
 
     const connectSocket = () => {
-      const socketUrl = 'http://localhost:8000';
+      const socketUrl = config.socketUrl;
 
       try {
         const socket = io(socketUrl, {

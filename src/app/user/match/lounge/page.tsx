@@ -8,6 +8,7 @@ import FooterButton from '@/components/user/FooterButton';
 import { userMatchService } from '@/lib/userMatchService';
 import { toast } from 'react-hot-toast';
 import { io, Socket } from 'socket.io-client';
+import { config } from '@/lib/config';
 
 function GuestJoinContent() {
   const searchParams = useSearchParams();
@@ -58,7 +59,7 @@ function GuestJoinContent() {
       if (isConnecting || socketRef.current?.connected) return;
 
       isConnecting = true;
-      const socketUrl = 'http://localhost:8000';
+      const socketUrl = config.socketUrl;
 
       try {
         const socket = io(socketUrl, {

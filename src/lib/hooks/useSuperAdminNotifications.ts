@@ -8,6 +8,7 @@ import {
     getUnreadNotificationCount,
     Notification 
 } from '@/lib/saNotificationService';
+import { config } from '@/lib/config';
 
 export const useSuperAdminNotifications = () => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -60,7 +61,7 @@ export const useSuperAdminNotifications = () => {
     }, []);
 
     useEffect(() => {
-        const newSocket = io('http://localhost:8000', {
+        const newSocket = io(config.socketUrl, {
             transports: ['websocket', 'polling'],
             autoConnect: true,
         });

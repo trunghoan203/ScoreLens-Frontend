@@ -1,4 +1,5 @@
 import { io, Socket } from 'socket.io-client';
+import { config } from './config';
 
 class SocketService {
   private socket: Socket | null = null;
@@ -9,7 +10,7 @@ class SocketService {
       return this.socket;
     }
 
-    this.socket = io('http://localhost:8000', {
+    this.socket = io(config.socketUrl, {
       transports: ['websocket', 'polling'],
       autoConnect: true,
     });
