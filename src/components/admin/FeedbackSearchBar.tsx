@@ -25,13 +25,12 @@ export default function FeedbackSearchBar({
     { value: 'managerP', label: 'Manager đang xử lý' },
     { value: 'adminP', label: 'Admin đang xử lý' },
     { value: 'superadminP', label: 'SuperAdmin đang xử lý' },
-    { value: 'resolved', label: 'Đã giải quyết' },
+    { value: 'resolved', label: 'Đã xử lý' },
   ];
 
   return (
     <div className="mb-6 backdrop-blur-md bg-white/60 rounded-2xl shadow-l flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 transition-all duration-300">
-      {/* Search */}
-      <div className="flex items-center border border-gray-400 bg-gray-100 rounded-lg px-4 py-2 w-96">
+      <div className="flex items-center border border-gray-300 bg-gray-100 rounded-lg px-4 py-2 w-96">
         <input
           type="text"
           placeholder="Nhập chi nhánh hoặc bàn để tìm kiếm"
@@ -42,9 +41,7 @@ export default function FeedbackSearchBar({
         <Image src="/icon/search.svg" alt="Search" width={20} height={20} className="text-gray-400" />
       </div>
 
-      {/* Status and Date Filters Group */}
-      <div className="flex gap-3 w-full sm:w-auto">
-        {/* Status Filter */}
+      <div className="flex gap-3 w-full sm:w-120">
         <div className="relative w-full">
           <select
             value={statusFilter}
@@ -66,8 +63,7 @@ export default function FeedbackSearchBar({
           />
         </div>
 
-        {/* Date Picker */}
-        <div className="relative w-full sm:w-50">
+        <div className="relative w-full sm:w-100">
           <input
             type="date"
             value={dateFilter}

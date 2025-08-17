@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import TableStatusBadge from './TableStatusBadge';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
-import Image from 'next/image';
 
 interface TableUsingViewProps {
   table: {
@@ -27,29 +26,6 @@ interface TableUsingViewProps {
 export default function TableUsingView({ table, onBack, onEndMatch, onCancelMatch, onEdit, onStartMatch, matchStatus = 'pending', elapsedTime, isAiAssisted = false }: TableUsingViewProps) {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
-  const [teamAAvatar, setTeamAAvatar] = useState<string>('');
-  const [teamBAvatar, setTeamBAvatar] = useState<string>('');
-
-  useEffect(() => {
-    const ballImages = [
-      '/images/numberBalls/ball_1.png',
-      '/images/numberBalls/ball_2.png',
-      '/images/numberBalls/ball_3.png',
-      '/images/numberBalls/ball_4.png',
-      '/images/numberBalls/ball_5.png',
-      '/images/numberBalls/ball_6.png',
-      '/images/numberBalls/ball_7.png',
-      '/images/numberBalls/ball_8.png',
-      '/images/numberBalls/ball_9.png'
-    ];
-
-    const randomTeamA = ballImages[Math.floor(Math.random() * ballImages.length)];
-    setTeamAAvatar(randomTeamA);
-
-    const remainingBalls = ballImages.filter(ball => ball !== randomTeamA);
-    const randomTeamB = remainingBalls[Math.floor(Math.random() * remainingBalls.length)];
-    setTeamBAvatar(randomTeamB);
-  }, []);
 
   const handleCancelClick = () => {
     setShowCancelConfirm(true);
@@ -83,62 +59,49 @@ export default function TableUsingView({ table, onBack, onEndMatch, onCancelMatc
           )}
         </div>
         <div className="flex justify-center gap-8 mb-6">
-          {/* Team A */}
-          <div className="flex flex-col items-center">
-            <div className="font-semibold mb-2">Team A</div>
-            <div className="w-16 h-16 mb-2 flex items-center justify-center">
-              {teamAAvatar ? (
-                <Image
-                  src={teamAAvatar}
-                  alt="Team A Avatar"
-                  width={64}
-                  height={64}
-                  className="rounded-full"
-                />
-              ) : (
-                <div className="w-16 h-16 bg-gray-200 rounded-full"></div>
-              )}
-            </div>
-            <div className="text-center text-sm mb-2 min-h-[40px] flex flex-col justify-center">
-              {table.teamA.length > 0 ? (
-                table.teamA.map((player, idx) => (
-                  <div key={idx}>{player}</div>
-                ))
-              ) : (
-                <div className="text-gray-400">Chưa có thành viên</div>
-              )}
-            </div>
-            <div className="text-2xl font-bold text-[#000000]">
+          {/* Team A Score - Left Position */}
+          <div className="flex flex-col items-center justify-center">
+            <div className="text-8xl font-bold text-[#000000] mb-2 mr-10">
               {table.teamAScore || 0}
             </div>
           </div>
-          <div className="flex flex-col justify-center font-bold text-xl">VS</div>
-          {/* Team B */}
+
+          {/* Center Team Info */}
           <div className="flex flex-col items-center">
-            <div className="font-semibold mb-2">Team B</div>
-            <div className="w-16 h-16 mb-2 flex items-center justify-center">
-              {teamBAvatar ? (
-                <Image
-                  src={teamBAvatar}
-                  alt="Team B Avatar"
-                  width={64}
-                  height={64}
-                  className="rounded-full"
-                />
-              ) : (
-                <div className="w-16 h-16 bg-gray-200 rounded-full"></div>
-              )}
+            <div className="flex justify-center gap-8 mb-4">
+              {/* Team A */}
+              <div className="flex flex-col items-center">
+                <div className="font-semibold mb-6">Team A</div>
+                <div className="text-center text-xl mb-2 min-h-[40px] flex flex-col justify-center">
+                  {table.teamA.length > 0 ? (
+                    table.teamA.map((player, idx) => (
+                      <div key={idx}>{player}</div>
+                    ))
+                  ) : (
+                    <div className="text-gray-400">Chưa có thành viên</div>
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-col justify-center font-bold text-xl">VS</div>
+              {/* Team B */}
+              <div className="flex flex-col items-center">
+                <div className="font-semibold mb-6">Team B</div>
+                <div className="text-center text-xl mb-2 min-h-[40px] flex flex-col justify-center">
+                  {table.teamB.length > 0 ? (
+                    table.teamB.map((player, idx) => (
+                      <div key={idx}>{player}</div>
+                    ))
+                  ) : (
+                    <div className="text-gray-400">Chưa có thành viên</div>
+                  )}
+                </div>
+              </div>
             </div>
-            <div className="text-center text-sm mb-2 min-h-[40px] flex flex-col justify-center">
-              {table.teamB.length > 0 ? (
-                table.teamB.map((player, idx) => (
-                  <div key={idx}>{player}</div>
-                ))
-              ) : (
-                <div className="text-gray-400">Chưa có thành viên</div>
-              )}
-            </div>
-            <div className="text-2xl font-bold text-[#000000]">
+          </div>
+
+          {/* Team B Score - Right Position */}
+          <div className="flex flex-col items-center justify-center">
+            <div className="text-8xl font-bold text-[#000000] mb-2 ml-10">
               {table.teamBScore || 0}
             </div>
           </div>

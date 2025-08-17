@@ -7,6 +7,7 @@ import MemberGrid from "@/components/manager/MemberGrid";
 import MemberPageBanner from "@/components/manager/MemberPageBanner";
 import { useRouter } from "next/navigation";
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
+import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import EmptyState from '@/components/ui/EmptyState';
 import { managerMemberService } from '@/lib/managerMemberService';
 import toast from 'react-hot-toast';
@@ -27,7 +28,6 @@ export default function MembersPage() {
   const [members, setMembers] = useState<Member[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -56,17 +56,6 @@ export default function MembersPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Theo dõi scroll để thay đổi viền header
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 0);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const filteredMembers = members.filter(m => m.fullName.toLowerCase().includes(search.toLowerCase()));
 
   const handleAddMember = async () => {
@@ -89,14 +78,14 @@ export default function MembersPage() {
 
   return (
     <>
+      {loading && <ScoreLensLoading text="Đang tải..." />}
       <div className="min-h-screen flex bg-[#18191A]">
         <SidebarManager />
         <main className="flex-1 bg-white min-h-screen">
-          <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
-            }`}>
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
             <HeaderManager />
           </div>
-          <div className="p-10">
+          <div className="px-10 pb-10">
             <MemberPageBanner />
             <MemberSearchBar
               search={search}
@@ -104,7 +93,9 @@ export default function MembersPage() {
               onAddMember={isAdding ? () => { } : handleAddMember}
             />
             {loading ? (
-              <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>
+              <div className="py-8">
+                <LoadingSkeleton type="card" lines={3} className="w-full max-w-2xl mx-auto" />
+              </div>
             ) : error ? (
               <div className="py-8 text-center text-red-500">{error}</div>
             ) : filteredMembers.length === 0 ? (

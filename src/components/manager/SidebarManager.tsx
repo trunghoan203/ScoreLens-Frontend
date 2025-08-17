@@ -30,6 +30,8 @@ export default function SidebarManager() {
     router.push('/');
   };
 
+  const isDashboardOrMatch = pathname?.startsWith('/manager/dashboard') || pathname?.startsWith('/manager/matches');
+
   return (
     <aside className="w-64 bg-[#181818] text-white flex flex-col py-8 px-4 min-h-screen sticky top-0 h-screen z-30">
       <div className="flex flex-col items-center mb-10">
@@ -38,15 +40,15 @@ export default function SidebarManager() {
       <nav className="flex-1 space-y-2">
         <Link
           href="/manager/dashboard"
-          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/manager/dashboard') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
+          className={`block px-4 py-2 rounded-lg font-semibold transition ${isDashboardOrMatch ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
         >
           Trang chủ
         </Link>
         <Link
-          href="/manager/camera"
-          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/manager/camera') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
+          href="/manager/tables"
+          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/manager/tables') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
         >
-          Quản lý camera
+          Quản lý bàn
         </Link>
         <Link
           href="/manager/members"
@@ -55,10 +57,10 @@ export default function SidebarManager() {
           Quản lý hội viên
         </Link>
         <Link
-          href="/manager/tables"
-          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/manager/tables') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
+          href="/manager/camera"
+          className={`block px-4 py-2 rounded-lg font-semibold transition ${pathname?.startsWith('/manager/camera') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
         >
-          Quản lý bàn
+          Quản lý camera
         </Link>
         <Link
           href="/manager/feedbacks"
@@ -84,7 +86,7 @@ export default function SidebarManager() {
         cancelText="Hủy"
       >
         <div className="flex flex-col items-center justify-center">
-        <svg className="w-16 h-16 text-black my-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <svg className="w-16 h-16 text-black my-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
           </svg>
         </div>
