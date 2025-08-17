@@ -31,7 +31,7 @@ export default function HeaderUser({ children, showBack = true }: HeaderUserProp
       </div>
 
       {children && (
-        <div className="pt-32 flex flex-col items-center text-center space-y-6 py-4 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
+        <div className="pt-26 flex flex-col items-center text-center space-y-6 py-4 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
           {children}
         </div>
       )}

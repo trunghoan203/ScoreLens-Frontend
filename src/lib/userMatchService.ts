@@ -26,6 +26,7 @@ export type GameType = 'pool-8' | 'carom';
 
 export interface CreateMatchTeamMember {
   membershipId?: string;
+  membershipName?: string;
   guestName?: string;
 }
 
@@ -46,6 +47,8 @@ export interface JoinMatchRequest {
   joinerInfo: {
     phoneNumber?: string;
     guestName?: string;
+    membershipId?: string;
+    membershipName?: string;
   };
 }
 
@@ -54,6 +57,8 @@ export interface LeaveMatchRequest {
   leaverInfo: {
     phoneNumber?: string;
     guestName?: string;
+    membershipId?: string;
+    membershipName?: string;
   };
 }
 
@@ -70,6 +75,8 @@ export interface UpdateTeamMembersRequest {
   members: Array<{
     guestName?: string;
     phoneNumber?: string;
+    membershipId?: string;
+    membershipName?: string;
   }>;
 }
 
@@ -77,6 +84,8 @@ export interface UpdateTeamMembersRequestV2 {
   teams: Array<Array<{
     guestName?: string;
     phoneNumber?: string;
+    membershipId?: string;
+    membershipName?: string;
   }>>;
   actorGuestToken?: string;
   actorMembershipId?: string;

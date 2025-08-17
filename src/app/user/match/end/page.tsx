@@ -174,12 +174,12 @@ function EndMatchPageContent() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 pt-20">
-      <HeaderUser />
+      <HeaderUser showBack={false} />
 
       <main className="flex-1 flex flex-col px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-[#000000]">
-            {actualTableName || tableInfo?.name || tableName} - {tableInfo?.category ? tableInfo.category.toUpperCase() : (matchInfo?.gameType === 'pool-8' ? 'Pool 8 Ball' : matchInfo?.gameType || 'Pool 8 Ball')}
+            {(actualTableName || tableInfo?.name || tableName || 'BÀN').toUpperCase()} - {tableInfo?.category ? (tableInfo.category === 'pool-8' ? 'POOL 8' : `- ${tableInfo.category.toUpperCase()}`) : (matchInfo?.gameType === 'pool-8' ? 'POOL 8' : (matchInfo?.gameType ? `- ${matchInfo.gameType.toUpperCase()}` : 'POOL 8'))}
           </h1>
           <p className="text-sm sm:text-base text-[#000000] font-medium">BẢNG ĐIỂM</p>
         </div>

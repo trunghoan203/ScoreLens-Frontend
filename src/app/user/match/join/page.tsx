@@ -140,7 +140,11 @@ function GuestJoinContent() {
           await userMatchService.joinMatch({
             matchCode: roomCode,
             teamIndex: selectedTeam,
-            joinerInfo: { guestName: fullName.trim() },
+            joinerInfo: { 
+              guestName: fullName.trim(),
+              membershipId: isMember ? verifiedMembershipId : undefined,
+              membershipName: isMember ? fullName.trim() : undefined,
+            },
           });
 
           const matchInfo = await userMatchService.getMatchByCode(roomCode) as { data?: { matchId?: string; id?: string } };
@@ -155,7 +159,9 @@ function GuestJoinContent() {
             table: tableNumber || '??',
             room: roomCode,
             name: fullName.trim(),
-            matchId: matchId
+            matchId: matchId,
+            membershipId: isMember ? verifiedMembershipId : '',
+            membershipName: isMember ? fullName.trim() : ''
           });
 
           router.push(`/user/match/lounge?${params.toString()}`);
@@ -173,11 +179,19 @@ function GuestJoinContent() {
         teams: [
           {
             teamName: 'Team A',
-            members: selectedTeam === 0 ? [{ guestName: fullName.trim() }] : [],
+            members: selectedTeam === 0 ? [{
+              guestName: fullName.trim(),
+              membershipId: isMember ? verifiedMembershipId : undefined,
+              membershipName: isMember ? fullName.trim() : undefined,
+            }] : [],
           },
           {
             teamName: 'Team B',
-            members: selectedTeam === 1 ? [{ guestName: fullName.trim() }] : [],
+            members: selectedTeam === 1 ? [{
+              guestName: fullName.trim(),
+              membershipId: isMember ? verifiedMembershipId : undefined,
+              membershipName: isMember ? fullName.trim() : undefined,
+            }] : [],
           },
         ],
       };
@@ -208,7 +222,9 @@ function GuestJoinContent() {
         code: code,
         matchId: newMatchId,
         name: fullName.trim(),
-        tableId: tableId || mockTableId
+        tableId: tableId || mockTableId,
+        membershipId: isMember ? verifiedMembershipId : '',
+        membershipName: isMember ? fullName.trim() : ''
       });
 
       router.push(`/user/match/lobby?${params.toString()}`);
