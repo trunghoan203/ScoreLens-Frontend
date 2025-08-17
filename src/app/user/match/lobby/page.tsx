@@ -21,15 +21,17 @@ function HomeRandomContent() {
   const [roomCode, setRoomCode] = useState(existingCode);
   const [loading, setLoading] = useState(true);
   const [matchId, setMatchId] = useState(existingMatchId);
-  const [tableInfo, setTableInfo] = useState<any>(null);
+  const [tableInfo, setTableInfo] = useState<{
+    name?: string;
+    category?: string;
+    clubId?: string;
+  } | null>(null);
 
   const [teamA, setTeamA] = useState(['']);
   const [teamB, setTeamB] = useState(['']);
 
   const [connectedGuests, setConnectedGuests] = useState<Array<{ id: string, name: string, team: 'A' | 'B', joinedAt: Date }>>([]);
   const [isWebSocketConnected, setIsWebSocketConnected] = useState(false);
-  const [isPolling, setIsPolling] = useState(false);
-  const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date());
   const socketRef = useRef<Socket | null>(null);
 
   const handleChange = (team: 'A' | 'B', index: number, value: string) => {
@@ -40,37 +42,6 @@ function HomeRandomContent() {
     setter(updated);
   };
 
-  const handleAddPlayer = (team: 'A' | 'B') => {
-    const setter = team === 'A' ? setTeamA : setTeamB;
-    const current = team === 'A' ? teamA : teamB;
-    if (current.length >= 4) {
-      toast.error('Không thể thêm quá 4 người chơi!', {
-        style: {
-          background: '#FF0000',
-          color: '#FFFFFF',
-          fontWeight: 'bold',
-          fontSize: '1rem',
-          borderRadius: '0.75rem',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-        },
-        iconTheme: {
-          primary: '#FFFFFF',
-          secondary: '#FF0000'
-        }
-      });
-      return;
-    }
-    setter([...current, '']);
-  };
-
-  const handleRemovePlayer = (team: 'A' | 'B', index: number) => {
-    if (index === 0) return;
-    const setter = team === 'A' ? setTeamA : setTeamB;
-    const current = team === 'A' ? teamA : teamB;
-    const updated = [...current];
-    updated.splice(index, 1);
-    setter(updated);
-  };
 
   useEffect(() => {
     if (!roomCode || !matchId) return;
@@ -100,7 +71,7 @@ function HomeRandomContent() {
           setIsWebSocketConnected(false);
         });
 
-        socket.on('connect_error', (error) => {
+        socket.on('connect_error', () => {
           setIsWebSocketConnected(false);
 
           if (retryCount < maxRetries) {
@@ -109,12 +80,12 @@ function HomeRandomContent() {
           }
         });
 
-        socket.on('guest_joined', (data) => {
-          toast.success(`${data.guestName || 'Người chơi mới'} đã tham gia phòng!`);
+        socket.on('guest_joined', () => {
+          toast.success('Người chơi mới đã tham gia phòng!');
         });
 
-        socket.on('guest_left', (data) => {
-          toast(`${data.guestName || 'Người chơi'} đã rời khỏi phòng`);
+        socket.on('guest_left', () => {
+          toast('Người chơi đã rời khỏi phòng');
         });
 
         socket.on('match_updated', (data) => {
@@ -123,7 +94,7 @@ function HomeRandomContent() {
 
             if (data.teams[0]?.members && Array.isArray(data.teams[0].members)) {
               const teamAMembers: string[] = [];
-              data.teams[0].members.forEach((member: any, index: number) => {
+              data.teams[0].members.forEach((member: { guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }, index: number) => {
                 const memberName =
                   member.guestName ||
                   member.membershipName ||
@@ -149,7 +120,7 @@ function HomeRandomContent() {
 
             if (data.teams[1]?.members && Array.isArray(data.teams[1].members)) {
               const teamBMembers: string[] = [];
-              data.teams[1].members.forEach((member: any, index: number) => {
+              data.teams[1].members.forEach((member: { guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }, index: number) => {
                 const memberName =
                   member.guestName ||
                   member.membershipName ||
@@ -175,21 +146,18 @@ function HomeRandomContent() {
 
             setConnectedGuests(guests);
 
-            const currentTotalMembers = (data.teams[0]?.members?.length || 0) + (data.teams[1]?.members?.length || 0);
-            if (currentTotalMembers > connectedGuests.length) {
-            }
           }
         });
 
-        socket.on('match_deleted', (data) => {
+        socket.on('match_deleted', () => {
           toast('Trận đấu đã bị hủy');
         });
 
-        socket.on('error', (error) => {
+        socket.on('error', () => {
           setIsWebSocketConnected(false);
         });
 
-      } catch (error) {
+      } catch {
         setIsWebSocketConnected(false);
       }
     };
@@ -209,7 +177,7 @@ function HomeRandomContent() {
 
     const fetchConnectedGuests = async () => {
       try {
-        const matchData = await userMatchService.getMatchById(matchId) as Record<string, any>;
+        const matchData = await userMatchService.getMatchById(matchId) as { data?: { teams?: Array<{ members?: Array<{ guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }> }> }; teams?: Array<{ members?: Array<{ guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }> }> };
 
         const teams = matchData?.data?.teams || matchData?.teams || [];
 
@@ -218,7 +186,7 @@ function HomeRandomContent() {
 
           if (teams[0]?.members && Array.isArray(teams[0].members)) {
             const teamAMembers: string[] = [];
-            teams[0].members.forEach((member: any, index: number) => {
+            teams[0].members.forEach((member: { guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }, index: number) => {
               const memberName =
                 member.guestName ||
                 member.membershipName ||
@@ -244,7 +212,7 @@ function HomeRandomContent() {
 
           if (teams[1]?.members && Array.isArray(teams[1].members)) {
             const teamBMembers: string[] = [];
-            teams[1].members.forEach((member: any, index: number) => {
+            teams[1].members.forEach((member: { guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }, index: number) => {
               const memberName =
                 member.guestName ||
                 member.membershipName ||
@@ -269,11 +237,9 @@ function HomeRandomContent() {
           }
 
           setConnectedGuests(guests);
-          setLastUpdateTime(new Date());
-          setIsPolling(false);
 
         }
-      } catch (error) {
+      } catch {
       }
     };
 
@@ -282,9 +248,7 @@ function HomeRandomContent() {
     let pollingInterval: NodeJS.Timeout;
 
     const startPolling = () => {
-      setIsPolling(true);
       pollingInterval = setInterval(() => {
-        setIsPolling(true);
         fetchConnectedGuests();
       }, 5000);
     };
@@ -292,7 +256,6 @@ function HomeRandomContent() {
     const stopPolling = () => {
       if (pollingInterval) {
         clearInterval(pollingInterval);
-        setIsPolling(false);
       }
     };
 
@@ -315,17 +278,18 @@ function HomeRandomContent() {
       stopPolling();
       clearInterval(healthCheckInterval);
     };
-  }, [matchId]);
+  }, [matchId, connectedGuests.length, isWebSocketConnected]);
 
   useEffect(() => {
     if (tableId) {
       const loadTableInfo = async () => {
         try {
           const tableData = await userMatchService.verifyTable({ tableId });
-          const responseData = (tableData as any)?.data || tableData;
-          setTableInfo(responseData);
-        } catch (error) {
-          console.error('Error loading table info:', error);
+          const responseData = (tableData as { data?: { name?: string; category?: string; clubId?: string } })?.data || tableData;
+          const tableInfoData = responseData as { name?: string; category?: string; clubId?: string };
+          setTableInfo(tableInfoData);
+        } catch {
+          console.error('Error loading table info');
         }
       };
       loadTableInfo();
@@ -346,28 +310,29 @@ function HomeRandomContent() {
             setRoomCode(existingCode);
           } else {
             try {
-              const data = (await userMatchService.getMatchById(existingMatchId)) as Record<string, any>;
+              const data = (await userMatchService.getMatchById(existingMatchId)) as { data?: { matchCode?: string; code?: string; joinCode?: string; roomCode?: string; createdBy?: { fullName?: string; name?: string } }; matchCode?: string; code?: string; joinCode?: string; roomCode?: string; createdBy?: { fullName?: string; name?: string } };
 
               const responseData = data?.data || data;
+              const matchData = responseData as { matchCode?: string; code?: string; joinCode?: string; roomCode?: string; createdBy?: { fullName?: string; name?: string } };
               const codeCandidate =
-                responseData?.matchCode ||
-                responseData?.code ||
-                responseData?.joinCode ||
-                responseData?.roomCode ||
+                matchData?.matchCode ||
+                matchData?.code ||
+                matchData?.joinCode ||
+                matchData?.roomCode ||
                 '';
               if (codeCandidate) setRoomCode(String(codeCandidate));
 
               if (!creatorName) {
                 const matchCreatorName =
-                  responseData?.createdBy?.fullName ||
-                  responseData?.createdBy?.name ||
+                  matchData?.createdBy?.fullName ||
+                  matchData?.createdBy?.name ||
                   '';
                 if (matchCreatorName) {
                   setTeamA([matchCreatorName]);
                 }
               }
-            } catch (error) {
-              console.error('Error loading match info:', error);
+            } catch {
+              console.error('Error loading match info');
             }
           }
         }
@@ -390,7 +355,7 @@ function HomeRandomContent() {
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [tableId, existingCode, existingMatchId, creatorName]);
+  }, [tableId, existingCode, existingMatchId, creatorName, connectedGuests.length, isWebSocketConnected]);
 
   const handleStart = async () => {
     try {
@@ -399,7 +364,7 @@ function HomeRandomContent() {
         return;
       }
 
-      const startMatchPayload: any = {};
+      const startMatchPayload: { actorGuestToken?: string; actorMembershipId?: string } = {};
 
       const guestToken = searchParams?.get('guestToken');
       const membershipId = searchParams?.get('membershipId');
@@ -415,12 +380,13 @@ function HomeRandomContent() {
       if (Object.keys(startMatchPayload).length === 0) {
         try {
           const matchData = await userMatchService.getMatchById(matchId);
-          const responseData = (matchData as any)?.data || matchData;
+          const responseData = (matchData as { data?: { creatorGuestToken?: string; createdByMembershipId?: string } })?.data || matchData;
+          const matchInfo = responseData as { creatorGuestToken?: string; createdByMembershipId?: string };
 
-          if (responseData?.creatorGuestToken) {
-            startMatchPayload.actorGuestToken = responseData.creatorGuestToken;
-          } else if (responseData?.createdByMembershipId) {
-            startMatchPayload.actorMembershipId = responseData.createdByMembershipId;
+          if (matchInfo?.creatorGuestToken) {
+            startMatchPayload.actorGuestToken = matchInfo.creatorGuestToken;
+          } else if (matchInfo?.createdByMembershipId) {
+            startMatchPayload.actorMembershipId = matchInfo.createdByMembershipId;
           } else {
             toast.error('Không thể xác thực quyền start match. Vui lòng liên hệ admin.');
             return;
@@ -436,22 +402,11 @@ function HomeRandomContent() {
 
       if (response && typeof response === 'object' && 'success' in response && response.success) {
         toast.success('Trận đấu đã bắt đầu!');
-        router.push(`/user/screencontrol?table=${tableNumber}&room=${roomCode}&matchId=${matchId}&tableId=${tableId}`);
+        router.push(`/user/match/scoreboard?table=${tableNumber}&room=${roomCode}&matchId=${matchId}&tableId=${tableId}`);
       } else {
         toast.error('Không thể bắt đầu trận đấu. Vui lòng thử lại.');
       }
-    } catch (error) {
-      console.error('Error starting match:', error);
-
-      // Log từng thông tin riêng biệt
-      if (error instanceof Error) {
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
-      } else {
-        console.error('Error type:', typeof error);
-        console.error('Error value:', error);
-      }
-
+    } catch {
       toast.error('Có lỗi xảy ra khi bắt đầu trận đấu.');
     }
   };

@@ -7,10 +7,12 @@ import FeedbackGrid from "@/components/manager/FeedbackGrid";
 import FeedbackPageBanner from "@/components/manager/FeedbackPageBanner";
 import { useRouter } from "next/navigation";
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
+import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import EmptyState from '@/components/ui/EmptyState';
 import { useManagerAuthGuard } from '@/lib/hooks/useManagerAuthGuard';
 import { managerFeedbackService } from '@/lib/managerFeedbackService';
 import toast from 'react-hot-toast';
+import Image from 'next/image';
 
 interface Feedback {
   id: string;
@@ -31,7 +33,8 @@ export default function FeedbacksPage() {
   const [loading, setLoading] = useState(true);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemPage = 10;
   const router = useRouter();
 
   useEffect(() => {
@@ -50,7 +53,6 @@ export default function FeedbacksPage() {
           const tableInfo = obj.tableInfo as Record<string, unknown> | undefined;
           const clubInfo = obj.clubInfo as Record<string, unknown> | undefined;
 
-          // Đảm bảo tableName luôn là string
           let tableName = 'Không xác định';
           if (tableInfo?.name) {
             tableName = String(tableInfo.name);
@@ -87,16 +89,6 @@ export default function FeedbacksPage() {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 0);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const filteredFeedbacks = feedbacks.filter(f => {
     const branch = (f.branch || '').toString().toLowerCase();
     const table = (f.table || '').toString().toLowerCase();
@@ -117,6 +109,20 @@ export default function FeedbacksPage() {
     return matchesSearch && matchesStatus && matchesDate;
   });
 
+  const totalPages = Math.ceil(filteredFeedbacks.length / itemPage);
+  const startIndex = (currentPage - 1) * itemPage;
+  const endIndex = startIndex + itemPage;
+  const currentFeedbacks = filteredFeedbacks.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter, dateFilter]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleFeedbackClick = (feedbackId: string) => {
     router.push(`/manager/feedbacks/${feedbackId}`);
   };
@@ -125,14 +131,14 @@ export default function FeedbacksPage() {
 
   return (
     <>
+      {loading && <ScoreLensLoading text="Đang tải..." />}
       <div className="min-h-screen flex bg-[#18191A]">
         <SidebarManager />
         <main className="flex-1 bg-white min-h-screen">
-          <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
-            }`}>
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
             <HeaderManager />
           </div>
-          <div className="p-10">
+          <div className="px-10 pb-10">
             <FeedbackPageBanner />
             <FeedbackSearchBar
               search={search}
@@ -143,7 +149,9 @@ export default function FeedbacksPage() {
               setDateFilter={setDateFilter}
             />
             {loading ? (
-              <div className="py-8"><LoadingSkeleton type="table" lines={3} /></div>
+              <div className="py-8">
+                <LoadingSkeleton type="card" lines={3} className="w-full max-w-2xl mx-auto" />
+              </div>
             ) : error ? (
               <div className="py-8 text-center text-red-500">{error}</div>
             ) : filteredFeedbacks.length === 0 ? (
@@ -159,7 +167,7 @@ export default function FeedbacksPage() {
                   label: 'Xem tất cả',
                   onClick: () => {
                     setSearch('');
-                    setStatusFilter('managerP');
+                    setStatusFilter('all');
                     setDateFilter('');
                   },
                   icon: (
@@ -171,10 +179,67 @@ export default function FeedbacksPage() {
                 showAdditionalInfo={!(search || statusFilter !== 'managerP' || dateFilter)}
               />
             ) : (
-              <FeedbackGrid
-                feedbacks={filteredFeedbacks}
-                onFeedbackClick={handleFeedbackClick}
-              />
+              <>
+                <FeedbackGrid
+                  feedbacks={currentFeedbacks}
+                  onFeedbackClick={handleFeedbackClick}
+                />
+                
+                {totalPages > 1 && (
+                  <div className="mt-10 flex items-center justify-center gap-2">
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className={`px-3 py-3 w-16 rounded-lg font-medium transition flex items-center justify-center ${currentPage === 1
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        : 'bg-lime-400 hover:bg-lime-500 text-white'
+                        }`}
+                    >
+                      <Image
+                        src="/icon/chevron-left.svg"
+                        alt="Previous"
+                        width={20}
+                        height={20}
+                        className="w-5 h-5"
+                      />
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={`px-3 py-2 w-10 rounded-lg font-medium transition flex items-center justify-center ${currentPage === page
+                          ? 'bg-lime-500 text-white'
+                          : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                          }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className={`px-3 py-3 w-16 rounded-lg font-medium transition flex items-center justify-center ${currentPage === totalPages
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        : 'bg-lime-400 hover:bg-lime-500 text-white'
+                        }`}
+                    >
+                      <Image
+                        src="/icon/chevron-right.svg"
+                        alt="Next"
+                        width={20}
+                        height={20}
+                        className="w-5 h-5"
+                      />
+                    </button>
+                  </div>
+                )}
+
+                <div className="mt-4 text-center text-gray-400 italic text-xs">
+                  Hiển thị {startIndex + 1}-{Math.min(endIndex, filteredFeedbacks.length)} trong tổng số {filteredFeedbacks.length} phản hồi
+                </div>
+              </>
             )}
           </div>
         </main>

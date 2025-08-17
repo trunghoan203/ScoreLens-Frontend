@@ -8,7 +8,7 @@ import { logoutSuperAdmin } from '@/lib/saService';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
 import { useSuperAdminNotifications } from '@/lib/hooks/useSuperAdminNotifications';
 import { NotificationItem } from '@/components/shared/NotificationItem';
-import { NotificationToast } from '@/components/shared/NotificationToast';
+
 
 export function HeaderSuperAdmin() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -18,16 +18,13 @@ export function HeaderSuperAdmin() {
     const dropdownRef = useRef<HTMLDivElement>(null);
     const notificationRef = useRef<HTMLDivElement>(null);
 
-    // Sử dụng hook thông báo realtime
     const {
         notifications,
         unreadCount,
         loading,
         markAsRead,
         markAllAsRead,
-        deleteNotification,
-        toastNotification,
-        clearToast
+        deleteNotification
     } = useSuperAdminNotifications();
 
     const languages = [
@@ -37,7 +34,6 @@ export function HeaderSuperAdmin() {
 
     const currentLanguageData = languages.find(lang => lang.code === currentLanguage);
 
-    // Đóng dropdown khi click ra ngoài
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -73,8 +69,7 @@ export function HeaderSuperAdmin() {
             });
 
             window.location.replace('/superadmin/login');
-        } catch (error) {
-            console.error('Logout error:', error);
+        } catch {
             localStorage.clear();
             document.cookie.split(';').forEach(function (c) {
                 document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
@@ -94,7 +89,6 @@ export function HeaderSuperAdmin() {
                     <ScoreLensLogo />
                 </div>
                 <div className="flex items-center gap-4">
-                    {/* Chọn ngôn ngữ */}
                     <div className="hidden sm:block relative" ref={dropdownRef}>
                         <div
                             className="flex items-center gap-2 cursor-pointer hover:text-lime-400 transition-colors"
@@ -148,7 +142,6 @@ export function HeaderSuperAdmin() {
                         )}
                     </div>
 
-                    {/* Chuông thông báo với hiệu ứng hover cải thiện */}
                     <div className="relative" ref={notificationRef}>
                         <motion.button
                             onClick={() => setNotificationOpen(prev => !prev)}
@@ -183,7 +176,6 @@ export function HeaderSuperAdmin() {
                                 />
                             </motion.div>
                             
-                            {/* Badge hiển thị số thông báo chưa đọc với animation */}
                             <AnimatePresence>
                                 {unreadCount > 0 && (
                                     <motion.span
@@ -210,7 +202,6 @@ export function HeaderSuperAdmin() {
                                     className="absolute right-0 mt-3 w-96 bg-white shadow-2xl rounded-2xl overflow-hidden z-50 border border-gray-100"
                                     style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}
                                 >
-                                    {/* Header thông báo với gradient */}
                                     <div className="bg-gradient-to-r from-slate-50 to-gray-50 p-5 border-b border-gray-200">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-3">
@@ -247,7 +238,6 @@ export function HeaderSuperAdmin() {
                                         </div>
                                     </div>
 
-                                    {/* Danh sách thông báo */}
                                     <div className="max-h-[500px] overflow-y-auto custom-scrollbar">
                                         {loading ? (
                                             <div className="p-8 text-center">
@@ -307,7 +297,6 @@ export function HeaderSuperAdmin() {
                         </AnimatePresence>
                     </div>
 
-                    {/* Nút đăng xuất */}
                     <button
                         onClick={handleLogoutClick}
                         className="bg-lime-500 hover:bg-lime-600 text-white font-semibold px-4 py-2 rounded transition"
@@ -332,11 +321,7 @@ export function HeaderSuperAdmin() {
                 </div>
             </ConfirmPopup>
 
-            {/* Toast Notification */}
-            <NotificationToast
-                notification={toastNotification}
-                onClose={clearToast}
-            />
+
 
             <style jsx>{`
                 .custom-scrollbar::-webkit-scrollbar {

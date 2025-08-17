@@ -49,58 +49,62 @@ export default function AddBranchPage() {
   return (
     <div className="min-h-screen flex bg-[#18191A]">
       <Sidebar />
-      <main className="flex-1 bg-white p-10 min-h-screen">
-        <HeaderAdminPage />
-        <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-          <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
-            CHI NHÁNH
-          </span>
+      <main className="flex-1 bg-white min-h-screen">
+        <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+          <HeaderAdminPage />
         </div>
-        <AddFormLayout
-          title="THÊM CHI NHÁNH"
-          onSubmit={handleSubmit}
-          onBack={() => router.push('/admin/branches')}
-          submitLabel={isSubmitting ? "Đang thêm..." : "Thêm chi nhánh"}
-        >
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Tên Chi Nhánh<span className="text-red-500">*</span></label>
-            <Input
-              value={clubName}
-              onChange={e => setClubName(e.target.value)}
-              required
-              placeholder="Nhập tên chi nhánh"
-            />
+        <div className="px-10 pb-10">
+          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
+            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+              CHI NHÁNH
+            </span>
           </div>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Địa chỉ<span className="text-red-500">*</span></label>
-            <Input
-              value={address}
-              onChange={e => setAddress(e.target.value)}
-              required
-              placeholder="Nhập địa chỉ"
-            />
-          </div>
-          <div className="w-full mb-6">
-            <label className="block text-sm font-semibold mb-2 text-black">Số điện thoại<span className="text-red-500">*</span></label>
-            <Input
-              value={phoneNumber}
-              onChange={e => setPhoneNumber(e.target.value)}
-              required
-              placeholder="Nhập số điện thoại"
-            />
-          </div>
-          <div className="w-full mb-10">
-            <label className="block text-sm font-semibold mb-2 text-black">Số bàn<span className="text-red-500">*</span></label>
-            <Input
-              type="number"
-              value={tableNumber}
-              onChange={e => setTableNumber(Number(e.target.value))}
-              required
-              placeholder="Nhập số bàn"
-              min="1"
-            />
-          </div>
-        </AddFormLayout>
+          <AddFormLayout
+            title="THÊM CHI NHÁNH"
+            onSubmit={handleSubmit}
+            onBack={() => router.push('/admin/branches')}
+            submitLabel={isSubmitting ? "Đang thêm..." : "Thêm chi nhánh"}
+          >
+            <div className="w-full mb-6">
+              <label className="block text-sm font-semibold mb-2 text-black">Tên Chi Nhánh<span className="text-red-500">*</span></label>
+              <Input
+                value={clubName}
+                onChange={e => setClubName(e.target.value)}
+                required
+                placeholder="Nhập tên chi nhánh"
+              />
+            </div>
+            <div className="w-full mb-6">
+              <label className="block text-sm font-semibold mb-2 text-black">Địa chỉ<span className="text-red-500">*</span></label>
+              <Input
+                value={address}
+                onChange={e => setAddress(e.target.value)}
+                required
+                placeholder="Nhập địa chỉ"
+              />
+            </div>
+            <div className="w-full mb-6">
+              <label className="block text-sm font-semibold mb-2 text-black">Số điện thoại<span className="text-red-500">*</span></label>
+              <Input
+                value={phoneNumber}
+                onChange={e => setPhoneNumber(e.target.value)}
+                required
+                placeholder="Nhập số điện thoại"
+              />
+            </div>
+            <div className="w-full mb-10">
+              <label className="block text-sm font-semibold mb-2 text-black">Số bàn<span className="text-red-500">*</span></label>
+              <Input
+                type="number"
+                value={tableNumber}
+                onChange={e => setTableNumber(Number(e.target.value))}
+                required
+                placeholder="Nhập số bàn"
+                min="1"
+              />
+            </div>
+          </AddFormLayout>
+        </div>
       </main>
     </div>
   );

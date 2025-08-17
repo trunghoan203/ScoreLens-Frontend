@@ -4,7 +4,7 @@ import axios from '@/lib/axios';
 import Image from 'next/image';
 import { useAdminNotifications } from '@/lib/hooks/useAdminNotifications';
 import { NotificationItem } from '@/components/shared/NotificationItem';
-import { NotificationToast } from '@/components/shared/NotificationToast';
+
 
 export default function HeaderAdminPage() {
   const [adminName, setAdminName] = useState<string>('Chưa đăng nhập');
@@ -12,16 +12,13 @@ export default function HeaderAdminPage() {
   const notificationRef = useRef<HTMLDivElement>(null);
   const [brandName, setBrandName] = useState<string>('Chưa đăng nhập');
   
-  // Sử dụng hook thông báo realtime
   const {
     notifications,
     unreadCount,
     loading,
     markAsRead,
     markAllAsRead,
-    deleteNotification,
-    toastNotification,
-    clearToast
+    deleteNotification
   } = useAdminNotifications();
 
   useEffect(() => {
@@ -37,7 +34,6 @@ export default function HeaderAdminPage() {
         }
 
         if (data.admin && data.admin.brandId) {
-          // Lấy brandName từ brandId
           axios.get(`/admin/brands/${data.admin.brandId}`, {
             headers: { Authorization: `Bearer ${token}` }
           })
@@ -50,10 +46,7 @@ export default function HeaderAdminPage() {
           .catch(() => {
             setBrandName('Brand không xác định');
           });
-          console.log("data.admin.brandId", data.admin.brandId);
-          console.log("brandName", brandName);
         }
-        console.log("data.admin", data.admin);
       })
       .catch(() => {
         setAdminName('Admin');
@@ -81,7 +74,6 @@ export default function HeaderAdminPage() {
           </h1>
         </div>
         <div className="flex items-center gap-6">
-          {/* Chuông thông báo với hiệu ứng hover cải thiện */}
           <div className="relative" ref={notificationRef}>
             <motion.button
               onClick={() => setNotificationOpen(prev => !prev)}
@@ -122,7 +114,6 @@ export default function HeaderAdminPage() {
                 </svg>
               </motion.div>
               
-              {/* Badge hiển thị số thông báo chưa đọc với animation */}
               <AnimatePresence>
                 {unreadCount > 0 && (
                   <motion.span
@@ -147,7 +138,6 @@ export default function HeaderAdminPage() {
                   className="absolute right-0 mt-3 w-96 bg-white shadow-2xl rounded-2xl overflow-hidden z-50 border border-gray-100"
                   style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}
                 >
-                  {/* Header thông báo với gradient */}
                   <div className="bg-gradient-to-r from-slate-50 to-gray-50 p-5 border-b border-gray-200">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -190,7 +180,6 @@ export default function HeaderAdminPage() {
                     </div>
                   </div>
 
-                  {/* Danh sách thông báo */}
                   <div className="max-h-[500px] overflow-y-auto custom-scrollbar">
                     {loading ? (
                       <div className="p-8 text-center">
@@ -256,7 +245,6 @@ export default function HeaderAdminPage() {
             </AnimatePresence>
           </div>
 
-          {/* Avatar admin */}
           <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-100">
             <Image
               src="/images/Avatar.png"
@@ -270,11 +258,7 @@ export default function HeaderAdminPage() {
         </div>
       </div>
 
-      {/* Toast Notification */}
-      <NotificationToast
-        notification={toastNotification}
-        onClose={clearToast}
-      />
+
 
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar {

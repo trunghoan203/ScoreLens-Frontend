@@ -4,12 +4,12 @@ import HeaderManager from '@/components/manager/HeaderManager';
 import AddFormLayout from '@/components/shared/AddFormLayout';
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/PasswordInput';
-import { Select } from '@/components/ui/select';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { managerCameraService } from '@/lib/managerCameraService';
 import { managerTableService } from '@/lib/managerTableService';
+import Image from 'next/image';
 
 interface Table {
   tableId: string;
@@ -24,7 +24,6 @@ export default function AddCameraPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [tables, setTables] = useState<Table[]>([]);
-  const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -48,16 +47,6 @@ export default function AddCameraPage() {
       .catch(() => {
         toast.error('Không thể tải danh sách bàn');
       });
-  }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 0);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -86,11 +75,10 @@ export default function AddCameraPage() {
     <div className="min-h-screen flex bg-[#18191A]">
       <SidebarManager />
       <main className="flex-1 bg-white min-h-screen">
-        <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
-          }`}>
+        <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
           <HeaderManager />
         </div>
-        <div className="p-10">
+        <div className="px-10 pb-10">
           <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
             <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
               QUẢN LÝ CAMERA
@@ -103,19 +91,28 @@ export default function AddCameraPage() {
           >
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Bàn<span className="text-red-500">*</span></label>
-              <Select
-                className="text-black"
-                value={tableId}
-                onChange={e => setTableId(e.target.value)}
-                required
-              >
-                <option className="text-black" value="">Chọn bàn</option>
-                {tables.map(table => (
-                  <option className="text-black" key={table.tableId} value={table.tableId}>
-                    {table.name} - {table.category === 'pool-8' ? 'Pool 8' : table.category === 'carom' ? 'Carom' : table.category}
-                  </option>
-                ))}
-              </Select>
+              <div className="relative w-full">
+                <select
+                  value={tableId}
+                  onChange={e => setTableId(e.target.value)}
+                  required
+                  className="w-full border border-gray-300 bg-white rounded-lg px-4 py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none"
+                >
+                  <option className="text-black" value="">Chọn bàn</option>
+                  {tables.map(table => (
+                    <option className="text-black" key={table.tableId} value={table.tableId}>
+                      {table.name} - {table.category === 'pool-8' ? 'Pool 8' : table.category === 'carom' ? 'Carom' : table.category}
+                    </option>
+                  ))}
+                </select>
+                <Image
+                  src="/icon/chevron-down_Black.svg"
+                  alt="Dropdown"
+                  width={20}
+                  height={20}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                />
+              </div>
             </div>
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">IP<span className="text-red-500">*</span></label>

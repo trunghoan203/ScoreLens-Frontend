@@ -9,6 +9,7 @@ import FeedbackDetailLayout from "@/components/shared/FeedbackDetailLayout";
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
+
 interface Feedback {
   feedbackId: string;
   _id?: string;
@@ -54,7 +55,6 @@ export default function AdminFeedbackDetailPage() {
   const [status, setStatus] = useState<Feedback['status']>('pending');
   const [notes, setNotes] = useState('');
   const [needSupport, setNeedSupport] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -144,16 +144,6 @@ export default function AdminFeedbackDetailPage() {
     fetchData();
   }, [feedbackId, isEditMode]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 0);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const statusOptions = [
     { value: 'pending', label: 'Chưa xử lý' },
     { value: 'managerP', label: 'Manager đang xử lý' },
@@ -193,10 +183,7 @@ export default function AdminFeedbackDetailPage() {
       });
       toast.success('Đã lưu phản hồi thành công!');
       setIsEditMode(false);
-
       setNotes('');
-
-      window.location.reload();
     } catch (error) {
       console.error(error);
       toast.error('Lưu phản hồi thất bại.');
@@ -212,8 +199,7 @@ export default function AdminFeedbackDetailPage() {
     <div className="min-h-screen flex bg-[#18191A]">
       <Sidebar />
       <main className="flex-1 bg-white min-h-screen">
-        <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
-          }`}>
+        <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
           <HeaderAdminPage />
         </div>
         <div className="px-10 pb-10">
