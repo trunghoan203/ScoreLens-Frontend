@@ -13,6 +13,7 @@ import { userMatchService } from '@/lib/userMatchService';
 import toast from 'react-hot-toast';
 import { useWebSocket } from '@/lib/hooks/useWebSocket';
 import socketService from '@/lib/socketService';
+import Image from 'next/image';
 
 
 function ScoreboardPage() {
@@ -340,7 +341,7 @@ function ScoreboardPage() {
         score: newB,
         actorGuestToken: actorGuestToken || undefined,
       });
-      return true; 
+      return true;
     } catch {
       toast.error('Cập nhật điểm thất bại.');
       throw new Error('Cập nhật điểm thất bại');
@@ -357,7 +358,7 @@ function ScoreboardPage() {
           <HeaderUser showBack={false}>
             <div className="space-y-1">
               <h1 className="text-2xl sm:text-3xl font-bold text-[#000000]">
-                {tableInfo?.name || 'Bàn'} - {tableInfo?.category ? tableInfo.category.toUpperCase() : (tableId ? 'Đang tải...' : 'Pool 8 Ball')}
+                {(tableInfo?.name || 'BÀN').toUpperCase()} - {tableInfo?.category ? (tableInfo.category === 'pool-8' ? 'POOL 8' : `- ${tableInfo.category.toUpperCase()}`) : (tableId ? 'Đang tải...' : 'Pool 8 Ball')}
               </h1>
               <p className="text-sm sm:text-base text-[#000000] font-medium">BẢNG ĐIỂM</p>
             </div>
@@ -382,38 +383,62 @@ function ScoreboardPage() {
               </div>
 
               <div className="flex items-center justify-between gap-4">
-                <div className="text-center flex flex-col items-center w-20">
-                  <p className="text-sm font-semibold">Team A</p>
-                  <div className="w-10 h-10 bg-gray-200 rounded-full mt-1" />
-                  {teamA.length > 0 && (
-                    <div className="text-xs mt-1 text-center space-y-1">
-                      {teamA.map((member, index) => (
-                        <p key={index} className="text-xs">{member || `Người Chơi ${index + 1}`}</p>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                                 <div className="text-center flex flex-col items-center w-20 flex-shrink-0">
+                   <p className="text-sm font-semibold">Đội A</p>
+                   <div className="w-10 h-10 mt-1 flex items-center justify-center">
+                     <Image
+                       src="/images/numberBalls/ball_8.png"
+                       alt="Team A Ball"
+                       width={40}
+                       height={40}
+                       className="object-contain"
+                     />
+                   </div>
+                   <div className="min-h-[60px] mt-1 text-center space-y-1">
+                     {teamA.length > 0 ? (
+                       teamA.map((member, index) => (
+                         <p key={index} className="text-xs">{member || `Người Chơi ${index + 1}`}</p>
+                       ))
+                     ) : (
+                       <p className="text-xs text-gray-400">Chưa có thành viên</p>
+                     )}
+                   </div>
+                 </div>
 
-                <div className="text-center flex flex-col items-center mt-10">
-                  <div className="text-3xl font-bold">{updating ? '...' : `${scoreA} : ${scoreB}`}</div>
-                  <div className="text-lg font-semibold mt-2">
+                <div className="text-center flex flex-col items-center mt-10 flex-shrink-0">
+                  <div className="min-h-[40px] flex items-center justify-center">
+                    <div className="text-3xl font-bold">{updating ? '...' : `${scoreA} : ${scoreB}`}</div>
+                  </div>
+                  <div className="min-h-[30px] flex items-center justify-center mt-2">
                     {matchStartTime ? (
                       <div className="text-[#FFFFFF] font-bold text-[#8ADB10]">{elapsedTime}</div>
-                    ) : 'Đang tải...'}
+                    ) : (
+                      <div className="text-[#FFFFFF] font-bold text-[#8ADB10]">Đang tải...</div>
+                    )}
                   </div>
                 </div>
 
-                <div className="text-center flex flex-col items-center w-20">
-                  <p className="text-sm font-semibold">Team B</p>
-                  <div className="w-10 h-10 bg-gray-200 rounded-full mt-1" />
-                  {teamB.length > 0 && (
-                    <div className="text-xs mt-1 text-center space-y-1">
-                      {teamB.map((member, index) => (
-                        <p key={index} className="text-xs">{member || `Người Chơi ${index + 1}`}</p>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                                 <div className="text-center flex flex-col items-center w-20 flex-shrink-0">
+                   <p className="text-sm font-semibold">Đội B</p>
+                   <div className="w-10 h-10 mt-1 flex items-center justify-center">
+                     <Image
+                       src="/images/numberBalls/ball_8.png"
+                       alt="Team B Ball"
+                       width={40}
+                       height={40}
+                       className="object-contain"
+                     />
+                   </div>
+                   <div className="min-h-[60px] mt-1 text-center space-y-1">
+                     {teamB.length > 0 ? (
+                       teamB.map((member, index) => (
+                         <p key={index} className="text-xs">{member || `Người Chơi ${index + 1}`}</p>
+                       ))
+                     ) : (
+                       <p className="text-xs text-gray-400">Chưa có thành viên</p>
+                     )}
+                   </div>
+                 </div>
               </div>
             </div>
 
@@ -429,143 +454,143 @@ function ScoreboardPage() {
                 </>
               )}
 
-                             <div className="space-y-2">
+                                            <div className="space-y-2">
                  <p className="text-sm font-semibold text-[#000000] mb-2">Thao tác nhanh</p>
                  <div className="grid grid-cols-2 gap-3">
                    <Button
-                     variant="outline"
-                     onClick={async () => {
-                       if (!matchId) {
-                         toast.error('Không tìm thấy thông tin trận đấu');
-                         return;
-                       }
+                    variant="outline"
+                    onClick={async () => {
+                      if (!matchId) {
+                        toast.error('Không tìm thấy thông tin trận đấu');
+                        return;
+                      }
 
-                       if (!actorGuestToken && !matchInfo?.createdByMembershipId) {
-                         toast.error('Bạn không có quyền chỉnh sửa');
-                         return;
-                       }
+                      if (!actorGuestToken && !matchInfo?.createdByMembershipId) {
+                        toast.error('Bạn không có quyền chỉnh sửa');
+                        return;
+                      }
 
-                       const newScore = scoreA + 1;
-                       setScoreA(newScore);
-                       try {
-                         await userMatchService.updateScore(matchId, {
-                           teamIndex: 0,
-                           score: newScore,
-                           actorGuestToken: actorGuestToken || undefined,
-                           actorMembershipId: matchInfo?.createdByMembershipId || undefined,
-                         });
+                      const newScore = scoreA + 1;
+                      setScoreA(newScore);
+                      try {
+                        await userMatchService.updateScore(matchId, {
+                          teamIndex: 0,
+                          score: newScore,
+                          actorGuestToken: actorGuestToken || undefined,
+                          actorMembershipId: matchInfo?.createdByMembershipId || undefined,
+                        });
 
-                         socketService.emitScoreUpdate(matchId, 0, newScore);
-                       } catch {
-                         toast.error('Cập nhật điểm Team A thất bại');
-                         setScoreA(scoreA);
-                       }
-                     }}
-                     className="text-[#000000]"
-                   >
-                     +1 Team A
-                   </Button>
-                   <Button
-                     variant="outline"
-                     onClick={async () => {
-                       if (!matchId) {
-                         toast.error('Không tìm thấy thông tin trận đấu');
-                         return;
-                       }
+                        socketService.emitScoreUpdate(matchId, 0, newScore);
+                      } catch {
+                        toast.error('Cập nhật điểm Team A thất bại');
+                        setScoreA(scoreA);
+                      }
+                    }}
+                    className="text-[#000000]"
+                  >
+                    +1 Team A
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      if (!matchId) {
+                        toast.error('Không tìm thấy thông tin trận đấu');
+                        return;
+                      }
 
-                       if (!actorGuestToken && !matchInfo?.createdByMembershipId) {
-                         toast.error('Bạn không có quyền chỉnh sửa');
-                         return;
-                       }
+                      if (!actorGuestToken && !matchInfo?.createdByMembershipId) {
+                        toast.error('Bạn không có quyền chỉnh sửa');
+                        return;
+                      }
 
-                       const newScore = scoreB + 1;
-                       setScoreB(newScore);
-                       try {
-                         await userMatchService.updateScore(matchId, {
-                           teamIndex: 1,
-                           score: newScore,
-                           actorGuestToken: actorGuestToken || undefined,
-                           actorMembershipId: matchInfo?.createdByMembershipId || undefined,
-                         });
-                         socketService.emitScoreUpdate(matchId, 1, newScore);
-                       } catch {
-                         toast.error('Cập nhật điểm Team B thất bại');
-                         setScoreB(scoreB);
-                       }
-                     }}
-                     className="text-[#000000]"
-                   >
-                     +1 Team B
-                   </Button>
-                   <Button
-                     variant="outline"
-                     onClick={async () => {
-                       if (!matchId) {
-                         toast.error('Không tìm thấy thông tin trận đấu');
-                         return;
-                       }
+                      const newScore = scoreB + 1;
+                      setScoreB(newScore);
+                      try {
+                        await userMatchService.updateScore(matchId, {
+                          teamIndex: 1,
+                          score: newScore,
+                          actorGuestToken: actorGuestToken || undefined,
+                          actorMembershipId: matchInfo?.createdByMembershipId || undefined,
+                        });
+                        socketService.emitScoreUpdate(matchId, 1, newScore);
+                      } catch {
+                        toast.error('Cập nhật điểm Team B thất bại');
+                        setScoreB(scoreB);
+                      }
+                    }}
+                    className="text-[#000000]"
+                  >
+                    +1 Team B
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      if (!matchId) {
+                        toast.error('Không tìm thấy thông tin trận đấu');
+                        return;
+                      }
 
-                       if (!actorGuestToken && !matchInfo?.createdByMembershipId) {
-                         toast.error('Bạn không có quyền chỉnh sửa');
-                         return;
-                       }
+                      if (!actorGuestToken && !matchInfo?.createdByMembershipId) {
+                        toast.error('Bạn không có quyền chỉnh sửa');
+                        return;
+                      }
 
-                       const newScore = Math.max(0, scoreA - 1);
-                       setScoreA(newScore);
-                       try {
-                         await userMatchService.updateScore(matchId, {
-                           teamIndex: 0,
-                           score: newScore,
-                           actorGuestToken: actorGuestToken || undefined,
-                           actorMembershipId: matchInfo?.createdByMembershipId || undefined,
-                         });
+                      const newScore = Math.max(0, scoreA - 1);
+                      setScoreA(newScore);
+                      try {
+                        await userMatchService.updateScore(matchId, {
+                          teamIndex: 0,
+                          score: newScore,
+                          actorGuestToken: actorGuestToken || undefined,
+                          actorMembershipId: matchInfo?.createdByMembershipId || undefined,
+                        });
 
-                         socketService.emitScoreUpdate(matchId, 0, newScore);
-                       } catch {
-                         toast.error('Cập nhật điểm Team A thất bại');
-                         setScoreA(scoreA);
-                       }
-                     }}
-                     className="text-[#000000]"
-                   >
-                     -1 Team A
-                   </Button>
-                   <Button
-                     variant="outline"
-                     onClick={async () => {
-                       if (!matchId) {
-                         toast.error('Không tìm thấy thông tin trận đấu');
-                         return;
-                       }
+                        socketService.emitScoreUpdate(matchId, 0, newScore);
+                      } catch {
+                        toast.error('Cập nhật điểm Team A thất bại');
+                        setScoreA(scoreA);
+                      }
+                    }}
+                    className="text-[#000000]"
+                  >
+                    -1 Team A
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      if (!matchId) {
+                        toast.error('Không tìm thấy thông tin trận đấu');
+                        return;
+                      }
 
-                       // Kiểm tra quyền chỉnh sửa - chỉ creator mới được phép
-                       if (!actorGuestToken && !matchInfo?.createdByMembershipId) {
-                         toast.error('Bạn không có quyền chỉnh sửa');
-                         return;
-                       }
+                      // Kiểm tra quyền chỉnh sửa - chỉ creator mới được phép
+                      if (!actorGuestToken && !matchInfo?.createdByMembershipId) {
+                        toast.error('Bạn không có quyền chỉnh sửa');
+                        return;
+                      }
 
-                       const newScore = Math.max(0, scoreB - 1);
-                       setScoreB(newScore);
-                       try {
-                         await userMatchService.updateScore(matchId, {
-                           teamIndex: 1,
-                           score: newScore,
-                           actorGuestToken: actorGuestToken || undefined,
-                           actorMembershipId: matchInfo?.createdByMembershipId || undefined,
-                         });
+                      const newScore = Math.max(0, scoreB - 1);
+                      setScoreB(newScore);
+                      try {
+                        await userMatchService.updateScore(matchId, {
+                          teamIndex: 1,
+                          score: newScore,
+                          actorGuestToken: actorGuestToken || undefined,
+                          actorMembershipId: matchInfo?.createdByMembershipId || undefined,
+                        });
 
-                         socketService.emitScoreUpdate(matchId, 1, newScore);
-                       } catch {
-                         toast.error('Cập nhật điểm Team B thất bại');
-                         setScoreB(scoreB);
-                       }
-                     }}
-                     className="text-[#000000]"
-                   >
-                     -1 Team B
-                   </Button>
-                 </div>
-               </div>
+                        socketService.emitScoreUpdate(matchId, 1, newScore);
+                      } catch {
+                        toast.error('Cập nhật điểm Team B thất bại');
+                        setScoreB(scoreB);
+                      }
+                    }}
+                    className="text-[#000000]"
+                  >
+                    -1 Team B
+                  </Button>
+                </div>
+              </div>
             </div>
           </HeaderUser>
 
@@ -674,108 +699,119 @@ function ScoreboardPage() {
             />
           )}
 
-          {showEndPopup && (
-            <MatchEnd
-              onClose={() => setShowEndPopup(false)}
-              onConfirm={async () => {
-                if (!matchId) {
-                  toast.error('Không tìm thấy thông tin trận đấu');
-                  setShowEndPopup(false);
-                  return;
-                }
+                     {showEndPopup && (
+             <MatchEnd
+               onClose={() => setShowEndPopup(false)}
+               onConfirm={async () => {
+                 if (!matchId) {
+                   toast.error('Không tìm thấy thông tin trận đấu');
+                   setShowEndPopup(false);
+                   return;
+                 }
 
-                if (!actorGuestToken && !matchInfo?.createdByMembershipId) {
-                  toast.error('Không thể xác thực người dùng để kết thúc trận đấu');
-                  setShowEndPopup(false);
-                  return;
-                }
+                 if (!actorGuestToken && !matchInfo?.createdByMembershipId) {
+                   toast.error('Không thể xác thực người dùng để kết thúc trận đấu');
+                   setShowEndPopup(false);
+                   return;
+                 }
 
-                try {
-                  const endMatchPayload: { actorGuestToken?: string; actorMembershipId?: string } = {};
+                 try {
+                   const endMatchPayload: { actorGuestToken?: string; actorMembershipId?: string } = {};
 
-                  if (actorGuestToken) {
-                    endMatchPayload.actorGuestToken = actorGuestToken;
-                  } else if (matchInfo?.createdByMembershipId) {
-                    endMatchPayload.actorMembershipId = matchInfo.createdByMembershipId;
-                  }
+                   if (actorGuestToken) {
+                     endMatchPayload.actorGuestToken = actorGuestToken;
+                   } else if (matchInfo?.createdByMembershipId) {
+                     endMatchPayload.actorMembershipId = matchInfo.createdByMembershipId;
+                   }
 
-                  await userMatchService.endMatch(matchId, endMatchPayload);
+                   await userMatchService.endMatch(matchId, endMatchPayload);
 
 
-                  if (socketService.isSocketConnected()) {
-                    socketService.emitMatchEnd(matchId, {
-                      matchId,
-                      tableName: tableInfo?.name || undefined,
-                      matchCode: matchCode || undefined,
-                      scoreA,
-                      scoreB,
-                      teamA,
-                      teamB,
-                      tableId: tableId || undefined,
-                      endTime: new Date().toISOString()
-                    });
-                  }
+                   if (socketService.isSocketConnected()) {
+                     socketService.emitMatchEnd(matchId, {
+                       matchId,
+                       tableName: tableInfo?.name || undefined,
+                       matchCode: matchCode || undefined,
+                       scoreA,
+                       scoreB,
+                       teamA,
+                       teamB,
+                       tableId: tableId || undefined,
+                       endTime: new Date().toISOString()
+                     });
+                   }
 
-                  if (!matchId) {
-                    toast.error('Thiếu thông tin trận đấu');
-                    return;
-                  }
+                   if (!matchId) {
+                     toast.error('Thiếu thông tin trận đấu');
+                     return;
+                   }
 
-                  const params = new URLSearchParams();
+                   const params = new URLSearchParams();
 
-                  if (matchId) params.set('matchId', matchId);
-                  if (tableInfo?.name) params.set('tableName', tableInfo.name);
-                  if (matchCode) params.set('matchCode', matchCode);
-                  if (scoreA !== undefined) params.set('scoreA', scoreA.toString());
-                  if (scoreB !== undefined) params.set('scoreB', scoreB.toString());
-                  if (teamA.length > 0) params.set('teamA', teamA.join(','));
-                  if (teamB.length > 0) params.set('teamB', teamB.join(','));
-                  if (tableId) params.set('tableId', tableId);
+                   if (matchId) params.set('matchId', matchId);
+                   if (matchCode) params.set('matchCode', matchCode);
+                   if (scoreA !== undefined) params.set('scoreA', scoreA.toString());
+                   if (scoreB !== undefined) params.set('scoreB', scoreB.toString());
+                   if (teamA.length > 0) params.set('teamA', teamA.join(','));
+                   if (teamB.length > 0) params.set('teamB', teamB.join(','));
+                   if (tableId) params.set('tableId', tableId);
 
-                  const targetUrl = `/user/match/end?${params.toString()}`;
+                   const targetUrl = `/user/match/end?${params.toString()}`;
 
-                  setShowEndPopup(false);
+                   setShowEndPopup(false);
 
-                  setShowEndPopup(false);
+                   setShowEndPopup(false);
 
-                  if (router && typeof router.push === 'function') {
-                    try {
-                      router.push(targetUrl);
+                   if (router && typeof router.push === 'function') {
+                     try {
+                       router.push(targetUrl);
 
-                      setTimeout(() => {
-                        if (window.location.pathname !== '/user/match/end') {
-                          window.location.href = targetUrl;
-                        }
-                      }, 500);
+                       setTimeout(() => {
+                         if (window.location.pathname !== '/user/match/end') {
+                           window.location.href = targetUrl;
+                         }
+                       }, 500);
 
-                    } catch {
-                      window.location.href = targetUrl;
-                    }
-                  } else {
-                    window.location.href = targetUrl;
-                  }
+                     } catch {
+                       window.location.href = targetUrl;
+                     }
+                   } else {
+                     window.location.href = targetUrl;
+                   }
 
-                } catch (e) {
-                  let errorMessage = 'Kết thúc trận đấu thất bại';
+                 } catch (e) {
+                   let errorMessage = 'Kết thúc trận đấu thất bại';
 
-                  const error = e as { message?: string };
-                  if (error.message?.includes('actor identifier')) {
-                    errorMessage = 'Không thể xác thực người dùng để kết thúc trận đấu';
-                  } else if (error.message?.includes('not found')) {
-                    errorMessage = 'Không tìm thấy trận đấu';
-                  } else if (error.message?.includes('unauthorized')) {
-                    errorMessage = 'Bạn không có quyền kết thúc trận đấu này';
-                  } else if (error.message) {
-                    errorMessage += ': ' + error.message;
-                  }
+                   const error = e as { message?: string };
+                   if (error.message?.includes('actor identifier')) {
+                     errorMessage = 'Không thể xác thực người dùng để kết thúc trận đấu';
+                   } else if (error.message?.includes('not found')) {
+                     errorMessage = 'Không tìm thấy trận đấu';
+                   } else if (error.message?.includes('unauthorized')) {
+                     errorMessage = 'Bạn không có quyền kết thúc trận đấu này';
+                   } else if (error.message) {
+                     errorMessage += ': ' + error.message;
+                   }
 
-                  toast.error(errorMessage);
+                   toast.error(errorMessage);
 
-                  setShowEndPopup(false);
-                }
-              }}
-            />
-          )}
+                   setShowEndPopup(false);
+                 }
+               }}
+             />
+           )}
+
+           {showFeedbackPopup && (
+             <Feedback
+               onClose={() => setShowFeedbackPopup(false)}
+               onSuccess={handleFeedbackSuccess}
+               matchId={matchId || ''}
+               tableId={tableId || undefined}
+               clubId={tableInfo?.clubId || undefined}
+               membershipId={matchInfo?.createdByMembershipId || undefined}
+               guestToken={actorGuestToken || undefined}
+             />
+           )}
         </div>
       )}
     </>
