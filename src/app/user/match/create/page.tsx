@@ -92,7 +92,6 @@ function StartSessionContent() {
 
           setTableInfo(tableData);
 
-          toast.success(`Chào mừng bạn đến ${tableData.name}`);
         } else {
           if (!tableName) {
             setTableName('Bàn chơi');
@@ -100,7 +99,6 @@ function StartSessionContent() {
           if (!tableCategory) {
             setTableCategory('pool-8');
           }
-          toast.success('Chào mừng bạn đến với ScoreLens');
         }
       } catch (error) {
         console.error('Xác thực bàn thất bại:', error);
