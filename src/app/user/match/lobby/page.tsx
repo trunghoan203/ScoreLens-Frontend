@@ -8,6 +8,7 @@ import FooterButton from '@/components/user/FooterButton';
 import { userMatchService } from '@/lib/userMatchService';
 import { toast } from 'react-hot-toast';
 import { io, Socket } from 'socket.io-client';
+import { config } from '@/lib/config';
 import RoleBadge from '@/components/ui/RoleBadge';
 import { useMatchRole } from '@/lib/hooks/useMatchRole';
 
