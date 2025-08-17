@@ -119,8 +119,10 @@ export default function AddManagerPage() {
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Ngày Sinh <span className="text-red-500">*</span></label>
                 <input
                   type="date"
+                  name="dateOfBirth"
                   value={form.dateOfBirth}
                   onChange={handleChange}
+                  required
                   className={`w-full bg-white border rounded-md border-gray-300 px-4 py-3 text-sm font-base placeholder-gray-500 focus:border-lime-500 outline-none ${form.dateOfBirth ? 'text-black' : 'text-gray-500'
                     }`}
                 />
