@@ -141,7 +141,7 @@ function GuestLoginContent() {
       <main className="flex-1 flex flex-col px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-[#000000]">
-            {tableName ? `${tableName}` : `${tableNumber || '??'}`} - {tableInfo?.category ? tableInfo.category.toUpperCase() : (tableId ? 'Đang tải...' : 'Pool 8 Ball')}
+            {(tableInfo?.name || tableName || 'BÀN').toUpperCase()} - {tableInfo?.category ? (tableInfo.category === 'pool-8' ? 'POOL 8' : `- ${tableInfo.category.toUpperCase()}`) : (tableId ? 'Đang tải...' : 'Pool 8 Ball')}
           </h1>
           <p className="text-base sm:text-lg text-[#000000] font-medium">
             Hãy nhập mã phòng để tiếp tục
