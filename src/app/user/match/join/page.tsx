@@ -7,6 +7,7 @@ import HeaderUser from '@/components/user/HeaderUser';
 import FooterButton from '@/components/user/FooterButton';
 import toast from 'react-hot-toast';
 import { userMatchService } from '@/lib/userMatchService';
+import RoleBadge from '@/components/ui/RoleBadge';
 
 function GuestJoinContent() {
   const [fullName, setFullName] = useState('');
@@ -28,6 +29,7 @@ function GuestJoinContent() {
   const [isCreatingMatch, setIsCreatingMatch] = useState(false);
   const [verifiedMembershipId, setVerifiedMembershipId] = useState('');
   const [isMember, setIsMember] = useState(false);
+  const [sessionToken, setSessionToken] = useState<string | null>(null); // ← MỚI: SessionToken cho role-based auth
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -35,9 +37,11 @@ function GuestJoinContent() {
     const table = searchParams!.get('table');
     const room = searchParams!.get('room');
     const tId = searchParams!.get('tableId');
+    const sessionToken = searchParams!.get('sessionToken'); // ← MỚI: Lấy sessionToken từ URL
     if (table) setTableNumber(table);
     if (room) setRoomCode(room);
     if (tId) setTableId(tId);
+    if (sessionToken) setSessionToken(sessionToken); // ← MỚI: Lưu sessionToken
 
     const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
@@ -102,31 +106,24 @@ function GuestJoinContent() {
         return;
       }
 
-      const membershipFullName = responseData.fullName || '';
-      const membershipId = responseData.membershipId || '';
-      setFullName(membershipFullName);
-      setVerifiedMembershipId(membershipId);
+      setVerifiedMembershipId(responseData.membershipId);
+      setFullName(responseData.fullName);
       setIsMember(true);
-      setVerifyMemberStatus('success');
-      toast.success(`Chào mừng ${membershipFullName} đến với ScoreLens`);
-    } catch (error) {
+      setVerifyMemberMessage('Xác thực thành công!');
+      toast.success(`Chào mừng ${responseData.fullName}!`);
+
+    } catch (e) {
+      console.error('Error verifying membership:', e);
+      const errorMessage = (e as { message?: string })?.message || 'Xác thực thất bại';
       setVerifyMemberStatus('error');
-      const errorMessage = (error as { message?: string })?.message || 'Bạn chưa đăng ký hội viên';
+      setVerifyMemberMessage(errorMessage);
       toast.error(errorMessage);
     } finally {
       setVerifyingMember(false);
     }
   };
 
-  const handleContinue = () => {
-    if (!fullName.trim()) {
-      toast.error('Vui lòng nhập họ và tên.');
-      return;
-    }
-    setShowTeamPopup(true);
-  };
-
-  const handleTeamSelection = async () => {
+  const handleJoinMatch = async () => {
     if (!fullName.trim()) {
       toast.error('Vui lòng nhập họ và tên.');
       return;
@@ -137,7 +134,7 @@ function GuestJoinContent() {
     try {
       if (roomCode) {
         try {
-          await userMatchService.joinMatch({
+          const joinResult = await userMatchService.joinMatch({
             matchCode: roomCode,
             teamIndex: selectedTeam,
             joinerInfo: { 
@@ -146,6 +143,22 @@ function GuestJoinContent() {
               membershipName: isMember ? fullName.trim() : undefined,
             },
           });
+          
+          // Handle response structure theo Backend code
+          const joinData = joinResult as any;
+          
+          // Backend trả về: { success: true, data: updatedMatch, message, userSessionToken }
+          let newSessionToken = '';
+          
+          if (joinData?.success) {
+            // Lấy userSessionToken từ root level (không phải trong data)
+            newSessionToken = joinData.userSessionToken || '';
+          }
+          
+          if (!newSessionToken) {
+            // Fallback: sử dụng sessionToken cũ nếu BE chưa trả về
+            newSessionToken = sessionToken || '';
+          }
 
           const matchInfo = await userMatchService.getMatchByCode(roomCode) as { data?: { matchId?: string; id?: string } };
           const responseData = matchInfo?.data || matchInfo;
@@ -163,6 +176,13 @@ function GuestJoinContent() {
             membershipId: isMember ? verifiedMembershipId : '',
             membershipName: isMember ? fullName.trim() : ''
           });
+
+          // ← MỚI: Thêm sessionToken vào URL
+          if (newSessionToken) {
+            params.set('sessionToken', newSessionToken);
+            // ← MỚI: Cập nhật sessionToken state để tránh conflict
+            setSessionToken(newSessionToken);
+          }
 
           router.push(`/user/match/lounge?${params.toString()}`);
           return;
@@ -196,22 +216,24 @@ function GuestJoinContent() {
         ],
       };
 
-      const data = await userMatchService.createMatch(payload) as { data?: { matchId?: string; id?: string; matchCode?: string; code?: string } };
+      const data = await userMatchService.createMatch(payload) as { data?: { matchId?: string; id?: string; matchCode?: string; code?: string; sessionToken?: string } };
 
       const responseData = data?.data || data;
-      const matchData = responseData as { matchId?: string; id?: string; matchCode?: string; code?: string };
+      const matchData = responseData as { matchId?: string; id?: string; matchCode?: string; code?: string; sessionToken?: string };
       let newMatchId =
         matchData?.matchId || matchData?.id || '';
 
       const code =
         matchData?.matchCode || matchData?.code || '';
 
+      // ← MỚI: Lấy sessionToken từ create response
+      const newSessionToken = matchData?.sessionToken || sessionToken;
+
       if (!newMatchId && code) {
         try {
-          const byCode = await userMatchService.getMatchByCode(code) as { data?: { id?: string; matchId?: string }; id?: string; matchId?: string; match?: { id?: string; matchId?: string } };
+          const byCode = await userMatchService.getMatchByCode(code) as { data?: { id?: string; matchId?: string } };
           newMatchId =
-            byCode?.id || byCode?.matchId || byCode?.data?.id ||
-            byCode?.data?.matchId || byCode?.match?.id || byCode?.match?.matchId || '';
+            byCode?.data?.id || byCode?.data?.matchId || '';
         } catch { }
       }
 
@@ -226,6 +248,13 @@ function GuestJoinContent() {
         membershipId: isMember ? verifiedMembershipId : '',
         membershipName: isMember ? fullName.trim() : ''
       });
+
+      // ← MỚI: Thêm sessionToken vào URL và cập nhật state
+      if (newSessionToken) {
+        params.set('sessionToken', newSessionToken);
+        // ← MỚI: Cập nhật sessionToken state để tránh conflict
+        setSessionToken(newSessionToken);
+      }
 
       router.push(`/user/match/lobby?${params.toString()}`);
     } catch {
@@ -307,7 +336,7 @@ function GuestJoinContent() {
 
       <FooterButton>
         <button
-          onClick={handleContinue}
+          onClick={() => setShowTeamPopup(true)}
           className="w-full bg-[#8ADB10] hover:bg-lime-600 text-[#FFFFFF] font-semibold py-3 rounded-xl text-base sm:text-lg transition"
         >
           Tiếp tục
@@ -355,7 +384,7 @@ function GuestJoinContent() {
                 Hủy
               </button>
               <button
-                onClick={handleTeamSelection}
+                onClick={handleJoinMatch}
                 disabled={isCreatingMatch}
                 className="w-full bg-[#8ADB10] hover:bg-lime-500 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base disabled:bg-gray-300"
               >

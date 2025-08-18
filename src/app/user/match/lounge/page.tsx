@@ -8,7 +8,7 @@ import FooterButton from '@/components/user/FooterButton';
 import { userMatchService } from '@/lib/userMatchService';
 import { toast } from 'react-hot-toast';
 import { io, Socket } from 'socket.io-client';
-import { config } from '@/lib/config';
+import RoleBadge from '@/components/ui/RoleBadge';
 
 function GuestJoinContent() {
   const searchParams = useSearchParams();
@@ -20,6 +20,7 @@ function GuestJoinContent() {
   const guestName = searchParams!.get('name') || searchParams!.get('guestName') || '';
   const membershipId = searchParams!.get('membershipId') || '';
   const membershipName = searchParams!.get('membershipName') || '';
+  const sessionToken = searchParams!.get('sessionToken') || ''; // ← MỚI: Lấy sessionToken từ URL
 
   const [roomCode, setRoomCode] = useState(existingCode);
   const [loading, setLoading] = useState(true);
@@ -59,7 +60,7 @@ function GuestJoinContent() {
       if (isConnecting || socketRef.current?.connected) return;
 
       isConnecting = true;
-      const socketUrl = config.socketUrl;
+      const socketUrl = 'http://localhost:8000';
 
       try {
         const socket = io(socketUrl, {
@@ -76,10 +77,12 @@ function GuestJoinContent() {
         socket.on('connect', () => {
           isConnecting = false;
           setIsWebSocketConnected(true);
+
           socket.emit('join_match_room', matchId);
         });
 
         socket.on('disconnect', () => {
+
           isConnecting = false;
           setIsWebSocketConnected(false);
 
@@ -89,7 +92,8 @@ function GuestJoinContent() {
           }
         });
 
-        socket.on('connect_error', () => {
+        socket.on('connect_error', (error) => {
+
           isConnecting = false;
           setIsWebSocketConnected(false);
 
@@ -100,20 +104,39 @@ function GuestJoinContent() {
         });
 
         socket.on('guest_joined', () => {
+
           toast.success('Người chơi mới đã tham gia phòng!');
         });
 
         socket.on('guest_left', () => {
+
           toast('Người chơi đã rời khỏi phòng');
         });
 
         socket.on('match_updated', (data) => {
+
+          
+          // ← MỚI: Kiểm tra nếu match status thay đổi thành 'ongoing' thì navigate
           if (data.status === 'ongoing') {
-            const redirectUrl = `/user/match/scoreboard?table=${tableNumber}&room=${roomCode}&matchId=${matchId}&tableId=${tableId}`;
-            router.push(redirectUrl);
+
+            toast.success('Trận đấu đã bắt đầu!');
+            
+            const params = new URLSearchParams({
+              table: tableNumber,
+              room: roomCode,
+              matchId: matchId,
+              tableId: tableId
+            });
+            
+            if (sessionToken) {
+              params.set('sessionToken', sessionToken);
+            }
+            
+
+            router.push(`/user/match/scoreboard?${params.toString()}`);
             return;
           }
-
+          
           if (data.teams && Array.isArray(data.teams)) {
             const guests: Array<{ id: string, name: string, team: 'A' | 'B', joinedAt: Date }> = [];
 
@@ -121,89 +144,61 @@ function GuestJoinContent() {
               const teamAMembers: string[] = [];
               data.teams[0].members.forEach((member: { guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }, index: number) => {
                 const memberName =
-                  member.guestName ||
-                  member.membershipName ||
-                  member.fullName ||
-                  member.name ||
-                  member.userName ||
-                  member.displayName ||
-                  '';
-
-                if (memberName) {
-                  teamAMembers.push(memberName);
-                  guests.push({
-                    id: `teamA-${index}`,
-                    name: memberName,
-                    team: 'A' as const,
-                    joinedAt: new Date()
-                  });
-                }
+                  member.guestName || member.membershipName || member.fullName || member.name || member.userName || member.displayName || `Người chơi ${index + 1}`;
+                teamAMembers.push(memberName);
+                guests.push({
+                  id: `teamA-${index}`,
+                  name: memberName,
+                  team: 'A',
+                  joinedAt: new Date()
+                });
               });
-
-              setTeamA(teamAMembers);
+              setTeamA(teamAMembers.length > 0 ? teamAMembers : ['']);
             }
 
             if (data.teams[1]?.members && Array.isArray(data.teams[1].members)) {
               const teamBMembers: string[] = [];
               data.teams[1].members.forEach((member: { guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }, index: number) => {
                 const memberName =
-                  member.guestName ||
-                  member.membershipName ||
-                  member.fullName ||
-                  member.name ||
-                  member.userName ||
-                  member.displayName ||
-                  '';
-
-                if (memberName) {
-                  teamBMembers.push(memberName);
-                  guests.push({
-                    id: `teamB-${index}`,
-                    name: memberName,
-                    team: 'B' as const,
-                    joinedAt: new Date()
-                  });
-                }
+                  member.guestName || member.membershipName || member.fullName || member.name || member.userName || member.displayName || `Người chơi ${index + 1}`;
+                teamBMembers.push(memberName);
+                guests.push({
+                  id: `teamB-${index}`,
+                  name: memberName,
+                  team: 'B',
+                  joinedAt: new Date()
+                });
               });
-
-              setTeamB(teamBMembers);
+              setTeamB(teamBMembers.length > 0 ? teamBMembers : ['']);
             }
 
             setConnectedGuests(guests);
-
-            const currentTotalMembers = (data.teams[0]?.members?.length || 0) + (data.teams[1]?.members?.length || 0);
-            if (currentTotalMembers > (connectedGuests?.length || 0)) {
-              toast.success('Có người chơi mới tham gia phòng!');
-            }
           }
         });
 
-        socket.on('match_deleted', () => {
-          toast('Trận đấu đã bị hủy');
+        socket.on('match_started', () => {
+
+          toast.success('Trận đấu đã bắt đầu!');
+          
+          // ← MỚI: Thêm sessionToken vào URL khi chuyển đến scoreboard
+          const params = new URLSearchParams({
+            table: tableNumber,
+            room: roomCode,
+            matchId: matchId,
+            tableId: tableId
+          });
+          
+          if (sessionToken) {
+            params.set('sessionToken', sessionToken);
+          }
+          
+
+          router.push(`/user/match/scoreboard?${params.toString()}`);
         });
 
-        socket.on('match_ended', (data) => {
-          toast.success('Trận đấu đã kết thúc!');
+        socket.connect();
+      } catch (error) {
 
-          const params = new URLSearchParams();
-          if (data.matchId) params.set('matchId', data.matchId);
-          if (data.tableName) params.set('tableName', data.tableName);
-          if (data.matchCode) params.set('matchCode', data.matchCode);
-          if (data.scoreA !== undefined) params.set('scoreA', data.scoreA.toString());
-          if (data.scoreB !== undefined) params.set('scoreB', data.scoreB.toString());
-          if (data.teamA) params.set('teamA', data.teamA.join(','));
-          if (data.teamB) params.set('teamB', data.teamB.join(','));
-          if (data.tableId) params.set('tableId', data.tableId);
-
-          router.push(`/user/match/end?${params.toString()}`);
-        });
-
-        socket.on('error', () => {
-          setIsWebSocketConnected(false);
-        });
-
-      } catch {
-        isConnecting = false;
         setIsWebSocketConnected(false);
       }
     };
@@ -213,125 +208,19 @@ function GuestJoinContent() {
     return () => {
       if (socketRef.current) {
         socketRef.current.disconnect();
-        socketRef.current = null;
       }
     };
-  }, [matchId, tableNumber, roomCode, tableId, connectedGuests?.length, router]);
+  }, [matchId, roomCode, tableNumber, tableId, sessionToken, router]);
 
   useEffect(() => {
-    if (!matchId) return;
-
-    const fetchConnectedGuests = async () => {
-      try {
-        const matchData = await userMatchService.getMatchById(matchId) as { data?: { teams?: Array<{ members?: Array<{ guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }> }> }; teams?: Array<{ members?: Array<{ guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }> }> };
-
-        const teams = matchData?.data?.teams || matchData?.teams || [];
-
-        if (teams && Array.isArray(teams)) {
-          const guests: Array<{ id: string, name: string, team: 'A' | 'B', joinedAt: Date }> = [];
-
-          if (teams[0]?.members && Array.isArray(teams[0].members)) {
-            const teamAMembers: string[] = [];
-            teams[0].members.forEach((member: { guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }, index: number) => {
-              const memberName =
-                member.guestName ||
-                member.membershipName ||
-                member.fullName ||
-                member.name ||
-                member.userName ||
-                member.displayName ||
-                '';
-
-              if (memberName) {
-                teamAMembers.push(memberName);
-                guests.push({
-                  id: `teamA-${index}`,
-                  name: memberName,
-                  team: 'A' as const,
-                  joinedAt: new Date()
-                });
-              }
-            });
-
-            if (teamAMembers.length > 0) {
-              if (teamAMembers.length > 0) {
-                setTeamA(teamAMembers);
-              }
-            }
-          }
-
-          if (teams[1]?.members && Array.isArray(teams[1].members)) {
-            const teamBMembers: string[] = [];
-            teams[1].members.forEach((member: { guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }, index: number) => {
-              const memberName =
-                member.guestName ||
-                member.membershipName ||
-                member.fullName ||
-                member.name ||
-                member.userName ||
-                member.displayName ||
-                '';
-
-              if (memberName) {
-                teamBMembers.push(memberName);
-                guests.push({
-                  id: `teamB-${index}`,
-                  name: memberName,
-                  team: 'B' as const,
-                  joinedAt: new Date()
-                });
-              }
-            });
-
-            if (teamBMembers.length > 0) {
-              if (teamBMembers.length > 0) {
-                setTeamB(teamBMembers);
-              }
-            }
-          }
-
-          setConnectedGuests(guests);
-        }
-      } catch {
-      }
-    };
-
-    fetchConnectedGuests();
-
-    let pollingInterval: NodeJS.Timeout;
-
-    const startPolling = () => {
-      pollingInterval = setInterval(() => {
-        fetchConnectedGuests();
-      }, 5000);
-    };
-
-    const stopPolling = () => {
-      if (pollingInterval) {
-        clearInterval(pollingInterval);
-      }
-    };
-
-    startPolling();
-
-    const checkSocketHealth = () => {
-      if (isWebSocketConnected && connectedGuests.length > 0) {
-        stopPolling();
-        setTimeout(() => {
-          if (isWebSocketConnected) {
-            startPolling();
-          }
-        }, 10000);
-      }
-    };
-
-    const healthCheckInterval = setInterval(checkSocketHealth, 10000);
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
 
     return () => {
-      stopPolling();
-      clearInterval(healthCheckInterval);
+      if (timer) clearTimeout(timer);
     };
-  }, [matchId, connectedGuests.length, isWebSocketConnected]);
+  }, [tableId, existingCode, existingMatchId, guestName]);
 
   useEffect(() => {
     if (tableId) {
@@ -341,13 +230,61 @@ function GuestJoinContent() {
           const responseData = (tableData as { data?: { name?: string; category?: string; clubId?: string } })?.data || tableData;
           const tableInfoData = responseData as { name?: string; category?: string; clubId?: string };
           setTableInfo(tableInfoData);
-        } catch {
-          console.error('Error loading table info');
-        }
+                 } catch {
+           
+         }
       };
       loadTableInfo();
     }
   }, [tableId]);
+
+  // Load match data và team members khi có matchId
+  useEffect(() => {
+    const loadMatchData = async () => {
+      if (!matchId) return;
+
+      try {
+        const matchData = await userMatchService.getMatchById(matchId);
+        const responseData = (matchData as { data?: { teams?: Array<{ members?: Array<{ guestName?: string; membershipName?: string; fullName?: string }> }> } })?.data || matchData;
+        const matchInfoData = responseData as { teams?: Array<{ members?: Array<{ guestName?: string; membershipName?: string; fullName?: string }> }> };
+
+        if (matchInfoData?.teams) {
+          // Load team A members
+          if (matchInfoData.teams[0]?.members) {
+            const teamAMembers = matchInfoData.teams[0].members.map((member: { guestName?: string; membershipName?: string; fullName?: string }) =>
+              member.guestName || member.membershipName || member.fullName || ''
+            );
+            setTeamA(teamAMembers.length > 0 ? teamAMembers : ['']);
+          }
+
+          // Load team B members
+          if (matchInfoData.teams[1]?.members) {
+            const teamBMembers = matchInfoData.teams[1].members.map((member: { guestName?: string; membershipName?: string; fullName?: string }) =>
+              member.guestName || member.membershipName || member.fullName || ''
+            );
+            setTeamB(teamBMembers.length > 0 ? teamBMembers : ['']);
+          }
+        }
+             } catch (error) {
+         
+        // Fallback: sử dụng thông tin từ URL nếu có
+        if (guestName) {
+          setTeamA([guestName]);
+        }
+        
+        // Fallback: sử dụng thông tin từ URL parameters
+        if (membershipName && membershipName !== guestName) {
+          // Nếu có cả guestName và membershipName, thêm vào team
+          const currentTeamA = teamA.filter(name => name !== '');
+          if (currentTeamA.length === 0 || !currentTeamA.includes(membershipName)) {
+            setTeamA([...currentTeamA, membershipName].filter(name => name !== ''));
+          }
+        }
+      }
+    };
+
+    loadMatchData();
+  }, [matchId, guestName]);
 
   useEffect(() => {
     if (matchId && !tableId) {
@@ -363,9 +300,9 @@ function GuestJoinContent() {
             url.searchParams.set('tableId', tableIdFromMatch);
             window.history.replaceState({}, '', url.toString());
           }
-        } catch {
-          console.error('Error getting tableId from match');
-        }
+                 } catch {
+           
+         }
       };
 
       getTableIdFromMatch();
@@ -396,9 +333,9 @@ function GuestJoinContent() {
               if (codeCandidate) {
                 setRoomCode(String(codeCandidate));
               }
-            } catch {
-              console.error('Error getting match by ID');
-            }
+                         } catch {
+               
+             }
           }
         } else if (existingCode) {
           setRoomCode(existingCode);
@@ -410,9 +347,9 @@ function GuestJoinContent() {
             if (matchIdFromCode) {
               setMatchId(matchIdFromCode);
             }
-          } catch {
-            console.error('Error getting match by code');
-          }
+                     } catch {
+             
+           }
         }
       } finally {
         timer = setTimeout(() => setLoading(false), 800);
@@ -444,9 +381,9 @@ function GuestJoinContent() {
             leaverInfo
           });
           toast.success('Đã rời khỏi phòng');
-        } catch {
-          console.error('Error leaving match');
-        }
+                 } catch {
+           
+         }
       }
 
       if (socketRef.current && socketRef.current.connected) {
@@ -456,6 +393,11 @@ function GuestJoinContent() {
       const loginParams = new URLSearchParams();
       if (tableId) loginParams.set('tableId', tableId);
       if (tableNumber) loginParams.set('table', tableNumber);
+      
+      // ← MỚI: Thêm sessionToken vào URL khi quay lại create
+      if (sessionToken) {
+        loginParams.set('sessionToken', sessionToken);
+      }
 
       router.push(`/user/match/create?${loginParams.toString()}`);
 
@@ -475,7 +417,7 @@ function GuestJoinContent() {
       <main className="flex-1 flex flex-col px-4 py-8 overflow-y-auto scroll-smooth">
         <div className="text-center mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-[#000000]">
-            {tableNumber.toUpperCase()} - {tableInfo?.category ? (tableInfo.category === 'pool-8' ? 'POOL 8' : `- ${tableInfo.category.toUpperCase()}`) : (tableId ? 'ĐANG TẢI...' : 'POOL 8')}
+            {tableNumber.toUpperCase()} - {tableInfo?.category ? (tableInfo.category === 'pool-8' ? 'POOL 8' : ` ${tableInfo.category.toUpperCase()}`) : (tableId ? 'ĐANG TẢI...' : 'POOL 8')}
           </h2>
           <p className="text-sm sm:text-base text-[#000000] font-medium">Bạn đã tham gia phòng với tên: {guestName}</p>
         </div>

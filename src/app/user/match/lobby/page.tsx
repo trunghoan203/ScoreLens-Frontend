@@ -8,7 +8,8 @@ import FooterButton from '@/components/user/FooterButton';
 import { userMatchService } from '@/lib/userMatchService';
 import { toast } from 'react-hot-toast';
 import { io, Socket } from 'socket.io-client';
-import { config } from '@/lib/config';
+import RoleBadge from '@/components/ui/RoleBadge';
+import { useMatchRole } from '@/lib/hooks/useMatchRole';
 
 function HomeRandomContent() {
   const searchParams = useSearchParams();
@@ -20,6 +21,7 @@ function HomeRandomContent() {
   const creatorName = searchParams!.get('name') || searchParams!.get('fullName') || '';
   const membershipId = searchParams!.get('membershipId') || '';
   const membershipName = searchParams!.get('membershipName') || '';
+  const sessionToken = searchParams!.get('sessionToken') || '';
 
   const [roomCode, setRoomCode] = useState(existingCode);
   const [loading, setLoading] = useState(true);
@@ -37,6 +39,17 @@ function HomeRandomContent() {
   const [isWebSocketConnected, setIsWebSocketConnected] = useState(false);
   const socketRef = useRef<Socket | null>(null);
 
+  // Sử dụng useMatchRole hook để quản lý role và authentication
+  const { 
+    role: matchRole, 
+    isHost, 
+    isManager, 
+    canEdit, 
+    authenticateMatch, 
+    isLoading: authLoading, 
+    error: authError 
+  } = useMatchRole(matchId || undefined, socketRef.current);
+
   const handleChange = (team: 'A' | 'B', index: number, value: string) => {
     const setter = team === 'A' ? setTeamA : setTeamB;
     const current = team === 'A' ? teamA : teamB;
@@ -45,6 +58,151 @@ function HomeRandomContent() {
     setter(updated);
   };
 
+  // Load thông tin match và bàn
+  useEffect(() => {
+    const loadMatchData = async () => {
+      try {
+        setLoading(true);
+
+        // Load thông tin bàn
+        if (tableId) {
+          try {
+            const tableData = await userMatchService.verifyTable({ tableId });
+            
+            // Kiểm tra response structure
+            let tableInfoData: { name?: string; category?: string; clubId?: string } | null = null;
+            
+            if (tableData && typeof tableData === 'object') {
+              // Thử các cấu trúc response khác nhau
+              if ('data' in tableData && tableData.data) {
+                tableInfoData = tableData.data as { name?: string; category?: string; clubId?: string };
+              } else if ('name' in tableData || 'category' in tableData || 'clubId' in tableData) {
+                tableInfoData = tableData as { name?: string; category?: string; clubId?: string };
+              } else {
+                // Fallback: sử dụng thông tin từ URL
+                tableInfoData = {
+                  name: tableNumber,
+                  category: 'pool-8' // Default category
+                };
+              }
+            } else {
+              // Fallback: sử dụng thông tin từ URL
+              tableInfoData = {
+                name: tableNumber,
+                category: 'pool-8' // Default category
+              };
+            }
+            
+            setTableInfo(tableInfoData);
+          } catch (error) {
+            // Hiển thị lỗi cụ thể
+            if (error instanceof Error) {
+              toast.error(`Lỗi tải thông tin bàn: ${error.message}`);
+            } else {
+              toast.error('Không thể tải thông tin bàn. Sử dụng thông tin mặc định.');
+            }
+            
+            // Fallback: sử dụng thông tin từ URL
+            setTableInfo({
+              name: tableNumber,
+              category: 'pool-8'
+            });
+          }
+        }
+
+        // Load thông tin match nếu có matchId
+        if (matchId) {
+          try {
+            const matchData = await userMatchService.getMatchById(matchId);
+            
+            const responseData = (matchData as { data?: { teams?: Array<{ members?: Array<{ guestName?: string; membershipName?: string; fullName?: string }> }> } })?.data || matchData;
+            const matchInfoData = responseData as { teams?: Array<{ members?: Array<{ guestName?: string; membershipName?: string; fullName?: string }> }> };
+
+            if (matchInfoData?.teams) {
+              // Load team A members
+              if (matchInfoData.teams[0]?.members) {
+                const teamAMembers = matchInfoData.teams[0].members.map((member: { guestName?: string; membershipName?: string; fullName?: string }) =>
+                  member.guestName || member.membershipName || member.fullName || ''
+                );
+                setTeamA(teamAMembers.length > 0 ? teamAMembers : ['']);
+              }
+
+              // Load team B members
+              if (matchInfoData.teams[1]?.members) {
+                const teamBMembers = matchInfoData.teams[1].members.map((member: { guestName?: string; membershipName?: string; fullName?: string }) =>
+                  member.guestName || member.membershipName || member.fullName || ''
+                );
+                setTeamB(teamBMembers.length > 0 ? teamBMembers : ['']);
+              }
+            }
+          } catch (error) {
+            toast.error('Không thể tải thông tin trận đấu');
+          }
+        }
+
+        // Load thông tin match nếu có code
+        if (existingCode && !matchId) {
+          try {
+            const matchData = await userMatchService.getMatchByCode(existingCode);
+            
+            const responseData = (matchData as { data?: { matchId?: string; id?: string; teams?: Array<{ members?: Array<{ guestName?: string; membershipName?: string; fullName?: string }> }> } })?.data || matchData;
+            const matchInfoData = responseData as { matchId?: string; id?: string; teams?: Array<{ members?: Array<{ guestName?: string; membershipName?: string; fullName?: string }> }> };
+            
+            const newMatchId = matchInfoData?.matchId || matchInfoData?.id;
+            if (newMatchId) {
+              setMatchId(newMatchId);
+            }
+
+            if (matchInfoData?.teams) {
+              // Load team A members
+              if (matchInfoData.teams[0]?.members) {
+                const teamAMembers = matchInfoData.teams[0].members.map((member: { guestName?: string; membershipName?: string; fullName?: string }) =>
+                  member.guestName || member.membershipName || member.fullName || ''
+                );
+                setTeamA(teamAMembers.length > 0 ? teamAMembers : ['']);
+              }
+
+              // Load team B members
+              if (matchInfoData.teams[1]?.members) {
+                const teamBMembers = matchInfoData.teams[1].members.map((member: { guestName?: string; membershipName?: string; fullName?: string }) =>
+                  member.guestName || member.membershipName || member.fullName || ''
+                );
+                setTeamB(teamBMembers.length > 0 ? teamBMembers : ['']);
+              }
+            }
+          } catch (error) {
+            toast.error('Không thể tải thông tin match theo mã phòng');
+          }
+        }
+
+        if (creatorName && (teamA.length === 0 || teamA[0] === '')) {
+          setTeamA([creatorName]);
+        }
+
+      } catch (error) {
+        console.error('Error in loadMatchData:', error);
+        toast.error('Có lỗi xảy ra khi tải dữ liệu');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadMatchData();
+  }, [tableId, matchId, existingCode, creatorName]);
+
+  // Authenticate với match khi có matchId và sessionToken
+  useEffect(() => {
+    if (matchId && sessionToken) {
+      authenticateMatch(matchId, sessionToken);
+    }
+  }, [matchId, sessionToken, authenticateMatch]);
+
+  // Hiển thị lỗi authentication nếu có
+  useEffect(() => {
+    if (authError) {
+      toast.error(`Lỗi xác thực: ${authError}`);
+    }
+  }, [authError]);
 
   useEffect(() => {
     if (!matchId) return;
@@ -83,11 +241,11 @@ function HomeRandomContent() {
           }
         });
 
-        socket.on('guest_joined', () => {
+        socket.on('guest_joined', (data) => {
           toast.success('Người chơi mới đã tham gia phòng!');
         });
 
-        socket.on('guest_left', () => {
+        socket.on('guest_left', (data) => {
           toast('Người chơi đã rời khỏi phòng');
         });
 
@@ -99,68 +257,41 @@ function HomeRandomContent() {
               const teamAMembers: string[] = [];
               data.teams[0].members.forEach((member: { guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }, index: number) => {
                 const memberName =
-                  member.guestName ||
-                  member.membershipName ||
-                  member.fullName ||
-                  member.name ||
-                  member.userName ||
-                  member.displayName ||
-                  '';
-
-                if (memberName) {
-                  teamAMembers.push(memberName);
-                  guests.push({
-                    id: `teamA-${index}`,
-                    name: memberName,
-                    team: 'A' as const,
-                    joinedAt: new Date()
-                  });
-                }
+                  member.guestName || member.membershipName || member.fullName || member.name || member.userName || member.displayName || `Người chơi ${index + 1}`;
+                teamAMembers.push(memberName);
+                guests.push({
+                  id: `teamA-${index}`,
+                  name: memberName,
+                  team: 'A',
+                  joinedAt: new Date()
+                });
               });
-
-              setTeamA(teamAMembers);
+              setTeamA(teamAMembers.length > 0 ? teamAMembers : ['']);
             }
 
             if (data.teams[1]?.members && Array.isArray(data.teams[1].members)) {
               const teamBMembers: string[] = [];
               data.teams[1].members.forEach((member: { guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }, index: number) => {
                 const memberName =
-                  member.guestName ||
-                  member.membershipName ||
-                  member.fullName ||
-                  member.name ||
-                  member.userName ||
-                  member.displayName ||
-                  '';
-
-                if (memberName) {
-                  teamBMembers.push(memberName);
-                  guests.push({
-                    id: `teamB-${index}`,
-                    name: memberName,
-                    team: 'B' as const,
-                    joinedAt: new Date()
-                  });
-                }
+                  member.guestName || member.membershipName || member.fullName || member.name || member.userName || member.displayName || `Người chơi ${index + 1}`;
+                teamBMembers.push(memberName);
+                guests.push({
+                  id: `teamB-${index}`,
+                  name: memberName,
+                  team: 'B',
+                  joinedAt: new Date()
+                });
               });
-
-              setTeamB(teamBMembers);
+              setTeamB(teamBMembers.length > 0 ? teamBMembers : ['']);
             }
 
             setConnectedGuests(guests);
-
           }
         });
 
-        socket.on('match_deleted', () => {
-          toast('Trận đấu đã bị hủy');
-        });
-
-        socket.on('error', () => {
-          setIsWebSocketConnected(false);
-        });
-
-      } catch {
+        socket.connect();
+      } catch (error) {
+        console.error('Socket connection error:', error);
         setIsWebSocketConnected(false);
       }
     };
@@ -170,168 +301,9 @@ function HomeRandomContent() {
     return () => {
       if (socketRef.current) {
         socketRef.current.disconnect();
-        socketRef.current = null;
-      }
-    };
-  }, [roomCode, matchId, creatorName]);
-
-  useEffect(() => {
-    if (!matchId) return;
-
-    const fetchConnectedGuests = async () => {
-      try {
-        const matchData = await userMatchService.getMatchById(matchId) as { data?: { teams?: Array<{ members?: Array<{ guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }> }> }; teams?: Array<{ members?: Array<{ guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }> }> };
-
-        const teams = matchData?.data?.teams || matchData?.teams || [];
-
-        if (teams && Array.isArray(teams)) {
-          const guests: Array<{ id: string, name: string, team: 'A' | 'B', joinedAt: Date }> = [];
-
-          if (teams[0]?.members && Array.isArray(teams[0].members)) {
-            const teamAMembers: string[] = [];
-            teams[0].members.forEach((member: { guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }, index: number) => {
-              const memberName =
-                member.guestName ||
-                member.membershipName ||
-                member.fullName ||
-                member.name ||
-                member.userName ||
-                member.displayName ||
-                '';
-
-              if (memberName) {
-                teamAMembers.push(memberName);
-                guests.push({
-                  id: `teamA-${index}`,
-                  name: memberName,
-                  team: 'A' as const,
-                  joinedAt: new Date()
-                });
-              }
-            });
-
-            setTeamA(teamAMembers);
-          }
-
-          if (teams[1]?.members && Array.isArray(teams[1].members)) {
-            const teamBMembers: string[] = [];
-            teams[1].members.forEach((member: { guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }, index: number) => {
-              const memberName =
-                member.guestName ||
-                member.membershipName ||
-                member.fullName ||
-                member.name ||
-                member.userName ||
-                member.displayName ||
-                '';
-
-              if (memberName) {
-                teamBMembers.push(memberName);
-                guests.push({
-                  id: `teamB-${index}`,
-                  name: memberName,
-                  team: 'B' as const,
-                  joinedAt: new Date()
-                });
-              }
-            });
-
-            setTeamB(teamBMembers);
-          }
-
-          setConnectedGuests(guests);
-
-        }
-      } catch {
-      }
-    };
-
-    fetchConnectedGuests();
-
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-        socketRef.current = null;
       }
     };
   }, [matchId]);
-
-  useEffect(() => {
-    if (tableId) {
-      const loadTableInfo = async () => {
-        try {
-          const tableData = await userMatchService.verifyTable({ tableId });
-          const responseData = (tableData as { data?: { name?: string; category?: string; clubId?: string } })?.data || tableData;
-          const tableInfoData = responseData as { name?: string; category?: string; clubId?: string };
-          setTableInfo(tableInfoData);
-        } catch {
-          console.error('Error loading table info');
-        }
-      };
-      loadTableInfo();
-    }
-  }, [tableId]);
-
-  useEffect(() => {
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const init = async () => {
-      try {
-        if (creatorName) {
-          setTeamA([creatorName]);
-        }
-
-        if (existingMatchId) {
-          setMatchId(existingMatchId);
-          if (existingCode) {
-            setRoomCode(existingCode);
-          } else {
-            try {
-              const data = (await userMatchService.getMatchById(existingMatchId)) as { data?: { matchCode?: string; code?: string; joinCode?: string; roomCode?: string; createdBy?: { fullName?: string; name?: string } }; matchCode?: string; code?: string; joinCode?: string; roomCode?: string; createdBy?: { fullName?: string; name?: string } };
-
-              const responseData = data?.data || data;
-              const matchData = responseData as { matchCode?: string; code?: string; joinCode?: string; roomCode?: string; createdBy?: { fullName?: string; name?: string } };
-              const codeCandidate =
-                matchData?.matchCode ||
-                matchData?.code ||
-                matchData?.joinCode ||
-                matchData?.roomCode ||
-                '';
-              if (codeCandidate) setRoomCode(String(codeCandidate));
-
-              if (!creatorName) {
-                const matchCreatorName =
-                  matchData?.createdBy?.fullName ||
-                  matchData?.createdBy?.name ||
-                  '';
-                if (matchCreatorName) {
-                  setTeamA([matchCreatorName]);
-                }
-              }
-            } catch {
-              console.error('Error loading match info');
-            }
-          }
-        }
-
-        if (existingCode) {
-          setRoomCode(existingCode);
-        }
-
-        if (!tableId) {
-          const digits = '123456789';
-          let code = '';
-          for (let i = 0; i < 6; i++) code += digits[Math.floor(Math.random() * digits.length)];
-          setRoomCode(code);
-        }
-      } finally {
-        timer = setTimeout(() => setLoading(false), 800);
-      }
-    };
-    init();
-    return () => {
-      if (timer) clearTimeout(timer);
-    };
-  }, [tableId, existingCode, existingMatchId, creatorName]);
 
   const handleStart = async () => {
     try {
@@ -340,54 +312,121 @@ function HomeRandomContent() {
         return;
       }
 
-      const startMatchPayload: { actorGuestToken?: string; actorMembershipId?: string } = {};
-
-      const guestToken = searchParams?.get('guestToken');
-      const membershipId = searchParams?.get('membershipId');
-
-      if (guestToken && guestToken.trim() !== '') {
-        startMatchPayload.actorGuestToken = guestToken;
+      // Kiểm tra WebSocket authentication trước khi start match
+      if (!isWebSocketConnected) {
+        toast.error('Chưa kết nối WebSocket. Vui lòng đợi kết nối hoàn tất.');
+        return;
       }
 
-      if (membershipId && membershipId.trim() !== '') {
-        startMatchPayload.actorMembershipId = membershipId;
+      // Kiểm tra role authentication
+      if (authLoading) {
+        toast.error('Đang xác thực quyền. Vui lòng đợi...');
+        return;
       }
 
-      if (Object.keys(startMatchPayload).length === 0) {
-        try {
-          const matchData = await userMatchService.getMatchById(matchId);
-          const responseData = (matchData as { data?: { creatorGuestToken?: string; createdByMembershipId?: string } })?.data || matchData;
-          const matchInfo = responseData as { creatorGuestToken?: string; createdByMembershipId?: string };
+      if (authError) {
+        toast.error(`Lỗi xác thực: ${authError}`);
+        return;
+      }
 
-          if (matchInfo?.creatorGuestToken) {
-            startMatchPayload.actorGuestToken = matchInfo.creatorGuestToken;
-          } else if (matchInfo?.createdByMembershipId) {
-            startMatchPayload.actorMembershipId = matchInfo.createdByMembershipId;
-          } else {
-            toast.error('Không thể xác thực quyền start match. Vui lòng liên hệ admin.');
-            return;
+      // Kiểm tra xem user có phải là host không
+      if (!isHost) {
+        toast.error('Chỉ host mới có quyền bắt đầu trận đấu.');
+        return;
+      }
+
+      // Luôn lấy thông tin creator từ match data
+      let startMatchPayload: { actorGuestToken?: string; actorMembershipId?: string; sessionToken: string } = { sessionToken: '' };
+      
+      try {
+        // Lấy thông tin match để tìm creator và sessionToken của host
+        const matchData = await userMatchService.getMatchById(matchId);
+        
+        const responseData = (matchData as { data?: { 
+          creatorGuestToken?: string; 
+          createdByMembershipId?: string;
+          teams?: Array<{ members?: Array<{ 
+            guestName?: string; 
+            membershipName?: string; 
+            role?: string;
+            sessionToken?: string;
+          }> }>
+        } })?.data || matchData;
+        
+        const matchInfo = responseData as { 
+          creatorGuestToken?: string; 
+          createdByMembershipId?: string;
+          teams?: Array<{ members?: Array<{ 
+            guestName?: string; 
+            membershipName?: string; 
+            role?: string;
+            sessionToken?: string;
+          }> }>
+        };
+
+        // Tìm member có role 'host' để lấy sessionToken
+        let hostSessionToken = '';
+        if (matchInfo?.teams) {
+          for (const team of matchInfo.teams) {
+            if (team.members) {
+              const hostMember = team.members.find(m => m.role === 'host');
+              if (hostMember?.sessionToken) {
+                hostSessionToken = hostMember.sessionToken;
+                break;
+              }
+            }
           }
-        } catch (matchError) {
-          console.error('Không thể lấy thông tin match:', matchError);
-          toast.error('Không thể xác thực quyền start match. Vui lòng thử lại.');
+        }
+
+        if (!hostSessionToken) {
+          toast.error('Không thể xác thực quyền start match. Vui lòng liên hệ admin.');
           return;
         }
+
+        // Thêm sessionToken của host (bắt buộc cho BE)
+        startMatchPayload.sessionToken = hostSessionToken;
+
+        if (matchInfo?.creatorGuestToken) {
+          startMatchPayload.actorGuestToken = matchInfo.creatorGuestToken;
+        } else if (matchInfo?.createdByMembershipId) {
+          startMatchPayload.actorMembershipId = matchInfo.createdByMembershipId;
+        } else {
+          toast.error('Không thể xác thực quyền start match. Vui lòng liên hệ admin.');
+          return;
+        }
+      } catch (matchError) {
+        toast.error('Không thể xác thực quyền start match. Vui lòng thử lại.');
+        return;
       }
 
       const response = await userMatchService.startMatch(matchId, startMatchPayload);
 
       if (response && typeof response === 'object' && 'success' in response && response.success) {
         toast.success('Trận đấu đã bắt đầu!');
-        router.push(`/user/match/scoreboard?table=${tableNumber}&room=${roomCode}&matchId=${matchId}&tableId=${tableId}`);
+        
+        const params = new URLSearchParams({
+          table: tableNumber,
+          room: roomCode,
+          matchId: matchId,
+          tableId: tableId
+        });
+        
+        if (sessionToken) {
+          params.set('sessionToken', sessionToken);
+        }
+        
+        router.push(`/user/match/scoreboard?${params.toString()}`);
       } else {
         toast.error('Không thể bắt đầu trận đấu. Vui lòng thử lại.');
       }
-    } catch {
+    } catch (error) {
       toast.error('Có lỗi xảy ra khi bắt đầu trận đấu.');
     }
   };
 
-  if (loading) return <ScoreLensLoading text="Đang tạo mã phòng..." />;
+
+
+  if (loading || authLoading) return <ScoreLensLoading text="Đang tải..." />;
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 pt-20 overflow-hidden">
@@ -396,9 +435,27 @@ function HomeRandomContent() {
       <main className="flex-1 flex flex-col px-4 py-8 overflow-y-auto scroll-smooth">
         <div className="text-center mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-[#000000]">
-            {tableNumber.toUpperCase()} - {tableInfo?.category ? (tableInfo.category === 'pool-8' ? 'POOL 8' : `- ${tableInfo.category.toUpperCase()}`) : (tableId ? 'ĐANG TẢI...' : 'POOL 8')}
+            {tableNumber.toUpperCase()} - {tableInfo?.category ? (tableInfo.category === 'pool-8' ? 'POOL 8' : ` ${tableInfo.category.toUpperCase()}`) : (tableId ? 'ĐANG TẢI...' : 'POOL 8')}
           </h2>
           <p className="text-sm sm:text-base text-[#000000] font-medium">Nhập mã bên dưới để tham gia phòng</p>
+          
+          {/* Hiển thị role và trạng thái authentication */}
+          <div className="mt-4 flex items-center justify-center gap-3">
+            {matchRole && (
+              <RoleBadge role={matchRole.role} />
+            )}
+            {authLoading && (
+              <span className="text-sm text-blue-600">Đang xác thực...</span>
+            )}
+            {authError && (
+              <span className="text-sm text-red-600">Lỗi xác thực</span>
+            )}
+            {isWebSocketConnected ? (
+              <span className="text-sm text-green-600">✓ Đã kết nối</span>
+            ) : (
+              <span className="text-sm text-yellow-600">⏳ Đang kết nối...</span>
+            )}
+          </div>
         </div>
 
         <div className="flex-1 flex justify-center overflow-y-auto scroll-smooth">
@@ -463,15 +520,22 @@ function HomeRandomContent() {
       <FooterButton>
         <button
           onClick={() => {
+            if (!matchId || loading || authLoading) {
+              return;
+            }
             handleStart();
           }}
-          disabled={!matchId || loading}
-          className={`w-full font-semibold py-3 rounded-xl text-base sm:text-base transition ${!matchId || loading
+          disabled={!matchId || loading || authLoading || !isWebSocketConnected || !isHost}
+          className={`w-full font-semibold py-3 rounded-xl text-base sm:text-base transition ${
+            !matchId || loading || authLoading || !isWebSocketConnected || !isHost
               ? 'bg-gray-400 cursor-not-allowed'
               : 'bg-[#8ADB10] hover:bg-lime-600 text-[#FFFFFF]'
-            }`}
+          }`}
         >
-          {loading ? 'Đang tải...' : !matchId ? 'Chưa sẵn sàng' : 'Bắt đầu'}
+          {loading || authLoading ? 'Đang tải...' : 
+           !matchId ? 'Chưa sẵn sàng' : 
+           !isWebSocketConnected ? 'Đang kết nối...' :
+           !isHost ? 'Không có quyền' : 'Bắt đầu'}
         </button>
       </FooterButton>
     </div>
