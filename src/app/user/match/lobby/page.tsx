@@ -8,6 +8,7 @@ import FooterButton from '@/components/user/FooterButton';
 import { userMatchService } from '@/lib/userMatchService';
 import { toast } from 'react-hot-toast';
 import { io, Socket } from 'socket.io-client';
+import { config } from '@/lib/config';
 
 function HomeRandomContent() {
   const searchParams = useSearchParams();
@@ -17,6 +18,8 @@ function HomeRandomContent() {
   const existingCode = searchParams!.get('code') || '';
   const existingMatchId = searchParams!.get('matchId') || '';
   const creatorName = searchParams!.get('name') || searchParams!.get('fullName') || '';
+  const membershipId = searchParams!.get('membershipId') || '';
+  const membershipName = searchParams!.get('membershipName') || '';
 
   const [roomCode, setRoomCode] = useState(existingCode);
   const [loading, setLoading] = useState(true);
@@ -44,14 +47,14 @@ function HomeRandomContent() {
 
 
   useEffect(() => {
-    if (!roomCode || !matchId) return;
+    if (!matchId) return;
 
     let retryCount = 0;
     const maxRetries = 3;
     const retryDelay = 2000;
 
     const connectSocket = () => {
-      const socketUrl = 'http://localhost:8000';
+      const socketUrl = config.socketUrl;
 
       try {
         const socket = io(socketUrl, {
@@ -245,40 +248,13 @@ function HomeRandomContent() {
 
     fetchConnectedGuests();
 
-    let pollingInterval: NodeJS.Timeout;
-
-    const startPolling = () => {
-      pollingInterval = setInterval(() => {
-        fetchConnectedGuests();
-      }, 5000);
-    };
-
-    const stopPolling = () => {
-      if (pollingInterval) {
-        clearInterval(pollingInterval);
-      }
-    };
-
-    startPolling();
-
-    const checkSocketHealth = () => {
-      if (isWebSocketConnected && connectedGuests.length > 0) {
-        stopPolling();
-        setTimeout(() => {
-          if (isWebSocketConnected) {
-            startPolling();
-          }
-        }, 10000);
-      }
-    };
-
-    const healthCheckInterval = setInterval(checkSocketHealth, 10000);
-
     return () => {
-      stopPolling();
-      clearInterval(healthCheckInterval);
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
     };
-  }, [matchId, connectedGuests.length, isWebSocketConnected]);
+  }, [matchId]);
 
   useEffect(() => {
     if (tableId) {
@@ -355,7 +331,7 @@ function HomeRandomContent() {
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [tableId, existingCode, existingMatchId, creatorName, connectedGuests.length, isWebSocketConnected]);
+  }, [tableId, existingCode, existingMatchId, creatorName]);
 
   const handleStart = async () => {
     try {
@@ -415,12 +391,12 @@ function HomeRandomContent() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 pt-20 overflow-hidden">
-      <HeaderUser />
+      <HeaderUser showBack={false} />
 
       <main className="flex-1 flex flex-col px-4 py-8 overflow-y-auto scroll-smooth">
         <div className="text-center mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-[#000000]">
-            {tableNumber} - {tableInfo?.category ? tableInfo.category.toUpperCase() : (tableId ? 'Đang tải...' : 'Pool 8 Ball')}
+            {tableNumber.toUpperCase()} - {tableInfo?.category ? (tableInfo.category === 'pool-8' ? 'POOL 8' : `- ${tableInfo.category.toUpperCase()}`) : (tableId ? 'ĐANG TẢI...' : 'POOL 8')}
           </h2>
           <p className="text-sm sm:text-base text-[#000000] font-medium">Nhập mã bên dưới để tham gia phòng</p>
         </div>

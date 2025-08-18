@@ -8,6 +8,7 @@ import FooterButton from '@/components/user/FooterButton';
 import { userMatchService } from '@/lib/userMatchService';
 import { toast } from 'react-hot-toast';
 import { io, Socket } from 'socket.io-client';
+import { config } from '@/lib/config';
 
 function GuestJoinContent() {
   const searchParams = useSearchParams();
@@ -17,6 +18,8 @@ function GuestJoinContent() {
   const existingCode = searchParams!.get('code') || '';
   const existingMatchId = searchParams!.get('matchId') || '';
   const guestName = searchParams!.get('name') || searchParams!.get('guestName') || '';
+  const membershipId = searchParams!.get('membershipId') || '';
+  const membershipName = searchParams!.get('membershipName') || '';
 
   const [roomCode, setRoomCode] = useState(existingCode);
   const [loading, setLoading] = useState(true);
@@ -33,6 +36,7 @@ function GuestJoinContent() {
   const [connectedGuests, setConnectedGuests] = useState<Array<{ id: string, name: string, team: 'A' | 'B', joinedAt: Date }>>([]);
   const [isWebSocketConnected, setIsWebSocketConnected] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const socketRef = useRef<Socket | null>(null);
 
   const handleChange = (team: 'A' | 'B', index: number, value: string) => {
@@ -55,7 +59,7 @@ function GuestJoinContent() {
       if (isConnecting || socketRef.current?.connected) return;
 
       isConnecting = true;
-      const socketUrl = 'http://localhost:8000';
+      const socketUrl = config.socketUrl;
 
       try {
         const socket = io(socketUrl, {
@@ -105,7 +109,6 @@ function GuestJoinContent() {
 
         socket.on('match_updated', (data) => {
           if (data.status === 'ongoing') {
-            toast.success('Trận đấu đã bắt đầu!');
             const redirectUrl = `/user/match/scoreboard?table=${tableNumber}&room=${roomCode}&matchId=${matchId}&tableId=${tableId}`;
             router.push(redirectUrl);
             return;
@@ -421,16 +424,24 @@ function GuestJoinContent() {
     };
   }, [tableId, existingCode, existingMatchId]);
 
-  const handleLeaveRoom = async () => {
+  const handleLeaveRoom = () => {
+    setShowLeaveConfirm(true);
+  };
+
+  const handleConfirmLeave = async () => {
     if (isLeaving) return;
     try {
       setIsLeaving(true);
 
       if (roomCode && guestName) {
         try {
+          const leaverInfo = membershipId && membershipName 
+            ? { membershipId, membershipName }
+            : { guestName: guestName };
+            
           await userMatchService.leaveMatch({
             matchCode: roomCode,
-            leaverInfo: { guestName: guestName }
+            leaverInfo
           });
           toast.success('Đã rời khỏi phòng');
         } catch {
@@ -464,7 +475,7 @@ function GuestJoinContent() {
       <main className="flex-1 flex flex-col px-4 py-8 overflow-y-auto scroll-smooth">
         <div className="text-center mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-[#000000]">
-            {tableNumber} - {tableInfo?.category ? tableInfo.category.toUpperCase() : (tableId ? 'Đang tải...' : 'Pool 8 Ball')}
+            {tableNumber.toUpperCase()} - {tableInfo?.category ? (tableInfo.category === 'pool-8' ? 'POOL 8' : `- ${tableInfo.category.toUpperCase()}`) : (tableId ? 'ĐANG TẢI...' : 'POOL 8')}
           </h2>
           <p className="text-sm sm:text-base text-[#000000] font-medium">Bạn đã tham gia phòng với tên: {guestName}</p>
         </div>
@@ -541,6 +552,34 @@ function GuestJoinContent() {
           {isLeaving ? 'Đang rời phòng...' : 'Rời phòng'}
         </button>
       </FooterButton>
+
+      {showLeaveConfirm && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-lg text-center">
+            <h2 className="text-xl font-bold text-[#000000] mb-4">
+              Xác nhận rời phòng
+            </h2>
+            <p className="text-sm text-gray-600 mb-6">
+              Bạn có chắc chắn muốn rời khỏi phòng này không?
+            </p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setShowLeaveConfirm(false)}
+                className="w-full bg-[#FF0000] hover:bg-gray-400 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base transition"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleConfirmLeave}
+                disabled={isLeaving}
+                className="w-full bg-[#8ADB10] hover:bg-red-600 disabled:bg-gray-400 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base transition disabled:cursor-not-allowed"
+              >
+                {isLeaving ? 'Đang rời phòng...' : 'Xác nhận'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

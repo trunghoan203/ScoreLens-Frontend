@@ -12,32 +12,6 @@ interface NotificationItemProps {
     role?: 'superadmin' | 'admin' | 'manager';
 }
 
-const getNotificationIcon = (type: Notification['type']) => {
-    switch (type) {
-        case 'success':
-            return '/icon/check-lime.svg';
-        case 'warning':
-            return '/icon/bell.svg';
-        case 'error':
-            return '/icon/trash-2.svg';
-        default:
-            return '/icon/bell.svg';
-    }
-};
-
-const getNotificationColor = (type: Notification['type']) => {
-    switch (type) {
-        case 'success':
-            return 'border-l-green-500 bg-green-50';
-        case 'warning':
-            return 'border-l-yellow-500 bg-yellow-50';
-        case 'error':
-            return 'border-l-red-500 bg-red-50';
-        default:
-            return 'border-l-blue-500 bg-blue-50';
-    }
-};
-
 export const NotificationItem = ({ notification, onMarkAsRead, onDelete, role = 'superadmin' }: NotificationItemProps) => {
     const [isHovered, setIsHovered] = useState(false);
     const router = useRouter();
@@ -88,7 +62,7 @@ export const NotificationItem = ({ notification, onMarkAsRead, onDelete, role = 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className={`relative border-l-4 ${getNotificationColor(notification.type)} ${
+            className={`relative border-l-4 ${
                 !notification.isRead ? 'bg-opacity-100' : 'bg-opacity-50'
             } hover:bg-opacity-100 transition-all duration-200 cursor-pointer`}
             onMouseEnter={() => setIsHovered(true)}
@@ -99,7 +73,7 @@ export const NotificationItem = ({ notification, onMarkAsRead, onDelete, role = 
                 <div className="flex items-start gap-3">
                     <div className="flex-shrink-0">
                         <Image
-                            src={getNotificationIcon(notification.type)}
+                            src="/icon/bell.svg"
                             alt="Notification"
                             width={20}
                             height={20}

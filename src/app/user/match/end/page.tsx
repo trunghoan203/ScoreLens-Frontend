@@ -10,6 +10,7 @@ import { userMatchService } from '@/lib/userMatchService';
 import { useWebSocket } from '@/lib/hooks/useWebSocket';
 import toast from 'react-hot-toast';
 import Feedback from '@/components/user/Feedback';
+import Image from 'next/image';
 
 function EndMatchPageContent() {
   const router = useRouter();
@@ -165,7 +166,12 @@ function EndMatchPageContent() {
 
   const handleFeedbackSuccess = () => {
     setShowFeedback(false);
-    toast.success('Cảm ơn bạn đã gửi đánh giá!');
+    toast.success('Cảm ơn bạn đã gửi đánh giá');
+    
+    // Chuyển về trang chủ sau 3 giây
+    setTimeout(() => {
+      router.push('/');
+    }, 3000);
   };
 
 
@@ -174,12 +180,12 @@ function EndMatchPageContent() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 pt-20">
-      <HeaderUser />
+      <HeaderUser showBack={false} />
 
       <main className="flex-1 flex flex-col px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-[#000000]">
-            {actualTableName || tableInfo?.name || tableName} - {tableInfo?.category ? tableInfo.category.toUpperCase() : (matchInfo?.gameType === 'pool-8' ? 'Pool 8 Ball' : matchInfo?.gameType || 'Pool 8 Ball')}
+            {(actualTableName || tableInfo?.name || tableName || 'BÀN').toUpperCase()} - {tableInfo?.category ? (tableInfo.category === 'pool-8' ? 'POOL 8' : `- ${tableInfo.category.toUpperCase()}`) : (matchInfo?.gameType === 'pool-8' ? 'POOL 8' : (matchInfo?.gameType ? `- ${matchInfo.gameType.toUpperCase()}` : 'POOL 8'))}
           </h1>
           <p className="text-sm sm:text-base text-[#000000] font-medium">BẢNG ĐIỂM</p>
         </div>
@@ -204,35 +210,57 @@ function EndMatchPageContent() {
               </div>
 
               <div className="flex items-center justify-between gap-4">
-                <div className="text-center flex flex-col items-center w-20">
+                <div className="text-center flex flex-col items-center w-20 flex-shrink-0">
                   <p className="text-sm font-semibold">Team A</p>
-                  <div className="w-10 h-10 bg-white/20 rounded-full mt-1" />
-                  {actualTeamA.length > 0 && (
-                    <div className="text-xs mt-1 text-center space-y-1">
-                      {actualTeamA.map((member, index) => (
+                  <div className="w-10 h-10 mt-1 flex items-center justify-center">
+                    <Image
+                      src="/images/numberBalls/ball_8.png"
+                      alt="Team A Ball"
+                      width={40}
+                      height={40}
+                      className="object-contain"
+                    />
+                  </div>
+                  <div className="min-h-[60px] mt-1 text-center space-y-1">
+                    {actualTeamA.length > 0 ? (
+                      actualTeamA.map((member, index) => (
                         <p key={index} className="text-xs text-[#FFFFFF]">{member || `Người Chơi ${index + 1}`}</p>
-                      ))}
-                    </div>
-                  )}
+                      ))
+                    ) : (
+                      <p className="text-xs text-[#FFFFFF] opacity-60">Chưa có thành viên</p>
+                    )}
+                  </div>
                 </div>
 
-                <div className="text-center flex flex-col items-center mt-10">
-                  <div className="text-3xl font-bold text-[#FFFFFF]">{actualScoreA} : {actualScoreB}</div>
-                  <div className="text-lg font-semibold mt-2">
+                <div className="text-center flex flex-col items-center mt-10 flex-shrink-0">
+                  <div className="min-h-[40px] flex items-center justify-center">
+                    <div className="text-3xl font-bold text-[#FFFFFF]">{actualScoreA} : {actualScoreB}</div>
+                  </div>
+                  <div className="min-h-[30px] flex items-center justify-center mt-2">
                     <div className="text-base font-bold text-yellow-300">{elapsedTime}</div>
                   </div>
                 </div>
 
-                <div className="text-center flex flex-col items-center w-20">
+                <div className="text-center flex flex-col items-center w-20 flex-shrink-0">
                   <p className="text-sm font-semibold">Team B</p>
-                  <div className="w-10 h-10 bg-white/20 rounded-full mt-1" />
-                  {actualTeamB.length > 0 && (
-                    <div className="text-xs mt-1 text-center space-y-1">
-                      {actualTeamB.map((member, index) => (
+                  <div className="w-10 h-10 mt-1 flex items-center justify-center">
+                    <Image
+                      src="/images/numberBalls/ball_8.png"
+                      alt="Team B Ball"
+                      width={40}
+                      height={40}
+                      className="object-contain"
+                    />
+                  </div>
+                  <div className="min-h-[60px] mt-1 text-center space-y-1">
+                    {actualTeamB.length > 0 ? (
+                      actualTeamB.map((member, index) => (
                         <p key={index} className="text-xs text-[#FFFFFF]">{member || `Người Chơi ${index + 1}`}</p>
-                      ))}
-                    </div>
-                  )}
+                      ))
+                    ) : (
+                      <p className="text-xs text-[#FFFFFF] opacity-60">Chưa có thành viên</p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

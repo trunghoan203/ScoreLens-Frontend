@@ -12,6 +12,7 @@ import EmptyState from '@/components/ui/EmptyState';
 import { managerMemberService } from '@/lib/managerMemberService';
 import toast from 'react-hot-toast';
 import { useManagerAuthGuard } from '@/lib/hooks/useManagerAuthGuard';
+import Image from 'next/image';
 
 export interface Member {
   membershipId: string;
@@ -28,6 +29,8 @@ export default function MembersPage() {
   const [members, setMembers] = useState<Member[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemPage = 10;
   const router = useRouter();
 
   useEffect(() => {
@@ -60,6 +63,20 @@ export default function MembersPage() {
     m.fullName.toLowerCase().includes(search.toLowerCase()) ||
     m.phoneNumber.toLowerCase().includes(search.toLowerCase())
   );
+
+  const totalPages = Math.ceil(filteredMembers.length / itemPage);
+  const startIndex = (currentPage - 1) * itemPage;
+  const endIndex = startIndex + itemPage;
+  const currentMembers = filteredMembers.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleAddMember = async () => {
     setIsAdding(true);
@@ -122,15 +139,72 @@ export default function MembersPage() {
                 showAdditionalInfo={!search}
               />
             ) : (
-              <MemberGrid
-                members={filteredMembers.map(m => ({
-                  id: m.membershipId,
-                  name: m.fullName,
-                  phone: m.phoneNumber,
-                  status: m.status,
-                }))}
-                onMemberClick={handleMemberClick}
-              />
+              <>
+                <MemberGrid
+                  members={currentMembers.map(m => ({
+                    id: m.membershipId,
+                    name: m.fullName,
+                    phone: m.phoneNumber,
+                    status: m.status,
+                  }))}
+                  onMemberClick={handleMemberClick}
+                />
+
+                {totalPages > 1 && (
+                  <div className="mt-10 flex items-center justify-center gap-2">
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className={`px-3 py-3 w-16 rounded-lg font-medium transition flex items-center justify-center ${currentPage === 1
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        : 'bg-lime-400 hover:bg-lime-500 text-white'
+                        }`}
+                    >
+                      <Image
+                        src="/icon/chevron-left.svg"
+                        alt="Previous"
+                        width={20}
+                        height={20}
+                        className="w-5 h-5"
+                      />
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={`px-3 py-2 w-10 rounded-lg font-medium transition flex items-center justify-center ${currentPage === page
+                          ? 'bg-lime-500 text-white'
+                          : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                          }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className={`px-3 py-3 w-16 rounded-lg font-medium transition flex items-center justify-center ${currentPage === totalPages
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        : 'bg-lime-400 hover:bg-lime-500 text-white'
+                        }`}
+                    >
+                      <Image
+                        src="/icon/chevron-right.svg"
+                        alt="Next"
+                        width={20}
+                        height={20}
+                        className="w-5 h-5"
+                      />
+                    </button>
+                  </div>
+                )}
+
+                <div className="mt-4 text-center text-gray-400 italic text-xs">
+                  Hiển thị {startIndex + 1}-{Math.min(endIndex, filteredMembers.length)} trong tổng số {filteredMembers.length} hội viên
+                </div>
+              </>
             )}
           </div>
         </main>

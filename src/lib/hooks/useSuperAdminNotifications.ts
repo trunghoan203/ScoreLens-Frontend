@@ -8,6 +8,7 @@ import {
     getUnreadNotificationCount,
     Notification 
 } from '@/lib/saNotificationService';
+import { config } from '@/lib/config';
 
 export const useSuperAdminNotifications = () => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -15,8 +16,52 @@ export const useSuperAdminNotifications = () => {
     const [loading, setLoading] = useState(true);
     const [socket, setSocket] = useState<Socket | null>(null);
 
+
+
+    const loadNotifications = useCallback(async () => {
+        try {
+            setLoading(true);
+            let sAdminId: string | null = null;
+            try {
+                const token = typeof window !== 'undefined' ? localStorage.getItem('superAdminAccessToken') : null;
+                if (token) {
+                    const [, payloadB64] = token.split('.');
+                    const json = JSON.parse(atob(payloadB64.replace(/-/g, '+').replace(/_/g, '/')));
+                    sAdminId = json?.sAdminId || null;
+                }
+            } catch {}
+
+            const [notificationsRes, unreadCountRes] = await Promise.all([
+                sAdminId ? getSuperAdminNotifications(sAdminId) : Promise.resolve({ data: { data: { notifications: [] } } }),
+                sAdminId ? getUnreadNotificationCount(sAdminId) : Promise.resolve({ data: { data: { unreadCount: 0 } } })
+            ]);
+            
+            const mappedNotifications: Notification[] = notificationsRes.data.data.notifications.map(item => ({
+                id: item.notificationId || item._id,
+                title: item.title,
+                message: item.message,
+                isRead: item.isRead,
+                createdAt: item.createdAt,
+                data: {
+                    _id: item._id,
+                    notificationId: item.notificationId,
+                    recipientId: item.recipientId,
+                    recipientRole: item.recipientRole,
+                    feedbackId: item.feedbackId
+                }
+            }));
+            
+            setNotifications(mappedNotifications);
+            setUnreadCount(unreadCountRes.data.data.unreadCount);
+        } catch (error) {
+            console.error('Error loading notifications:', error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
     useEffect(() => {
-        const newSocket = io('http://localhost:8000', {
+        const newSocket = io(config.socketUrl, {
             transports: ['websocket', 'polling'],
             autoConnect: true,
         });
@@ -76,50 +121,7 @@ export const useSuperAdminNotifications = () => {
         return () => {
             newSocket.disconnect();
         };
-    }, []);
-
-    const loadNotifications = useCallback(async () => {
-        try {
-            setLoading(true);
-            let sAdminId: string | null = null;
-            try {
-                const token = typeof window !== 'undefined' ? localStorage.getItem('superAdminAccessToken') : null;
-                if (token) {
-                    const [, payloadB64] = token.split('.');
-                    const json = JSON.parse(atob(payloadB64.replace(/-/g, '+').replace(/_/g, '/')));
-                    sAdminId = json?.sAdminId || null;
-                }
-            } catch {}
-
-            const [notificationsRes, unreadCountRes] = await Promise.all([
-                sAdminId ? getSuperAdminNotifications(sAdminId) : Promise.resolve({ data: { data: { notifications: [] } } }),
-                sAdminId ? getUnreadNotificationCount(sAdminId) : Promise.resolve({ data: { data: { unreadCount: 0 } } })
-            ]);
-            
-            const mappedNotifications: Notification[] = notificationsRes.data.data.notifications.map(item => ({
-                id: item.notificationId || item._id,
-                title: item.title,
-                message: item.message,
-                type: (item.type === 'feedback' ? 'info' : item.type) as Notification['type'],
-                isRead: item.isRead,
-                createdAt: item.createdAt,
-                data: {
-                    _id: item._id,
-                    notificationId: item.notificationId,
-                    recipientId: item.recipientId,
-                    recipientRole: item.recipientRole,
-                    feedbackId: item.feedbackId
-                }
-            }));
-            
-            setNotifications(mappedNotifications);
-            setUnreadCount(unreadCountRes.data.data.unreadCount);
-        } catch (error) {
-            console.error('Error loading notifications:', error);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+    }, [loadNotifications]);
 
     useEffect(() => {
         loadNotifications();
