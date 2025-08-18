@@ -175,7 +175,7 @@ export default function FeedbackDetailPage() {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'pending': return 'Chờ xử lý';
-      case 'resolved': return 'Đã giải quyết';
+      case 'resolved': return 'Đã xử lý';
       case 'managerP': return 'Manager đang xử lý';
       case 'adminP': return 'Admin đang xử lý';
       case 'superadminP': return 'Super Admin đang xử lý';

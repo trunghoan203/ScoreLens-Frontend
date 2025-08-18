@@ -19,11 +19,8 @@ export default function FeedbackSearchBar({
   setDateFilter = () => { }
 }: FeedbackSearchBarProps) {
   const statusOptions = [
-    { value: 'all', label: 'Tất cả trạng thái' },
-    { value: 'managerP', label: 'Manager đang xử lý' },
+    { value: 'all', label: 'Tất cả' },
     { value: 'pending', label: 'Chưa xử lý' },
-    { value: 'adminP', label: 'Admin đang xử lý' },
-    { value: 'superadminP', label: 'Super Admin đang xử lý' },
     { value: 'resolved', label: 'Đã xử lý' },
   ];
 

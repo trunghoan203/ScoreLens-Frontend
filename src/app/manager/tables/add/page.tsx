@@ -10,8 +10,8 @@ import { managerTableService } from '@/lib/managerTableService';
 import Image from 'next/image';
 
 const tableTypes = [
-  { value: 'pool-8', label: 'Bida Pool-8' },
-  { value: 'carom', label: 'Bida Carom' },
+  { value: 'pool-8', label: 'Pool-8' },
+  { value: 'carom', label: 'Carom' },
 ];
 
 export default function AddTablePage() {

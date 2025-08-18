@@ -72,10 +72,10 @@ export default function TableUsingView({ table, onBack, onEndMatch, onCancelMatc
               {/* Team A */}
               <div className="flex flex-col items-center">
                 <div className="font-semibold mb-6">Team A</div>
-                <div className="text-center text-xl mb-2 min-h-[40px] flex flex-col justify-center">
+                <div className="text-center text-sm mb-2 min-h-[40px] flex flex-col justify-center">
                   {table.teamA.length > 0 ? (
                     table.teamA.map((player, idx) => (
-                      <div key={idx}>{player}</div>
+                      <div key={idx}>Người chơi {idx + 1}: {player}</div>
                     ))
                   ) : (
                     <div className="text-gray-400">Chưa có thành viên</div>
@@ -86,10 +86,10 @@ export default function TableUsingView({ table, onBack, onEndMatch, onCancelMatc
               {/* Team B */}
               <div className="flex flex-col items-center">
                 <div className="font-semibold mb-6">Team B</div>
-                <div className="text-center text-xl mb-2 min-h-[40px] flex flex-col justify-center">
+                <div className="text-center text-sm mb-2 min-h-[40px] flex flex-col justify-center">
                   {table.teamB.length > 0 ? (
                     table.teamB.map((player, idx) => (
-                      <div key={idx}>{player}</div>
+                      <div key={idx}>Người chơi {idx + 1}: {player}</div>
                     ))
                   ) : (
                     <div className="text-gray-400">Chưa có thành viên</div>

@@ -3,17 +3,17 @@ import SidebarManager from '@/components/manager/SidebarManager';
 import HeaderManager from '@/components/manager/HeaderManager';
 import AddFormLayout from '@/components/shared/AddFormLayout';
 import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
 import { useRouter, useParams } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
 import toast from 'react-hot-toast';
 import { managerTableService } from '@/lib/managerTableService';
 import QRCode from 'react-qr-code';
+import Image from 'next/image';
 
 const tableTypes = [
-  { value: 'pool-8', label: 'Bida Pool-8' },
-  { value: 'carom', label: 'Bida Carom' },
+  { value: 'pool-8', label: 'Pool-8' },
+  { value: 'carom', label: 'Carom' },
 ];
 
 interface Table {
@@ -174,19 +174,44 @@ export default function TableDetailPage() {
             </div>
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Loại Bàn<span className="text-red-500">*</span></label>
-              <Select className="text-black" value={type} onChange={e => setType(e.target.value)} required disabled={!isEditMode}>
-                {tableTypes.map(t => (
-                  <option className="text-black" key={t.value} value={t.value}>{t.label}</option>
-                ))}
-              </Select>
+              <div className="relative">
+                <select
+                  className="flex w-full border border-gray-300 rounded-md bg-white px-4 py-3 text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all appearance-none"
+                  value={type}
+                  onChange={e => setType(e.target.value)}
+                  required
+                  disabled={!isEditMode}
+                >
+                  {tableTypes.map(t => (
+                    <option className="text-black" key={t.value} value={t.value}>{t.label}</option>
+                  ))}
+                </select>
+                {isEditMode && (
+                  <Image
+                    src="/icon/chevron-down_Black.svg"
+                    alt="Dropdown"
+                    width={16}
+                    height={16}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"
+                  />
+                )}
+              </div>
             </div>
             <div className="w-full mb-10">
               <label className="block text-sm font-semibold mb-2 text-black">Trạng Thái<span className="text-red-500">*</span></label>
-              <Select className="text-black" value={status} onChange={e => setStatus(e.target.value)} required disabled={!isEditMode}>
-                {statusOptions.map(s => (
-                  <option className="text-black" key={s.value} value={s.value}>{s.label}</option>
-                ))}
-              </Select>
+              <div className="relative">
+                <select
+                  className="flex w-full border border-gray-300 rounded-md bg-gray-100 px-4 py-3 text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all appearance-none cursor-not-allowed"
+                  value={status}
+                  onChange={e => setStatus(e.target.value)}
+                  required
+                  disabled={true}
+                >
+                  {statusOptions.map(s => (
+                    <option className="text-black" key={s.value} value={s.value}>{s.label}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {qrCodeData && (

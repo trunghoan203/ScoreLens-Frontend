@@ -111,7 +111,7 @@ export const MatchSummaryModal: React.FC<MatchSummaryModalProps> = ({
                     <div className="font-medium mb-1 text-center">Thành viên:</div>
                     {team.members.map((member, memberIndex) => (
                       <div key={memberIndex} className="truncate mb-1 text-center font-semibold">
-                        {member.guestName || member.membershipName || 'Player'}
+                        Người chơi {memberIndex + 1}: {member.guestName || member.membershipName || 'Player'}
                       </div>
                     ))}
                   </div>
