@@ -193,13 +193,15 @@ export default function CameraDetailPage() {
                     </option>
                   ))}
                 </select>
-                <Image
-                  src="/icon/chevron-down_Black.svg"
-                  alt="Dropdown"
-                  width={20}
-                  height={20}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                />
+                {isEditMode && (
+                  <Image
+                    src="/icon/chevron-down_Black.svg"
+                    alt="Dropdown"
+                    width={20}
+                    height={20}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                  />
+                )}
               </div>
             </div>
             <div className="w-full mb-6">
@@ -227,13 +229,15 @@ export default function CameraDetailPage() {
                   <option className="text-black" value="true">Đã kết nối</option>
                   <option className="text-black" value="false">Chưa kết nối</option>
                 </select>
-                <Image
-                  src="/icon/chevron-down_Black.svg"
-                  alt="Dropdown"
-                  width={20}
-                  height={20}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                />
+                {isEditMode && (
+                  <Image
+                    src="/icon/chevron-down_Black.svg"
+                    alt="Dropdown"
+                    width={20}
+                    height={20}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                  />
+                )}
               </div>
             </div>
           </AddFormLayout>

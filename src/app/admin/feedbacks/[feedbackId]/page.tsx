@@ -32,7 +32,6 @@ interface Feedback {
   };
   content: string;
   status: 'pending' | 'managerP' | 'adminP' | 'superadminP' | 'resolved';
-  needSupport: boolean;
   note?: string;
   history: Array<{
     byId: string;
@@ -54,7 +53,6 @@ export default function AdminFeedbackDetailPage() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [status, setStatus] = useState<Feedback['status']>('pending');
   const [notes, setNotes] = useState('');
-  const [needSupport, setNeedSupport] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -101,7 +99,6 @@ export default function AdminFeedbackDetailPage() {
             },
             content: String(feedbackObj.content || ''),
             status: (feedbackObj.status as Feedback['status']) || 'pending',
-            needSupport: Boolean(feedbackObj.needSupport),
             note: String(feedbackObj.note || ''),
             history: (history || []).map(h => ({
               byId: String(h.byId || ''),
@@ -126,7 +123,6 @@ export default function AdminFeedbackDetailPage() {
           } else {
             setNotes('');
           }
-          setNeedSupport(mappedFeedback.needSupport);
           setError(null);
         } else {
           setError('Không tìm thấy phản hồi');
@@ -145,17 +141,15 @@ export default function AdminFeedbackDetailPage() {
   }, [feedbackId, isEditMode]);
 
   const statusOptions = [
-    { value: 'pending', label: 'Chưa xử lý' },
-    { value: 'managerP', label: 'Manager đang xử lý' },
-    { value: 'adminP', label: 'Admin đang xử lý' },
-    { value: 'superadminP', label: 'Super Admin đang xử lý' },
+    { value: 'managerP', label: 'Quản lý xử lý' },
+    { value: 'adminP', label: 'Chủ doanh nghiệp xử lý' },
+    { value: 'superadminP', label: 'Quản trị viên xử lý' },
     { value: 'resolved', label: 'Đã xử lý' },
   ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'resolved': return 'success';
-      case 'pending': return 'danger';
       case 'managerP': return 'danger';
       case 'adminP': return 'danger';
       case 'superadminP': return 'danger';
@@ -165,11 +159,10 @@ export default function AdminFeedbackDetailPage() {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending': return 'Chờ xử lý';
-      case 'resolved': return 'Đã giải quyết';
-      case 'managerP': return 'Manager đang xử lý';
-      case 'adminP': return 'Admin đang xử lý';
-      case 'superadminP': return 'Super Admin đang xử lý';
+      case 'resolved': return 'Đã xử lý';
+      case 'managerP': return 'Quản lý xử lý';
+      case 'adminP': return 'Chủ doanh nghiệp xử lý';
+      case 'superadminP': return 'Quản trị viên xử lý';
       default: return 'Không xác định';
     }
   };
@@ -179,7 +172,6 @@ export default function AdminFeedbackDetailPage() {
       await adminFeedbackService.updateFeedback(feedbackId, {
         note: notes,
         status,
-        needSupport,
       });
       toast.success('Đã lưu phản hồi thành công!');
       setIsEditMode(false);
@@ -278,35 +270,6 @@ export default function AdminFeedbackDetailPage() {
                         className="text-sm font-semibold flex-shrink-0 whitespace-nowrap"
                       >
                         {getStatusText(status)}
-                      </Badge>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold mb-2 text-black">Cần hỗ trợ</label>
-                    {isEditMode ? (
-                      <div className="relative w-full">
-                        <select
-                          className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black outline-none appearance-none"
-                          value={needSupport ? 'true' : 'false'}
-                          onChange={e => setNeedSupport(e.target.value === 'true')}
-                        >
-                          <option value="false">Không</option>
-                          <option value="true">Có</option>
-                        </select>
-                        <Image
-                          src="/icon/chevron-down_Black.svg"
-                          alt="Dropdown"
-                          width={20}
-                          height={20}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                        />
-                      </div>
-                    ) : (
-                      <Badge
-                        variant={needSupport ? 'danger' : 'success'}
-                        className="text-sm font-semibold flex-shrink-0 whitespace-nowrap"
-                      >
-                        {needSupport ? 'Cần hỗ trợ' : 'Không cần hỗ trợ'}
                       </Badge>
                     )}
                   </div>

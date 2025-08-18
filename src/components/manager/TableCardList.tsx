@@ -13,6 +13,9 @@ interface Table {
   matchStatus?: 'pending' | 'ongoing' | 'completed';
   elapsedTime?: string;
   isAiAssisted?: boolean;
+  scoreA?: number;
+  scoreB?: number;
+  creatorType?: 'manager' | 'member' | 'guest' | null;
 }
 
 interface TableCardListProps {
@@ -35,6 +38,9 @@ export default function TableCardList({ tables, onDetail }: TableCardListProps) 
           matchStatus={table.matchStatus}
           elapsedTime={table.elapsedTime}
           isAiAssisted={table.isAiAssisted}
+          scoreA={table.scoreA}
+          scoreB={table.scoreB}
+          creatorType={table.creatorType}
           onDetail={onDetail ? () => onDetail(table.id) : () => { }}
         />
       ))}

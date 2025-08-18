@@ -327,10 +327,12 @@ export function BranchInfoForm({
                       Số Bàn <span className="text-red-500">*</span>
                     </label>
                     <Input
+                      type="number"
                       value={branch.deviceCount}
                       onChange={e => handleBranchChange(idx, 'deviceCount', e.target.value)}
                       placeholder="Nhập Số Bàn..."
                       required
+                      min="1"
                       disabled={branch.id ? !editingBranches.has(branch.id) : false}
                       className={`${branch.id ? (editingBranches.has(branch.id) ? '' : '!bg-gray-100 text-gray-500') : ''} w-full truncate`}
                     />

@@ -8,38 +8,43 @@ import { getFeedbackDetail, updateFeedback } from '@/lib/saFeedbackService';
 import { useSuperAdminAuthGuard } from '@/lib/hooks/useSuperAdminAuthGuard';
 import toast from 'react-hot-toast';
 import FeedbackDetailLayout from "@/components/shared/FeedbackDetailLayout";
+import { Badge } from '@/components/ui/badge';
+import Image from 'next/image';
+import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 
 interface Feedback {
-  _id: string;
   feedbackId: string;
+  _id?: string;
   createdBy: {
     userId: string;
     type: 'guest' | 'membership';
   };
   clubId: string;
   tableId: string;
+  clubInfo?: {
+    clubId: string;
+    clubName: string;
+    address?: string;
+    brandName?: string;
+  };
+  tableInfo?: {
+    tableId: string;
+    tableName: string;
+    tableNumber?: string;
+    category?: string;
+  };
   content: string;
-  status: 'pending' | 'managerP' | 'adminP' | 'superadminP' | 'resolved';
-  needSupport: boolean;
+  status: 'managerP' | 'adminP' | 'superadminP' | 'resolved';
+  note?: string;
   history: Array<{
     byId: string;
     byName: string;
     byRole: string;
-    action: string;
     note?: string;
-    date: string;
+    date: Date;
   }>;
-  createdAt: string;
-  updatedAt: string;
-  clubInfo?: {
-    clubName: string;
-    address: string;
-    phoneNumber: string;
-  };
-  tableInfo?: {
-    name: string;
-    category: string;
-  };
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export default function FeedbackDetailPage() {
@@ -48,54 +53,129 @@ export default function FeedbackDetailPage() {
   const { isChecking } = useSuperAdminAuthGuard();
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [status, setStatus] = useState<Feedback['status']>('pending');
+  const [status, setStatus] = useState<Feedback['status']>('adminP');
   const [notes, setNotes] = useState('');
-  const [needSupport, setNeedSupport] = useState(false);
+
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!id) return;
-    getFeedbackDetail(id)
-      .then((res) => {
-        const data = res.data as { feedback: Feedback };
-        setFeedback(data.feedback);
-        setStatus(data.feedback.status);
-        setNotes(getLatestNote(data.feedback.history) || '');
-        setNeedSupport(data.feedback.needSupport || false);
+
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const feedbackDetailData = await getFeedbackDetail(id);
+        let feedbackObj: Record<string, unknown> | undefined;
+
+        if (feedbackDetailData && typeof feedbackDetailData === 'object' && 'data' in feedbackDetailData) {
+          const data = feedbackDetailData.data as Record<string, unknown>;
+          if (data.feedback) {
+            feedbackObj = data.feedback as Record<string, unknown>;
+          } else if (data.data && typeof data.data === 'object' && (data.data as Record<string, unknown>).feedback) {
+            feedbackObj = (data.data as Record<string, unknown>).feedback as Record<string, unknown>;
+          } else {
+            feedbackObj = data;
+          }
+        }
+
+        if (feedbackObj) {
+          const tableInfo = feedbackObj.tableInfo as Record<string, unknown> | undefined;
+          const clubInfo = feedbackObj.clubInfo as Record<string, unknown> | undefined;
+          const createdBy = feedbackObj.createdBy as Record<string, unknown> | undefined;
+          const history = feedbackObj.history as Array<Record<string, unknown>> | undefined;
+
+          const mappedFeedback: Feedback = {
+            feedbackId: String(feedbackObj.feedbackId || feedbackObj._id || ''),
+            createdBy: {
+              userId: String(createdBy?.userId || ''),
+              type: (createdBy?.type as 'guest' | 'membership') || 'guest'
+            },
+            clubId: String(feedbackObj.clubId || ''),
+            tableId: String(feedbackObj.tableId || ''),
+            clubInfo: {
+              clubId: String(clubInfo?.clubId || ''),
+              clubName: String(clubInfo?.clubName || ''),
+              address: String(clubInfo?.address || ''),
+              brandName: String(clubInfo?.brandName || '')
+            },
+            tableInfo: {
+              tableId: String(feedbackObj.tableId || ''),
+              tableName: String(tableInfo?.name || 'Không xác định'),
+              tableNumber: String(tableInfo?.tableNumber || ''),
+              category: String(tableInfo?.category || 'Không xác định')
+            },
+            content: String(feedbackObj.content || ''),
+            status: (feedbackObj.status as Feedback['status']) || 'adminP',
+
+            note: String(feedbackObj.note || ''),
+            history: (history || []).map(h => ({
+              byId: String(h.byId || ''),
+              byName: String(h.byName || ''),
+              byRole: String(h.byRole || ''),
+              note: String(h.note || ''),
+              date: h.date ? new Date(h.date as string) : new Date()
+            })),
+            createdAt: feedbackObj.createdAt ? new Date(feedbackObj.createdAt as string) : new Date(),
+            updatedAt: feedbackObj.updatedAt ? new Date(feedbackObj.updatedAt as string) : new Date(),
+          };
+
+          setFeedback(mappedFeedback);
+          if (mappedFeedback.status === 'managerP') {
+            setStatus('adminP');
+          } else {
+            setStatus(mappedFeedback.status);
+          }
+          let latestNote = '';
+          if (mappedFeedback.history && mappedFeedback.history.length > 0) {
+            const sortedHistory = [...mappedFeedback.history].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            latestNote = sortedHistory.find(h => h.note && h.note.trim() !== '')?.note || '';
+          }
+          if (!isEditMode) {
+            setNotes(latestNote || mappedFeedback.note || '');
+          } else {
+            setNotes('');
+          }
+
+          setError(null);
+        } else {
+          setError('Không tìm thấy phản hồi');
+          toast.error('Không tìm thấy phản hồi');
+        }
+      } catch (error) {
+        console.error('Error fetching feedback detail:', error);
+        setError('Không thể tải dữ liệu phản hồi');
+        toast.error('Không thể tải dữ liệu phản hồi');
+      } finally {
         setLoading(false);
-      })
-      .catch(() => {
-        toast.error('Không tìm thấy feedback');
-        setLoading(false);
-      });
-  }, [id]);
+      }
+    };
+
+    fetchData();
+  }, [id, isEditMode]);
 
   const statusOptions = [
-    { value: 'pending', label: 'Chờ xử lý' },
-    { value: 'managerP', label: 'Manager đang xử lý' },
-    { value: 'adminP', label: 'Admin đang xử lý' },
-    { value: 'superadminP', label: 'Super Admin đang xử lý' },
-    { value: 'resolved', label: 'Đã giải quyết' },
+    { value: 'adminP', label: 'Chủ doanh nghiệp xử lý' },
+    { value: 'superadminP', label: 'Quản trị viên xử lý' },
+    { value: 'resolved', label: 'Đã xử lý' },
   ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-500';
-      case 'resolved': return 'bg-green-500';
-      case 'managerP': return 'bg-blue-500';
-      case 'adminP': return 'bg-purple-500';
-      case 'superadminP': return 'bg-indigo-500';
-      default: return 'bg-gray-500';
+      case 'resolved': return 'success';
+      case 'managerP': return 'danger';
+      case 'adminP': return 'danger';
+      case 'superadminP': return 'danger';
+      default: return 'danger';
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending': return 'Chờ xử lý';
-      case 'resolved': return 'Đã giải quyết';
-      case 'managerP': return 'Manager đang xử lý';
-      case 'adminP': return 'Admin đang xử lý';
-      case 'superadminP': return 'Super Admin đang xử lý';
+      case 'resolved': return 'Đã xử lý';
+      case 'managerP': return 'Quản lý xử lý';
+      case 'adminP': return 'Chủ doanh nghiệp xử lý';
+      case 'superadminP': return 'Quản trị viên xử lý';
       default: return 'Không xác định';
     }
   };
@@ -114,17 +194,10 @@ export default function FeedbackDetailPage() {
       await updateFeedback(id, {
         note: notes,
         status,
-        needSupport,
       });
       toast.success('Cập nhật thành công');
       setIsEditMode(false);
-      getFeedbackDetail(id).then((res) => {
-        const data = res.data as { feedback: Feedback };
-        setFeedback(data.feedback);
-        setStatus(data.feedback.status);
-        setNotes(getLatestNote(data.feedback.history) || '');
-        setNeedSupport(data.feedback.needSupport || false);
-      });
+      setNotes('');
     } catch {
       toast.error('Cập nhật thất bại');
     }
@@ -135,30 +208,41 @@ export default function FeedbackDetailPage() {
       setIsEditMode(false);
       if (feedback) {
         setStatus(feedback.status);
-        setNotes(getLatestNote(feedback.history) || '');
-        setNeedSupport(feedback.needSupport || false);
+        let latestNote = '';
+        if (feedback.history && feedback.history.length > 0) {
+          const sortedHistory = [...feedback.history].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          latestNote = sortedHistory.find(h => h.note && h.note.trim() !== '')?.note || '';
+        }
+        setNotes(latestNote || feedback.note || '');
+
       }
     } else {
       router.push('/superadmin/home?tab=feedback');
     }
-  };
-  const getLatestNote = (history: Feedback['history']) => {
-    if (!history || history.length === 0) return '';
-
-    const sortedHistory = [...history].sort((a, b) =>
-      new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-
-    const latestItem = sortedHistory.find(item => item.note && item.note.trim() !== '');
-
-    return latestItem?.note || '';
   };
 
   if (isChecking) {
     return <div className="flex items-center justify-center min-h-screen">Đang kiểm tra...</div>;
   }
 
-  if (loading) return <div className="p-4 text-center">Đang tải...</div>;
+  if (loading) return (
+    <div className="py-8">
+      <LoadingSkeleton type="card" lines={6} className="w-full max-w-2xl mx-auto" />
+    </div>
+  );
+
+  if (error) return (
+    <div className="text-center py-20">
+      <h1 className="text-2xl font-bold text-gray-700 mb-4">{error}</h1>
+      <button
+        onClick={() => router.push('/superadmin/home?tab=feedback')}
+        className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
+      >
+        Quay lại danh sách
+      </button>
+    </div>
+  );
+
   if (!feedback) return <div className="p-4 text-center text-red-500">Không tìm thấy feedback</div>;
 
   return (
@@ -171,12 +255,16 @@ export default function FeedbackDetailPage() {
             <div className="flex flex-col md:flex-row gap-8 w-full">
               <div className="flex-1 space-y-6 order-1 md:order-none">
                 <div>
+                  <label className="block text-sm font-semibold mb-2 text-black">Thương hiệu</label>
+                  <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback.clubInfo?.brandName || 'Không xác định'} disabled />
+                </div>
+                <div>
                   <label className="block text-sm font-semibold mb-2 text-black">Chi nhánh</label>
-                  <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback.clubInfo?.clubName || ''} disabled />
+                  <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback.clubInfo?.clubName || feedback.clubId || ''} disabled />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-2 text-black">Bàn</label>
-                  <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback.tableInfo?.name || ''} disabled />
+                  <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback.tableInfo?.tableName || feedback.tableId || ''} disabled />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-2 text-black">Loại bàn</label>
@@ -197,38 +285,34 @@ export default function FeedbackDetailPage() {
                 <div>
                   <label className="block text-sm font-semibold mb-2 text-black">Trạng thái</label>
                   {isEditMode ? (
-                    <select
-                      className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
-                      value={status}
-                      onChange={e => setStatus(e.target.value as Feedback['status'])}
-                    >
-                      {statusOptions.map(opt => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
+                    <div className="relative w-full">
+                      <select
+                        className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black outline-none appearance-none"
+                        value={status}
+                        onChange={e => setStatus(e.target.value as Feedback['status'])}
+                      >
+                        {statusOptions.map(opt => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                      <Image
+                        src="/icon/chevron-down_Black.svg"
+                        alt="Dropdown"
+                        width={20}
+                        height={20}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                      />
+                    </div>
                   ) : (
-                    <span className={`inline-block px-4 py-2 rounded-full text-base font-semibold text-white ${getStatusColor(status)}`}>
+                    <Badge
+                      variant={getStatusColor(status)}
+                      className="text-sm font-semibold flex-shrink-0 whitespace-nowrap"
+                    >
                       {getStatusText(status)}
-                    </span>
+                    </Badge>
                   )}
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold mb-2 text-black">Cần hỗ trợ</label>
-                  {isEditMode ? (
-                    <select
-                      className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
-                      value={needSupport ? 'true' : 'false'}
-                      onChange={e => setNeedSupport(e.target.value === 'true')}
-                    >
-                      <option value="false">Không</option>
-                      <option value="true">Có</option>
-                    </select>
-                  ) : (
-                    <span className={`inline-block px-4 py-2 rounded-full text-base font-semibold text-white ${needSupport ? 'bg-red-500' : 'bg-green-500'}`}>
-                      {needSupport ? 'Cần hỗ trợ' : 'Không cần hỗ trợ'}
-                    </span>
-                  )}
-                </div>
+
                 <div>
                   <label className="block text-sm font-semibold mb-2 text-black">Nội dung phản hồi</label>
                   <textarea
@@ -251,7 +335,7 @@ export default function FeedbackDetailPage() {
                   ) : (
                     <textarea
                       className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
-                      value={getLatestNote(feedback.history) || ''}
+                      value={notes}
                       disabled
                       rows={3}
                     />
@@ -259,10 +343,10 @@ export default function FeedbackDetailPage() {
                 </div>
               </div>
               <div className="flex-1 space-y-6 order-2 md:order-none">
-                {feedback.history && feedback.history.length > 0 && (
-                  <div>
-                    <label className="block text-sm font-semibold mb-2 text-center text-black">Lịch sử xử lý</label>
-                    <div className="bg-gray-50 rounded-lg p-4 max-h-[925px] overflow-y-auto">
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-center text-black">Lịch sử xử lý</label>
+                  <div className="bg-gray-50 rounded-lg p-4 max-h-[925px] overflow-y-auto">
+                    {feedback.history && feedback.history.length > 0 ? (
                       <div className="space-y-3">
                         {feedback.history
                           .slice()
@@ -287,9 +371,19 @@ export default function FeedbackDetailPage() {
                             </div>
                           ))}
                       </div>
-                    </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <div className="text-gray-400 mb-2">
+                          <svg className="w-12 h-12 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <p className="text-gray-500 text-sm font-medium">Chưa có lịch sử xử lý</p>
+                        <p className="text-gray-400 text-xs mt-1">Lịch sử xử lý sẽ hiển thị khi có người cập nhật phản hồi</p>
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             </div>
             <div className="flex flex-col md:flex-row justify-center items-center gap-4 mt-8">
