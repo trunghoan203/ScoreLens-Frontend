@@ -69,7 +69,7 @@ export default function ManagersPage() {
             name: typeof obj.fullName === 'string' ? obj.fullName : '',
             phone: typeof obj.phoneNumber === 'string' ? obj.phoneNumber : '',
             email: typeof obj.email === 'string' ? obj.email : '',
-            clubName: club ? club.clubName : (clubId ? `Club ID: ${clubId}` : 'N/A'),
+            clubName: club ? club.clubName : (clubId ? 'Chưa có Chi nhánh' : 'N/A'),
             status: obj.isActive ? 'active' : 'inactive',
             managerId: typeof obj.managerId === 'string' ? obj.managerId : undefined,
             _id: typeof obj._id === 'string' ? obj._id : undefined,
@@ -89,7 +89,7 @@ export default function ManagersPage() {
 
   const filteredManagers = managers.filter((m) =>
     m.name?.toLowerCase().includes(search.toLowerCase()) ||
-    m.email?.toLowerCase().includes(search.toLowerCase())
+    m.phone?.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleSearch = (val: string) => {

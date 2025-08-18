@@ -17,6 +17,7 @@ export interface ClubResponse {
   phoneNumber: string;
   tableNumber: number;
   status: 'open' | 'closed' | 'maintenance';
+  actualTableCount?: number;
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -30,9 +31,7 @@ export interface ClubsApiResponse {
 class ClubsService {
   private baseUrl = '/admin/clubs';
 
-  /**
-   * Lấy tất cả clubs
-   */
+  // Lấy tất cả clubs
   async getAllClubs(): Promise<ClubResponse[]> {
     try {
       const response = await axios.get(this.baseUrl);
@@ -43,9 +42,7 @@ class ClubsService {
     }
   }
 
-  /**
-   * Lấy clubs theo brandId
-   */
+  // Lấy clubs theo brandId
   async getClubsByBrandId(brandId: string): Promise<ClubResponse[]> {
     try {
       const response = await axios.get(`${this.baseUrl}?brandId=${brandId}`);
@@ -56,9 +53,7 @@ class ClubsService {
     }
   }
 
-  /**
-   * Lấy chi tiết một club theo clubId
-   */
+  // Lấy chi tiết một club theo clubId
   async getClubDetails(clubId: string): Promise<ClubResponse> {
     try {
       const response = await axios.get(`${this.baseUrl}/${clubId}`);
@@ -69,9 +64,7 @@ class ClubsService {
     }
   }
 
-  /**
-   * Tạo một club mới
-   */
+  // Tạo một club mới
   async createClub(clubData: Club): Promise<ClubResponse> {
     try {
       const response = await axios.post(this.baseUrl, clubData);
@@ -81,9 +74,7 @@ class ClubsService {
     }
   }
 
-  /**
-   * Tạo nhiều clubs cùng lúc
-   */
+  // Tạo nhiều clubs cùng lúc
   async createMultipleClubs(clubsData: Club[]): Promise<ClubResponse[]> {
     try {
       const response = await axios.post(this.baseUrl, clubsData);
@@ -93,9 +84,7 @@ class ClubsService {
     }
   }
 
-  /**
-   * Cập nhật thông tin club
-   */
+  // Cập nhật thông tin club
   async updateClub(clubId: string, clubData: Partial<Club>): Promise<ClubResponse> {
     try {
       const response = await axios.put(`${this.baseUrl}/${clubId}`, clubData);
@@ -106,9 +95,7 @@ class ClubsService {
     }
   }
 
-  /**
-   * Xóa club
-   */
+  // Xóa club
   async deleteClub(clubId: string): Promise<void> {
     try {
       await axios.delete(`${this.baseUrl}/${clubId}`);
@@ -117,9 +104,7 @@ class ClubsService {
     }
   }
 
-  /**
-   * Xử lý lỗi chung
-   */
+  // Xử lý lỗi chung
   private handleError(error: unknown): Error {
     if (typeof error === 'object' && error !== null && 'response' in error) {
       const axiosError = error as { response?: { data?: { message?: string } } };
