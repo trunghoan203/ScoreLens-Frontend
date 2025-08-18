@@ -41,9 +41,9 @@ export default function AdminPendingPage() {
           </h1>
 
           <p className="text-gray-700 mb-8 leading-relaxed text-[16px]">
-            Tài khoản của bạn đã được gửi lên hệ thống và đang chờ quản trị viên xác nhận.
+            Tài khoản của bạn đã được gửi lên hệ thống và đang chờ Quản trị viên xác nhận.
             <br /><br />
-            Vui lòng kiểm tra lại sau hoặc liên hệ với quản trị viên để được hỗ trợ nhanh hơn.
+            Vui lòng kiểm tra lại sau hoặc liên hệ với Quản trị viên để được hỗ trợ nhanh hơn.
           </p>
 
           <button

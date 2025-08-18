@@ -49,7 +49,7 @@ export function FeedbackTable() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
-  const [statusFilter, setStatusFilter] = useState('pending');
+  const [statusFilter, setStatusFilter] = useState('superadminP');
   const [showAll, setShowAll] = useState(false);
   const [feedbacks, setFeedbacks] = useState<ApiFeedback[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,10 +74,16 @@ export function FeedbackTable() {
       (fb.clubInfo?.brandName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (fb.clubInfo?.clubName || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesDate = !selectedDate || (fb.createdAt ? new Date(fb.createdAt).toISOString().slice(0, 10) : '') === selectedDate;
-    const matchesStatus = !statusFilter ||
-      (statusFilter === 'pending' && fb.status === 'superadminP') ||
-      (statusFilter === 'resolved' && fb.status === 'resolved') ||
-      (statusFilter === '');
+
+    let matchesStatus = true;
+    if (statusFilter === 'superadminP') {
+      matchesStatus = fb.status === 'superadminP';
+    } else if (statusFilter === 'resolved') {
+      matchesStatus = fb.status === 'resolved';
+    } else if (statusFilter === '') {
+      matchesStatus = true;
+    }
+
     return matchesSearch && matchesDate && matchesStatus;
   });
 
@@ -131,7 +137,7 @@ export function FeedbackTable() {
               className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 pl-4 pr-10 text-base font-medium text-black shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none appearance-none"
             >
               <option value="">Tất cả</option>
-              <option value="pending">Chưa xử lý</option>
+              <option value="superadminP">Chưa xử lý</option>
               <option value="resolved">Đã xử lý</option>
             </select>
             <Image

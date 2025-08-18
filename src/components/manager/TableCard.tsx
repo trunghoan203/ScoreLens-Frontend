@@ -11,10 +11,13 @@ interface TableCardProps {
   matchStatus?: 'pending' | 'ongoing' | 'completed';
   elapsedTime?: string;
   isAiAssisted?: boolean;
+  scoreA?: number;
+  scoreB?: number;
+  creatorType?: 'manager' | 'member' | 'guest' | null;
   onDetail?: () => void;
 }
 
-export default function TableCard({ name, type, status, teamA, teamB, time, matchStatus, elapsedTime, isAiAssisted = false, onDetail }: TableCardProps) {
+export default function TableCard({ name, type, status, teamA, teamB, time, matchStatus, elapsedTime, isAiAssisted = false, scoreA = 0, scoreB = 0, creatorType = null, onDetail }: TableCardProps) {
   const getDisplayStatus = (status: string) => {
     switch (status) {
       case 'inuse':
@@ -70,29 +73,50 @@ export default function TableCard({ name, type, status, teamA, teamB, time, matc
     }
   };
 
+  const getCreatorText = (creatorType: 'manager' | 'member' | 'guest' | null) => {
+    switch (creatorType) {
+      case 'manager':
+        return 'Quản lý';
+      case 'member':
+        return 'Hội viên';
+      case 'guest':
+        return 'Khách';
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="border-2 border-[#8ADB10] rounded-2xl shadow bg-[#FFFFFF] p-4 flex flex-col items-center min-w-[220px] h-[280px] relative">
       <div className="flex w-full justify-between items-center mb-3">
         <span className={`text-xs font-bold px-3 py-1 rounded-full ${getStatusStyle(displayStatus)} uppercase tracking-wide text-center whitespace-nowrap`}>
           {getStatusText(displayStatus, isAiAssisted)}
         </span>
-        <span className="text-xs text-[#000000] font-semibold">{displayType === 'pool-8' ? 'Bida Pool-8' : 'Bida Carom'}</span>
+        <span className="text-xs text-[#000000] font-semibold">{displayType === 'pool-8' ? 'Bida Pool' : 'Bida Carom'}</span>
       </div>
 
-      <div className="font-bold text-base mb-3 text-center text-gray-700">{name}</div>
+      <div className="font-bold text-base mb-2 text-center text-gray-700">
+        {name}
+      </div>
+
+      {displayStatus === 'using' && creatorType && (
+        <div className="text-xs text-gray-600 text-center mb-4">
+          Người tạo: {getCreatorText(creatorType)}
+        </div>
+      )}
 
       <div className="flex-1 flex flex-col justify-center items-center w-full pb-16">
         {displayStatus === 'using' && (
           <div className="flex flex-col items-center justify-center w-full">
             <div className="flex w-full justify-between items-center mb-3">
-              <div className="flex flex-col items-center">
-                <span className="w-10 h-10 rounded-full bg-gray-200 mb-1"></span>
-                <span className="text-xs text-[#000000]">{teamA || 'Team A'}</span>
+              <div className="flex flex-col items-center ml-10">
+                <span className="text-xs text-[#000000] font-medium mb-1">Team A</span>
+                <span className="text-4xl font-bold text-[#000000]">{scoreA}</span>
               </div>
               <span className="mx-2 text-[#000000] font-bold">VS</span>
-              <div className="flex flex-col items-center">
-                <span className="w-10 h-10 rounded-full bg-gray-200 mb-1"></span>
-                <span className="text-xs text-[#000000]">{teamB || 'Team B'}</span>
+              <div className="flex flex-col items-center mr-10">
+                <span className="text-xs text-[#000000] font-medium mb-1">Team B</span>
+                <span className="text-4xl font-bold text-[#000000]">{scoreB}</span>
               </div>
             </div>
             <div className="text-xs text-[#000000] font-mono">

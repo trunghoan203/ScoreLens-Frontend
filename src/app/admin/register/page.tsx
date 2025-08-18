@@ -191,7 +191,7 @@ export default function AdminRegisterPage() {
   return (
     <AuthLayout
       title="Đăng ký Chủ doanh nghiệp"
-      description="Vui lòng nhập thông tin để đăng ký tài khoản quản trị viên."
+      description="Vui lòng nhập thông tin để đăng ký tài khoản Chủ doanh nghiệp."
     >
       {step === 1 && (
         <form className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]" onSubmit={e => { e.preventDefault(); if (validateStep1()) setStep(2); }}>
