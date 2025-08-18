@@ -17,7 +17,7 @@ export default function AdminLoginPage() {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
-  }); 
+  });
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<{
     email?: string;
@@ -57,7 +57,7 @@ export default function AdminLoginPage() {
 
   const handleSubmit = async (e: React.FormEvent, searchParams: URLSearchParams | null) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setIsLoading(true);
@@ -71,7 +71,7 @@ export default function AdminLoginPage() {
       });
 
       if (response.status === 200) {
-        const data = response.data as { data?: { accessToken?: string; refreshToken?: string; [key: string]: unknown } };
+        const data = response.data as { data?: { accessToken?: string; refreshToken?: string;[key: string]: unknown } };
         const accessToken = data.data?.accessToken;
         const refreshToken = data.data?.refreshToken;
         if (accessToken) {
@@ -93,7 +93,7 @@ export default function AdminLoginPage() {
           router.push(redirectUrl);
           return;
         }
-        
+
         try {
           const profileResponse = await axios.get('/admin/profile', {
             headers: {
@@ -141,7 +141,7 @@ export default function AdminLoginPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
+
     if (errors[name as keyof typeof errors]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
     }
@@ -153,7 +153,7 @@ export default function AdminLoginPage() {
 
   return (
     <AuthLayout
-      title="Đăng nhập Admin"
+      title="Đăng nhập Chủ doanh nghiệp"
       description="Vui lòng đăng nhập để tiếp tục"
     >
       <SearchParamsWrapper>
@@ -169,9 +169,8 @@ export default function AdminLoginPage() {
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${
-                  errors.email ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${errors.email ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Nhập email của bạn"
                 required
                 disabled={isLoading}
@@ -190,9 +189,8 @@ export default function AdminLoginPage() {
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${
-                  errors.password ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${errors.password ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Nhập mật khẩu"
                 required
                 disabled={isLoading}
@@ -213,10 +211,10 @@ export default function AdminLoginPage() {
                     disabled={isLoading}
                   />
                   <span className="text-gray-700">Nhớ mật khẩu</span>
-                </label> 
+                </label>
               </div>
-              <Link 
-                href="/admin/forgotPassword" 
+              <Link
+                href="/admin/forgotPassword"
                 className="font-medium text-gray-800 hover:text-lime-500 transition-colors"
               >
                 Quên mật khẩu?
@@ -244,8 +242,8 @@ export default function AdminLoginPage() {
 
             <div className="text-center w-full mt-4">
               <span className="text-gray-800 text-sm">Bạn chưa có tài khoản? </span>
-              <Link 
-                href="/admin/register" 
+              <Link
+                href="/admin/register"
                 className="text-lime-600 font-semibold hover:underline text-sm transition-colors"
               >
                 Đăng ký

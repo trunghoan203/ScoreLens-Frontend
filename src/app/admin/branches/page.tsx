@@ -131,7 +131,7 @@ export default function BranchesPage() {
                   clubId: b.clubId,
                   name: b.clubName,
                   address: b.address,
-                  tableNumber: b.tableNumber,
+                  actualTableCount: b.actualTableCount,
                   status: b.status as 'open' | 'closed'
                 }))}
               />

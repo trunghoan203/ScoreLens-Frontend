@@ -6,7 +6,7 @@ interface Branch {
   clubId?: string;
   name: string;
   address: string;
-  tableNumber?: number;
+  actualTableCount?: number;
   status: 'open' | 'closed';
 }
 
@@ -28,7 +28,7 @@ export default function BranchTable({ branches }: { branches: Branch[] }) {
         >
           <div className="col-span-3 py-4 font-semibold text-black">{b.name}</div>
           <div className="col-span-4 py-4 text-gray-700">{b.address}</div>
-          <div className="col-span-2 py-4 text-gray-700">{b.tableNumber || 0}</div>
+          <div className="col-span-2 py-4 text-gray-700">{b.actualTableCount || 0}</div>
           <div className="col-span-3 py-4 flex justify-center">
             <StatusBadge status={b.status} />
           </div>

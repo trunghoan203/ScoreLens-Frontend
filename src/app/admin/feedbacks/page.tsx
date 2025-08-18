@@ -17,7 +17,7 @@ interface Feedback {
   branch: string;
   table: string;
   time: string;
-  status: 'pending' | 'managerP' | 'adminP' | 'superadminP' | 'resolved';
+  status: 'managerP' | 'adminP' | 'superadminP' | 'resolved';
   feedback: string;
   notes: string;
   createdAt: Date;
@@ -60,7 +60,7 @@ export default function AdminFeedbacksPage() {
             branch: String(clubInfo?.clubName || 'Không xác định'),
             table: String(tableName),
             time: String(obj.createdAt ? new Date(obj.createdAt as string).toLocaleString('vi-VN') : 'Không xác định'),
-            status: (obj.status as Feedback['status']) || 'pending',
+            status: (obj.status as Feedback['status']) || 'adminP',
             feedback: String(obj.content || ''),
             notes: String(obj.note || ''),
             createdAt: obj.createdAt ? new Date(obj.createdAt as string) : new Date(0),

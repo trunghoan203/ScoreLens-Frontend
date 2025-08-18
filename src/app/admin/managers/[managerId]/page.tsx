@@ -180,13 +180,15 @@ export default function ManagerDetailPage() {
                     <option key={club.clubId} value={club.clubId}>{club.clubName}</option>
                   ))}
                 </select>
-                <Image
-                  src="/icon/chevron-down_Black.svg"
-                  alt="Dropdown"
-                  width={20}
-                  height={20}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                />
+                {isEditMode && (
+                  <Image
+                    src="/icon/chevron-down_Black.svg"
+                    alt="Dropdown"
+                    width={20}
+                    height={20}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                  />
+                )}
               </div>
             </div>
             <div className="w-full mb-6">
@@ -203,7 +205,11 @@ export default function ManagerDetailPage() {
                 type="date"
                 value={dob}
                 onChange={(e) => setDob(e.target.value)}
-                className="w-full bg-white border rounded-md border-gray-300 px-4 py-3 text-sm font-base text-black placeholder-gray-500 focus:border-lime-500 outline-none"
+                disabled={!isEditMode}
+                className={`w-full bg-white border rounded-md px-4 py-3 text-sm font-base text-black placeholder-gray-500 hover:border-lime-400 outline-none transition-all ${isEditMode
+                  ? 'border-gray-300 focus:border-lime-500 hover:border-lime-400'
+                  : 'border-gray-200 bg-gray-100'
+                  }`}
               />
             </div>
             <div className="w-full mb-6">
@@ -231,12 +237,14 @@ export default function ManagerDetailPage() {
                   <option value="active">Hoạt động</option>
                   <option value="inactive">Không hoạt động</option>
                 </select>
-                <Image
-                  src="/icon/chevron-down_Black.svg"
-                  alt="Dropdown"
-                  width={20}
-                  height={20}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                {isEditMode && (
+                  <Image
+                    src="/icon/chevron-down_Black.svg"
+                    alt="Dropdown"
+                    width={20}
+                    height={20}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                )}
               </div>
             </div>
           </AddFormLayout>

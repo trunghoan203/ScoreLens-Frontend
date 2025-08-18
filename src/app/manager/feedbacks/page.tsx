@@ -19,7 +19,7 @@ interface Feedback {
   branch: string;
   table: string;
   time: string;
-  status: 'pending' | 'managerP' | 'adminP' | 'superadminP' | 'resolved';
+  status: 'managerP' | 'adminP' | 'resolved';
   feedback: string;
   notes: string;
   createdAt: Date;
@@ -28,7 +28,7 @@ interface Feedback {
 export default function FeedbacksPage() {
   const { isChecking } = useManagerAuthGuard();
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("managerP");
+  const [statusFilter, setStatusFilter] = useState("pending");
   const [dateFilter, setDateFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
@@ -63,7 +63,7 @@ export default function FeedbacksPage() {
             branch: String(clubInfo?.clubName || 'Không xác định'),
             table: String(tableName),
             time: String(obj.createdAt ? new Date(obj.createdAt as string).toLocaleString('vi-VN') : 'Không xác định'),
-            status: (obj.status as Feedback['status']) || 'pending',
+            status: (obj.status as Feedback['status']) || 'managerP',
             feedback: String(obj.content || ''),
             notes: String(obj.note || ''),
             createdAt: obj.createdAt ? new Date(obj.createdAt as string) : new Date(0),
@@ -98,7 +98,16 @@ export default function FeedbacksPage() {
       branch.includes(searchTerm) ||
       table.includes(searchTerm);
 
-    const matchesStatus = statusFilter === 'all' || f.status === statusFilter;
+    let matchesStatus = false;
+    if (statusFilter === 'all') {
+      matchesStatus = f.status === 'adminP' || f.status === 'managerP' || f.status === 'resolved';
+    } else if (statusFilter === 'pending') {
+      matchesStatus = f.status === 'managerP';
+    } else if (statusFilter === 'resolved') {
+      matchesStatus = f.status === 'resolved';
+    } else {
+      matchesStatus = f.status === statusFilter;
+    }
 
     let matchesDate = true;
     if (dateFilter) {
@@ -161,9 +170,9 @@ export default function FeedbacksPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
                 }
-                title={search || statusFilter !== 'managerP' || dateFilter ? 'Không tìm thấy phản hồi phù hợp' : 'Chưa có phản hồi nào'}
+                title={search || statusFilter !== 'pending' || dateFilter ? 'Không tìm thấy phản hồi phù hợp' : 'Chưa có phản hồi nào'}
                 description="Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy phản hồi phù hợp"
-                secondaryAction={search || statusFilter !== 'managerP' || dateFilter ? {
+                secondaryAction={search || statusFilter !== 'pending' || dateFilter ? {
                   label: 'Xem tất cả',
                   onClick: () => {
                     setSearch('');
@@ -176,7 +185,7 @@ export default function FeedbacksPage() {
                     </svg>
                   )
                 } : undefined}
-                showAdditionalInfo={!(search || statusFilter !== 'managerP' || dateFilter)}
+                showAdditionalInfo={!(search || statusFilter !== 'pending' || dateFilter)}
               />
             ) : (
               <>
@@ -184,7 +193,7 @@ export default function FeedbacksPage() {
                   feedbacks={currentFeedbacks}
                   onFeedbackClick={handleFeedbackClick}
                 />
-                
+
                 {totalPages > 1 && (
                   <div className="mt-10 flex items-center justify-center gap-2">
                     <button

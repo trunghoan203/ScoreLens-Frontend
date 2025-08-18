@@ -59,7 +59,10 @@ export default function MembersPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filteredMembers = members.filter(m => m.fullName.toLowerCase().includes(search.toLowerCase()));
+  const filteredMembers = members.filter(m =>
+    m.fullName.toLowerCase().includes(search.toLowerCase()) ||
+    m.phoneNumber.toLowerCase().includes(search.toLowerCase())
+  );
 
   const totalPages = Math.ceil(filteredMembers.length / itemPage);
   const startIndex = (currentPage - 1) * itemPage;

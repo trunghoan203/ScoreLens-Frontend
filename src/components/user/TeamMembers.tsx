@@ -214,6 +214,7 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
                   placeholder={idx === 0 ? "Tên chủ phòng" : "Số điện thoại hoặc tên khách"}
                   className="w-full"
                 />
+                <span className="text-sm text-gray-600 whitespace-nowrap">Người chơi {idx + 1}</span>
                 {idx === 0 ? (
                   <Button
                     size="icon"
@@ -261,6 +262,7 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
                   placeholder={idx === 0 ? "Tên chủ phòng" : "Số điện thoại hoặc tên khách"}
                   className="w-full"
                 />
+                <span className="text-sm text-gray-600 whitespace-nowrap">Người chơi {idx + 1}</span>
                 {idx === 0 ? (
                   <Button
                     size="icon"

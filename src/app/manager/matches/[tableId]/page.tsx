@@ -103,6 +103,34 @@ export default function TableDetailPage() {
   });
   const [loadingStats, setLoadingStats] = useState(true);
 
+  const refreshDashboardStats = async () => {
+    try {
+      setLoadingStats(true);
+
+      const tablesData = await managerTableService.getAllTables();
+      const tablesArray = Array.isArray(tablesData) ? tablesData : (tablesData as { tables?: RawTableData[] })?.tables || [];
+
+      const membersData = await managerMemberService.getAllMembers();
+      const members = Array.isArray(membersData) ? membersData : (membersData as MembersData)?.memberships || [];
+
+      const totalTables = tablesArray.length;
+      const inUse = tablesArray.filter((table: RawTableData) => table.status === 'inuse').length;
+      const available = tablesArray.filter((table: RawTableData) => table.status === 'empty').length;
+      const totalMembers = members.length;
+
+      setDashboardStats({
+        totalTables,
+        inUse,
+        available,
+        members: totalMembers
+      });
+    } catch (error) {
+      console.error('Error refreshing dashboard stats:', error);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -212,17 +240,8 @@ export default function TableDetailPage() {
         const membersData = await managerMemberService.getAllMembers();
         const members = Array.isArray(membersData) ? membersData : (membersData as MembersData)?.memberships || [];
 
-        const totalTables = transformedTables.length;
-        const inUse = transformedTables.filter((table: TableData) => table.status === 'inuse').length;
-        const available = transformedTables.filter((table: TableData) => table.status === 'empty').length;
-        const totalMembers = members.length;
-
-        setDashboardStats({
-          totalTables,
-          inUse,
-          available,
-          members: totalMembers
-        });
+        // Use refreshDashboardStats function instead of manual calculation
+        await refreshDashboardStats();
       } catch (error) {
         console.error('Error fetching data:', error);
         toast.error('Không thể tải dữ liệu');
@@ -248,6 +267,8 @@ export default function TableDetailPage() {
       setMatchStatus(match.status as 'pending' | 'ongoing' | 'completed');
       if (match.status === 'completed') {
         setElapsedTime('00:00:00');
+        // Refresh dashboard stats when match is completed
+        refreshDashboardStats();
       }
     }
   });
@@ -273,6 +294,21 @@ export default function TableDetailPage() {
       }
     };
   }, [matchStatus, matchStartTime]);
+
+  // Auto-refresh dashboard stats every 30 seconds to keep data fresh
+  useEffect(() => {
+    const statsInterval = setInterval(() => {
+      if (!loading && !isChecking) {
+        refreshDashboardStats();
+      }
+    }, 30000); // Refresh every 30 seconds
+
+    return () => {
+      if (statsInterval) {
+        clearInterval(statsInterval);
+      }
+    };
+  }, [loading, isChecking]);
 
 
   const handleCreateMatch = async (teamA: Array<{ guestName?: string; phoneNumber?: string }>, teamB: Array<{ guestName?: string; phoneNumber?: string }>) => {
@@ -339,6 +375,9 @@ export default function TableDetailPage() {
         if (responseData?.isAiAssisted !== undefined) {
           setIsAiAssisted(responseData.isAiAssisted as boolean);
         }
+
+        // Refresh dashboard stats after creating match
+        await refreshDashboardStats();
 
       } else {
         toast.error((response.message as string) || 'Tạo trận đấu thất bại!');
@@ -460,6 +499,10 @@ export default function TableDetailPage() {
       const res = await managerMatchService.deleteMatch(activeMatchId) as Record<string, unknown>;
       if (res?.success) {
         toast.success('Hủy trận đấu thành công!');
+
+        // Refresh dashboard stats after canceling match
+        await refreshDashboardStats();
+
         router.push('/manager/dashboard');
       } else {
         toast.error((res?.message as string) || 'Hủy trận đấu thất bại!');
@@ -521,6 +564,10 @@ export default function TableDetailPage() {
       const res = (await managerMatchService.endMatch(activeMatchId)) as Record<string, unknown>;
       if (res?.success) {
         toast.success('Kết thúc trận đấu thành công!');
+
+        // Refresh dashboard stats after ending match
+        await refreshDashboardStats();
+
         router.push('/manager/dashboard');
       } else {
         toast.error((res?.message as string) || 'Kết thúc trận đấu thất bại!');
