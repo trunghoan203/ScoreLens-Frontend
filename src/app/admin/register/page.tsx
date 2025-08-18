@@ -264,7 +264,7 @@ export default function AdminRegisterPage() {
               disabled={isLoading}
             />
             <p className="text-gray-500 text-xs mt-1">
-              Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và 1 kí tự đặc biệt.
+              Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và kí tự đặc biệt.
             </p>
             {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
           </div>

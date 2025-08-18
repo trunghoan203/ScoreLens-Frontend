@@ -27,7 +27,7 @@ export default function BranchDetailPage() {
   const [address, setAddress] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [tableNumber, setTableNumber] = useState(0);
-  const [actualTableCount, setActualTableCount] = useState(0); // Số bàn thực tế từ database
+  const [actualTableCount, setActualTableCount] = useState(0);
   const [status, setStatus] = useState<'open' | 'closed' | 'maintenance'>('open');
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export default function BranchDetailPage() {
         setAddress(clubData.address);
         setPhoneNumber(clubData.phoneNumber);
         setTableNumber(clubData.tableNumber);
-        setActualTableCount(clubData.actualTableCount || 0); // Lưu số bàn thực tế, mặc định là 0
+        setActualTableCount(clubData.actualTableCount || 0);
         setStatus(clubData.status);
       } catch (error) {
         console.error('Error loading club:', error);
@@ -239,7 +239,7 @@ export default function BranchDetailPage() {
             </div>
 
             <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Số bàn thực tế trên hệ thống</label>
+              <label className="block text-sm font-semibold mb-2 text-black">Số bàn thực tế trên hệ thống<span className="text-red-500">*</span></label>
               <Input
                 type="number"
                 value={actualTableCount}
