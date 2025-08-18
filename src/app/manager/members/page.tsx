@@ -56,7 +56,10 @@ export default function MembersPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filteredMembers = members.filter(m => m.fullName.toLowerCase().includes(search.toLowerCase()));
+  const filteredMembers = members.filter(m =>
+    m.fullName.toLowerCase().includes(search.toLowerCase()) ||
+    m.phoneNumber.toLowerCase().includes(search.toLowerCase())
+  );
 
   const handleAddMember = async () => {
     setIsAdding(true);

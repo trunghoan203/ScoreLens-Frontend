@@ -19,14 +19,6 @@ export default function FeedbackSearchBar({
   dateFilter = '',
   setDateFilter = () => { }
 }: FeedbackSearchBarProps) {
-  const statusOptions = [
-    { value: 'all', label: 'Tất cả trạng thái' },
-    { value: 'pending', label: 'Chờ xử lý' },
-    { value: 'managerP', label: 'Manager đang xử lý' },
-    { value: 'adminP', label: 'Admin đang xử lý' },
-    { value: 'superadminP', label: 'SuperAdmin đang xử lý' },
-    { value: 'resolved', label: 'Đã xử lý' },
-  ];
 
   return (
     <div className="mb-6 backdrop-blur-md bg-white/60 rounded-2xl shadow-l flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 transition-all duration-300">
@@ -41,18 +33,16 @@ export default function FeedbackSearchBar({
         <Image src="/icon/search.svg" alt="Search" width={20} height={20} className="text-gray-400" />
       </div>
 
-      <div className="flex gap-3 w-full sm:w-120">
+      <div className="flex gap-3 w-full sm:w-110">
         <div className="relative w-full">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 pl-4 pr-10 text-base font-medium text-black shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none appearance-none"
           >
-            {statusOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
+            <option value="all">Tất cả</option>
+            <option value="adminP">Chưa xử lý</option>
+            <option value="resolved">Đã xử lý</option>
           </select>
           <Image
             src="/icon/chevron-down_Black.svg"
@@ -63,7 +53,7 @@ export default function FeedbackSearchBar({
           />
         </div>
 
-        <div className="relative w-full sm:w-100">
+        <div className="relative w-full sm:w-120">
           <input
             type="date"
             value={dateFilter}

@@ -53,7 +53,7 @@ export default function ClubInfoPage() {
               clubsData.map((club) => ({
                 name: club.clubName || "",
                 address: club.address || "",
-                tableCount: club.tableNumber?.toString() || "",
+                tableCount: club.actualTableCount?.toString() || club.tableNumber?.toString() || "0",
               }))
             );
           }
@@ -191,7 +191,7 @@ export default function ClubInfoPage() {
                         <Input value={branch.address} disabled />
                       </div>
                       <div className="col-span-2">
-                        <label className="block text-xs font-medium text-gray-500 mb-1">Số bàn <span className="text-red-500">*</span></label>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">Số bàn hiện có <span className="text-red-500">*</span></label>
                         <Input value={branch.tableCount} disabled />
                       </div>
                     </div>

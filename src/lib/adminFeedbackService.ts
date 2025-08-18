@@ -27,10 +27,10 @@ class AdminFeedbackService {
     return res.data;
   }
 
-  async updateFeedback(id: string, data: { 
-    note?: string; 
-    status?: string; 
-    needSupport?: boolean; 
+  async updateFeedback(id: string, data: {
+    note?: string;
+    status?: string;
+    needSupport?: boolean;
   }) {
     const res = await axios.put(`/admin/feedback/${id}`, data, {
       headers: this.getAuthHeaders(),

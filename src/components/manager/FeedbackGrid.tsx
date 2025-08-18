@@ -6,7 +6,7 @@ interface Feedback {
   branch: string;
   table: string;
   time: string;
-  status: 'pending' | 'managerP' | 'adminP' | 'superadminP' | 'resolved';
+  status: 'managerP' | 'adminP' | 'superadminP' | 'resolved';
   feedback: string;
   notes: string;
   createdAt: Date;
@@ -24,7 +24,6 @@ export default function FeedbackGrid({
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'resolved': return 'success';
-      case 'pending': return 'danger';
       case 'managerP': return 'danger';
       case 'adminP': return 'danger';
       case 'superadminP': return 'danger';
@@ -34,11 +33,10 @@ export default function FeedbackGrid({
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending': return 'Chưa xử lý';
       case 'resolved': return 'Đã xử lý';
-      case 'managerP': return 'Manager đang xử lý';
-      case 'adminP': return 'Admin đang xử lý';
-      case 'superadminP': return 'Super Admin đang xử lý';
+      case 'managerP': return 'Quản lý xử lý';
+      case 'adminP': return 'Chủ doanh nghiệp xử lý';
+      case 'superadminP': return 'Quản trị viên xử lý';
       default: return 'Không xác định';
     }
   };

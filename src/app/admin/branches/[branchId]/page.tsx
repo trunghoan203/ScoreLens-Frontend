@@ -27,6 +27,7 @@ export default function BranchDetailPage() {
   const [address, setAddress] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [tableNumber, setTableNumber] = useState(0);
+  const [actualTableCount, setActualTableCount] = useState(0);
   const [status, setStatus] = useState<'open' | 'closed' | 'maintenance'>('open');
 
   useEffect(() => {
@@ -45,6 +46,7 @@ export default function BranchDetailPage() {
         setAddress(clubData.address);
         setPhoneNumber(clubData.phoneNumber);
         setTableNumber(clubData.tableNumber);
+        setActualTableCount(clubData.actualTableCount || 0);
         setStatus(clubData.status);
       } catch (error) {
         console.error('Error loading club:', error);
@@ -62,6 +64,11 @@ export default function BranchDetailPage() {
     e.preventDefault();
 
     if (isEditMode) {
+      if (tableNumber === 0) {
+        toast.error('Số bàn không thể là 0');
+        return;
+      }
+
       try {
         setIsSaving(true);
         await clubsService.updateClub(clubId, {
@@ -221,7 +228,7 @@ export default function BranchDetailPage() {
             </div>
 
             <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Số bàn<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-2 text-black">Số bàn đã đăng ký<span className="text-red-500">*</span></label>
               <Input
                 type="number"
                 value={tableNumber}
@@ -229,6 +236,21 @@ export default function BranchDetailPage() {
                 required
                 disabled={!isEditMode}
               />
+            </div>
+
+            <div className="w-full mb-6">
+              <label className="block text-sm font-semibold mb-2 text-black">Số bàn thực tế trên hệ thống<span className="text-red-500">*</span></label>
+              <Input
+                type="number"
+                value={actualTableCount}
+                disabled={true}
+                className="bg-gray-100 cursor-not-allowed"
+              />
+              {actualTableCount !== tableNumber && (
+                <p className="text-xs text-red-600 italic mt-1 font-medium">
+                  ⚠️ Số bàn trên hệ thống không đúng với số bàn đã đăng ký
+                </p>
+              )}
             </div>
 
             <div className="w-full mb-10">
@@ -244,13 +266,15 @@ export default function BranchDetailPage() {
                   <option value="closed">Đóng cửa</option>
                   <option value="maintenance">Bảo trì</option>
                 </select>
-                <Image
-                  src="/icon/chevron-down_Black.svg"
-                  alt="Dropdown"
-                  width={20}
-                  height={20}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                />
+                {isEditMode && (
+                  <Image
+                    src="/icon/chevron-down_Black.svg"
+                    alt="Dropdown"
+                    width={20}
+                    height={20}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                  />
+                )}
               </div>
             </div>
           </AddFormLayout>

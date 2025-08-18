@@ -17,5 +17,5 @@ export const getFeedbackDetail = (feedbackId: string) =>
     axios.get(`/superAdmin/feedback/${feedbackId}`, { headers: getAuthHeaders() });
 
 // Cập nhật feedback
-export const updateFeedback = (feedbackId: string, data: { note: string; status: string; needSupport: boolean }) =>
+export const updateFeedback = (feedbackId: string, data: { note: string; status: string }) =>
     axios.put(`/superAdmin/feedback/${feedbackId}`, data, { headers: getAuthHeaders() });
