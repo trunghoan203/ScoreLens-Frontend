@@ -34,7 +34,7 @@ interface Feedback {
     category?: string;
   };
   content: string;
-  status: 'pending' | 'managerP' | 'adminP' | 'superadminP' | 'resolved';
+  status: 'managerP' | 'adminP' | 'superadminP' | 'resolved';
   note?: string;
   history: Array<{
     byId: string;
@@ -53,7 +53,7 @@ export default function FeedbackDetailPage() {
   const { isChecking } = useSuperAdminAuthGuard();
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [status, setStatus] = useState<Feedback['status']>('pending');
+  const [status, setStatus] = useState<Feedback['status']>('adminP');
   const [notes, setNotes] = useState('');
 
   const [error, setError] = useState<string | null>(null);
@@ -106,7 +106,7 @@ export default function FeedbackDetailPage() {
               category: String(tableInfo?.category || 'Không xác định')
             },
             content: String(feedbackObj.content || ''),
-            status: (feedbackObj.status as Feedback['status']) || 'pending',
+            status: (feedbackObj.status as Feedback['status']) || 'adminP',
 
             note: String(feedbackObj.note || ''),
             history: (history || []).map(h => ({
@@ -121,8 +121,7 @@ export default function FeedbackDetailPage() {
           };
 
           setFeedback(mappedFeedback);
-          // Nếu status là pending hoặc managerP, Super Admin sẽ set thành adminP
-          if (mappedFeedback.status === 'pending' || mappedFeedback.status === 'managerP') {
+          if (mappedFeedback.status === 'managerP') {
             setStatus('adminP');
           } else {
             setStatus(mappedFeedback.status);
@@ -156,15 +155,14 @@ export default function FeedbackDetailPage() {
   }, [id, isEditMode]);
 
   const statusOptions = [
-    { value: 'adminP', label: 'Admin đang xử lý' },
-    { value: 'superadminP', label: 'Super Admin đang xử lý' },
+    { value: 'adminP', label: 'Chủ doanh nghiệp xử lý' },
+    { value: 'superadminP', label: 'Quản trị viên xử lý' },
     { value: 'resolved', label: 'Đã xử lý' },
   ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'resolved': return 'success';
-      case 'pending': return 'danger';
       case 'managerP': return 'danger';
       case 'adminP': return 'danger';
       case 'superadminP': return 'danger';
@@ -174,11 +172,10 @@ export default function FeedbackDetailPage() {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending': return 'Chờ xử lý';
       case 'resolved': return 'Đã xử lý';
-      case 'managerP': return 'Manager đang xử lý';
-      case 'adminP': return 'Admin đang xử lý';
-      case 'superadminP': return 'Super Admin đang xử lý';
+      case 'managerP': return 'Quản lý xử lý';
+      case 'adminP': return 'Chủ doanh nghiệp xử lý';
+      case 'superadminP': return 'Quản trị viên xử lý';
       default: return 'Không xác định';
     }
   };

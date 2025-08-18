@@ -17,7 +17,7 @@ interface ApiFeedback {
     type: 'guest' | 'membership';
   };
   content: string;
-  status: 'resolved' | 'managerP' | 'adminP' | 'superadminP';
+  status: 'managerP' | 'adminP' | 'superadminP' | 'resolved';
   needSupport: boolean;
   note?: string;
   history: Array<{
@@ -92,9 +92,9 @@ export function FeedbackTable() {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'resolved': return 'Đã xử lý';
-      case 'managerP': return 'Manager đang xử lý';
-      case 'adminP': return 'Admin đang xử lý';
-      case 'superadminP': return 'Super Admin đang xử lý';
+      case 'managerP': return 'Quản lý xử lý';
+      case 'adminP': return 'Chủ doanh nghiệp xử lý';
+      case 'superadminP': return 'Quản trị viên xử lý';
       default: return 'Không xác định';
     }
   };
@@ -111,9 +111,7 @@ export function FeedbackTable() {
 
   return (
     <div className="space-y-6">
-      {/* Filter Bar */}
       <div className="backdrop-blur-md border-lime-400 bg-white/60 border border-gray-200 rounded-2xl shadow-lg px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 transition-all duration-300">
-        {/* Search*/}
         <div className="relative w-full sm:w-90">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-lime-500 w-5 h-5" />
           <input
@@ -125,9 +123,7 @@ export function FeedbackTable() {
           />
         </div>
 
-        {/* Status and Date Filters Group */}
         <div className="flex gap-3 w-full sm:w-auto">
-          {/* Status Filter*/}
           <div className="relative w-full sm:w-50">
             <select
               value={statusFilter}
@@ -147,7 +143,6 @@ export function FeedbackTable() {
             />
           </div>
 
-          {/* Date Picker*/}
           <div className="relative w-full sm:w-55">
             <input
               type="date"
@@ -160,7 +155,6 @@ export function FeedbackTable() {
       </div>
 
       <div className="space-y-2">
-        {/* Header */}
         <div className="grid grid-cols-11 bg-black text-white text-center text-sm font-semibold rounded-lg">
           <div className="col-span-3 py-3">THƯƠNG HIỆU</div>
           <div className="col-span-3 py-3">CHI NHÁNH</div>
@@ -168,7 +162,6 @@ export function FeedbackTable() {
           <div className="col-span-3 py-3">TRẠNG THÁI</div>
         </div>
 
-        {/* Feedback Cards */}
         {loading ? (
           <div className="py-8 text-center text-gray-500">Đang tải...</div>
         ) : displayedFeedbacks.length > 0 ? (
@@ -200,7 +193,6 @@ export function FeedbackTable() {
         )}
       </div>
 
-      {/* Load More */}
       {filteredFeedbacks.length > 10 && !showAll && (
         <div className="text-center">
           <Button

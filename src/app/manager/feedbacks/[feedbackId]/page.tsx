@@ -144,8 +144,8 @@ export default function FeedbackDetailPage() {
   }, [feedbackId, isEditMode]);
 
   const statusOptions = [
-    { value: 'managerP', label: 'Manager đang xử lý' },
-    { value: 'adminP', label: 'Admin đang xử lý' },
+    { value: 'managerP', label: 'Quản lý xử lý' },
+    { value: 'adminP', label: 'Chủ doanh nghiệp xử lý' },
     { value: 'resolved', label: 'Đã xử lý' },
   ];
 
@@ -161,8 +161,8 @@ export default function FeedbackDetailPage() {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'resolved': return 'Đã xử lý';
-      case 'managerP': return 'Manager đang xử lý';
-      case 'adminP': return 'Admin đang xử lý';
+      case 'managerP': return 'Quản lý xử lý';
+      case 'adminP': return 'Chủ doanh nghiệp xử lý';
       default: return 'Không xác định';
     }
   };

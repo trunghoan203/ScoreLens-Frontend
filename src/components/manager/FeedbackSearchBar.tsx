@@ -37,7 +37,7 @@ export default function FeedbackSearchBar({
         <Image src="/icon/search.svg" alt="Search" width={20} height={20} className="text-gray-400" />
       </div>
 
-      <div className="flex gap-3 w-full sm:w-120">
+      <div className="flex gap-3 w-full sm:w-110">
         <div className="relative w-full">
           <select
             value={statusFilter}
@@ -59,7 +59,7 @@ export default function FeedbackSearchBar({
           />
         </div>
 
-        <div className="relative w-full sm:w-100">
+        <div className="relative w-full sm:w-120">
           <input
             type="date"
             value={dateFilter}
