@@ -114,12 +114,7 @@ function GuestJoinContent() {
         });
 
         socket.on('match_updated', (data) => {
-
-
           if (data.status === 'ongoing') {
-
-            toast.success('Trận đấu đã bắt đầu!');
-
             const params = new URLSearchParams({
               table: tableNumber,
               room: roomCode,
@@ -177,8 +172,6 @@ function GuestJoinContent() {
 
         socket.on('match_started', () => {
 
-          toast.success('Trận đấu đã bắt đầu!');
-
           const params = new URLSearchParams({
             table: tableNumber,
             room: roomCode,
@@ -189,8 +182,6 @@ function GuestJoinContent() {
           if (sessionToken) {
             params.set('sessionToken', sessionToken);
           }
-
-
           router.push(`/user/match/scoreboard?${params.toString()}`);
         });
 

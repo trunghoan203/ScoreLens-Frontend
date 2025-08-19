@@ -46,10 +46,9 @@ export interface CreateMatchResponse {
   data: {
     matchId: string;
     matchCode: string;
-    // ... other match data
   };
   creatorGuestToken?: string;
-  hostSessionToken: string; // ← MỚI: Backend trả về hostSessionToken ở root level
+  hostSessionToken: string;
   message?: string;
 }
 
@@ -68,9 +67,8 @@ export interface JoinMatchResponse {
   success: boolean;
   data: {
     matchId: string;
-    // ... other match data
   };
-  userSessionToken: string; // ← MỚI: Backend trả về userSessionToken ở root level
+  userSessionToken: string;
   role?: 'host' | 'participant';
   message?: string;
 }
@@ -90,13 +88,13 @@ export interface UpdateScoreRequest {
   score: number;
   actorGuestToken?: string;
   actorMembershipId?: string;
-  sessionToken: string; // ← MỚI: Cần thiết cho role-based authorization
+  sessionToken: string;
 }
 
 export interface UpdateTeamMembersRequest {
   actorGuestToken?: string;
   actorMembershipId?: string;
-  sessionToken: string; // ← MỚI: Cần thiết cho role-based authorization
+  sessionToken: string;
   members: Array<{
     guestName?: string;
     phoneNumber?: string;
@@ -109,16 +107,8 @@ export interface UpdateTeamMembersRequestV2 {
   teams: Array<Array<{ 
     guestName?: string; 
     phoneNumber?: string;
-    // ← BE không cần các flags này, đã có ULTIMATE PROTECTION tự động
-    // isHost?: boolean;
-    // preserveToken?: boolean;
   }>>;
-  sessionToken: string; // ← Bắt buộc để BE validate quyền
-  // ← BE không cần các field này
-  // actorGuestToken?: string;
-  // actorMembershipId?: string;
-  // preserveExistingTokens?: boolean;
-  // currentSessionToken?: string;
+  sessionToken: string;
 }
 
 export interface TeamMembersProps {
@@ -130,16 +120,15 @@ export interface TeamMembersProps {
   actorGuestToken: string | null;
   actorMembershipId: string | null;
   clubId: string | null;
-  sessionToken?: string | null; // ← MỚI: Thêm sessionToken cho role-based authorization
+  sessionToken?: string | null;
 }
 
 export interface StartOrEndMatchRequest {
   actorGuestToken?: string;
   actorMembershipId?: string;
-  sessionToken: string; // ← Bắt buộc cho BE validation
+  sessionToken: string;
 }
 
-// ← MỚI: Interface cho match member với role
 export interface MatchMember {
   membershipId?: string;
   membershipName?: string;
@@ -148,13 +137,12 @@ export interface MatchMember {
   sessionToken: string;
 }
 
-// ← MỚI: Interface cho match response
 export interface MatchResponse {
   matchId: string;
   matchCode: string;
   tableId: string;
   gameType: GameType;
-  status: 'pending' | 'ongoing' | 'completed'; // ← Sửa để khớp với BE
+  status: 'pending' | 'ongoing' | 'completed';
   teams: Array<{
     teamName: string;
     score: number;
@@ -180,7 +168,6 @@ class UserMatchService {
       
 
       
-      // ← MỚI: Xử lý các error code mới cho role-based authorization
       if (responseData.code === 'FORBIDDEN') {
         return new Error('Bạn không có quyền thực hiện thao tác này. Chỉ người tạo trận đấu mới có thể chỉnh sửa.');
       }
@@ -292,19 +279,13 @@ class UserMatchService {
 
   async updateTeamMembersV2(matchId: string, teams: Array<Array<{ guestName?: string; phoneNumber?: string }>>, sessionToken: string, actorGuestToken?: string, actorMembershipId?: string) {
     try {
-      // 🎯 Backend đã có ULTIMATE PROTECTION:
-      // - Chỉ update name, KHÔNG BAO GIỜ động đến token/role
-      // - Host member được bảo vệ tuyệt đối
-      // - Existing members giữ nguyên token và role
-      // - Member mới LUÔN là participant
       
-      // 🚨 QUAN TRỌNG: BE cần sessionToken để validate quyền
       const payload = { 
         teams,
-        sessionToken // ← Bắt buộc để BE validate quyền
+        sessionToken
       };
       
-      // Sử dụng endpoint đúng như BE đã implement
+      
       const res = await axios.put(`/membership/matches/${matchId}/teams`, payload);
       return res.data;
     } catch (error) {
@@ -324,6 +305,20 @@ class UserMatchService {
   async endMatch(matchId: string, payload: StartOrEndMatchRequest) {
     try {
       const res = await axios.put(`/membership/matches/${matchId}/end`, payload);
+      
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(`sl:session:${matchId}`);
+        localStorage.removeItem(`sl:identity:${matchId}`);   
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.includes(`sl:session:${matchId}`) || key.includes(`sl:identity:${matchId}`))) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+      }
+      
       return res.data;
     } catch (error) {
       throw this.handleError(error);
@@ -359,7 +354,7 @@ class UserMatchService {
     }
   }
 
-  // ← MỚI: API để lấy sessionToken cho user cụ thể
+  
   async getSessionToken(matchId: string, payload: { membershipId?: string; guestName?: string }) {
     try {
       const res = await axios.post(`/membership/matches/${matchId}/session-token`, payload);

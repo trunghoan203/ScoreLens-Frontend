@@ -167,14 +167,6 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
           }
         });
       }
-
-      // 🎯 BE đã có ULTIMATE PROTECTION hoàn chỉnh:
-      // - Chỉ update name, KHÔNG BAO GIỜ động đến token/role
-      // - Host member được bảo vệ tuyệt đối tự động
-      // - Existing members giữ nguyên token và role
-      // - Member mới LUÔN là participant
-      // - Không cần flags từ Frontend
-      
       const teams = [
         teamA.filter(name => name.trim() !== '').map(name => {
           const isPhoneNumber = /^\d+$/.test(name.trim());
@@ -193,19 +185,9 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
           }
         })
       ];
-
-      // 🎯 Backend đã có ULTIMATE PROTECTION:
-      // - Chỉ update name, KHÔNG BAO GIỜ động đến token/role
-      // - Host member được bảo vệ tuyệt đối
-      // - Existing members giữ nguyên token và role
-      // - Member mới LUÔN là participant
       await userMatchService.updateTeamMembersV2(matchId, teams, sessionToken, actorGuestToken || undefined, actorMembershipId || undefined);
 
       toast.success('Cập nhật thành viên thành công!');
-
-      // ← MỚI: BE trả về hostSessionToken để confirm host vẫn giữ token
-      // Có thể sử dụng để verify rằng host không bị mất quyền
-
       setTimeout(() => {
         onSave(teamA, teamB);
         onClose();
@@ -222,9 +204,6 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
         <h2 className="text-xl font-bold text-[#000000] mb-6 text-center">
           Chỉnh sửa thành viên
         </h2>
-
-
-
         <div className="space-y-6 mb-6">
           <div className="text-center mb-4">
             <p className="text-sm text-gray-600">
@@ -242,7 +221,6 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
                   placeholder={idx === 0 ? "Tên chủ phòng" : "Số điện thoại hoặc tên khách"}
                   className="w-full"
                 />
-                <span className="text-sm text-gray-600 whitespace-nowrap">Người chơi {idx + 1}</span>
                 {idx === 0 ? (
                   <Button
                     size="icon"
@@ -290,7 +268,6 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
                   placeholder={idx === 0 ? "Tên chủ phòng" : "Số điện thoại hoặc tên khách"}
                   className="w-full"
                 />
-                <span className="text-sm text-gray-600 whitespace-nowrap">Người chơi {idx + 1}</span>
                 {idx === 0 ? (
                   <Button
                     size="icon"

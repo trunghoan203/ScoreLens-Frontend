@@ -141,7 +141,6 @@ function ScoreboardPage() {
         tableId?: string;
       };
       if (matchInfo && matchInfo.matchId === matchId) {
-        toast.success('Trận đấu đã kết thúc!');
         const params = new URLSearchParams();
         if (matchInfo.matchId) params.set('matchId', matchInfo.matchId);
         if (matchInfo.tableName) params.set('tableName', matchInfo.tableName);
@@ -152,6 +151,7 @@ function ScoreboardPage() {
         if (matchInfo.teamB) params.set('teamB', matchInfo.teamB.join(','));
         if (matchInfo.tableId) params.set('tableId', matchInfo.tableId);
 
+        if (elapsedTime) params.set('elapsedTime', elapsedTime);
         router.push(`/user/match/end?${params.toString()}`);
       }
     }
@@ -218,7 +218,6 @@ function ScoreboardPage() {
         } else {
         }
       } catch (error) {
-        toast.error('Lỗi xác thực tham gia trận đấu');
       }
     };
 
@@ -532,7 +531,6 @@ function ScoreboardPage() {
 
             if (newSessionToken !== sessionToken) {
               setSessionToken(newSessionToken);
-              toast.success('Đã cập nhật phiên làm việc mới!');
             } else {
               toast.success('Phiên làm việc đã đồng bộ');
             }
@@ -602,21 +600,10 @@ function ScoreboardPage() {
                   </div>
                 </div>
               </div>
-
-
-
               <div className="flex items-center justify-between gap-4">
                 <div className="text-center flex flex-col items-center w-20 flex-shrink-0">
-                  <p className="text-sm font-semibold">Đội A</p>
-                  <div className="w-10 h-10 mt-1 flex items-center justify-center">
-                    <Image
-                      src="/images/numberBalls/ball_8.png"
-                      alt="Team A Ball"
-                      width={40}
-                      height={40}
-                      className="object-contain"
-                    />
-                  </div>
+                  <div className="text-4xl font-bold mb-2">{updating ? '...' : scoreA}</div>
+                  <p className="text-sm font-semibold">Team A</p>
                   <div className="min-h-[60px] mt-1 text-center space-y-1">
                     {teamA.length > 0 ? (
                       teamA.map((member, index) => (
@@ -628,11 +615,9 @@ function ScoreboardPage() {
                   </div>
                 </div>
 
-                <div className="text-center flex flex-col items-center mt-10 flex-shrink-0">
-                  <div className="min-h-[40px] flex items-center justify-center">
-                    <div className="text-3xl font-bold">{updating ? '...' : `${scoreA} : ${scoreB}`}</div>
-                  </div>
-                  <div className="min-h-[30px] flex items-center justify-center mt-2">
+                <div className="text-center flex flex-col items-center flex-shrink-0">
+                  <div className="text-2xl font-bold mb-2">VS</div>
+                  <div className="min-h-[30px] flex items-center justify-center">
                     {matchStartTime ? (
                       <div className="text-[#FFFFFF] font-bold text-[#8ADB10]">{elapsedTime}</div>
                     ) : (
@@ -642,16 +627,8 @@ function ScoreboardPage() {
                 </div>
 
                 <div className="text-center flex flex-col items-center w-20 flex-shrink-0">
-                  <p className="text-sm font-semibold">Đội B</p>
-                  <div className="w-10 h-10 mt-1 flex items-center justify-center">
-                    <Image
-                      src="/images/numberBalls/ball_8.png"
-                      alt="Team B Ball"
-                      width={40}
-                      height={40}
-                      className="object-contain"
-                    />
-                  </div>
+                  <div className="text-4xl font-bold mb-2">{updating ? '...' : scoreB}</div>
+                  <p className="text-sm font-semibold">Team B</p>
                   <div className="min-h-[60px] mt-1 text-center space-y-1">
                     {teamB.length > 0 ? (
                       teamB.map((member, index) => (
@@ -664,8 +641,6 @@ function ScoreboardPage() {
                 </div>
               </div>
             </div>
-
-            {/* Quick Actions - giảm margin top để giao diện compact */}
             <div className="text-left w-full space-y-4 mt-2">
 
               {matchInfo?.isAiAssisted && (
@@ -826,11 +801,7 @@ function ScoreboardPage() {
               </div>
             </div>
           </main>
-
-          {/* Thêm khoảng cách vừa phải để tránh footer che content */}
           <div className="h-20"></div>
-
-
           <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200 p-4 z-50">
             <div className="flex flex-row gap-4 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
               <Button
@@ -980,9 +951,6 @@ function ScoreboardPage() {
                   }
 
                   await userMatchService.endMatch(matchId, endMatchPayload);
-
-                  toast.success('Trận đấu đã kết thúc!');
-
                   const params = new URLSearchParams();
                   if (matchId) params.set('matchId', matchId);
                   if (tableInfo?.name) params.set('tableName', tableInfo.name);

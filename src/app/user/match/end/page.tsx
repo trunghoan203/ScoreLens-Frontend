@@ -11,7 +11,6 @@ import { useWebSocket } from '@/lib/hooks/useWebSocket';
 import toast from 'react-hot-toast';
 import Feedback from '@/components/user/Feedback';
 import Image from 'next/image';
-import RoleBadge from '@/components/ui/RoleBadge';
 
 function EndMatchPageContent() {
   const router = useRouter();
@@ -99,7 +98,6 @@ function EndMatchPageContent() {
   });
 
   useEffect(() => {
-    // Cập nhật elapsedTime từ URL nếu có
     if (elapsedTimeFromURL) {
       setElapsedTime(elapsedTimeFromURL);
     }
@@ -153,6 +151,22 @@ function EndMatchPageContent() {
               console.error('Error loading table info');
             }
           }
+
+          // Fallback: nếu không có elapsedTime từ URL, tính từ startTime/endTime của BE
+          if (!elapsedTimeFromURL) {
+            const startedAt = matchInfoData?.startTime ? new Date(matchInfoData.startTime) : null;
+            const endedAt = matchInfoData?.endTime ? new Date(matchInfoData.endTime) : new Date();
+            if (startedAt) {
+              const ms = Math.max(0, endedAt.getTime() - startedAt.getTime());
+              const hours = Math.floor(ms / 3600000);
+              const minutes = Math.floor((ms % 3600000) / 60000);
+              const seconds = Math.floor((ms % 60000) / 1000);
+              const timeString = `${hours.toString().padStart(2, '0')}:${minutes
+                .toString()
+                .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+              setElapsedTime(timeString);
+            }
+          }
         } catch {
           console.error('Error loading match data');
         }
@@ -168,10 +182,14 @@ function EndMatchPageContent() {
     setShowFeedback(true);
   };
 
-  const handleFeedbackSuccess = () => {
-    setShowFeedback(false);
-    toast.success('Cảm ơn bạn đã đánh giá!');
-  };
+     const handleFeedbackSuccess = () => {
+     setShowFeedback(false);
+     toast.success('Cảm ơn bạn đã đánh giá!');
+     
+     setTimeout(() => {
+       router.push('/');
+     }, 1000);
+   };
 
   if (loading) return <ScoreLensLoading text="Đang tải..." />;
 
@@ -214,16 +232,8 @@ function EndMatchPageContent() {
 
               <div className="flex items-center justify-between gap-4">
                 <div className="text-center flex flex-col items-center w-20 flex-shrink-0">
-                  <p className="text-sm font-semibold">Đội A</p>
-                  <div className="w-10 h-10 mt-1 flex items-center justify-center">
-                    <Image
-                      src="/images/numberBalls/ball_8.png"
-                      alt="Team A Ball"
-                      width={40}
-                      height={40}
-                      className="object-contain"
-                    />
-                  </div>
+                  <div className="text-4xl font-bold mb-2">{actualScoreA}</div>
+                  <p className="text-sm font-semibold">Team A</p>
                   <div className="min-h-[60px] mt-1 text-center space-y-1">
                     {actualTeamA.length > 0 ? (
                       actualTeamA.map((member, index) => (
@@ -235,26 +245,16 @@ function EndMatchPageContent() {
                   </div>
                 </div>
 
-                <div className="text-center flex flex-col items-center mt-10 flex-shrink-0">
-                  <div className="min-h-[40px] flex items-center justify-center">
-                    <div className="text-3xl font-bold">{actualScoreA} : {actualScoreB}</div>
-                  </div>
-                  <div className="min-h-[30px] flex items-center justify-center mt-2">
+                <div className="text-center flex flex-col items-center flex-shrink-0">
+                  <div className="text-2xl font-bold mb-2">VS</div>
+                  <div className="min-h-[30px] flex items-center justify-center">
                     <div className="text-[#FFFFFF] font-bold text-[#8ADB10]">{elapsedTime}</div>
                   </div>
                 </div>
 
                 <div className="text-center flex flex-col items-center w-20 flex-shrink-0">
-                  <p className="text-sm font-semibold">Đội B</p>
-                  <div className="w-10 h-10 mt-1 flex items-center justify-center">
-                    <Image
-                      src="/images/numberBalls/ball_8.png"
-                      alt="Team B Ball"
-                      width={40}
-                      height={40}
-                      className="object-contain"
-                    />
-                  </div>
+                  <div className="text-4xl font-bold mb-2">{actualScoreB}</div>
+                  <p className="text-sm font-semibold">Team B</p>
                   <div className="min-h-[60px] mt-1 text-center space-y-1">
                     {actualTeamB.length > 0 ? (
                       actualTeamB.map((member, index) => (
@@ -270,7 +270,7 @@ function EndMatchPageContent() {
           </div>
         </div>
 
-        <div className="flex justify-center mt-8">
+        <div className="flex justify-center">
           <div className="w-full max-w-md">
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <div className="flex items-center justify-between mb-4">
@@ -314,7 +314,7 @@ function EndMatchPageContent() {
           </div>
         </div>
 
-        <div className="text-center py-6">
+        <div className="text-center py-6 mb-20">
           <p className="text-[#000000] text-base sm:text-lg font-medium leading-relaxed">
             Cảm ơn bạn đã sử dụng <br />
             <span className="font-bold text-xl text-[#8ADB10]">ScoreLens!</span>
@@ -325,21 +325,16 @@ function EndMatchPageContent() {
       <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200 p-4 z-50">
         <div className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
           <div className="flex gap-3">
-            <Button
-              onClick={() => {
-                const params = new URLSearchParams();
-                if (tableId) params.set('tableId', tableId);
-                if (actualTableName) params.set('table', actualTableName);
-                if (sessionToken) params.set('sessionToken', sessionToken);
-                
-                router.push(`/user/match/create?${params.toString()}`);
-              }}
-              variant="outline"
-              style={{ backgroundColor: '#FF0000' }}
-              className="flex-1 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center hover:opacity-90"
-            >
-              Thoát
-            </Button>
+                         <Button
+               onClick={() => {
+                 router.push('/');
+               }}
+               variant="outline"
+               style={{ backgroundColor: '#FF0000' }}
+               className="flex-1 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center hover:opacity-90"
+             >
+               Thoát
+             </Button>
             <Button
               onClick={handleRate}
               style={{ backgroundColor: '#8ADB10' }}
