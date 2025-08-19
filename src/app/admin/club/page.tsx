@@ -172,7 +172,12 @@ export default function ClubInfoPage() {
                 </div>
               </div>
 
-              <div className="w-full max-w-6xl mt-6 space-y-4">
+              {isEditing && (
+                <div className="w-full max-w-6xl -mt-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+                  Bạn đang chỉnh sửa thông tin thương hiệu. Danh sách chi nhánh đang bị khóa.
+                </div>
+              )}
+              <div className={`w-full max-w-6xl mt-6 space-y-4 ${isEditing ? 'opacity-60 pointer-events-none' : ''}`}>
                 {branches.map((branch, idx) => (
                   <div
                     key={idx}
