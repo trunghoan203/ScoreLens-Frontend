@@ -8,6 +8,8 @@ import FooterButton from '@/components/user/FooterButton';
 import Image from 'next/image';
 import { userMatchService } from '@/lib/userMatchService';
 import toast from 'react-hot-toast';
+import RoleBadge from '@/components/ui/RoleBadge';
+import { setIdentity, setSession } from '@/lib/session';
 
 function GuestLoginContent() {
   const [roomCode, setRoomCode] = useState<string[]>(['', '', '', '', '', '']);
@@ -21,6 +23,7 @@ function GuestLoginContent() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
@@ -42,10 +45,12 @@ function GuestLoginContent() {
     const room = searchParams?.get('room');
     const table = searchParams?.get('table');
     const tId = searchParams?.get('tableId');
+    const sessionToken = searchParams?.get('sessionToken');
 
     if (room) setRoomCode(room.slice(0, 6).split(''));
     if (table) setTableNumber(table);
     if (tId) setTableId(tId);
+    if (sessionToken) setSessionToken(sessionToken);
 
     if (!table) setTableNumber('??');
     if (!tId) setTableId('TB-1755160186911');
@@ -102,6 +107,9 @@ function GuestLoginContent() {
         newCode[index] = '';
         setRoomCode(newCode);
       } else if (index > 0) {
+        const newCode = [...roomCode];
+        newCode[index - 1] = '';
+        setRoomCode(newCode);
         inputRefs.current[index - 1]?.focus();
       }
     }
@@ -109,18 +117,26 @@ function GuestLoginContent() {
 
   const handleContinue = async () => {
     const code = roomCode.join('');
-    if (code.length < 6) return;
+    if (code.length !== 6) {
+      toast.error('Vui lòng nhập đủ 6 chữ số!');
+      return;
+    }
 
     try {
-      const matchData = await userMatchService.getMatchByCode(code);
-      const responseData = (matchData as { data?: { matchId?: string } })?.data || matchData;
-      const matchInfo = responseData as { matchId?: string };
+      const matchInfo = await userMatchService.getMatchByCode(code);
+      const responseData = matchInfo as { data?: { matchId?: string; id?: string } };
+      const matchData = responseData?.data || matchInfo;
+      const codeMatchId = matchData as { matchId?: string; id?: string };
 
-      if (matchInfo && matchInfo.matchId) {
+      if (matchInfo && codeMatchId.matchId) {
         const params = new URLSearchParams({ table: tableName || tableNumber || '??' });
         if (code) params.set('room', code);
-        if (matchInfo.matchId) params.set('matchId', matchInfo.matchId);
+        if (codeMatchId.matchId) params.set('matchId', codeMatchId.matchId);
         if (tableId) params.set('tableId', tableId);
+        
+        if (sessionToken) {
+          params.set('sessionToken', sessionToken);
+        }
 
         toast.success('Mã phòng hợp lệ!');
         router.push(`/user/match/join?${params.toString()}`);
@@ -141,7 +157,7 @@ function GuestLoginContent() {
       <main className="flex-1 flex flex-col px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-[#000000]">
-            {(tableInfo?.name || tableName || 'BÀN').toUpperCase()} - {tableInfo?.category ? (tableInfo.category === 'pool-8' ? 'POOL 8' : `- ${tableInfo.category.toUpperCase()}`) : (tableId ? 'Đang tải...' : 'Pool 8 Ball')}
+            {(tableInfo?.name || tableName || 'BÀN').toUpperCase()} - {tableInfo?.category ? (tableInfo.category === 'pool-8' ? 'POOL 8' : ` ${tableInfo.category.toUpperCase()}`) : (tableId ? 'Đang tải...' : 'Pool 8 Ball')}
           </h1>
           <p className="text-base sm:text-lg text-[#000000] font-medium">
             Hãy nhập mã phòng để tiếp tục

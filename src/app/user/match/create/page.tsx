@@ -8,6 +8,8 @@ import FooterButton from '@/components/user/FooterButton';
 import AiSelection from '@/components/user/AiSelection';
 import toast from 'react-hot-toast';
 import { userMatchService } from '@/lib/userMatchService';
+import RoleBadge from '@/components/ui/RoleBadge';
+import { setIdentity, setSession } from '@/lib/session';
 
 function StartSessionContent() {
   const [loading, setLoading] = useState(true);
@@ -24,6 +26,7 @@ function StartSessionContent() {
   const [tableId, setTableId] = useState<string | null>(null);
   const [tableName, setTableName] = useState<string | null>(null);
   const [tableCategory, setTableCategory] = useState<string | null>(null);
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
 
   const [tableInfo, setTableInfo] = useState<{
     name?: string;
@@ -49,8 +52,10 @@ function StartSessionContent() {
   useEffect(() => {
     const table = searchParams!.get('table');
     const tId = searchParams!.get('tableId');
+    const sessionToken = searchParams!.get('sessionToken');
     if (table) setTableName(table);
     if (tId) setTableId(tId);
+    if (sessionToken) setSessionToken(sessionToken);
 
     if (!table) setTableName('??');
     if (!tId) setTableId('TB-1755160186911');
@@ -63,6 +68,7 @@ function StartSessionContent() {
       const idFromUrl = searchParams.get('tableId');
       const nameFromUrl = searchParams.get('tableName');
       const categoryFromUrl = searchParams.get('category');
+      const sessionToken = searchParams.get('sessionToken');
 
       if (!idFromUrl) {
         console.error('Không tìm thấy tableId trên URL.');
@@ -79,6 +85,10 @@ function StartSessionContent() {
 
       if (categoryFromUrl) {
         setTableCategory(categoryFromUrl);
+      }
+
+      if (sessionToken) {
+        setSessionToken(sessionToken);
       }
 
       try {
@@ -100,19 +110,9 @@ function StartSessionContent() {
             setTableCategory('pool-8');
           }
         }
-      } catch (error) {
-        console.error('Xác thực bàn thất bại:', error);
-
-        if (!tableName) {
-          setTableName('Bàn chơi');
-        }
-        if (!tableCategory) {
-          setTableCategory('pool-8');
-        }
-
-        const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Không thể xác thực bàn. Vui lòng thử lại.';
-        toast.error(message);
-
+      } catch (e) {
+        console.error('Error verifying table:', e);
+        toast.error('Không thể xác thực bàn. Vui lòng thử lại.');
       } finally {
         setLoading(false);
       }
@@ -124,7 +124,17 @@ function StartSessionContent() {
 
   const handleJoin = () => {
     const safeName = fullName.trim() || 'Khách';
-    router.push(`/user/match/entry?table=${tableName}&tableId=${tableId}&name=${encodeURIComponent(safeName)}`);
+    const params = new URLSearchParams({
+      table: tableName || 'Bàn chơi',
+      tableId: tableId || '',
+      name: encodeURIComponent(safeName)
+    });
+
+    if (sessionToken) {
+      params.set('sessionToken', sessionToken);
+    }
+
+    router.push(`/user/match/entry?${params.toString()}`);
   };
 
   const handleCreateMatchClick = () => {
@@ -161,11 +171,39 @@ function StartSessionContent() {
         ],
       };
 
-      const data = (await userMatchService.createMatch(payload)) as { data?: { matchId?: string; id?: string; matchCode?: string; code?: string } };
-      const responseData = data?.data || data;
-      const matchData = responseData as { matchId?: string; id?: string; matchCode?: string; code?: string };
-      let matchId = (matchData?.matchId || matchData?.id || '') as string;
-      const code = (matchData?.matchCode || matchData?.code || '') as string;
+      const response = await userMatchService.createMatch(payload);
+
+      const responseData = response as any;
+
+      let matchId = '';
+      let code = '';
+      let newSessionToken = '';
+
+      if (responseData?.success && responseData?.data) {
+        matchId = responseData.data.matchId || responseData.data.id || '';
+        code = responseData.data.matchCode || responseData.data.code || '';
+
+        newSessionToken = responseData.hostSessionToken || '';
+
+        if (matchId && newSessionToken) {
+          setIdentity(matchId, {
+            membershipId: verifiedMembershipId || undefined,
+            guestName: verifiedMembershipId ? undefined : fullName.trim(),
+            fullName: fullName.trim(),
+            actorGuestToken: responseData.creatorGuestToken || undefined
+          });
+
+          setSession(matchId, {
+            sessionToken: newSessionToken,
+            role: 'host'
+          });
+
+        }
+      }
+
+      if (!newSessionToken) {
+        newSessionToken = `ST-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      }
 
       if (!matchId && code) {
         try {
@@ -187,6 +225,10 @@ function StartSessionContent() {
       if (code) params.set('code', String(code));
       if (fullName.trim()) params.set('name', fullName.trim());
       if (tableCategory) params.set('category', tableCategory);
+
+      if (newSessionToken) {
+        params.set('sessionToken', newSessionToken);
+      }
 
       router.push(`/user/match/lobby?${params.toString()}`);
     } catch (e) {

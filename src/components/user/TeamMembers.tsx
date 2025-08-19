@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import toast from 'react-hot-toast';
 import { userMatchService, TeamMembersProps } from '@/lib/userMatchService';
 
-export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeamB, matchId, actorGuestToken, actorMembershipId, clubId }: TeamMembersProps) {
+export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeamB, matchId, actorGuestToken, actorMembershipId, clubId, sessionToken }: TeamMembersProps) {
   const [teamA, setTeamA] = useState<string[]>(initialTeamA && initialTeamA.length > 0 ? initialTeamA : ['']);
   const [teamB, setTeamB] = useState<string[]>(initialTeamB && initialTeamB.length > 0 ? initialTeamB : ['']);
 
@@ -51,6 +51,11 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
 
     if (!actorGuestToken && !actorMembershipId) {
       toast.error('Không có quyền chỉnh sửa thành viên');
+      return;
+    }
+
+    if (!sessionToken || sessionToken.trim() === '') {
+      toast.error('SessionToken không hợp lệ');
       return;
     }
 
@@ -113,13 +118,19 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
                 });
               }
 
-            } catch {
+            } catch (error) {
               guestUpdates.push({
                 teamIndex,
                 memberIndex,
                 guestName: memberName.trim()
               });
             }
+          } else {
+            guestUpdates.push({
+              teamIndex,
+              memberIndex,
+              guestName: memberName.trim()
+            });
           }
         }
       }
@@ -157,6 +168,13 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
         });
       }
 
+      // 🎯 BE đã có ULTIMATE PROTECTION hoàn chỉnh:
+      // - Chỉ update name, KHÔNG BAO GIỜ động đến token/role
+      // - Host member được bảo vệ tuyệt đối tự động
+      // - Existing members giữ nguyên token và role
+      // - Member mới LUÔN là participant
+      // - Không cần flags từ Frontend
+      
       const teams = [
         teamA.filter(name => name.trim() !== '').map(name => {
           const isPhoneNumber = /^\d+$/.test(name.trim());
@@ -176,9 +194,17 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
         })
       ];
 
-      await userMatchService.updateTeamMembersV2(matchId, teams, actorGuestToken || undefined, actorMembershipId || undefined);
+      // 🎯 Backend đã có ULTIMATE PROTECTION:
+      // - Chỉ update name, KHÔNG BAO GIỜ động đến token/role
+      // - Host member được bảo vệ tuyệt đối
+      // - Existing members giữ nguyên token và role
+      // - Member mới LUÔN là participant
+      await userMatchService.updateTeamMembersV2(matchId, teams, sessionToken, actorGuestToken || undefined, actorMembershipId || undefined);
 
       toast.success('Cập nhật thành viên thành công!');
+
+      // ← MỚI: BE trả về hostSessionToken để confirm host vẫn giữ token
+      // Có thể sử dụng để verify rằng host không bị mất quyền
 
       setTimeout(() => {
         onSave(teamA, teamB);
@@ -196,6 +222,8 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
         <h2 className="text-xl font-bold text-[#000000] mb-6 text-center">
           Chỉnh sửa thành viên
         </h2>
+
+
 
         <div className="space-y-6 mb-6">
           <div className="text-center mb-4">
