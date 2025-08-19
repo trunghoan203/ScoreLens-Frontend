@@ -172,7 +172,12 @@ export default function ClubInfoPage() {
                 </div>
               </div>
 
-              <div className="w-full max-w-6xl mt-6 space-y-4">
+              {isEditing && (
+                <div className="w-full max-w-6xl -mt-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+                  Bạn đang chỉnh sửa thông tin thương hiệu. Danh sách chi nhánh đang bị ẩn.
+                </div>
+              )}
+              <div className={`w-full max-w-6xl mt-6 space-y-4`}>
                 {branches.map((branch, idx) => (
                   <div
                     key={idx}
@@ -184,15 +189,15 @@ export default function ClubInfoPage() {
                     <div className="grid grid-cols-12 gap-4">
                       <div className="col-span-5">
                         <label className="block text-xs font-medium text-gray-500 mb-1">Tên chi nhánh <span className="text-red-500">*</span></label>
-                        <Input value={branch.name} disabled />
+                        <Input value={branch.name} disabled className="disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200 disabled:cursor-not-allowed disabled:hover:border-gray-200" />
                       </div>
                       <div className="col-span-5">
                         <label className="block text-xs font-medium text-gray-500 mb-1">Địa chỉ <span className="text-red-500">*</span></label>
-                        <Input value={branch.address} disabled />
+                        <Input value={branch.address} disabled className="disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200 disabled:cursor-not-allowed disabled:hover:border-gray-200" />
                       </div>
                       <div className="col-span-2">
                         <label className="block text-xs font-medium text-gray-500 mb-1">Số bàn hiện có <span className="text-red-500">*</span></label>
-                        <Input value={branch.tableCount} disabled />
+                        <Input value={branch.tableCount} disabled className="disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200 disabled:cursor-not-allowed disabled:hover:border-gray-200" />
                       </div>
                     </div>
                   </div>
