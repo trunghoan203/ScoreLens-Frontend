@@ -9,6 +9,7 @@ import AiSelection from '@/components/user/AiSelection';
 import toast from 'react-hot-toast';
 import { userMatchService } from '@/lib/userMatchService';
 import RoleBadge from '@/components/ui/RoleBadge';
+import { setIdentity, setSession } from '@/lib/session';
 
 function StartSessionContent() {
   const [loading, setLoading] = useState(true);
@@ -25,7 +26,7 @@ function StartSessionContent() {
   const [tableId, setTableId] = useState<string | null>(null);
   const [tableName, setTableName] = useState<string | null>(null);
   const [tableCategory, setTableCategory] = useState<string | null>(null);
-  const [sessionToken, setSessionToken] = useState<string | null>(null); // ← MỚI: SessionToken cho role-based auth
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
 
   const [tableInfo, setTableInfo] = useState<{
     name?: string;
@@ -51,10 +52,10 @@ function StartSessionContent() {
   useEffect(() => {
     const table = searchParams!.get('table');
     const tId = searchParams!.get('tableId');
-    const sessionToken = searchParams!.get('sessionToken'); // ← MỚI: Lấy sessionToken từ URL
+    const sessionToken = searchParams!.get('sessionToken');
     if (table) setTableName(table);
     if (tId) setTableId(tId);
-    if (sessionToken) setSessionToken(sessionToken); // ← MỚI: Lưu sessionToken
+    if (sessionToken) setSessionToken(sessionToken);
 
     if (!table) setTableName('??');
     if (!tId) setTableId('TB-1755160186911');
@@ -67,7 +68,7 @@ function StartSessionContent() {
       const idFromUrl = searchParams.get('tableId');
       const nameFromUrl = searchParams.get('tableName');
       const categoryFromUrl = searchParams.get('category');
-      const sessionToken = searchParams.get('sessionToken'); // ← MỚI: Lấy sessionToken từ URL
+      const sessionToken = searchParams.get('sessionToken');
 
       if (!idFromUrl) {
         console.error('Không tìm thấy tableId trên URL.');
@@ -87,7 +88,7 @@ function StartSessionContent() {
       }
 
       if (sessionToken) {
-        setSessionToken(sessionToken); // ← MỚI: Lưu sessionToken
+        setSessionToken(sessionToken);
       }
 
       try {
@@ -128,12 +129,11 @@ function StartSessionContent() {
       tableId: tableId || '',
       name: encodeURIComponent(safeName)
     });
-    
-    // ← MỚI: Thêm sessionToken vào URL nếu có
+
     if (sessionToken) {
       params.set('sessionToken', sessionToken);
     }
-    
+
     router.push(`/user/match/entry?${params.toString()}`);
   };
 
@@ -172,26 +172,36 @@ function StartSessionContent() {
       };
 
       const response = await userMatchService.createMatch(payload);
-      
-      // Handle response structure theo Backend code
+
       const responseData = response as any;
-      
-      // Backend trả về: { success: true, data: savedMatch, creatorGuestToken, hostSessionToken }
+
       let matchId = '';
       let code = '';
       let newSessionToken = '';
-      
+
       if (responseData?.success && responseData?.data) {
-        // Lấy matchId và matchCode từ data
         matchId = responseData.data.matchId || responseData.data.id || '';
         code = responseData.data.matchCode || responseData.data.code || '';
-        
-        // Lấy hostSessionToken từ root level (không phải trong data)
+
         newSessionToken = responseData.hostSessionToken || '';
+
+        if (matchId && newSessionToken) {
+          setIdentity(matchId, {
+            membershipId: verifiedMembershipId || undefined,
+            guestName: verifiedMembershipId ? undefined : fullName.trim(),
+            fullName: fullName.trim(),
+            actorGuestToken: responseData.creatorGuestToken || undefined
+          });
+
+          setSession(matchId, {
+            sessionToken: newSessionToken,
+            role: 'host'
+          });
+
+        }
       }
-      
+
       if (!newSessionToken) {
-        // Fallback: tạo sessionToken local nếu BE chưa trả về
         newSessionToken = `ST-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       }
 
@@ -215,8 +225,7 @@ function StartSessionContent() {
       if (code) params.set('code', String(code));
       if (fullName.trim()) params.set('name', fullName.trim());
       if (tableCategory) params.set('category', tableCategory);
-      
-      // ← MỚI: Thêm sessionToken vào URL
+
       if (newSessionToken) {
         params.set('sessionToken', newSessionToken);
       }

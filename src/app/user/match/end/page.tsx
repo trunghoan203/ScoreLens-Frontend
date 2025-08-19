@@ -26,7 +26,8 @@ function EndMatchPageContent() {
   const teamA = searchParams?.get('teamA')?.split(',').filter(name => name.trim()) || [];
   const teamB = searchParams?.get('teamB')?.split(',').filter(name => name.trim()) || [];
   const tableId = searchParams?.get('tableId') || '';
-  const sessionToken = searchParams?.get('sessionToken') || ''; // ← MỚI: Lấy sessionToken từ URL
+  const sessionToken = searchParams?.get('sessionToken') || '';
+  const elapsedTimeFromURL = searchParams?.get('elapsedTime') || '';
 
   const [matchInfo, setMatchInfo] = useState<{
     data?: {
@@ -65,7 +66,7 @@ function EndMatchPageContent() {
     category?: string;
     clubId?: string;
   } | null>(null);
-  const [elapsedTime, setElapsedTime] = useState<string>('00:00:00');
+  const [elapsedTime, setElapsedTime] = useState<string>(elapsedTimeFromURL || '00:00:00');
   const [showFeedback, setShowFeedback] = useState(false);
 
   const [actualScoreA, setActualScoreA] = useState<number>(scoreA);
@@ -98,6 +99,11 @@ function EndMatchPageContent() {
   });
 
   useEffect(() => {
+    // Cập nhật elapsedTime từ URL nếu có
+    if (elapsedTimeFromURL) {
+      setElapsedTime(elapsedTimeFromURL);
+    }
+
     const loadMatchData = async () => {
       if (matchId) {
         try {
@@ -180,7 +186,6 @@ function EndMatchPageContent() {
           </h1>
           <p className="text-sm sm:text-base text-[#000000] font-medium">TRẬN ĐẤU ĐÃ KẾT THÚC</p>
           
-          {/* ← MỚI: Hiển thị sessionToken nếu có */}
           {sessionToken && (
             <div className="mt-2">
               <span className="text-xs text-gray-500">Session: {sessionToken.substring(0, 8)}...</span>
@@ -322,7 +327,6 @@ function EndMatchPageContent() {
           <div className="flex gap-3">
             <Button
               onClick={() => {
-                // ← MỚI: Thêm sessionToken vào URL khi quay lại create
                 const params = new URLSearchParams();
                 if (tableId) params.set('tableId', tableId);
                 if (actualTableName) params.set('table', actualTableName);

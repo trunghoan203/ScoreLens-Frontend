@@ -30,7 +30,7 @@ export default function SessionTokenSync({
 
     setSyncing(true);
     try {
-      console.log('🔄 SessionTokenSync: Starting sync...', { matchId, currentSessionToken });
+  
 
       // Xác định payload cho session token API
       let sessionTokenPayload: { membershipId?: string; guestName?: string } = {};
@@ -38,7 +38,7 @@ export default function SessionTokenSync({
       // Nếu có membershipId thì dùng membershipId
       if (matchInfo?.createdByMembershipId) {
         sessionTokenPayload.membershipId = matchInfo.createdByMembershipId;
-        console.log('🔄 SessionTokenSync: Using membershipId', { membershipId: matchInfo.createdByMembershipId });
+
       } 
       // Nếu không có membershipId thì dùng guestName từ actorGuestToken
       else if (actorGuestToken) {
@@ -50,7 +50,7 @@ export default function SessionTokenSync({
         );
         if (currentMember?.guestName) {
           sessionTokenPayload.guestName = currentMember.guestName;
-          console.log('🔄 SessionTokenSync: Using guestName', { guestName: currentMember.guestName });
+
         }
       }
 
@@ -59,11 +59,11 @@ export default function SessionTokenSync({
         return;
       }
 
-      console.log('🔄 SessionTokenSync: Calling getSessionToken API', { payload: sessionTokenPayload });
+      
       
       // Gọi API để lấy sessionToken mới nhất
       const sessionResponse = await userMatchService.getSessionToken(matchId, sessionTokenPayload);
-      console.log('🔄 SessionTokenSync: API response', { sessionResponse });
+      
       
       const responseData = sessionResponse as any;
       setLastSyncResult(responseData);
@@ -73,29 +73,23 @@ export default function SessionTokenSync({
         
         // So sánh token cũ vs mới
         if (newSessionToken !== currentSessionToken) {
-          console.log('🔄 SessionTokenSync: Token mismatch detected!', {
-            oldToken: currentSessionToken || 'null',
-            newToken: newSessionToken,
-            oldTimestamp: currentSessionToken ? currentSessionToken.split('-')[1] : 'null',
-            newTimestamp: newSessionToken.split('-')[1],
-            payload: sessionTokenPayload
-          });
+
           
           // Cập nhật token mới
           onTokenUpdate(newSessionToken);
-          console.log('✅ SessionTokenSync: SessionToken updated successfully!');
+
           toast.success('Đã cập nhật phiên làm việc mới!');
         } else {
-          console.log('✅ SessionTokenSync: Token already in sync');
+
           toast.success('Phiên làm việc đã đồng bộ');
         }
       } else {
-        console.log('❌ SessionTokenSync: No sessionToken in response', { responseData });
+
         toast.error('Không thể lấy phiên làm việc mới');
       }
       
     } catch (error) {
-      console.log('❌ SessionTokenSync: Failed to sync sessionToken', { error });
+
       toast.error('Không thể đồng bộ phiên làm việc');
     } finally {
       setSyncing(false);
