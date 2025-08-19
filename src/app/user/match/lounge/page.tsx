@@ -8,7 +8,6 @@ import FooterButton from '@/components/user/FooterButton';
 import { userMatchService } from '@/lib/userMatchService';
 import { toast } from 'react-hot-toast';
 import { io, Socket } from 'socket.io-client';
-import { config } from '@/lib/config';
 import RoleBadge from '@/components/ui/RoleBadge';
 
 function GuestJoinContent() {
@@ -21,7 +20,7 @@ function GuestJoinContent() {
   const guestName = searchParams!.get('name') || searchParams!.get('guestName') || '';
   const membershipId = searchParams!.get('membershipId') || '';
   const membershipName = searchParams!.get('membershipName') || '';
-  const sessionToken = searchParams!.get('sessionToken') || ''; // ← MỚI: Lấy sessionToken từ URL
+  const sessionToken = searchParams!.get('sessionToken') || '';
 
   const [roomCode, setRoomCode] = useState(existingCode);
   const [loading, setLoading] = useState(true);
@@ -61,7 +60,7 @@ function GuestJoinContent() {
       if (isConnecting || socketRef.current?.connected) return;
 
       isConnecting = true;
-      const socketUrl = config.socketUrl;
+      const socketUrl = 'http://localhost:8000';
 
       try {
         const socket = io(socketUrl, {
@@ -116,28 +115,27 @@ function GuestJoinContent() {
 
         socket.on('match_updated', (data) => {
 
-          
-          // ← MỚI: Kiểm tra nếu match status thay đổi thành 'ongoing' thì navigate
+
           if (data.status === 'ongoing') {
 
             toast.success('Trận đấu đã bắt đầu!');
-            
+
             const params = new URLSearchParams({
               table: tableNumber,
               room: roomCode,
               matchId: matchId,
               tableId: tableId
             });
-            
+
             if (sessionToken) {
               params.set('sessionToken', sessionToken);
             }
-            
+
 
             router.push(`/user/match/scoreboard?${params.toString()}`);
             return;
           }
-          
+
           if (data.teams && Array.isArray(data.teams)) {
             const guests: Array<{ id: string, name: string, team: 'A' | 'B', joinedAt: Date }> = [];
 
@@ -180,19 +178,18 @@ function GuestJoinContent() {
         socket.on('match_started', () => {
 
           toast.success('Trận đấu đã bắt đầu!');
-          
-          // ← MỚI: Thêm sessionToken vào URL khi chuyển đến scoreboard
+
           const params = new URLSearchParams({
             table: tableNumber,
             room: roomCode,
             matchId: matchId,
             tableId: tableId
           });
-          
+
           if (sessionToken) {
             params.set('sessionToken', sessionToken);
           }
-          
+
 
           router.push(`/user/match/scoreboard?${params.toString()}`);
         });
@@ -231,15 +228,14 @@ function GuestJoinContent() {
           const responseData = (tableData as { data?: { name?: string; category?: string; clubId?: string } })?.data || tableData;
           const tableInfoData = responseData as { name?: string; category?: string; clubId?: string };
           setTableInfo(tableInfoData);
-                 } catch {
-           
-         }
+        } catch {
+
+        }
       };
       loadTableInfo();
     }
   }, [tableId]);
 
-  // Load match data và team members khi có matchId
   useEffect(() => {
     const loadMatchData = async () => {
       if (!matchId) return;
@@ -250,7 +246,6 @@ function GuestJoinContent() {
         const matchInfoData = responseData as { teams?: Array<{ members?: Array<{ guestName?: string; membershipName?: string; fullName?: string }> }> };
 
         if (matchInfoData?.teams) {
-          // Load team A members
           if (matchInfoData.teams[0]?.members) {
             const teamAMembers = matchInfoData.teams[0].members.map((member: { guestName?: string; membershipName?: string; fullName?: string }) =>
               member.guestName || member.membershipName || member.fullName || ''
@@ -258,7 +253,6 @@ function GuestJoinContent() {
             setTeamA(teamAMembers.length > 0 ? teamAMembers : ['']);
           }
 
-          // Load team B members
           if (matchInfoData.teams[1]?.members) {
             const teamBMembers = matchInfoData.teams[1].members.map((member: { guestName?: string; membershipName?: string; fullName?: string }) =>
               member.guestName || member.membershipName || member.fullName || ''
@@ -266,16 +260,13 @@ function GuestJoinContent() {
             setTeamB(teamBMembers.length > 0 ? teamBMembers : ['']);
           }
         }
-             } catch (error) {
-         
-        // Fallback: sử dụng thông tin từ URL nếu có
+      } catch (error) {
+
         if (guestName) {
           setTeamA([guestName]);
         }
-        
-        // Fallback: sử dụng thông tin từ URL parameters
+
         if (membershipName && membershipName !== guestName) {
-          // Nếu có cả guestName và membershipName, thêm vào team
           const currentTeamA = teamA.filter(name => name !== '');
           if (currentTeamA.length === 0 || !currentTeamA.includes(membershipName)) {
             setTeamA([...currentTeamA, membershipName].filter(name => name !== ''));
@@ -301,9 +292,9 @@ function GuestJoinContent() {
             url.searchParams.set('tableId', tableIdFromMatch);
             window.history.replaceState({}, '', url.toString());
           }
-                 } catch {
-           
-         }
+        } catch {
+
+        }
       };
 
       getTableIdFromMatch();
@@ -334,9 +325,9 @@ function GuestJoinContent() {
               if (codeCandidate) {
                 setRoomCode(String(codeCandidate));
               }
-                         } catch {
-               
-             }
+            } catch {
+
+            }
           }
         } else if (existingCode) {
           setRoomCode(existingCode);
@@ -348,9 +339,9 @@ function GuestJoinContent() {
             if (matchIdFromCode) {
               setMatchId(matchIdFromCode);
             }
-                     } catch {
-             
-           }
+          } catch {
+
+          }
         }
       } finally {
         timer = setTimeout(() => setLoading(false), 800);
@@ -373,18 +364,18 @@ function GuestJoinContent() {
 
       if (roomCode && guestName) {
         try {
-          const leaverInfo = membershipId && membershipName 
+          const leaverInfo = membershipId && membershipName
             ? { membershipId, membershipName }
             : { guestName: guestName };
-            
+
           await userMatchService.leaveMatch({
             matchCode: roomCode,
             leaverInfo
           });
           toast.success('Đã rời khỏi phòng');
-                 } catch {
-           
-         }
+        } catch {
+
+        }
       }
 
       if (socketRef.current && socketRef.current.connected) {
@@ -394,8 +385,6 @@ function GuestJoinContent() {
       const loginParams = new URLSearchParams();
       if (tableId) loginParams.set('tableId', tableId);
       if (tableNumber) loginParams.set('table', tableNumber);
-      
-      // ← MỚI: Thêm sessionToken vào URL khi quay lại create
       if (sessionToken) {
         loginParams.set('sessionToken', sessionToken);
       }
@@ -488,8 +477,8 @@ function GuestJoinContent() {
           onClick={handleLeaveRoom}
           disabled={isLeaving}
           className={`w-full font-semibold py-3 rounded-xl text-base sm:text-base transition ${isLeaving
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-[#FF0000] hover:bg-red-600 text-[#FFFFFF]'
+            ? 'bg-gray-400 cursor-not-allowed'
+            : 'bg-[#FF0000] hover:bg-red-600 text-[#FFFFFF]'
             }`}
         >
           {isLeaving ? 'Đang rời phòng...' : 'Rời phòng'}

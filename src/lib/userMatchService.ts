@@ -106,15 +106,19 @@ export interface UpdateTeamMembersRequest {
 }
 
 export interface UpdateTeamMembersRequestV2 {
-  teams: Array<Array<{
-    guestName?: string;
+  teams: Array<Array<{ 
+    guestName?: string; 
     phoneNumber?: string;
-    membershipId?: string;
-    membershipName?: string;
+    // ← BE không cần các flags này, đã có ULTIMATE PROTECTION tự động
+    // isHost?: boolean;
+    // preserveToken?: boolean;
   }>>;
-  actorGuestToken?: string;
-  actorMembershipId?: string;
-  sessionToken: string; // ← MỚI: Cần thiết cho role-based authorization
+  sessionToken: string; // ← Bắt buộc để BE validate quyền
+  // ← BE không cần các field này
+  // actorGuestToken?: string;
+  // actorMembershipId?: string;
+  // preserveExistingTokens?: boolean;
+  // currentSessionToken?: string;
 }
 
 export interface TeamMembersProps {
@@ -164,7 +168,7 @@ export interface MatchResponse {
 
 class UserMatchService {
   private handleError(error: unknown): Error {
-    console.log('🔍 UserMatchService: Error details', { error });
+    
     
     if (
       typeof error === 'object' &&
@@ -174,10 +178,7 @@ class UserMatchService {
     ) {
       const responseData = (error as { response?: { data?: { message?: string; code?: string } } }).response!.data!;
       
-      console.log('🔍 UserMatchService: Response error', { 
-        code: responseData.code, 
-        message: responseData.message 
-      });
+
       
       // ← MỚI: Xử lý các error code mới cho role-based authorization
       if (responseData.code === 'FORBIDDEN') {
@@ -291,13 +292,19 @@ class UserMatchService {
 
   async updateTeamMembersV2(matchId: string, teams: Array<Array<{ guestName?: string; phoneNumber?: string }>>, sessionToken: string, actorGuestToken?: string, actorMembershipId?: string) {
     try {
-      const payload: UpdateTeamMembersRequestV2 = { 
+      // 🎯 Backend đã có ULTIMATE PROTECTION:
+      // - Chỉ update name, KHÔNG BAO GIỜ động đến token/role
+      // - Host member được bảo vệ tuyệt đối
+      // - Existing members giữ nguyên token và role
+      // - Member mới LUÔN là participant
+      
+      // 🚨 QUAN TRỌNG: BE cần sessionToken để validate quyền
+      const payload = { 
         teams,
-        actorGuestToken,
-        actorMembershipId,
-        sessionToken
+        sessionToken // ← Bắt buộc để BE validate quyền
       };
-      // Sửa endpoint để khớp với BE - sử dụng endpoint updateTeamMembers
+      
+      // Sử dụng endpoint đúng như BE đã implement
       const res = await axios.put(`/membership/matches/${matchId}/teams`, payload);
       return res.data;
     } catch (error) {

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { userMatchService } from '../userMatchService';
 
 export interface MatchRole {
   role: 'host' | 'participant' | 'manager';
@@ -24,6 +25,7 @@ export const useMatchRole = (matchId?: string, existingSocket?: Socket | null): 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [socket, setSocket] = useState<Socket | null>(existingSocket || null);
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   // Kiểm tra quyền
   const isHost = role?.role === 'host';
@@ -31,84 +33,95 @@ export const useMatchRole = (matchId?: string, existingSocket?: Socket | null): 
   const isParticipant = role?.role === 'participant';
   const canEdit = isHost || isManager;
 
-  // Authenticate với match
-  const authenticateMatch = useCallback((matchId: string, sessionToken: string) => {
+  // Authenticate với match - Sửa logic để detect role chính xác và tránh conflict
+  const authenticateMatch = useCallback(async (matchId: string, sessionToken: string) => {
     if (!matchId || !sessionToken) {
       setError('MatchId và SessionToken là bắt buộc');
       return;
     }
 
+    
+
     setIsLoading(true);
     setError(null);
 
     try {
-      // Tạm thời: Tự động set role là 'host' cho creator
-      // Vì BE chưa implement authenticate_match event
-      setTimeout(() => {
-        setRole({
-          role: 'host', // Creator luôn là host
-          sessionToken,
-          matchId
-        });
-        setError(null);
+      // 🎯 Logic mới: Detect role dựa trên sessionToken và match data
+      // Tránh conflict bằng cách so sánh chính xác token
+      
+      // 1. Lấy thông tin match từ Backend
+      const matchData = await userMatchService.getMatchById(matchId);
+      
+      if (!matchData || typeof matchData !== 'object' || !('data' in matchData)) {
+        setError('Không thể lấy thông tin match');
         setIsLoading(false);
-      }, 1000); // Delay 1s để giả lập BE response
-
-      // TODO: Khi BE implement authenticate_match, uncomment code bên dưới
-      /*
-      // Sử dụng existing socket hoặc tạo mới
-      let currentSocket = socket;
-      if (!currentSocket) {
-        const socketUrl = 'http://localhost:8000';
-        currentSocket = io(socketUrl, {
-          transports: ['websocket', 'polling'],
-          autoConnect: true,
-          timeout: 10000
-        });
-        setSocket(currentSocket);
+        return;
       }
 
-      // Lắng nghe kết quả authentication
-      currentSocket.on('auth_result', (authResult: { success: boolean; role?: string; message?: string }) => {
-        console.log('🔐 useMatchRole: auth_result received:', authResult);
-        if (authResult.success && authResult.role) {
-          setRole({
-            role: authResult.role as 'host' | 'participant' | 'manager',
-            sessionToken,
-            matchId
+      const match = matchData.data as any;
+      if (!match || !match.teams || !Array.isArray(match.teams)) {
+        setError('Dữ liệu match không hợp lệ');
+        setIsLoading(false);
+        return;
+      }
+
+      // 🔍 Debug: Log match data để tìm vấn đề
+      
+      
+      // 2. Tìm member có sessionToken này để xác định role
+      // 🚨 QUAN TRỌNG: Không set default role, phải tìm chính xác
+      let userRole: 'host' | 'participant' | 'manager' | null = null;
+      let foundMember = null;
+
+      for (const team of match.teams) {
+        if (team.members && Array.isArray(team.members)) {
+  
+          foundMember = team.members.find((member: any) => {
+            // 🎯 So sánh chính xác token để tránh conflict
+            const tokenMatch = member.sessionToken === sessionToken;
+
+
+            return tokenMatch;
           });
-          setError(null);
-        } else {
-          setError(authResult.message || 'Xác thực thất bại');
-          setRole(null);
+          if (foundMember) {
+            userRole = foundMember.role as 'host' | 'participant' | 'manager';
+
+            break;
+          }
         }
-        setIsLoading(false);
-      });
-
-      // Lắng nghe permission denied
-      currentSocket.on('permission_denied', (permissionData: { message: string }) => {
-        setError(permissionData.message);
-        setIsLoading(false);
-      });
-
-      // Thực hiện authentication
-      if (currentSocket.connected) {
-        console.log('🔐 useMatchRole: Socket already connected, emitting authenticate_match');
-        currentSocket.emit('authenticate_match', { matchId, sessionToken });
-      } else {
-        currentSocket.on('connect', () => {
-          console.log('🔐 useMatchRole: WebSocket connected, emitting authenticate_match');
-          currentSocket.emit('authenticate_match', { matchId, sessionToken });
-        });
-        currentSocket.connect();
       }
-      */
+
+      // 🚨 QUAN TRỌNG: Nếu không tìm thấy member, không set role mặc định
+      if (!foundMember || !userRole) {
+
+        setError('Không tìm thấy thông tin user trong match hoặc role không hợp lệ');
+        setIsLoading(false);
+        return;
+      }
+
+      // 3. Set role chính xác dựa trên Backend data
+
+      
+      setRole({
+        role: userRole,
+        sessionToken,
+        matchId
+      });
+      
+
+      setError(null);
+      setIsLoading(false);
+      
+      // ← Thêm force update để đảm bảo state được apply
+      setForceUpdate(prev => prev + 1);
+
+
 
     } catch (err) {
-      setError('Lỗi kết nối socket');
+      setError('Lỗi xác thực: ' + (err instanceof Error ? err.message : 'Unknown error'));
       setIsLoading(false);
     }
-  }, [socket]);
+  }, []); // ← QUAN TRỌNG: Empty dependency array để tránh infinite re-renders
 
   // Rời khỏi match
   const leaveMatch = useCallback(() => {
@@ -136,6 +149,13 @@ export const useMatchRole = (matchId?: string, existingSocket?: Socket | null): 
       setError(null);
     }
   }, [matchId, role?.matchId]);
+
+  // Force re-render khi cần thiết
+  useEffect(() => {
+    if (forceUpdate > 0) {
+      // Trigger re-render
+    }
+  }, [forceUpdate]);
 
   return {
     role,

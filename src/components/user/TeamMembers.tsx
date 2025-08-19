@@ -118,13 +118,19 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
                 });
               }
 
-            } catch {
+            } catch (error) {
               guestUpdates.push({
                 teamIndex,
                 memberIndex,
                 guestName: memberName.trim()
               });
             }
+          } else {
+            guestUpdates.push({
+              teamIndex,
+              memberIndex,
+              guestName: memberName.trim()
+            });
           }
         }
       }
@@ -162,6 +168,13 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
         });
       }
 
+      // 🎯 BE đã có ULTIMATE PROTECTION hoàn chỉnh:
+      // - Chỉ update name, KHÔNG BAO GIỜ động đến token/role
+      // - Host member được bảo vệ tuyệt đối tự động
+      // - Existing members giữ nguyên token và role
+      // - Member mới LUÔN là participant
+      // - Không cần flags từ Frontend
+      
       const teams = [
         teamA.filter(name => name.trim() !== '').map(name => {
           const isPhoneNumber = /^\d+$/.test(name.trim());
@@ -181,13 +194,17 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
         })
       ];
 
-      // 🎯 Backend Smart Token Preservation System:
-      // - Giữ nguyên sessionToken của existing members (bao gồm host)
-      // - Chỉ tạo token mới cho members mới tham gia
-      // - Host không bị mất token khi update teams
+      // 🎯 Backend đã có ULTIMATE PROTECTION:
+      // - Chỉ update name, KHÔNG BAO GIỜ động đến token/role
+      // - Host member được bảo vệ tuyệt đối
+      // - Existing members giữ nguyên token và role
+      // - Member mới LUÔN là participant
       await userMatchService.updateTeamMembersV2(matchId, teams, sessionToken, actorGuestToken || undefined, actorMembershipId || undefined);
 
       toast.success('Cập nhật thành viên thành công!');
+
+      // ← MỚI: BE trả về hostSessionToken để confirm host vẫn giữ token
+      // Có thể sử dụng để verify rằng host không bị mất quyền
 
       setTimeout(() => {
         onSave(teamA, teamB);

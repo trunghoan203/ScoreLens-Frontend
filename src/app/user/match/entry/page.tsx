@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { userMatchService } from '@/lib/userMatchService';
 import toast from 'react-hot-toast';
 import RoleBadge from '@/components/ui/RoleBadge';
+import { setIdentity, setSession } from '@/lib/session';
 
 function GuestLoginContent() {
   const [roomCode, setRoomCode] = useState<string[]>(['', '', '', '', '', '']);
@@ -22,7 +23,7 @@ function GuestLoginContent() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
-  const [sessionToken, setSessionToken] = useState<string | null>(null); // ← MỚI: SessionToken cho role-based auth
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
@@ -44,12 +45,12 @@ function GuestLoginContent() {
     const room = searchParams?.get('room');
     const table = searchParams?.get('table');
     const tId = searchParams?.get('tableId');
-    const sessionToken = searchParams?.get('sessionToken'); // ← MỚI: Lấy sessionToken từ URL
+    const sessionToken = searchParams?.get('sessionToken');
 
     if (room) setRoomCode(room.slice(0, 6).split(''));
     if (table) setTableNumber(table);
     if (tId) setTableId(tId);
-    if (sessionToken) setSessionToken(sessionToken); // ← MỚI: Lưu sessionToken
+    if (sessionToken) setSessionToken(sessionToken);
 
     if (!table) setTableNumber('??');
     if (!tId) setTableId('TB-1755160186911');
@@ -133,7 +134,6 @@ function GuestLoginContent() {
         if (codeMatchId.matchId) params.set('matchId', codeMatchId.matchId);
         if (tableId) params.set('tableId', tableId);
         
-        // ← MỚI: Thêm sessionToken vào URL nếu có
         if (sessionToken) {
           params.set('sessionToken', sessionToken);
         }

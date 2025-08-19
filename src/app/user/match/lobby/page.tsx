@@ -1,16 +1,17 @@
 'use client';
 
-import { useEffect, useState, Suspense, useRef } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import HeaderUser from '@/components/user/HeaderUser';
 import FooterButton from '@/components/user/FooterButton';
+import toast from 'react-hot-toast';
 import { userMatchService } from '@/lib/userMatchService';
-import { toast } from 'react-hot-toast';
-import { io, Socket } from 'socket.io-client';
-import { config } from '@/lib/config';
 import RoleBadge from '@/components/ui/RoleBadge';
+import { getIdentity, getSession, setSession } from '@/lib/session';
+import { io, Socket } from 'socket.io-client';
 import { useMatchRole } from '@/lib/hooks/useMatchRole';
+import { config } from '@/lib/config';
 
 function HomeRandomContent() {
   const searchParams = useSearchParams();
@@ -40,7 +41,6 @@ function HomeRandomContent() {
   const [isWebSocketConnected, setIsWebSocketConnected] = useState(false);
   const socketRef = useRef<Socket | null>(null);
 
-  // Sử dụng useMatchRole hook để quản lý role và authentication
   const { 
     role: matchRole, 
     isHost, 
@@ -59,35 +59,29 @@ function HomeRandomContent() {
     setter(updated);
   };
 
-  // Load thông tin match và bàn
   useEffect(() => {
     const loadMatchData = async () => {
       try {
         setLoading(true);
 
-        // Load thông tin bàn
         if (tableId) {
           try {
             const tableData = await userMatchService.verifyTable({ tableId });
             
-            // Kiểm tra response structure
             let tableInfoData: { name?: string; category?: string; clubId?: string } | null = null;
             
             if (tableData && typeof tableData === 'object') {
-              // Thử các cấu trúc response khác nhau
               if ('data' in tableData && tableData.data) {
                 tableInfoData = tableData.data as { name?: string; category?: string; clubId?: string };
               } else if ('name' in tableData || 'category' in tableData || 'clubId' in tableData) {
                 tableInfoData = tableData as { name?: string; category?: string; clubId?: string };
               } else {
-                // Fallback: sử dụng thông tin từ URL
                 tableInfoData = {
                   name: tableNumber,
                   category: 'pool-8' // Default category
                 };
               }
             } else {
-              // Fallback: sử dụng thông tin từ URL
               tableInfoData = {
                 name: tableNumber,
                 category: 'pool-8' // Default category
@@ -96,14 +90,12 @@ function HomeRandomContent() {
             
             setTableInfo(tableInfoData);
           } catch (error) {
-            // Hiển thị lỗi cụ thể
             if (error instanceof Error) {
               toast.error(`Lỗi tải thông tin bàn: ${error.message}`);
             } else {
               toast.error('Không thể tải thông tin bàn. Sử dụng thông tin mặc định.');
             }
             
-            // Fallback: sử dụng thông tin từ URL
             setTableInfo({
               name: tableNumber,
               category: 'pool-8'
@@ -111,7 +103,6 @@ function HomeRandomContent() {
           }
         }
 
-        // Load thông tin match nếu có matchId
         if (matchId) {
           try {
             const matchData = await userMatchService.getMatchById(matchId);
@@ -120,7 +111,6 @@ function HomeRandomContent() {
             const matchInfoData = responseData as { teams?: Array<{ members?: Array<{ guestName?: string; membershipName?: string; fullName?: string }> }> };
 
             if (matchInfoData?.teams) {
-              // Load team A members
               if (matchInfoData.teams[0]?.members) {
                 const teamAMembers = matchInfoData.teams[0].members.map((member: { guestName?: string; membershipName?: string; fullName?: string }) =>
                   member.guestName || member.membershipName || member.fullName || ''
@@ -128,7 +118,6 @@ function HomeRandomContent() {
                 setTeamA(teamAMembers.length > 0 ? teamAMembers : ['']);
               }
 
-              // Load team B members
               if (matchInfoData.teams[1]?.members) {
                 const teamBMembers = matchInfoData.teams[1].members.map((member: { guestName?: string; membershipName?: string; fullName?: string }) =>
                   member.guestName || member.membershipName || member.fullName || ''
@@ -141,7 +130,6 @@ function HomeRandomContent() {
           }
         }
 
-        // Load thông tin match nếu có code
         if (existingCode && !matchId) {
           try {
             const matchData = await userMatchService.getMatchByCode(existingCode);
@@ -155,7 +143,6 @@ function HomeRandomContent() {
             }
 
             if (matchInfoData?.teams) {
-              // Load team A members
               if (matchInfoData.teams[0]?.members) {
                 const teamAMembers = matchInfoData.teams[0].members.map((member: { guestName?: string; membershipName?: string; fullName?: string }) =>
                   member.guestName || member.membershipName || member.fullName || ''
@@ -163,7 +150,6 @@ function HomeRandomContent() {
                 setTeamA(teamAMembers.length > 0 ? teamAMembers : ['']);
               }
 
-              // Load team B members
               if (matchInfoData.teams[1]?.members) {
                 const teamBMembers = matchInfoData.teams[1].members.map((member: { guestName?: string; membershipName?: string; fullName?: string }) =>
                   member.guestName || member.membershipName || member.fullName || ''
@@ -191,19 +177,121 @@ function HomeRandomContent() {
     loadMatchData();
   }, [tableId, matchId, existingCode, creatorName]);
 
-  // Authenticate với match khi có matchId và sessionToken
   useEffect(() => {
-    if (matchId && sessionToken) {
-      authenticateMatch(matchId, sessionToken);
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('sessionToken')) {
+      url.searchParams.delete('sessionToken');
+      window.history.replaceState({}, '', url.toString());
     }
-  }, [matchId, sessionToken, authenticateMatch]);
+  }, []);
 
-  // Hiển thị lỗi authentication nếu có
+  useEffect(() => {
+    const bootstrapAuth = async () => {
+      if (!matchId) return;
+      
+      try {
+        const session = getSession(matchId);
+        if (session?.sessionToken) {
+          await authenticateMatch(matchId, session.sessionToken);
+          return;
+        }
+        
+        const identity = getIdentity(matchId);
+        if (identity && (identity.membershipId || identity.guestName)) {
+          
+          let sessionTokenPayload: { membershipId?: string; guestName?: string } = {};
+          
+          if (identity.membershipId) {
+            sessionTokenPayload.membershipId = identity.membershipId;
+          } else if (identity.guestName) {
+            sessionTokenPayload.guestName = identity.guestName;
+          }
+          
+          const sessionResponse = await userMatchService.getSessionToken(matchId, sessionTokenPayload);
+          const responseData = sessionResponse as any;
+          
+          if (responseData.success && responseData.data?.sessionToken) {
+            const userSessionToken = responseData.data.sessionToken;
+            
+            setSession(matchId, {
+              sessionToken: userSessionToken,
+              role: 'participant'
+            });
+            await authenticateMatch(matchId, userSessionToken);
+          } else {
+            console.error('❌ Lobby: Bootstrap thất bại - không thể lấy sessionToken');
+            toast.error('Không thể khôi phục phiên làm việc');
+          }
+        } else {
+          // Không có identity, cần join lại
+        }
+      } catch (error) {
+        console.error('❌ Lobby: Bootstrap error:', error);
+        toast.error('Lỗi khôi phục phiên làm việc');
+      }
+    };
+
+    bootstrapAuth();
+  }, [matchId]);
+
+  useEffect(() => {
+    const performAuth = async () => {
+      if (matchId && sessionToken) {
+        await authenticateMatch(matchId, sessionToken);
+      } else if (matchId && !sessionToken) {
+        try {
+          
+          let sessionTokenPayload: { membershipId?: string; guestName?: string } = {};
+          
+          const membershipId = searchParams?.get('membershipId');
+          if (membershipId) {
+            sessionTokenPayload.membershipId = membershipId;
+          } 
+          else {
+            const guestName = searchParams?.get('name');
+            if (guestName) {
+              sessionTokenPayload.guestName = guestName;
+            }
+          }
+          
+          if (Object.keys(sessionTokenPayload).length > 0) {
+            const sessionResponse = await userMatchService.getSessionToken(matchId, sessionTokenPayload);
+            const responseData = sessionResponse as any;
+            
+            if (responseData.success && responseData.data?.sessionToken) {
+              const participantSessionToken = responseData.data.sessionToken;
+              
+              await authenticateMatch(matchId, participantSessionToken);
+            } else {
+              console.error('❌ Lobby: Không thể lấy sessionToken cho participant');
+              toast.error('Không thể xác thực tham gia trận đấu');
+            }
+          } else {
+            console.error('❌ Lobby: Không thể xác định thông tin participant');
+            toast.error('Thiếu thông tin để xác thực tham gia trận đấu');
+          }
+        } catch (error) {
+          console.error('❌ Lobby: Lỗi khi lấy sessionToken cho participant:', error);
+          toast.error('Lỗi xác thực tham gia trận đấu');
+        }
+      }
+    };
+
+    performAuth();
+  }, [matchId, sessionToken]);
+
   useEffect(() => {
     if (authError) {
+
       toast.error(`Lỗi xác thực: ${authError}`);
     }
   }, [authError]);
+
+  useEffect(() => {
+    if (matchRole) {
+
+    }
+  }, [matchRole, isHost, isManager, canEdit]);
 
   useEffect(() => {
     if (!matchId) return;
@@ -313,13 +401,11 @@ function HomeRandomContent() {
         return;
       }
 
-      // Kiểm tra WebSocket authentication trước khi start match
       if (!isWebSocketConnected) {
         toast.error('Chưa kết nối WebSocket. Vui lòng đợi kết nối hoàn tất.');
         return;
       }
 
-      // Kiểm tra role authentication
       if (authLoading) {
         toast.error('Đang xác thực quyền. Vui lòng đợi...');
         return;
@@ -330,17 +416,14 @@ function HomeRandomContent() {
         return;
       }
 
-      // Kiểm tra xem user có phải là host không
       if (!isHost) {
         toast.error('Chỉ host mới có quyền bắt đầu trận đấu.');
         return;
       }
 
-      // Luôn lấy thông tin creator từ match data
       let startMatchPayload: { actorGuestToken?: string; actorMembershipId?: string; sessionToken: string } = { sessionToken: '' };
       
       try {
-        // Lấy thông tin match để tìm creator và sessionToken của host
         const matchData = await userMatchService.getMatchById(matchId);
         
         const responseData = (matchData as { data?: { 
@@ -365,7 +448,6 @@ function HomeRandomContent() {
           }> }>
         };
 
-        // Tìm member có role 'host' để lấy sessionToken
         let hostSessionToken = '';
         if (matchInfo?.teams) {
           for (const team of matchInfo.teams) {
@@ -384,7 +466,6 @@ function HomeRandomContent() {
           return;
         }
 
-        // Thêm sessionToken của host (bắt buộc cho BE)
         startMatchPayload.sessionToken = hostSessionToken;
 
         if (matchInfo?.creatorGuestToken) {
@@ -433,6 +514,21 @@ function HomeRandomContent() {
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 pt-20 overflow-hidden">
       <HeaderUser showBack={false} />
 
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed top-20 left-4 z-50 bg-black/80 text-white p-4 rounded-lg text-xs max-w-xs">
+          <h3 className="font-bold mb-2">🔍 Debug Info</h3>
+          <div className="space-y-1">
+            <div>MatchID: {matchId}</div>
+            <div>SessionToken: {sessionToken.substring(0, 15)}...</div>
+            <div>Role: {matchRole?.role || 'Unknown'}</div>
+            <div>isHost: {isHost ? '✅' : '❌'}</div>
+            <div>Auth Loading: {authLoading ? '⏳' : '✅'}</div>
+            <div>Auth Error: {authError || 'None'}</div>
+            <div>WebSocket: {isWebSocketConnected ? '✅' : '❌'}</div>
+          </div>
+        </div>
+      )}
+
       <main className="flex-1 flex flex-col px-4 py-8 overflow-y-auto scroll-smooth">
         <div className="text-center mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-[#000000]">
@@ -440,7 +536,6 @@ function HomeRandomContent() {
           </h2>
           <p className="text-sm sm:text-base text-[#000000] font-medium">Nhập mã bên dưới để tham gia phòng</p>
           
-          {/* Hiển thị role và trạng thái authentication */}
           <div className="mt-4 flex items-center justify-center gap-3">
             {matchRole && (
               <RoleBadge role={matchRole.role} />

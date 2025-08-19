@@ -8,6 +8,7 @@ import FooterButton from '@/components/user/FooterButton';
 import toast from 'react-hot-toast';
 import { userMatchService } from '@/lib/userMatchService';
 import RoleBadge from '@/components/ui/RoleBadge';
+import { setIdentity, setSession } from '@/lib/session';
 
 function GuestJoinContent() {
   const [fullName, setFullName] = useState('');
@@ -29,7 +30,7 @@ function GuestJoinContent() {
   const [isCreatingMatch, setIsCreatingMatch] = useState(false);
   const [verifiedMembershipId, setVerifiedMembershipId] = useState('');
   const [isMember, setIsMember] = useState(false);
-  const [sessionToken, setSessionToken] = useState<string | null>(null); // ← MỚI: SessionToken cho role-based auth
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -37,11 +38,11 @@ function GuestJoinContent() {
     const table = searchParams!.get('table');
     const room = searchParams!.get('room');
     const tId = searchParams!.get('tableId');
-    const sessionToken = searchParams!.get('sessionToken'); // ← MỚI: Lấy sessionToken từ URL
+    const sessionToken = searchParams!.get('sessionToken');
     if (table) setTableNumber(table);
     if (room) setRoomCode(room);
     if (tId) setTableId(tId);
-    if (sessionToken) setSessionToken(sessionToken); // ← MỚI: Lưu sessionToken
+    if (sessionToken) setSessionToken(sessionToken);
 
     const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
@@ -144,19 +145,17 @@ function GuestJoinContent() {
             },
           });
           
-          // Handle response structure theo Backend code
           const joinData = joinResult as any;
           
-          // Backend trả về: { success: true, data: updatedMatch, message, userSessionToken }
           let newSessionToken = '';
           
           if (joinData?.success) {
-            // Lấy userSessionToken từ root level (không phải trong data)
             newSessionToken = joinData.userSessionToken || '';
+            
+
           }
           
           if (!newSessionToken) {
-            // Fallback: sử dụng sessionToken cũ nếu BE chưa trả về
             newSessionToken = sessionToken || '';
           }
 
@@ -165,6 +164,20 @@ function GuestJoinContent() {
           const matchData = responseData as { matchId?: string; id?: string };
           const matchId =
             matchData?.matchId || matchData?.id || '';
+
+          if (matchId && newSessionToken) {
+            setIdentity(matchId, {
+              membershipId: isMember ? verifiedMembershipId : undefined,
+              guestName: isMember ? undefined : fullName.trim(),
+              fullName: fullName.trim(),
+            });
+            
+            setSession(matchId, {
+              sessionToken: newSessionToken,
+              role: 'participant'
+            });
+            
+          }
 
           toast.success('Tham gia phòng thành công!');
 
@@ -177,11 +190,8 @@ function GuestJoinContent() {
             membershipName: isMember ? fullName.trim() : ''
           });
 
-          // ← MỚI: Thêm sessionToken vào URL
           if (newSessionToken) {
             params.set('sessionToken', newSessionToken);
-            // ← MỚI: Cập nhật sessionToken state để tránh conflict
-            setSessionToken(newSessionToken);
           }
 
           router.push(`/user/match/lounge?${params.toString()}`);
@@ -226,8 +236,7 @@ function GuestJoinContent() {
       const code =
         matchData?.matchCode || matchData?.code || '';
 
-      // ← MỚI: Lấy sessionToken từ create response
-      const newSessionToken = matchData?.sessionToken || sessionToken;
+      const newSessionToken = matchData?.sessionToken || null;
 
       if (!newMatchId && code) {
         try {
@@ -235,6 +244,20 @@ function GuestJoinContent() {
           newMatchId =
             byCode?.data?.id || byCode?.data?.matchId || '';
         } catch { }
+      }
+
+      if (newMatchId && newSessionToken) {
+        setIdentity(newMatchId, {
+          membershipId: isMember ? verifiedMembershipId : undefined,
+          guestName: isMember ? undefined : fullName.trim(),
+          fullName: fullName.trim(),
+        });
+        
+        setSession(newMatchId, {
+          sessionToken: newSessionToken,
+          role: 'participant'
+        });
+        
       }
 
       toast.success('Tạo phòng thành công!');
@@ -249,11 +272,8 @@ function GuestJoinContent() {
         membershipName: isMember ? fullName.trim() : ''
       });
 
-      // ← MỚI: Thêm sessionToken vào URL và cập nhật state
       if (newSessionToken) {
         params.set('sessionToken', newSessionToken);
-        // ← MỚI: Cập nhật sessionToken state để tránh conflict
-        setSessionToken(newSessionToken);
       }
 
       router.push(`/user/match/lobby?${params.toString()}`);
