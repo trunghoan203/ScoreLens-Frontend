@@ -172,11 +172,7 @@ export default function ClubInfoPage() {
                 </div>
               </div>
 
-              {isEditing && (
-                <div className="w-full max-w-6xl -mt-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
-                </div>
-              )}
-              <div className={`w-full max-w-6xl mt-6 space-y-4`}>
+              <div className="w-full max-w-6xl mt-6 space-y-4">
                 {branches.map((branch, idx) => (
                   <div
                     key={idx}
