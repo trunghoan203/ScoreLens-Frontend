@@ -6,7 +6,7 @@ import { HeroSection } from '@/components/landing/HeroSection';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 
 const ROLES = [
-  { key: 'business', label: 'CHỦ DOANH NGHIỆP'},
+  { key: 'business', label: 'CHỦ DOANH NGHIỆP' },
   { key: 'manager', label: 'QUẢN LÝ' },
   { key: 'member', label: 'HỘI VIÊN' },
   { key: 'user', label: 'NGƯỜI DÙNG' },
@@ -15,379 +15,446 @@ const ROLES = [
 const GUIDE_CONTENT: Record<string, React.ReactNode> = {
   business: (
     <div className="space-y-8">
-      <h1 className="text-2xl md:text-3xl font-extrabold text-lime-600 mb-2">
+      <h1 className="text-2xl md:text-3xl font-extrabold text-[#8ADB10] mb-2">
         Hướng Dẫn Sử Dụng Hệ Thống Scorelens - Vai Trò CHỦ DOANH NGHIỆP
       </h1>
- 
-      {/* PHẦN 1 */}
       <section>
-        <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Phần 1: Đăng Ký và Truy Cập Hệ Thống</h2>
-        <p className="text-base md:text-lg text-gray-800 mb-2">
-          Là một Admin, bạn không tự đăng ký tài khoản. Tài khoản của bạn sẽ được tạo bởi <span className="text-lime-600 font-semibold">Super Admin</span>.
+        <h2 className="text-lg md:text-xl font-bold text-[#000000] mb-2">Phần 1: Đăng Ký và Kích Hoạt Tài Khoản</h2>
+        <p className="text-base md:text-lg text-[#000000] mb-2">
+          Là một Chủ Doanh Nghiệp, bạn sẽ trải qua quy trình đăng ký và xác thực để có thể quản lý hệ thống ScoreLens cho thương hiệu của mình.
         </p>
-        <ol className="list-decimal ml-6 space-y-2 text-base md:text-lg text-gray-800">
+        <ol className="list-decimal ml-6 space-y-2 text-base md:text-lg text-[#000000]">
           <li>
-            <span className="font-semibold text-lime-700">Nhận Thông Tin Tài Khoản:</span>
+            <span className="font-semibold text-[#8ADB10]">Bước 1: Đăng Ký Tài Khoản</span>
             <ul className="list-disc ml-6">
-              <li>Tên đăng nhập (hoặc email)</li>
-              <li>Mật khẩu tạm thời</li>
-              <li>Đường link trang quản trị</li>
+              <li>Truy cập trang đăng ký dành cho Chủ Doanh Nghiệp</li>
+              <li>Nhập email và tạo mật khẩu mạnh cho tài khoản</li>
+              <li>Xác thực email bằng mã OTP được gửi đến hộp thư</li>
             </ul>
           </li>
           <li>
-            <span className="font-semibold text-lime-700">Đăng Nhập Lần Đầu:</span>
+            <span className="font-semibold text-[#8ADB10]">Bước 2: Bổ Sung Thông Tin Doanh Nghiệp</span>
             <ul className="list-disc ml-6">
-              <li>Truy cập vào đường link trang quản trị đã được cung cấp.</li>
-              <li>Sử dụng tên đăng nhập và mật khẩu tạm thời để đăng nhập.</li>
-              <li>Hệ thống sẽ yêu cầu bạn đổi mật khẩu ngay lập tức để đảm bảo an toàn. Hãy đặt một mật khẩu mới mạnh và chỉ riêng bạn biết.</li>
+              <li>Nhập thông tin thương hiệu: tên thương hiệu, website, CCCD, số điện thoại</li>
+              <li>Thêm thông tin chi nhánh: tên chi nhánh, địa chỉ, số điện thoại</li>
+              <li>Khai báo số lượng bàn chơi tại mỗi chi nhánh</li>
+              <li>Upload logo thương hiệu (tùy chọn)</li>
             </ul>
           </li>
           <li>
-            <span className="font-semibold text-lime-700">Quên Mật Khẩu:</span>
+            <span className="font-semibold text-[#8ADB10]">Bước 3: Chờ Duyệt Từ Quản Trị Viên</span>
             <ul className="list-disc ml-6">
-              <li>Vào trang đăng nhập và nhấn vào link &quot;Quên mật khẩu&quot; (Forgot Password).</li>
-              <li>Nhập email, hệ thống sẽ gửi một đường link hoặc mã xác thực để đặt lại mật khẩu mới.</li>
+              <li>Sau khi hoàn tất, tài khoản sẽ ở trạng thái <span className="text-[#FF0000] font-semibold">"Chờ duyệt"</span></li>
+              <li>Quản trị viên sẽ xem xét thông tin và phê duyệt tài khoản</li>
+              <li>Bạn sẽ nhận được email thông báo khi tài khoản được duyệt</li>
+            </ul>
+          </li>
+          <li>
+            <span className="font-semibold text-[#8ADB10]">Bước 4: Truy Cập Hệ Thống</span>
+            <ul className="list-disc ml-6">
+              <li>Sau khi được duyệt, đăng nhập bằng email và mật khẩu đã đăng ký</li>
+              <li>Hệ thống sẽ yêu cầu đổi mật khẩu lần đầu để đảm bảo an toàn</li>
+              <li>Bắt đầu quản lý hệ thống ScoreLens cho thương hiệu của bạn</li>
             </ul>
           </li>
         </ol>
       </section>
 
-      {/* PHẦN 2 */}
       <section>
-        <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Phần 2: Hướng Dẫn Sử Dụng Các Chức Năng Chính</h2>
-        <p className="text-base md:text-lg text-gray-800 mb-2">
-          Sau khi đăng nhập thành công, bạn sẽ được đưa đến <span className="text-lime-600 font-semibold">Bảng điều khiển (Admin Dashboard)</span>. Đây là trung tâm điều hành của bạn.
+        <h2 className="text-lg md:text-xl font-bold text-[#000000] mb-2">Phần 2: Bảng Điều Khiển và Quản Lý Tổng Quan</h2>
+        <p className="text-base md:text-lg text-[#000000] mb-2">
+          Sau khi đăng nhập thành công, bạn sẽ được đưa đến <span className="text-[#8ADB10] font-semibold">Bảng điều khiển (Admin Dashboard)</span> - trung tâm điều hành của bạn.
         </p>
-        <ol className="list-decimal ml-6 space-y-4 text-base md:text-lg text-gray-800">
+        <div className="bg-lime-50 border-l-4 border-lime-400 p-4 rounded text-lime-800 text-base md:text-lg mb-4">
+          <span className="font-semibold">📊 Thống Kê Nhanh:</span>
+          <ul className="list-disc ml-6 mt-2">
+            <li>Tổng số chi nhánh đang hoạt động</li>
+            <li>Số lượng quản lý đang làm việc</li>
+            <li>Trận đấu đang diễn ra tại các chi nhánh</li>
+            <li>Phản hồi mới cần xử lý</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-lg md:text-xl font-bold text-[#000000] mb-2">Phần 3: Các Chức Năng Quản Lý Chính</h2>
+        <ol className="list-decimal ml-6 space-y-4 text-base md:text-lg text-[#000000]">
           <li>
-            <span className="font-semibold text-lime-700">Bảng Điều Khiển (Admin Dashboard):</span>
+            <span className="font-semibold text-[#8ADB10]">Quản Lý Thông Tin Thương Hiệu</span>
             <ul className="list-disc ml-6">
-              <li>Thống kê nhanh: Số lượng Câu lạc bộ (Clubs), số lượng Quản lý (Managers) bạn đang phụ trách.</li>
-              <li>Trạng thái hoạt động: Số trận đấu đang diễn ra, các yêu cầu hỗ trợ mới.</li>
-              <li>Lối tắt: Các nút truy cập nhanh đến các mục quản lý chính như &quot;Quản lý Câu lạc bộ&quot;, &quot;Quản lý Manager&quot;.</li>
+              <li>Xem và chỉnh sửa thông tin thương hiệu: tên, website, CCCD, số điện thoại</li>
+              <li>Quản lý logo thương hiệu</li>
+              <li>Xem danh sách tất cả chi nhánh thuộc thương hiệu</li>
+              <li>Thêm chi nhánh mới khi cần mở rộng</li>
             </ul>
           </li>
           <li>
-            <span className="font-semibold text-lime-700">Quản Lý Câu Lạc Bộ (Manage Clubs):</span>
+            <span className="font-semibold text-[#8ADB10]">Quản Lý Tài Khoản Quản Lý (Manager)</span>
             <ul className="list-disc ml-6">
-              <li>Thêm mới, chỉnh sửa, giám sát các câu lạc bộ trong khu vực của bạn.</li>
-              <li>Điền đầy đủ thông tin, chọn thương hiệu, tên, địa chỉ, liên hệ, nhấn &quot;Lưu&quot; để hoàn tất.</li>
+              <li>Xem danh sách tất cả quản lý đang làm việc</li>
+              <li>Thêm quản lý mới: Nhập thông tin cá nhân, email, số điện thoại</li>
+              <li>Gán quản lý cho chi nhánh cụ thể</li>
+              <li>Kích hoạt/vô hiệu hóa tài khoản quản lý</li>
+              <li>Tìm kiếm và lọc quản lý theo chi nhánh, trạng thái</li>
             </ul>
           </li>
           <li>
-            <span className="font-semibold text-lime-700">Quản Lý Tài Khoản Manager (Manage Managers):</span>
+            <span className="font-semibold text-[#8ADB10]">Quản Lý Phản Hồi và Hỗ Trợ</span>
             <ul className="list-disc ml-6">
-              <li>Tạo, chỉnh sửa, vô hiệu hóa tài khoản Manager cho các câu lạc bộ bạn phụ trách.</li>
-              <li>Gán Manager cho một hoặc nhiều Câu lạc bộ.</li>
-            </ul>
-          </li>
-          <li>
-            <span className="font-semibold text-lime-700">Quản Lý Phản Hồi (Manage Feedback):</span>
-            <ul className="list-disc ml-6">
-              <li>Xem, xử lý các phản hồi từ người dùng hoặc Manager gửi lên.</li>
-              <li>Cập nhật trạng thái phản hồi để người gửi biết tiến trình.</li>
+              <li>Xem tất cả phản hồi từ người dùng và quản lý</li>
+              <li>Lọc phản hồi theo trạng thái: Chờ xử lý, đang xử lý, đã hoàn thành</li>
+              <li>Lọc theo chi nhánh và khoảng thời gian</li>
+              <li>Tìm kiếm phản hồi theo từ khóa</li>
+              <li>Cập nhật trạng thái và phản hồi cho người gửi</li>
             </ul>
           </li>
         </ol>
       </section>
 
-      {/* PHẦN 3 */}
       <section>
-        <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Phần 3: Các Chức Năng Khác</h2>
-        <ul className="list-disc ml-6 text-base md:text-lg text-gray-800">
-          <li>Quản lý hồ sơ cá nhân (Profile): Thay đổi thông tin cá nhân và mật khẩu.</li>
-          <li>Xem báo cáo: Truy cập các báo cáo về hoạt động của các câu lạc bộ trong khu vực.</li>
+        <h2 className="text-lg md:text-xl font-bold text-[#000000] mb-2">Phần 4: Các Chức Năng Bổ Sung</h2>
+        <ul className="list-disc ml-6 text-base md:text-lg text-[#000000]">
+          <li><span className="font-semibold">Quản lý hồ sơ cá nhân:</span> Thay đổi thông tin cá nhân và mật khẩu</li>
+          <li><span className="font-semibold">Xem báo cáo tổng quan:</span> Thống kê hoạt động của tất cả chi nhánh</li>
+          <li><span className="font-semibold">Theo dõi hiệu suất:</span> Đánh giá hiệu quả hoạt động của các quản lý</li>
+          <li><span className="font-semibold">Gửi thông báo:</span> Gửi thông báo quan trọng đến tất cả quản lý</li>
         </ul>
       </section>
     </div>
   ),
   manager: (
     <div className="space-y-8">
-      <h1 className="text-2xl md:text-3xl font-extrabold text-lime-600 mb-2">
-        Hướng Dẫn Sử Dụng Hệ Thống Scorelens - Vai Trò QUẢN LÝ
+      <h1 className="text-2xl md:text-3xl font-extrabold text-[#8ADB10] mb-2">
+        Hướng Dẫn Sử Dụng Hệ Thống ScoreLens - Vai Trò QUẢN LÝ
       </h1>
 
-      {/* PHẦN 1 */}
+              <section>
+          <h2 className="text-lg md:text-xl font-bold text-[#000000] mb-2">Phần 1: Kích Hoạt Tài Khoản Quản Lý</h2>
+          <p className="text-base md:text-lg text-[#000000] mb-2">
+            Tài khoản của bạn được tạo và cấp quyền bởi <span className="text-[#8ADB10] font-semibold">Chủ Doanh Nghiệp</span>. Bạn sẽ nhận được thông tin đăng nhập qua email.
+          </p>
+          <ol className="list-decimal ml-6 space-y-2 text-base md:text-lg text-[#000000]">
+            <li>
+              <span className="font-semibold text-[#8ADB10]">Nhận Thông Tin Tài Khoản</span>
+              <ul className="list-disc ml-6">
+                <li>Kiểm tra email để nhận thông tin đăng nhập từ Chủ Doanh Nghiệp</li>
+                <li>Email sẽ chứa đường link đăng nhập và hướng dẫn chi tiết</li>
+              </ul>
+            </li>
+            <li>
+              <span className="font-semibold text-[#8ADB10]">Đăng Nhập Bằng Email</span>
+              <ul className="list-disc ml-6">
+                <li>Truy cập đường link đăng nhập được cung cấp</li>
+                <li>Nhập email đã được Chủ Doanh Nghiệp đăng ký</li>
+                <li>Hệ thống sẽ gửi mã xác thực đến email của bạn</li>
+                <li>Nhập mã xác thực để hoàn tất đăng nhập</li>
+              </ul>
+            </li>
+            <li>
+              <span className="font-semibold text-[#8ADB10]">Đăng Nhập Lần Sau</span>
+              <ul className="list-disc ml-6">
+                <li>Chỉ cần nhập email đã đăng ký</li>
+                <li>Hệ thống tự động gửi mã xác thực mới</li>
+                <li>Nhập mã xác thực để truy cập hệ thống</li>
+              </ul>
+            </li>
+          </ol>
+        </section>
+
       <section>
-        <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Phần 1: Truy Cập Hệ Thống</h2>
-        <p className="text-base md:text-lg text-gray-800 mb-2">
-          Tài khoản của bạn được tạo và cấp quyền bởi <span className="text-lime-600 font-semibold">Admin</span>. Bạn sẽ nhận được thông tin đăng nhập từ họ.
+        <h2 className="text-lg md:text-xl font-bold text-[#000000] mb-2">Phần 2: Bảng Điều Khiển Quản Lý</h2>
+        <p className="text-base md:text-lg text-[#000000] mb-2">
+          Sau khi đăng nhập, bạn sẽ thấy <span className="text-[#8ADB10] font-semibold">Bảng điều khiển</span> - trung tâm điều hành của bạn tại câu lạc bộ.
         </p>
-        <ol className="list-decimal ml-6 space-y-2 text-base md:text-lg text-gray-800">
+        <div className="bg-lime-50 border-l-4 border-lime-400 p-4 rounded text-lime-800 text-base md:text-lg mb-4">
+          <span className="font-semibold">📊 Thống Kê Tổng Quan:</span>
+          <ul className="list-disc ml-6 mt-2">
+            <li><span className="font-semibold">Tổng số bàn:</span> Số lượng bàn chơi trong câu lạc bộ</li>
+            <li><span className="font-semibold">Bàn đang sử dụng:</span> Số bàn hiện tại đang có trận đấu</li>
+            <li><span className="font-semibold">Bàn trống:</span> Số bàn có thể sử dụng ngay</li>
+            <li><span className="font-semibold">Tổng thành viên:</span> Số lượng hội viên đã đăng ký</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-lg md:text-xl font-bold text-[#000000] mb-2">Phần 3: Quản Lý Vận Hành Hàng Ngày</h2>
+        <ol className="list-decimal ml-6 space-y-4 text-base md:text-lg text-[#000000]">
           <li>
-            <span className="font-semibold text-lime-700">Đăng Nhập:</span>
+            <span className="font-semibold text-[#8ADB10]">Quản Lý Thiết Bị (Bàn chơi & Camera)</span>
             <ul className="list-disc ml-6">
-              <li>Sử dụng <span className="font-semibold">email</span> và <span className="font-semibold">mật khẩu tạm thời</span> mà Admin đã cung cấp để đăng nhập vào hệ thống.</li>
-              <li>Trong lần đăng nhập đầu tiên, hệ thống sẽ yêu cầu bạn đổi mật khẩu để đảm bảo bảo mật.</li>
+              <li>Xem danh sách tất cả bàn chơi trong câu lạc bộ</li>
+              <li>Thêm bàn mới: Nhập tên bàn, loại bàn (Pool 8, Pool 9, Snooker...)</li>
+              <li>Quản lý camera: Gán camera cho từng bàn để theo dõi trận đấu</li>
+              <li>Chỉnh sửa thông tin bàn: Cập nhật tên, loại, trạng thái bàn</li>
+              <li>Lọc và tìm kiếm bàn: Theo loại, trạng thái, tên bàn</li>
             </ul>
           </li>
           <li>
-            <span className="font-semibold text-lime-700">Quên Mật Khẩu:</span>
+            <span className="font-semibold text-[#8ADB10]">Quản Lý Trận Đấu</span>
             <ul className="list-disc ml-6">
-              <li>Trên trang đăng nhập, sử dụng chức năng &quot;Quên mật khẩu&quot; (Forgot Password).</li>
-              <li>Nhập email của bạn và làm theo hướng dẫn để đặt lại mật khẩu mới.</li>
+              <li>Theo dõi các trận đấu đang diễn ra trong thời gian thực</li>
+              <li>Xem danh sách trận đấu theo bàn, thời gian, trạng thái</li>
+              <li>Chỉnh sửa thông tin trận đấu khi cần thiết:
+                <ul className="list-disc ml-6">
+                  <li>Sửa lại điểm số bị Camera AI nhận diện sai</li>
+                  <li>Cập nhật thông tin người chơi nếu bị nhầm lẫn</li>
+                  <li>Kết thúc trận đấu thủ công nếu cần thiết</li>
+                </ul>
+              </li>
+              <li>Xem lịch sử trận đấu đã kết thúc</li>
+            </ul>
+          </li>
+          <li>
+            <span className="font-semibold text-[#8ADB10]">Quản Lý Hội Viên</span>
+            <ul className="list-disc ml-6">
+              <li>Xem danh sách tất cả hội viên đã đăng ký</li>
+              <li>Thêm hội viên mới: Nhập thông tin cá nhân, số điện thoại, email</li>
+              <li>Chỉnh sửa thông tin hội viên khi cần thiết</li>
+              <li>Kích hoạt/vô hiệu hóa tài khoản hội viên</li>
+              <li>Tìm kiếm hội viên theo tên, số điện thoại</li>
+              <li>Xem lịch sử trận đấu của từng hội viên</li>
+            </ul>
+          </li>
+          <li>
+            <span className="font-semibold text-[#8ADB10]">Quản Lý Phản Hồi</span>
+            <ul className="list-disc ml-6">
+              <li>Xem tất cả phản hồi từ người dùng trong câu lạc bộ</li>
+              <li>Phản hồi và giải quyết các vấn đề được báo cáo</li>
+              <li>Cập nhật trạng thái phản hồi để người gửi biết tiến trình</li>
+              <li>Lọc phản hồi theo mức độ ưu tiên và trạng thái</li>
             </ul>
           </li>
         </ol>
       </section>
 
-      {/* PHẦN 2 */}
       <section>
-        <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Phần 2: Bảng Điều Khiển (Manager Dashboard)</h2>
-        <p className="text-base md:text-lg text-gray-800 mb-2">
-          Sau khi đăng nhập, bạn sẽ thấy <span className="text-lime-600 font-semibold">Bảng điều khiển</span>, đây là trung tâm điều hành của bạn tại câu lạc bộ. Nó cung cấp cái nhìn tổng quan về:
-        </p>
-        <ul className="list-disc ml-6 space-y-2 text-base md:text-lg text-gray-800">
-          <li><span className="font-semibold">Số bàn đang hoạt động:</span> Biết được có bao nhiêu trận đấu đang diễn ra.</li>
-          <li><span className="font-semibold">Trạng thái Camera:</span> Xem camera nào đang hoạt động tốt, camera nào mất kết nối.</li>
-          <li><span className="font-semibold">Yêu cầu hỗ trợ mới:</span> Các cảnh báo hoặc yêu cầu giúp đỡ từ người chơi.</li>
-          <li><span className="font-semibold">Lối tắt:</span> Truy cập nhanh đến các chức năng quản lý thiết bị và thành viên.</li>
-        </ul>
-      </section>
-
-      {/* PHẦN 3 */}
-      <section>
-        <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Phần 3: Hướng Dẫn Các Chức Năng Vận Hành Chính</h2>
-        <ol className="list-decimal ml-6 space-y-4 text-base md:text-lg text-gray-800">
-          <li>
-            <span className="font-semibold text-lime-700">Quản Lý Thiết Bị (Bàn chơi & Camera):</span>
-            <ul className="list-disc ml-6">
-              <li><span className="font-semibold">Quản lý Bàn chơi (Manage Tables):</span>
-                <ul className="list-disc ml-6">
-                  <li>Vào mục &quot;Quản lý Bàn&quot;.</li>
-                  <li>Thêm Bàn mới (Add Table): Nhập số bàn, loại bàn (ví dụ: bida, bóng bàn) và lưu lại.</li>
-                  <li>Sửa thông tin Bàn (Edit Table): Cập nhật số bàn hoặc trạng thái.</li>
-                  <li>Xem trạng thái: Biết bàn nào đang trống, bàn nào đang có trận đấu.</li>
-                </ul>
-              </li>
-              <li><span className="font-semibold">Quản lý Camera (Manage Cameras):</span>
-                <ul className="list-disc ml-6">
-                  <li>Vào mục &quot;Quản lý Camera&quot;.</li>
-                  <li>Thêm Camera mới (Add Camera): Nhập thông tin của camera AI mới lắp đặt (địa chỉ IP, thông tin đăng nhập của camera,...).</li>
-                  <li>Sửa thông tin Camera (Edit Camera): Cập nhật cấu hình khi cần.</li>
-                </ul>
-              </li>
-              <li><span className="font-semibold">Gán Camera vào Bàn chơi:</span>
-                <ul className="list-disc ml-6">
-                  <li>Sau khi thêm Bàn và Camera, bạn phải liên kết chúng với nhau.</li>
-                  <li>Vào phần chỉnh sửa thông tin của một Bàn chơi.</li>
-                  <li>Tìm mục &quot;Gán Camera&quot; (Assign Camera) và chọn đúng Camera AI đang theo dõi bàn đó.</li>
-                  <li>Lưu lại. Nếu không thực hiện bước này, hệ thống sẽ không thể tự động ghi điểm.</li>
-                </ul>
-              </li>
-            </ul>
-          </li>
-          <li>
-            <span className="font-semibold text-lime-700">Quản Lý Trận Đấu (Manage Matches):</span>
-            <ul className="list-disc ml-6">
-              <li>Theo dõi các trận đấu đang diễn ra: Bảng điều khiển sẽ cho bạn thấy các trận đấu đang hoạt động.</li>
-              <li>Chỉnh sửa thông tin trận đấu (Edit Match): Trong trường hợp xảy ra lỗi, bạn có thể can thiệp.</li>
-              <li>Tìm trận đấu cần sửa trong danh sách, nhấn Sửa (Edit).</li>
-              <li>Bạn có thể:
-                <ul className="list-disc ml-6">
-                  <li>Sửa lại điểm số bị Camera AI nhận diện sai.</li>
-                  <li>Cập nhật lại thông tin người chơi nếu bị nhầm lẫn.</li>
-                  <li>Kết thúc một trận đấu thủ công nếu nó bị kẹt.</li>
-                </ul>
-              </li>
-            </ul>
-          </li>
-          <li>
-            <span className="font-semibold text-lime-700">Quản Lý Thành Viên (Manage Membership):</span>
-            <ul className="list-disc ml-6">
-              <li>Vào mục &quot;Quản lý Thành viên&quot;.</li>
-              <li>Thêm thành viên mới (Add Membership): Nhập thông tin người chơi mới đăng ký tại câu lạc bộ.</li>
-              <li>Chỉnh sửa thông tin thành viên (Edit Membership): Cập nhật số điện thoại, tên, hoặc gia hạn tư cách thành viên.</li>
-            </ul>
-          </li>
-          <li>
-            <span className="font-semibold text-lime-700">Xử Lý Yêu Cầu Hỗ Trợ (Handle Support Requests):</span>
-            <ul className="list-disc ml-6">
-              <li>Khi người chơi tại một bàn gặp sự cố và gửi yêu cầu hỗ trợ qua hệ thống, bạn sẽ nhận được thông báo.</li>
-              <li>Vào mục &quot;Thông báo&quot; (Notifications) hoặc xem trên Bảng điều khiển.</li>
-              <li>Xem chi tiết yêu cầu: Bàn số mấy đang cần hỗ trợ, lý do là gì.</li>
-              <li>Đến trực tiếp để hỗ trợ người chơi.</li>
-              <li>Sau khi giải quyết xong, đánh dấu yêu cầu là &quot;Đã hoàn thành&quot;.</li>
-            </ul>
-          </li>
-        </ol>
-      </section>
-
-      {/* PHẦN 4 */}
-      <section>
-        <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Phần 4: Các Chức Năng Khác</h2>
-        <ul className="list-disc ml-6 text-base md:text-lg text-gray-800">
-          <li><span className="font-semibold">Gửi Phản Hồi (Send Feedback):</span> Nếu bạn phát hiện lỗi hệ thống hoặc có đề xuất cải tiến, bạn có thể dùng chức năng này để gửi phản hồi trực tiếp cho Admin.</li>
-          <li><span className="font-semibold">Quản lý hồ sơ (Profile):</span> Cập nhật thông tin cá nhân và đổi mật khẩu của bạn.</li>
+        <h2 className="text-lg md:text-xl font-bold text-[#000000] mb-2">Phần 4: Các Chức Năng Bổ Sung</h2>
+        <ul className="list-disc ml-6 text-base md:text-lg text-[#000000]">
+          <li><span className="font-semibold">Quản lý hồ sơ cá nhân:</span> Thay đổi thông tin cá nhân và mật khẩu</li>
+          <li><span className="font-semibold">Xem báo cáo hoạt động:</span> Thống kê về trận đấu, hội viên, doanh thu</li>
+          <li><span className="font-semibold">Gửi thông báo:</span> Gửi thông báo quan trọng đến hội viên</li>
+          <li><span className="font-semibold">Gửi phản hồi:</span> Gửi phản hồi về hệ thống cho Chủ Doanh Nghiệp</li>
         </ul>
       </section>
     </div>
   ),
   member: (
     <div className="space-y-8">
-      <h1 className="text-2xl md:text-3xl font-extrabold text-lime-600 mb-2">
-        Hướng Dẫn Sử Dụng Hệ Thống Scorelens - Dành Cho HỘI VIÊN
+      <h1 className="text-2xl md:text-3xl font-extrabold text-[#8ADB10] mb-2">
+        Hướng Dẫn Sử Dụng Hệ Thống ScoreLens - Dành Cho HỘI VIÊN
       </h1>
 
-      {/* PHẦN 1 */}
       <section>
-        <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Phần 1: Kích Hoạt Tư Cách Thành Viên Trong Ứng Dụng</h2>
-        <p className="text-base md:text-lg text-gray-800 mb-2">
-          Để sử dụng các tính năng đặc biệt, bạn cần liên kết tài khoản ứng dụng của mình với tư cách thành viên đã đăng ký tại câu lạc bộ.
+        <h2 className="text-lg md:text-xl font-bold text-[#000000] mb-2">Phần 1: Bắt Đầu Trận Đấu - Quét Mã QR</h2>
+        <p className="text-base md:text-lg text-[#000000] mb-2">
+          Là hội viên, bạn có thể tạo và tham gia trận đấu một cách dễ dàng chỉ với vài thao tác đơn giản.
         </p>
-        <ol className="list-decimal ml-6 space-y-2 text-base md:text-lg text-gray-800">
+        <ol className="list-decimal ml-6 space-y-2 text-base md:text-lg text-[#000000]">
           <li>
-            <span className="font-semibold text-lime-700">Đăng ký thành viên tại câu lạc bộ</span>:<br />
-            Trước tiên, bạn cần đăng ký làm thành viên trực tiếp tại một trong các câu lạc bộ thuộc hệ thống. Nhân viên (Manager) sẽ tạo hồ sơ cho bạn với các thông tin như họ tên, số điện thoại.
-          </li>
-          <li>
-            <span className="font-semibold text-lime-700">Tải ứng dụng và tạo tài khoản</span>:
+            <span className="font-semibold text-[#8ADB10]">Bước 1: Đến Bàn Chơi</span>
             <ul className="list-disc ml-6">
-              <li>Tải ứng dụng Scorelens từ App Store hoặc Google Play.</li>
-              <li>Mở ứng dụng và chọn &quot;Đăng ký&quot; (Sign Up) để tạo một tài khoản người dùng mới bằng email của bạn.</li>
+              <li>Chọn bàn chơi bạn muốn sử dụng</li>
+              <li>Đảm bảo bàn đang trống và sẵn sàng cho trận đấu</li>
             </ul>
           </li>
           <li>
-            <span className="font-semibold text-lime-700">Liên kết tài khoản với tư cách thành viên</span>:
+            <span className="font-semibold text-[#8ADB10]">Bước 2: Quét Mã QR</span>
             <ul className="list-disc ml-6">
-              <li>Đăng nhập vào ứng dụng.</li>
-              <li>Đi đến mục &quot;Hồ sơ&quot; (Profile) hoặc tìm nút &quot;Xác thực thành viên&quot; (Verify Membership).</li>
-              <li>Nhập <span className="font-semibold">số điện thoại</span> mà bạn đã dùng để đăng ký tại câu lạc bộ.</li>
-              <li>Hệ thống sẽ gửi một <span className="font-semibold">mã xác thực (verify code)</span> đến số điện thoại đó.</li>
-              <li>Nhập mã này vào ứng dụng để hoàn tất việc liên kết.</li>
-              <li><span className="text-lime-600 font-semibold">Thành công!</span> Tài khoản của bạn giờ đã có đầy đủ quyền lợi của một thành viên.</li>
+              <li>Mở ứng dụng <span className="font-semibold">Camera</span> trên điện thoại</li>
+              <li>Quét mã QR được đặt trên bàn chơi</li>
+              <li>Trình duyệt sẽ tự động mở trang web ScoreLens</li>
+            </ul>
+          </li>
+          <li>
+            <span className="font-semibold text-[#8ADB10]">Bước 3: Tạo Trận Đấu</span>
+            <ul className="list-disc ml-6">
+              <li>Nhập tên cho đội A và đội B</li>
+              <li>Chọn loại bàn (Pool 8, Pool 9, Snooker...)</li>
+              <li>Nhấn "Tạo trận đấu" để bắt đầu</li>
             </ul>
           </li>
         </ol>
       </section>
 
-      {/* PHẦN 2 */}
       <section>
-        <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Phần 2: Các Chức Năng Khi Tham Gia Trận Đấu</h2>
-        <ol className="list-decimal ml-6 space-y-2 text-base md:text-lg text-gray-800">
-            <li>
-              <span className="font-semibold text-lime-700">Tạo hoặc Tham gia một trận đấu mới:</span><br />
-              Đến bàn chơi, mở ứng dụng và nhấn &quot;Chơi ngay&quot; (Play Now) hoặc &quot;Tạo trận đấu&quot; (Create Match). Ứng dụng có thể yêu cầu bạn <span className="font-semibold">quét mã QR</span> được đặt tại bàn chơi để tự động xác định vị trí và camera.
-            </li>
-            <li>
-              <span className="font-semibold text-lime-700">Theo dõi trận đấu trực tiếp:</span><br />
-              Khi trận đấu bắt đầu, màn hình điện thoại của bạn sẽ hiển thị <span className="font-semibold">giao diện điểm số trực tiếp</span>. Điểm số được cập nhật hoàn toàn <span className="font-semibold">tự động</span> bởi hệ thống Camera AI. Bạn chỉ cần tập trung vào trận đấu!
-            </li>
-            <li>
-              <span className="font-semibold text-lime-700">Gửi Yêu Cầu Hỗ Trợ (Support Request):</span><br />
-              Nếu có sự cố tại bàn chơi (ví dụ: camera nhận diện sai, cần sự giúp đỡ của nhân viên), bạn có thể nhấn nút &quot;Hỗ trợ&quot; trên màn hình trận đấu để gửi yêu cầu trực tiếp đến Quản lý (Manager) của câu lạc bộ.
-            </li>
-          </ol>
-        </section>
+        <h2 className="text-lg md:text-xl font-bold text-[#000000] mb-2">Phần 2: Quản Lý Trận Đấu - Quyền Chủ Phòng</h2>
+        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded text-blue-800 text-base md:text-lg mb-4">
+          <span className="font-semibold">🎯 Lưu Ý Quan Trọng:</span> Chỉ <span className="font-semibold">Chủ phòng</span> (người tạo trận đấu) mới có quyền thực hiện các thao tác quản lý.
+        </div>
+        <ol className="list-decimal ml-6 space-y-2 text-base md:text-lg text-[#000000]">
+          <li>
+            <span className="font-semibold text-[#8ADB10]">Theo Dõi Điểm Số Trực Tiếp</span>
+            <ul className="list-disc ml-6">
+              <li>Điểm số được cập nhật <span className="font-semibold">tự động</span> thông qua AI Camera</li>
+              <li>Xem tỷ số thời gian thực trên màn hình</li>
+              <li>Không cần nhập điểm thủ công</li>
+            </ul>
+          </li>
+          <li>
+            <span className="font-semibold text-[#8ADB10]">Chỉnh Sửa Điểm Số (Chủ phòng)</span>
+            <ul className="list-disc ml-6">
+              <li>Nếu AI nhận diện sai, chủ phòng có thể chỉnh sửa điểm</li>
+              <li>Nhấn nút "Chỉnh sửa" để điều chỉnh điểm cho từng đội</li>
+              <li>Lưu lại để cập nhật tỷ số chính xác</li>
+            </ul>
+          </li>
+          <li>
+            <span className="font-semibold text-[#8ADB10]">Quản Lý Thành Viên (Chủ phòng)</span>
+            <ul className="list-disc ml-6">
+              <li>Thêm thành viên mới vào đội</li>
+              <li>Xóa thành viên khỏi đội nếu cần</li>
+              <li>Chỉnh sửa tên thành viên</li>
+              <li>Phân chia thành viên giữa đội A và đội B</li>
+            </ul>
+          </li>
+          <li>
+            <span className="font-semibold text-[#8ADB10]">Tham Gia Trận Đấu (Thành viên khác)</span>
+            <ul className="list-disc ml-6">
+              <li>Quét mã QR trên bàn để tham gia trận đấu đang diễn ra</li>
+              <li>Nhập mã phòng được chủ phòng cung cấp</li>
+              <li>Xem điểm số trực tiếp nhưng không thể chỉnh sửa</li>
+            </ul>
+          </li>
+        </ol>
+      </section>
 
-        {/* PHẦN 3 */}
-        <section>
-          <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Phần 3: Các Tính Năng Độc Quyền Dành Cho Thành Viên</h2>
-          <ol className="list-decimal ml-6 space-y-4 text-base md:text-lg text-gray-800">
-            <li>
-              <span className="font-semibold text-lime-700">Xem Lịch Sử Trận Đấu (View Match History):</span>
-              <ul className="list-disc ml-6">
-                <li>Từ menu chính, chọn mục &quot;Lịch sử&quot; (History).</li>
-                <li>Xem lại toàn bộ các trận đấu mình đã tham gia: danh sách các trận đấu theo thời gian, kết quả thắng/thua, tỷ số chi tiết, đối thủ, thời gian và địa điểm.</li>
-              </ul>
-            </li>
-            <li>
-              <span className="font-semibold text-lime-700">Xem Thống Kê Cá Nhân (Personal Statistics):</span>
-              <ul className="list-disc ml-6">
-                <li>Tỷ lệ thắng/thua (%), tổng số trận đã đấu, chuỗi thắng/thua dài nhất, các thành tích cá nhân khác.</li>
-              </ul>
-            </li>
-            <li>
-              <span className="font-semibold text-lime-700">Hồ Sơ Được Lưu Sẵn (Pre-filled Profile):</span>
-              <ul className="list-disc ml-6">
-                <li>Khi bạn tạo hoặc tham gia một trận đấu mới, hệ thống sẽ tự động nhận diện và điền sẵn tên của bạn, giúp tiết kiệm thời gian và đảm bảo thông tin luôn chính xác.</li>
-              </ul>
-            </li>
-          </ol>
-        </section>
+      <section>
+        <h2 className="text-lg md:text-xl font-bold text-[#000000] mb-2">Phần 3: Kết Thúc và Đánh Giá</h2>
+        <ol className="list-decimal ml-6 space-y-2 text-base md:text-lg text-[#000000]">
+          <li>
+            <span className="font-semibold text-[#8ADB10]">Kết Thúc Trận Đấu (Chủ phòng)</span>
+            <ul className="list-disc ml-6">
+              <li>Nhấn nút "Kết thúc" khi trận đấu hoàn thành</li>
+              <li>Xem kết quả cuối cùng và người chiến thắng</li>
+              <li>Trận đấu sẽ được lưu vào lịch sử</li>
+            </ul>
+          </li>
+          <li>
+            <span className="font-semibold text-[#8ADB10]">Đánh Giá Trận Đấu</span>
+            <ul className="list-disc ml-6">
+              <li>Tất cả người chơi có thể đánh giá trận đấu</li>
+              <li>Viết nhận xét về trải nghiệm chơi</li>
+              <li>Gửi phản hồi để cải thiện dịch vụ</li>
+            </ul>
+          </li>
+        </ol>
+      </section>
 
-        {/* PHẦN 4 */}
-        <section>
-          <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Phần 4: Quản Lý Tài Khoản và Gửi Phản Hồi</h2>
-          <ul className="list-disc ml-6 text-base md:text-lg text-gray-800">
-            <li><span className="font-semibold">Hồ sơ cá nhân (Profile):</span> Bạn có thể vào mục này để thay đổi ảnh đại diện, tên hiển thị và mật khẩu.</li>
-            <li><span className="font-semibold">Gửi Phản Hồi (Send Feedback):</span> Nếu bạn có góp ý về ứng dụng hoặc phát hiện lỗi, hãy sử dụng chức năng &quot;Phản hồi&quot;. Đội ngũ phát triển sẽ tiếp nhận và cải thiện hệ thống.</li>
+      <section>
+        <h2 className="text-lg md:text-xl font-bold text-[#000000] mb-2">Phần 4: Lợi Ích Dành Cho Hội Viên</h2>
+        <div className="bg-green-50 border-l-4 border-green-400 p-4 rounded text-green-800 text-base md:text-lg">
+          <span className="font-semibold">✨ Đặc Quyền Hội Viên:</span>
+          <ul className="list-disc ml-6 mt-2">
+            <li>Lưu trữ vĩnh viễn tất cả trận đấu đã tham gia</li>
+            <li>Xem lịch sử trận đấu chi tiết</li>
+            <li>Theo dõi thống kê cá nhân và tiến độ</li>
+            <li>Tạo trận đấu riêng mà không cần hỗ trợ</li>
+            <li>Nhận thông báo về các sự kiện đặc biệt</li>
           </ul>
-        </section>
-      </div>
-    ),
+        </div>
+      </section>
+    </div>
+  ),
   user: (
     <div className="space-y-8">
-      <h1 className="text-2xl md:text-3xl font-extrabold text-lime-600 mb-2">
-        Hướng Dẫn Sử Dụng Hệ Thống Scorelens - Dành Cho NGƯỜI DÙNG
+      <h1 className="text-2xl md:text-3xl font-extrabold text-[#8ADB10] mb-2">
+        Hướng Dẫn Sử Dụng Hệ Thống ScoreLens - Dành Cho NGƯỜI DÙNG
       </h1>
 
-      {/* PHẦN 1 */}
       <section>
-        <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Phần 1: Cách Bắt Đầu - Chỉ 3 Bước Nhanh Gọn</h2>
-        <ol className="list-decimal ml-6 space-y-2 text-base md:text-lg text-gray-800">
-          <li>
-            <span className="font-semibold text-lime-700">Dùng Camera Điện Thoại:</span><br />
-            Mở ứng dụng <span className="font-semibold">Camera gốc</span> trên điện thoại của bạn (iPhone hoặc Android).
-          </li>
-          <li>
-            <span className="font-semibold text-lime-700">Quét Mã QR:</span><br />
-            Đưa camera về phía <span className="font-semibold">mã QR</span> được đặt ngay trên bàn chơi của bạn.
-          </li>
-          <li>
-            <span className="font-semibold text-lime-700">Mở Link và Chơi:</span><br />
-            Một đường link sẽ hiện lên trên màn hình camera. Hãy <span className="font-semibold">nhấn vào đường link đó</span>.<br />
-            Trình duyệt web trên điện thoại của bạn (Safari, Chrome,...) sẽ tự động mở ra trang web của trận đấu.<br />
-            <span className="text-lime-600 font-semibold">Vậy là xong!</span> Bạn đã kết nối với hệ thống và sẵn sàng thi đấu.
-          </li>
-        </ol>
-      </section>
-
-      {/* PHẦN 2 */}
-      <section>
-        <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Phần 2: Sử Dụng Trang Web Trong Trận Đấu</h2>
-        <ol className="list-decimal ml-6 space-y-2 text-base md:text-lg text-gray-800">
-          <li>
-            <span className="font-semibold text-lime-700">Nhập Tên (Nếu được yêu cầu):</span><br />
-            Trang web có thể yêu cầu bạn nhập tên hoặc biệt danh cho mình và đối thủ. Việc này giúp bảng điểm hiển thị đúng người, đúng điểm.
-          </li>
-          <li>
-            <span className="font-semibold text-lime-700">Theo Dõi Điểm Số Trực Tiếp:</span><br />
-            Bây giờ, hãy cất điện thoại đi và tập trung vào trận đấu!<br />
-            Mỗi khi có điểm được ghi, điểm số trên trang web sẽ <span className="font-semibold">tự động cập nhật</span> trong thời gian thực. Bạn có thể liếc nhìn điện thoại bất cứ lúc nào để xem tỷ số.
-          </li>
-          <li>
-            <span className="font-semibold text-lime-700">Yêu Cầu Hỗ Trợ (Nếu cần):</span><br />
-            Nếu có sự cố tại bàn chơi, hãy tìm nút &quot;Hỗ trợ&quot; (Support) trên trang web. Nhấn vào đó sẽ gửi thông báo ngay lập tức đến Quản lý câu lạc bộ.
-          </li>
-        </ol>
-      </section>
-
-      {/* PHẦN 3 */}
-      <section>
-        <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Phần 3: Sau Khi Trận Đấu Kết Thúc</h2>
-        <p className="text-base md:text-lg text-gray-800 mb-2">
-          Khi trận đấu của bạn kết thúc, trang web sẽ hiển thị <span className="font-semibold">kết quả cuối cùng</span> và người chiến thắng.
+        <h2 className="text-lg md:text-xl font-bold text-[#000000] mb-2">Phần 1: Bắt Đầu Nhanh Chóng - Chỉ 3 Bước</h2>
+        <p className="text-base md:text-lg text-[#000000] mb-2">
+          Bạn có thể sử dụng hệ thống ScoreLens ngay lập tức mà không cần đăng ký tài khoản. Chỉ cần làm theo 3 bước đơn giản sau:
         </p>
-        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded text-yellow-800 text-base md:text-lg font-semibold">
-          LƯU Ý CỰC KỲ QUAN TRỌNG:<br />
-          Vì bạn đang dùng web app với tư cách khách, dữ liệu trận đấu này chỉ là tạm thời.<br />
-          Nếu bạn <span className="underline">đóng tab trình duyệt hoặc thoát ra</span>, thông tin về trận đấu này sẽ <span className="text-red-600 font-bold">mất vĩnh viễn</span> và bạn sẽ không thể xem lại được.
+        <ol className="list-decimal ml-6 space-y-2 text-base md:text-lg text-[#000000]">
+          <li>
+            <span className="font-semibold text-[#8ADB10]">Bước 1: Mở Camera Điện Thoại</span>
+            <ul className="list-disc ml-6">
+              <li>Sử dụng ứng dụng <span className="font-semibold">Camera gốc</span> trên điện thoại</li>
+              <li>Hoạt động trên cả iPhone và Android</li>
+            </ul>
+          </li>
+          <li>
+            <span className="font-semibold text-[#8ADB10]">Bước 2: Quét Mã QR</span>
+            <ul className="list-disc ml-6">
+              <li>Đưa camera về phía <span className="font-semibold">mã QR</span> trên bàn chơi</li>
+              <li>Mã QR được đặt ngay trên bàn để dễ dàng quét</li>
+            </ul>
+          </li>
+          <li>
+            <span className="font-semibold text-[#8ADB10]">Bước 3: Tự Động Mở Trang Web</span>
+            <ul className="list-disc ml-6">
+              <li>Trình duyệt sẽ tự động mở trang web ScoreLens</li>
+              <li>Hiển thị thông tin bàn chơi và sẵn sàng sử dụng</li>
+            </ul>
+          </li>
+        </ol>
+      </section>
+
+      <section>
+        <h2 className="text-lg md:text-xl font-bold text-[#000000] mb-2">Phần 2: Sử Dụng Trang Web Trong Trận Đấu</h2>
+        <ol className="list-decimal ml-6 space-y-2 text-base md:text-lg text-[#000000]">
+          <li>
+            <span className="font-semibold text-[#8ADB10]">Nhập Thông Tin Ban Đầu</span>
+            <ul className="list-disc ml-6">
+              <li>Nhập tên hoặc biệt danh cho đội A và đội B</li>
+              <li>Chọn loại bàn chơi (Pool 8, Pool 9, Snooker...)</li>
+              <li>Nhấn "Bắt đầu" để khởi tạo trận đấu</li>
+            </ul>
+          </li>
+          <li>
+            <span className="font-semibold text-[#8ADB10]">Theo Dõi Điểm Số Trực Tiếp</span>
+            <ul className="list-disc ml-6">
+              <li>Điểm số được cập nhật <span className="font-semibold">tự động</span> trong thời gian thực</li>
+              <li>Không cần nhập điểm thủ công</li>
+              <li>Có thể liếc nhìn điện thoại bất cứ lúc nào để xem tỷ số</li>
+            </ul>
+          </li>
+          <li>
+            <span className="font-semibold text-[#8ADB10]">Chỉnh Sửa Điểm (Nếu Cần)</span>
+            <ul className="list-disc ml-6">
+              <li>Nếu AI nhận diện sai điểm, có thể chỉnh sửa</li>
+              <li>Nhấn nút "Chỉnh sửa" để điều chỉnh điểm số</li>
+              <li>Lưu lại để cập nhật tỷ số chính xác</li>
+            </ul>
+          </li>
+          <li>
+            <span className="font-semibold text-[#8ADB10]">Kết Thúc Trận Đấu</span>
+            <ul className="list-disc ml-6">
+              <li>Nhấn nút "Kết thúc" khi trận đấu hoàn thành</li>
+              <li>Xem kết quả cuối cùng và người chiến thắng</li>
+              <li>Đánh giá trận đấu (tùy chọn)</li>
+            </ul>
+          </li>
+        </ol>
+      </section>
+
+      <section>
+        <h2 className="text-lg md:text-xl font-bold text-[#000000] mb-2">Phần 3: Lưu Ý Quan Trọng</h2>
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded text-yellow-800 text-base md:text-lg">
+          <span className="font-semibold">⚠️ Lưu Ý Cực Kỳ Quan Trọng:</span><br />
+          Vì bạn đang sử dụng web app với tư cách khách, dữ liệu trận đấu này chỉ là <span className="font-semibold">tạm thời</span>.<br />
+          Nếu bạn <span className="underline">đóng tab trình duyệt hoặc thoát ra</span>, thông tin về trận đấu này sẽ <span className="text-[#FF0000] font-bold">mất vĩnh viễn</span> và bạn sẽ không thể xem lại được.
         </div>
       </section>
 
-      {/* PHẦN 4 */}
       <section>
-        <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Phần 4: Muốn Lưu Lịch Sử? Hãy Trở Thành Thành Viên!</h2>
-        <p className="text-base md:text-lg text-gray-800 mb-2">
-          Bạn có muốn lưu lại mọi trận đấu để xem lại thành tích và sự tiến bộ của mình không? Hãy đăng ký làm <span className="text-lime-600 font-semibold">Thành viên</span> của câu lạc bộ!
+        <h2 className="text-lg md:text-xl font-bold text-[#000000] mb-2">Phần 4: Nâng Cấp Lên Hội Viên</h2>
+        <p className="text-base md:text-lg text-[#000000] mb-2">
+          Bạn có muốn lưu lại mọi trận đấu để xem lại thành tích và sự tiến bộ của mình không? Hãy đăng ký làm <span className="text-[#8ADB10] font-semibold">Hội viên</span> của câu lạc bộ!
         </p>
-        <ul className="list-disc ml-6 text-base md:text-lg text-gray-800">
-          <li><span className="font-semibold">Lưu lại toàn bộ lịch sử trận đấu</span> để xem bất cứ lúc nào.</li>
-          <li><span className="font-semibold">Theo dõi thống kê cá nhân</span> (tỷ lệ thắng/thua, điểm số trung bình).</li>
-          <li><span className="font-semibold">Không cần nhập lại tên</span> mỗi khi chơi.</li>
-          <li>Để đăng ký, bạn chỉ cần liên hệ với nhân viên tại quầy. Rất nhanh chóng và đơn giản!</li>
-        </ul>
+        <div className="bg-lime-50 border-l-4 border-lime-400 p-4 rounded text-lime-800 text-base md:text-lg">
+          <span className="font-semibold">🎁 Lợi Ích Khi Trở Thành Hội Viên:</span>
+          <ul className="list-disc ml-6 mt-2">
+            <li>Lưu trữ vĩnh viễn tất cả trận đấu đã tham gia</li>
+            <li>Xem lịch sử trận đấu chi tiết</li>
+            <li>Theo dõi thống kê cá nhân và tiến độ</li>
+            <li>Tạo trận đấu riêng mà không cần hỗ trợ</li>
+            <li>Nhận thông báo về các sự kiện đặc biệt</li>
+            <li>Liên hệ Quản lý câu lạc bộ để đăng ký làm hội viên</li>
+          </ul>
+        </div>
       </section>
     </div>
   ),
@@ -413,16 +480,15 @@ export default function GuidePage() {
       {loading && <ScoreLensLoading text="Đang tải..." />}
       <HeaderHome />
       <HeroSection />
-      <div id="main-content" className="bg-white text-black min-h-screen pt-24">
+      <div id="main-content" className="bg-white text-[#000000] min-h-screen pt-24">
         <div className="container mx-auto flex flex-col md:flex-row gap-8 px-4 pb-16">
-          {/* Sidebar */}
-          <aside className="w-full md:w-64 flex-shrink-0 mb-8 md:mb-0">
-            <nav className="bg-white rounded-xl shadow p-4 text-black sticky top-28">
+          <aside className="w-full md:w-64 flex-shrink-0 mb-8 md:mb-0 z-10">
+            <nav className="bg-[#000000] rounded-xl shadow p-4 text-[#FFFFFF] sticky top-28 z-10">
               <ul className="space-y-2">
                 {ROLES.map(r => (
                   <li key={r.key}>
                     <button
-                      className={`w-full text-left px-4 py-2 rounded-lg font-bold transition-colors ${role === r.key ? 'bg-lime-100 text-lime-600' : 'text-black hover:bg-gray-100'}`}
+                      className={`w-full text-left px-4 py-2 rounded-lg font-bold transition-colors ${role === r.key ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'text-[#FFFFFF] hover:bg-lime-100 hover:text-[#000000]'}`}
                       onClick={() => setRole(r.key as 'business' | 'manager' | 'member' | 'user')}
                     >
                       {r.label}
@@ -432,8 +498,7 @@ export default function GuidePage() {
               </ul>
             </nav>
           </aside>
-          {/* Main Content */}
-          <main className="flex-1 bg-white rounded-xl shadow p-8 text-black min-h-[600px]">
+          <main className="flex-1 bg-white rounded-xl shadow p-8 text-[#000000] min-h-[600px] z-10">
             {GUIDE_CONTENT[role]}
           </main>
         </div>
