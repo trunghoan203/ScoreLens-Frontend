@@ -1,20 +1,17 @@
 import { io, Socket } from 'socket.io-client';
 import { config } from './config';
 
-// ← MỚI: Interface cho authentication
 export interface MatchAuthData {
   matchId: string;
   sessionToken: string;
 }
 
-// ← MỚI: Interface cho authentication result
 export interface AuthResult {
   success: boolean;
   role: 'host' | 'participant' | 'manager';
   message?: string;
 }
 
-// ← MỚI: Interface cho permission denied event
 export interface PermissionDeniedData {
   message: string;
   requiredRole: string;
@@ -24,8 +21,8 @@ export interface PermissionDeniedData {
 class SocketService {
   private socket: Socket | null = null;
   private isConnected = false;
-  private isAuthenticated = false; // ← MỚI: Trạng thái authentication
-  private currentRole: string | null = null; // ← MỚI: Role hiện tại của user
+  private isAuthenticated = false;
+  private currentRole: string | null = null;
 
   connect() {
     if (this.socket && this.isConnected) {
@@ -39,7 +36,7 @@ class SocketService {
 
     this.socket.on('connect', () => {
       this.isConnected = true;
-      this.isAuthenticated = false; // Reset authentication khi reconnect
+      this.isAuthenticated = false;
       this.currentRole = null;
     });
 
@@ -68,7 +65,6 @@ class SocketService {
     }
   }
 
-  // ← MỚI: Authenticate với match room
   authenticateMatch(matchId: string, sessionToken: string) {
     if (this.socket) {
       this.socket.emit('authenticate_match', {
@@ -78,7 +74,6 @@ class SocketService {
     }
   }
 
-  // ← MỚI: Lắng nghe kết quả authentication
   onAuthResult(callback: (data: AuthResult) => void) {
     if (this.socket) {
       this.socket.on('auth_result', (data: AuthResult) => {
@@ -89,7 +84,6 @@ class SocketService {
     }
   }
 
-  // ← MỚI: Lắng nghe permission denied
   onPermissionDenied(callback: (data: PermissionDeniedData) => void) {
     if (this.socket) {
       this.socket.on('permission_denied', callback);
@@ -111,7 +105,7 @@ class SocketService {
   leaveMatchRoom(matchId: string) {
     if (this.socket) {
       this.socket.emit('leave_match', { matchId });
-      this.isAuthenticated = false; // Reset authentication khi rời room
+      this.isAuthenticated = false;
       this.currentRole = null;
     }
   }
@@ -142,10 +136,8 @@ class SocketService {
     }
   }
 
-  // ← MỚI: Kiểm tra quyền trước khi emit score update
   emitScoreUpdate(matchId: string, teamIndex: number, score: number) {
     if (this.socket && this.isAuthenticated) {
-      // Chỉ cho phép host hoặc manager cập nhật điểm
       if (this.currentRole === 'host' || this.currentRole === 'manager') {
         this.socket.emit('score_updated', {
           matchId,
@@ -160,7 +152,6 @@ class SocketService {
     }
   }
 
-  // ← MỚI: Kiểm tra quyền trước khi emit match end
   emitMatchEnd(matchId: string, matchData: {
     matchId?: string;
     tableName?: string;
@@ -173,7 +164,7 @@ class SocketService {
     endTime?: string;
   }) {
     if (this.socket && this.isAuthenticated) {
-      // Chỉ cho phép host hoặc manager kết thúc trận
+
       if (this.currentRole === 'host' || this.currentRole === 'manager') {
         this.socket.emit('match_ended', {
           matchId,
@@ -199,27 +190,27 @@ class SocketService {
     return this.isConnected;
   }
 
-  // ← MỚI: Kiểm tra trạng thái authentication
+
   isMatchAuthenticated() {
     return this.isAuthenticated;
   }
 
-  // ← MỚI: Lấy role hiện tại
+
   getCurrentRole() {
     return this.currentRole;
   }
 
-  // ← MỚI: Kiểm tra có phải host không
+
   isHost() {
     return this.currentRole === 'host';
   }
 
-  // ← MỚI: Kiểm tra có phải manager không
+
   isManager() {
     return this.currentRole === 'manager';
   }
 
-  // ← MỚI: Kiểm tra có quyền chỉnh sửa không
+
   canEdit() {
     return this.currentRole === 'host' || this.currentRole === 'manager';
   }

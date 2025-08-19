@@ -27,22 +27,14 @@ export default function SessionTokenSync({
       toast.error('Không có matchId để sync');
       return;
     }
-
     setSyncing(true);
     try {
-  
-
-      // Xác định payload cho session token API
       let sessionTokenPayload: { membershipId?: string; guestName?: string } = {};
-      
-      // Nếu có membershipId thì dùng membershipId
       if (matchInfo?.createdByMembershipId) {
         sessionTokenPayload.membershipId = matchInfo.createdByMembershipId;
 
       } 
-      // Nếu không có membershipId thì dùng guestName từ actorGuestToken
       else if (actorGuestToken) {
-        // Tìm guestName từ teams data
         const currentTeams = matchInfo?.teams || [];
         const allMembers = currentTeams.flatMap((t: any) => t.members);
         const currentMember = allMembers.find((m: any) => 
@@ -53,29 +45,17 @@ export default function SessionTokenSync({
 
         }
       }
-
       if (Object.keys(sessionTokenPayload).length === 0) {
         toast.error('Không thể xác định người dùng để lấy phiên làm việc');
         return;
       }
-
-      
-      
-      // Gọi API để lấy sessionToken mới nhất
       const sessionResponse = await userMatchService.getSessionToken(matchId, sessionTokenPayload);
-      
-      
       const responseData = sessionResponse as any;
       setLastSyncResult(responseData);
 
       if (responseData.success && responseData.data?.sessionToken) {
         const newSessionToken = responseData.data.sessionToken;
-        
-        // So sánh token cũ vs mới
         if (newSessionToken !== currentSessionToken) {
-
-          
-          // Cập nhật token mới
           onTokenUpdate(newSessionToken);
 
           toast.success('Đã cập nhật phiên làm việc mới!');

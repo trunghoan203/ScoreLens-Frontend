@@ -451,6 +451,30 @@ export default function TableDetailPage() {
         return;
       }
 
+      const buildKey = (m: { membershipId?: string; phoneNumber?: string; guestName?: string }) =>
+        m.membershipId ? `mem:${m.membershipId}` :
+        m.phoneNumber ? `guest:${m.phoneNumber}` :
+        m.guestName ? `guest:${(m.guestName || '').trim().toLowerCase()}` : '';
+
+      const validateNoDuplicate = (teams: Array<Array<{ membershipId?: string; phoneNumber?: string; guestName?: string }>>) => {
+        const seen = new Set<string>();
+        for (const team of teams) {
+          for (const m of team) {
+            const k = buildKey(m);
+            if (!k) continue;
+            if (seen.has(k)) return false;
+            seen.add(k);
+          }
+        }
+        return true;
+      };
+
+      const teamsPayloadPrecheck = [updatedTeamA, updatedTeamB];
+      if (!validateNoDuplicate(teamsPayloadPrecheck)) {
+        toast.error('Bạn đã tham gia trận đấu này rồi.');
+        return;
+      }
+
       await managerMatchService.updateTeamMembers(activeMatchId, {
         teams: [
           updatedTeamA,
@@ -484,8 +508,13 @@ export default function TableDetailPage() {
       setIsEditing(false);
       toast.success('Cập nhật thành viên thành công!');
     } catch (error) {
-      console.error('Error updating team members:', error);
-      toast.error('Cập nhật thành viên thất bại!');
+      const err = error as Error & { status?: number };
+      if ((err as any)?.status === 409) {
+        toast.error(err.message || 'Bạn đã tham gia trận đấu này rồi.');
+      } else {
+        console.error('Error updating team members:', error);
+        toast.error(err.message || 'Cập nhật thành viên thất bại!');
+      }
     }
   };
 

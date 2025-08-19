@@ -278,7 +278,7 @@ function GuestJoinContent() {
 
       router.push(`/user/match/lobby?${params.toString()}`);
     } catch {
-      toast.error('Có lỗi xảy ra, vui lòng thử lại.');
+      toast.error('Bạn đã tham gia trận đấu này rồi.');
     } finally {
       setIsCreatingMatch(false);
       setShowTeamPopup(false);
