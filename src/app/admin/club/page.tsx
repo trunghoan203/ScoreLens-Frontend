@@ -172,6 +172,7 @@ export default function ClubInfoPage() {
                 </div>
               </div>
 
+
               <div className={`w-full max-w-6xl mt-6 space-y-4`}>
                 {branches.map((branch, idx) => (
                   <div
