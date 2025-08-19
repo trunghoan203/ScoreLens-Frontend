@@ -86,7 +86,7 @@ export function HeaderSuperAdmin() {
         <>
             <header className="w-full flex justify-between items-center py-4 px-8 bg-black">
                 <div className="flex items-center gap-4">
-                    <ScoreLensLogo />
+                    <ScoreLensLogo href="/superadmin/home" />
                 </div>
                 <div className="flex items-center gap-4">
                     <div className="hidden sm:block relative" ref={dropdownRef}>
