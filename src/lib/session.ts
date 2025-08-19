@@ -1,4 +1,4 @@
-// src/lib/session.ts
+
 export const SKEY = (matchId: string) => `sl:session:${matchId}`;
 export const IKEY = (matchId: string) => `sl:identity:${matchId}`;
 
@@ -6,7 +6,7 @@ export type UserIdentity = {
   membershipId?: string; 
   guestName?: string; 
   fullName?: string;
-  actorGuestToken?: string; // ← Thêm để hỗ trợ guest users
+  actorGuestToken?: string;
 };
 
 export type UserSession = { 
@@ -42,7 +42,6 @@ export const clearSession = (matchId: string) => localStorage.removeItem(SKEY(ma
 
 export const clearIdentity = (matchId: string) => localStorage.removeItem(IKEY(matchId));
 
-// Helper để clear tất cả data của một match
 export const clearMatchData = (matchId: string) => {
   clearSession(matchId);
   clearIdentity(matchId);
