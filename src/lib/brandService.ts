@@ -37,13 +37,13 @@ export const createBrand = (data: {
 }) => axios.post('/admin/brands', data);
 
 // Cập nhật brand
-export const updateBrand = (brandId: string, data: {
+export const updateBrand = (brandId: string, data: Partial<{
     brandName: string;
     phoneNumber: string;
     website: string;
     logo_url: string;
     citizenCode: string;
-}) => axios.put(`/admin/brands/${brandId}`, data);
+}>) => axios.put(`/admin/brands/${brandId}`, data);
 
 // Lấy danh sách brand
 export const getBrands = () => axios.get('/admin/brands');

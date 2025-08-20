@@ -37,6 +37,7 @@ export default function ClubInfoPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [uploading, setUploading] = useState(false);
+  const [logoChanged, setLogoChanged] = useState(false);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -50,6 +51,7 @@ export default function ClubInfoPage() {
           setWebsite(brand.website || "");
           setCitizenCode(brand.citizenCode || "");
           setPhone(brand.phoneNumber || "");
+          setLogoChanged(false);     
           const clubsData = await clubsService.getClubsByBrandId(brandId);
           setClubs(clubsData);
           if (clubsData.length > 0) {
@@ -108,6 +110,13 @@ export default function ClubInfoPage() {
     e.preventDefault();
 
     if (!isEditing) {
+      if (brandInfo) {
+        setBrandName(brandInfo.brandName || "");
+        setWebsite(brandInfo.website || "");
+        setCitizenCode(brandInfo.citizenCode || "");
+        setPhone(brandInfo.phoneNumber || "");
+        setLogoChanged(false);
+      }
       setIsEditing(true);
       return;
     }
@@ -148,6 +157,7 @@ export default function ClubInfoPage() {
       
       if (brandInfo?.brandId) {
         setBrandInfo(prev => prev ? { ...prev, logo_url: uploadedUrl } : null);
+        setLogoChanged(true);
       }
       
       toast.success('Upload logo thành công!');
@@ -165,15 +175,29 @@ export default function ClubInfoPage() {
 
     try {
       if (brandInfo?.brandId) {
-        await updateBrand(brandInfo.brandId, {
-          brandName: brandName,
-          phoneNumber: phone,
-          website: website,
-          logo_url: brandInfo.logo_url || '',
-          citizenCode: citizenCode,
-        });
-        toast.success('Cập nhật thông tin thương hiệu thành công!');
-        setIsEditing(false);
+        const changedFields: Partial<{
+          brandName: string;
+          phoneNumber: string;
+          website: string;
+          logo_url: string;
+          citizenCode: string;
+        }> = {};
+
+        const normalizeValue = (value: string | undefined) => value || ''; 
+        if (normalizeValue(brandName) !== normalizeValue(brandInfo.brandName)) {changedFields.brandName = brandName;}
+        if (normalizeValue(phone) !== normalizeValue(brandInfo.phoneNumber)) {changedFields.phoneNumber = phone;}
+        if (normalizeValue(website) !== normalizeValue(brandInfo.website)) {changedFields.website = website;}
+        if (normalizeValue(citizenCode) !== normalizeValue(brandInfo.citizenCode)) {changedFields.citizenCode = citizenCode;}
+        if (logoChanged && brandInfo.logo_url) {changedFields.logo_url = brandInfo.logo_url;}
+
+        if (Object.keys(changedFields).length > 0) {
+          await updateBrand(brandInfo.brandId, changedFields);
+          toast.success('Cập nhật thông tin thương hiệu thành công!');
+          setIsEditing(false);
+        } else {
+          toast.success('Không có thông tin nào thay đổi');
+          setIsEditing(false);
+        }
       }
     } catch (error) {
       console.error('Error updating brand:', error);
@@ -195,6 +219,7 @@ export default function ClubInfoPage() {
       setPhone(brandInfo.phoneNumber || "");
     }
     setIsEditing(false);
+    setLogoChanged(false);
     window.location.reload();
   };
 
