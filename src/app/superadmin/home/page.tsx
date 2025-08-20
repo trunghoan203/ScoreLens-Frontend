@@ -3,12 +3,14 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
+import { HeaderSuperAdmin } from '@/components/shared/HeaderSuperAdmin';
 import { PageBanner } from '@/components/shared/PageBanner';
 import { AdminFilters } from '@/components/features/AdminFilters';
 import { AdminTable } from '@/components/features/AdminTable';
 import { FeedbackTable } from '@/components/features/FeedbackTable';
 import { getAdminList } from '@/lib/saAdminService';
+import { useSuperAdminAuthGuard } from '@/lib/hooks/useSuperAdminAuthGuard';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 
 interface ApiAdmin {
@@ -17,6 +19,7 @@ interface ApiAdmin {
   email: string;
   location?: string;
   status: 'approved' | 'pending' | 'rejected';
+  createdAt: string;
 }
 
 export interface TableAdmin {
@@ -25,25 +28,36 @@ export interface TableAdmin {
   email: string;
   location: string;
   status: 'Đã duyệt' | 'Chưa duyệt' | 'Bị từ chối';
+  createdAt: string;
 }
 
 function SuperAdminHomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') === 'feedback' ? 'feedback' : 'approval';
+  const { isChecking } = useSuperAdminAuthGuard();
 
   const [activeTab, setActiveTab] = useState<'approval' | 'feedback'>(initialTab);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [admins, setAdmins] = useState<TableAdmin[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (activeTab === 'approval') {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    if (activeTab === 'approval' && admins.length === 0) {
       setLoading(true);
       getAdminList({
-        search: searchTerm,
-        status: statusFilter,
+        search: '',
+        status: undefined,
         page: 1,
         limit: 50,
       })
@@ -60,6 +74,7 @@ function SuperAdminHomeContent() {
                 : admin.status === 'pending'
                   ? 'Chưa duyệt'
                   : 'Bị từ chối',
+            createdAt: admin.createdAt,
           }));
           setAdmins(mappedAdmins);
           setLoading(false);
@@ -69,8 +84,15 @@ function SuperAdminHomeContent() {
           setAdmins([]);
           setLoading(false);
         });
+    } else if (activeTab === 'feedback') {
+      setLoading(false);
     }
-  }, [searchTerm, statusFilter, activeTab]);
+  }, [activeTab, admins.length]);
+
+  useEffect(() => {
+    if (activeTab === 'approval' && admins.length > 0) {
+    }
+  }, [debouncedSearchTerm, statusFilter, activeTab, admins.length]);
 
   const handleRowClick = (adminId: string) => {
     router.push(`/superadmin/admin/${adminId}`);
@@ -83,9 +105,17 @@ function SuperAdminHomeContent() {
 
   return (
     <>
-      <HeaderAdmin />
+      {(isChecking || (activeTab === 'approval' && loading)) && (
+        <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="text-center">
+            <LoadingSpinner size="lg" />
+            <p className="mt-4 text-gray-600 font-medium">Đang tải...</p>
+          </div>
+        </div>
+      )}
+      <HeaderSuperAdmin />
       <PageBanner title={activeTab === 'approval' ? 'DANH SÁCH ADMIN' : 'DANH SÁCH PHẢN HỒI'} />
-      <div className="bg-[#EEEDED] w-full px-4 md:px-8 py-8">
+      <div className="bg-[#EEEDED] w-full px-4 md:px-8 py-8 min-h-[calc(100vh-200px)]">
         <div className="max-w-6xl mx-auto space-y-6 md:space-y-8">
           {/* Toggle Tabs */}
           <div className="flex justify-center">
@@ -128,16 +158,12 @@ function SuperAdminHomeContent() {
                   onSearchChange={setSearchTerm}
                   onStatusChange={setStatusFilter}
                 />
-                {loading ? (
-                  <div className="text-center py-8">Đang tải...</div>
-                ) : (
-                  <AdminTable
-                    admins={admins}
-                    onRowClick={handleRowClick}
-                    searchTerm={searchTerm}
-                    statusFilter={statusFilter}
-                  />
-                )}
+                <AdminTable
+                  admins={admins}
+                  onRowClick={handleRowClick}
+                  searchTerm={searchTerm}
+                  statusFilter={statusFilter}
+                />
               </motion.div>
             ) : (
               <motion.div
@@ -160,7 +186,14 @@ function SuperAdminHomeContent() {
 
 export default function SuperAdminHomePage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={
+      <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner size="lg" />
+          <p className="mt-4 text-gray-600 font-medium">Đang tải...</p>
+        </div>
+      </div>
+    }>
       <SuperAdminHomeContent />
     </Suspense>
   );

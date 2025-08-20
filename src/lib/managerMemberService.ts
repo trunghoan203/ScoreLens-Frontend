@@ -27,7 +27,7 @@ class ManagerMemberService {
     return res.data;
   }
 
-  async updateMember(id: string, data: { fullName: string; phoneNumber: string }) {
+  async updateMember(id: string, data: { fullName: string; phoneNumber: string; status?: 'active' | 'inactive' }) {
     const res = await axios.put(`/manager/membership/${id}`, data, {
       headers: this.getAuthHeaders(),
     });

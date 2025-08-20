@@ -37,9 +37,26 @@ class ManagerService {
     }
   }
 
-  /**
-   * Lấy danh sách manager theo brandId (hoặc tất cả nếu không có brandId)
-   */
+  async getCurrentManager() {
+    try {
+      const res = await axios.get('/manager/profile');
+      return res.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  getManagerIdFromSession(): string | null {
+    if (typeof window !== 'undefined') {
+      const managerId = localStorage.getItem('managerId');
+      if (managerId && !managerId.includes('eyJ')) {
+        return managerId;
+      }
+      return null;
+    }
+    return null;
+  }
+
   async getManagers(brandId?: string | null) {
     try {
       const params = brandId ? { brandId } : {};
@@ -50,9 +67,6 @@ class ManagerService {
     }
   }
 
-  /**
-   * Tạo mới manager
-   */
   async createManager(manager: {
     fullName: string;
     email: string;
@@ -70,9 +84,6 @@ class ManagerService {
     }
   }
 
-  /**
-   * Lấy chi tiết manager theo managerId
-   */
   async getManagerDetail(managerId: string) {
     try {
       const res = await axios.get(`/admin/managers/${managerId}`);
@@ -82,9 +93,6 @@ class ManagerService {
     }
   }
 
-  /**
-   * Cập nhật thông tin manager
-   */
   async updateManager(managerId: string, data: {
     fullName: string;
     email: string;
@@ -93,6 +101,7 @@ class ManagerService {
     citizenCode: string;
     address: string;
     clubId: string;
+    isActive: boolean;
   }) {
     try {
       const res = await axios.put(`/admin/managers/${managerId}`, data);
@@ -102,9 +111,6 @@ class ManagerService {
     }
   }
 
-  /**
-   * Xóa manager
-   */
   async deleteManager(managerId: string) {
     try {
       const res = await axios.delete(`/admin/managers/${managerId}`);

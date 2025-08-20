@@ -5,14 +5,17 @@ import HeaderManager from '@/components/manager/HeaderManager';
 import DashboardSummary from '@/components/manager/DashboardSummary';
 import TableFilterBar from '@/components/manager/TableFilterBar';
 import TableCardList from '@/components/manager/TableCardList';
-import ButtonXemThem from '@/components/manager/ButtonXemThem';
+import ButtonViewMore from '@/components/manager/ButtonViewMore';
 import { useRouter } from 'next/navigation';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
+import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import EmptyState from '@/components/ui/EmptyState';
 import { useManagerAuthGuard } from '@/lib/hooks/useManagerAuthGuard';
 import { managerTableService } from '@/lib/managerTableService';
 import { managerMemberService } from '@/lib/managerMemberService';
+import { managerMatchService } from '@/lib/managerMatchService';
+
 import toast from 'react-hot-toast';
 
 interface TableData {
@@ -24,6 +27,13 @@ interface TableData {
   teamA?: string;
   teamB?: string;
   time?: string;
+  matchId?: string;
+  matchStatus?: 'pending' | 'ongoing' | 'completed';
+  elapsedTime?: string;
+  isAiAssisted?: boolean;
+  scoreA?: number;
+  scoreB?: number;
+  creatorType?: 'manager' | 'member' | 'guest' | null;
 }
 
 interface RawTableData {
@@ -48,7 +58,7 @@ export default function ManagerDashboardPage() {
   const [search, setSearch] = useState('');
   const [type, setType] = useState('');
   const [status, setStatus] = useState('');
-  const [isScrolled, setIsScrolled] = useState(false);
+
   const router = useRouter();
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -61,6 +71,15 @@ export default function ManagerDashboardPage() {
   const [loadingStats, setLoadingStats] = useState(true);
   const [tables, setTables] = useState<TableData[]>([]);
   const [loadingTables, setLoadingTables] = useState(true);
+  const [activeMatches, setActiveMatches] = useState<Map<string, {
+    matchId: string;
+    status: string;
+    startTime: Date | null;
+    isAiAssisted?: boolean;
+    scoreA?: number;
+    scoreB?: number;
+    creatorType?: 'manager' | 'member' | 'guest' | null;
+  }>>(new Map());
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -70,7 +89,7 @@ export default function ManagerDashboardPage() {
 
         const tablesData = await managerTableService.getAllTables();
         const tablesArray = Array.isArray(tablesData) ? tablesData : (tablesData as { tables?: RawTableData[] })?.tables || [];
-        
+
         const transformedTables: TableData[] = tablesArray.map((table: RawTableData) => ({
           id: table.tableId || table.id || table._id || '',
           tableId: table.tableId,
@@ -84,6 +103,81 @@ export default function ManagerDashboardPage() {
 
         setTables(transformedTables);
 
+        const inUseTables = transformedTables.filter(table => table.status === 'inuse');
+        const matchDataPromises = inUseTables.map(async (table) => {
+          try {
+            const ongoingResponse = await managerMatchService.getMatchesByTable(table.id, 'ongoing', 1, 1) as Record<string, unknown>;
+            if (ongoingResponse.success && Array.isArray(ongoingResponse.data) && ongoingResponse.data.length > 0) {
+              const match = ongoingResponse.data[0];
+
+              const teams = match.teams as Array<{ score: number }> || [];
+              const scoreA = teams[0]?.score || 0;
+              const scoreB = teams[1]?.score || 0;
+
+              let creatorType: 'manager' | 'member' | 'guest' | null = null;
+              if (match.managerId) {
+                creatorType = 'manager';
+              } else if (match.createdByMembershipId) {
+                creatorType = 'member';
+              } else if (match.creatorGuestToken) {
+                creatorType = 'guest';
+              }
+
+              return {
+                tableId: table.id,
+                matchId: match.matchId,
+                status: match.status,
+                startTime: match.startTime ? new Date(match.startTime) : (match.status === 'ongoing' ? new Date() : null),
+                isAiAssisted: match.isAiAssisted,
+                scoreA: scoreA,
+                scoreB: scoreB,
+                creatorType: creatorType
+              };
+            }
+
+            const pendingResponse = await managerMatchService.getMatchesByTable(table.id, 'pending', 1, 1) as Record<string, unknown>;
+            if (pendingResponse.success && Array.isArray(pendingResponse.data) && pendingResponse.data.length > 0) {
+              const match = pendingResponse.data[0];
+
+              const teams = match.teams as Array<{ score: number }> || [];
+              const scoreA = teams[0]?.score || 0;
+              const scoreB = teams[1]?.score || 0;
+
+              let creatorType: 'manager' | 'member' | 'guest' | null = null;
+              if (match.managerId) {
+                creatorType = 'manager';
+              } else if (match.createdByMembershipId) {
+                creatorType = 'member';
+              } else if (match.creatorGuestToken) {
+                creatorType = 'guest';
+              }
+
+              return {
+                tableId: table.id,
+                matchId: match.matchId,
+                status: match.status,
+                startTime: match.startTime ? new Date(match.startTime) : (match.status === 'ongoing' ? new Date() : null),
+                isAiAssisted: match.isAiAssisted,
+                scoreA: scoreA,
+                scoreB: scoreB,
+                creatorType: creatorType
+              };
+            }
+          } catch (error) {
+            console.error(`Error fetching match data for table ${table.id}:`, error);
+          }
+          return null;
+        });
+
+        const matchResults = await Promise.all(matchDataPromises);
+        const matchMap = new Map();
+        matchResults.forEach(result => {
+          if (result) {
+            matchMap.set(result.tableId, result);
+          }
+        });
+        setActiveMatches(matchMap);
+
         const membersData = await managerMemberService.getAllMembers();
         const members = Array.isArray(membersData) ? membersData : (membersData as MembersData)?.memberships || [];
 
@@ -91,7 +185,7 @@ export default function ManagerDashboardPage() {
         const inUse = transformedTables.filter((table: TableData) => table.status === 'inuse').length;
         const available = transformedTables.filter((table: TableData) => table.status === 'empty').length;
         const totalMembers = members.length;
-                
+
         setDashboardStats({
           totalTables,
           inUse,
@@ -112,21 +206,14 @@ export default function ManagerDashboardPage() {
     }
   }, [isChecking]);
 
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-    }, 1200);
-    return () => clearTimeout(timer);
-  }, []);
-
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 0);
-    };
+    const interval = setInterval(() => {
+    }, 1000);
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => clearInterval(interval);
   }, []);
+
+
 
   const handleXemThem = () => {
     setActionLoading(true);
@@ -135,14 +222,43 @@ export default function ManagerDashboardPage() {
     }, 1000);
   };
 
-  const filteredTables = tables.filter(table => {
+  const filteredTables = tables.map(table => {
+    const matchData = activeMatches.get(table.id);
+    let elapsedTime = '0 phút';
+
+    if (matchData && matchData.status === 'ongoing' && matchData.startTime) {
+      const now = new Date();
+      const elapsed = Math.floor((now.getTime() - matchData.startTime.getTime()) / 1000);
+      const hours = Math.floor(elapsed / 3600);
+      const minutes = Math.floor((elapsed % 3600) / 60);
+
+      if (hours === 0) {
+        elapsedTime = `${minutes} phút`;
+      } else {
+        elapsedTime = `${hours} giờ ${minutes} phút`;
+      }
+    }
+
+    const result = {
+      ...table,
+      matchId: matchData?.matchId,
+      matchStatus: matchData?.status as 'pending' | 'ongoing' | 'completed',
+      elapsedTime,
+      isAiAssisted: matchData?.isAiAssisted,
+      scoreA: matchData?.scoreA || 0,
+      scoreB: matchData?.scoreB || 0,
+      creatorType: matchData?.creatorType || null
+    };
+
+    return result;
+  }).filter(table => {
     const matchSearch = table.name.toLowerCase().includes(search.toLowerCase());
     const matchType = !type || table.type.toLowerCase() === type.toLowerCase();
-    
+
     let displayStatus = table.status;
     if (table.status === 'inuse') displayStatus = 'using';
     if (table.status === 'empty') displayStatus = 'available';
-    
+
     const matchStatus = !status || displayStatus === status;
     return matchSearch && matchType && matchStatus;
   });
@@ -151,18 +267,17 @@ export default function ManagerDashboardPage() {
 
   return (
     <>
+      {(loadingStats || loadingTables) && <ScoreLensLoading text="Đang tải..." />}
       <div className="flex min-h-screen bg-gray-50">
         <SidebarManager />
         <main className="flex-1 bg-[#FFFFFF] min-h-screen">
-          <div className={`sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300 ${
-            isScrolled ? 'border-b border-gray-200 shadow-sm' : ''
-          }`}>
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
             <HeaderManager />
           </div>
-          <div className="p-10">
+          <div className="px-10 pb-10">
             <div className="w-full mx-auto">
               {loadingStats ? (
-                <div className="my-6">
+                <div className="">
                   <LoadingSkeleton type="card" />
                 </div>
               ) : (
@@ -173,7 +288,7 @@ export default function ManagerDashboardPage() {
                   members={dashboardStats.members}
                 />
               )}
-              <div className="bg-white rounded-lg shadow p-6">
+              <div className="bg-white rounded-lg p-6">
                 <TableFilterBar
                   search={search}
                   onSearchChange={setSearch}
@@ -184,7 +299,7 @@ export default function ManagerDashboardPage() {
                 />
                 {loadingTables ? (
                   <div className="py-8">
-                    <LoadingSkeleton type="card" />
+                    <LoadingSkeleton type="card" lines={3} className="w-full max-w-2xl mx-auto" />
                   </div>
                 ) : filteredTables.length === 0 ? (
                   <EmptyState
@@ -195,20 +310,7 @@ export default function ManagerDashboardPage() {
                       </svg>
                     }
                     title={search ? 'Không tìm thấy bàn phù hợp' : 'Chưa có bàn nào'}
-                    description={
-                      search 
-                        ? 'Thử thay đổi từ khóa tìm kiếm hoặc thêm bàn mới để mở rộng cơ sở vật chất'
-                        : 'Bắt đầu thiết lập hệ thống bàn chơi chuyên nghiệp cho câu lạc bộ của bạn'
-                    }
-                    primaryAction={{
-                      label: 'Thêm bàn mới',
-                      onClick: () => router.push('/manager/tables/add'),
-                      icon: (
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                      )
-                    }}
+                    description={'Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy bàn phù hợp'}
                     secondaryAction={search ? {
                       label: 'Xem tất cả',
                       onClick: () => {
@@ -222,20 +324,27 @@ export default function ManagerDashboardPage() {
                         </svg>
                       )
                     } : undefined}
-                    additionalInfo="Bàn chơi sẽ giúp bạn cung cấp dịch vụ chất lượng và thu hút hội viên"
                     showAdditionalInfo={!search}
                   />
                 ) : (
                   <TableCardList
                     tables={filteredTables}
-                    onDetail={(id) => router.push(`/manager/matches/${id}`)}
+                    onDetail={async (id) => {
+                      try {
+                        await managerMatchService.getMatchesByTable(id, 'ongoing', 1, 1);
+                      } catch (error) {
+                        console.error('Error prefetching match by table:', error);
+                      } finally {
+                        router.push(`/manager/matches/${id}`);
+                      }
+                    }}
                   />
                 )}
                 {filteredTables.length > 9 && (
                   <div className="flex justify-center mt-6">
-                    <ButtonXemThem onClick={handleXemThem}>
+                    <ButtonViewMore onClick={handleXemThem}>
                       {actionLoading ? <LoadingSpinner size="sm" /> : 'Xem thêm'}
-                    </ButtonXemThem>
+                    </ButtonViewMore>
                   </div>
                 )}
               </div>

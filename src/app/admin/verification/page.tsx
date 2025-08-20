@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useRef, useEffect, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import React, { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { AuthLayout } from '@/components/shared/AuthLayout';
+import { SearchParamsWrapper } from '@/components/shared/SearchParamsWrapper';
 import Link from 'next/link';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
@@ -11,14 +12,13 @@ import { ArrowLeft } from 'lucide-react';
 
 export default function AdminVerificationPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <AdminVerificationPageInner />
-    </Suspense>
+    <SearchParamsWrapper>
+      {(searchParams) => <AdminVerificationPageInner searchParams={searchParams} />}
+    </SearchParamsWrapper>
   );
 }
 
-function AdminVerificationPageInner() {
-  const searchParams = useSearchParams();
+function AdminVerificationPageInner({ searchParams }: { searchParams: URLSearchParams | null }) {
   const router = useRouter();
   const email = searchParams?.get('email') || '';
 
@@ -39,7 +39,6 @@ function AdminVerificationPageInner() {
     '/images/numberBalls/ball_7.png',
     '/images/numberBalls/ball_8.png',
     '/images/numberBalls/ball_9.png',
-    // Có thể thêm ball_0.png nếu có
   ];
 
   useEffect(() => {
@@ -52,7 +51,7 @@ function AdminVerificationPageInner() {
   }, [resendTimer]);
 
   const handleOtpChange = (index: number, value: string) => {
-    if (value.length > 1) return; // Only allow single digit
+    if (value.length > 1) return;
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
@@ -73,7 +72,6 @@ function AdminVerificationPageInner() {
     if (/^\d{6}$/.test(pastedData)) {
       const newOtp = pastedData.split('');
       setOtp(newOtp);
-      // Focus vào ô cuối cùng
       setTimeout(() => {
         inputRefs.current[5]?.focus();
       }, 0);
@@ -104,12 +102,10 @@ function AdminVerificationPageInner() {
     if (!canResend) return;
     setIsLoading(true);
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       setResendTimer(60);
       setCanResend(false);
     } catch {
-      // Handle error
     } finally {
       setIsLoading(false);
     }

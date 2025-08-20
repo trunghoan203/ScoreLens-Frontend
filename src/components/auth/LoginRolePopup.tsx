@@ -15,6 +15,7 @@ export const LoginRolePopup: React.FC<LoginRolePopupProps> = ({ onClose }) => {
     >
       <div
         className="bg-white rounded-2xl p-6 sm:p-8 lg:p-12 max-w-lg w-full text-center mx-4"
+
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">
@@ -29,6 +30,7 @@ export const LoginRolePopup: React.FC<LoginRolePopupProps> = ({ onClose }) => {
             className="mx-auto w-24 sm:w-32 lg:w-[150px] h-auto"
           />
         </div>
+
         <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
           <Link href="/admin/login" onClick={onClose} className="w-full sm:w-auto">
             <Button className="bg-lime-500 text-gray-900 font-semibold hover:bg-lime-600 rounded-lg text-sm sm:text-base lg:text-lg py-2 sm:py-3 transition-transform hover:scale-105 w-full sm:w-[200px] flex justify-center">

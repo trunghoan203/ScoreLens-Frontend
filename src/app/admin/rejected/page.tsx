@@ -1,26 +1,30 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
 import { CircleAlert } from 'lucide-react';
+import adminService from '@/lib/adminService';
 
 export default function AdminRejectedPage() {
   const router = useRouter();
+  const [adminId, setAdminId] = useState<string | null>(null);
+
+  useEffect(() => {
+    adminService.getProfile().then(res => {
+      setAdminId(res.adminId || null);
+    });
+  }, []);
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-gray-50 via-white to-[#fff0f0] overflow-hidden">
-      {/* Header */}
       <HeaderAdmin />
-
-      {/* Animated background */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob-slow" style={{ backgroundColor: '#EF4444' }} />
         <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob-slow animation-delay-3000" style={{ backgroundColor: '#EF4444' }} />
         <div className="absolute top-48 left-48 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob-slow animation-delay-6000" style={{ backgroundColor: '#EF4444' }} />
       </div>
 
-      {/* Main content */}
       <div className="flex justify-center pt-16 px-4">
         <div className="bg-white backdrop-blur-xl rounded-3xl shadow-2xl ring-2 ring-red-400 transition-all p-10 max-w-md w-full text-center animate-fade-in-up">
           <div className="mb-6">
@@ -40,9 +44,11 @@ export default function AdminRejectedPage() {
           </h1>
 
           <p className="text-gray-700 mb-8 leading-relaxed text-[16px]">
-            Tài khoản của bạn không được chấp nhận do không đáp ứng yêu cầu của hệ thống.
-            <br /><br />
-            Vui lòng liên hệ với quản trị viên nếu bạn cần thêm thông tin hoặc muốn gửi lại yêu cầu.
+            Vui lòng kiểm tra email hoặc{' '}
+            <a href={`/admin/reform?${adminId}`} rel="noopener noreferrer" className="text-blue-500 hover:underline">
+              tại đây
+            </a>
+            {' '}để biết thêm chi tiết.
           </p>
 
           <button
@@ -57,7 +63,6 @@ export default function AdminRejectedPage() {
         </div>
       </div>
 
-      {/* Animations */}
       <style jsx>{`
         @keyframes blob-slow {
           0% {
