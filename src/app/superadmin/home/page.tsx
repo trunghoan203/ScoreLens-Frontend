@@ -10,7 +10,7 @@ import { AdminTable } from '@/components/features/AdminTable';
 import { FeedbackTable } from '@/components/features/FeedbackTable';
 import { getAdminList } from '@/lib/saAdminService';
 import { useSuperAdminAuthGuard } from '@/lib/hooks/useSuperAdminAuthGuard';
-import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 
 interface ApiAdmin {
@@ -53,12 +53,11 @@ function SuperAdminHomeContent() {
   }, [searchTerm]);
 
   useEffect(() => {
-    if (activeTab === 'approval') {
+    if (activeTab === 'approval' && admins.length === 0) {
       setLoading(true);
-
       getAdminList({
-        search: debouncedSearchTerm,
-        status: statusFilter || undefined,
+        search: '',
+        status: undefined,
         page: 1,
         limit: 50,
       })
@@ -83,11 +82,17 @@ function SuperAdminHomeContent() {
         .catch(() => {
           toast.error('Không lấy được danh sách admin');
           setAdmins([]);
-        })
-    } else {
+          setLoading(false);
+        });
+    } else if (activeTab === 'feedback') {
       setLoading(false);
     }
-  }, [debouncedSearchTerm, statusFilter, activeTab]);
+  }, [activeTab, admins.length]);
+
+  useEffect(() => {
+    if (activeTab === 'approval' && admins.length > 0) {
+    }
+  }, [debouncedSearchTerm, statusFilter, activeTab, admins.length]);
 
   const handleRowClick = (adminId: string) => {
     router.push(`/superadmin/admin/${adminId}`);
@@ -100,7 +105,14 @@ function SuperAdminHomeContent() {
 
   return (
     <>
-      {(isChecking || loading) && (<ScoreLensLoading text="Đang tải..." />)}
+      {(isChecking || (activeTab === 'approval' && loading)) && (
+        <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="text-center">
+            <LoadingSpinner size="lg" />
+            <p className="mt-4 text-gray-600 font-medium">Đang tải...</p>
+          </div>
+        </div>
+      )}
       <HeaderSuperAdmin />
       <PageBanner title={activeTab === 'approval' ? 'DANH SÁCH ADMIN' : 'DANH SÁCH PHẢN HỒI'} />
       <div className="bg-[#EEEDED] w-full px-4 md:px-8 py-8 min-h-[calc(100vh-200px)]">
@@ -175,7 +187,12 @@ function SuperAdminHomeContent() {
 export default function SuperAdminHomePage() {
   return (
     <Suspense fallback={
-        <ScoreLensLoading text="Đang tải..." />
+      <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner size="lg" />
+          <p className="mt-4 text-gray-600 font-medium">Đang tải...</p>
+        </div>
+      </div>
     }>
       <SuperAdminHomeContent />
     </Suspense>

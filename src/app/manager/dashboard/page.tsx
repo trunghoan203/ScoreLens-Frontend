@@ -9,6 +9,7 @@ import ButtonViewMore from '@/components/manager/ButtonViewMore';
 import { useRouter } from 'next/navigation';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
+import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import EmptyState from '@/components/ui/EmptyState';
 import { useManagerAuthGuard } from '@/lib/hooks/useManagerAuthGuard';
 import { managerTableService } from '@/lib/managerTableService';
@@ -30,6 +31,9 @@ interface TableData {
   matchStatus?: 'pending' | 'ongoing' | 'completed';
   elapsedTime?: string;
   isAiAssisted?: boolean;
+  scoreA?: number;
+  scoreB?: number;
+  creatorType?: 'manager' | 'member' | 'guest' | null;
 }
 
 interface RawTableData {
@@ -67,7 +71,15 @@ export default function ManagerDashboardPage() {
   const [loadingStats, setLoadingStats] = useState(true);
   const [tables, setTables] = useState<TableData[]>([]);
   const [loadingTables, setLoadingTables] = useState(true);
-  const [activeMatches, setActiveMatches] = useState<Map<string, { matchId: string; status: string; startTime: Date | null; isAiAssisted?: boolean }>>(new Map());
+  const [activeMatches, setActiveMatches] = useState<Map<string, {
+    matchId: string;
+    status: string;
+    startTime: Date | null;
+    isAiAssisted?: boolean;
+    scoreA?: number;
+    scoreB?: number;
+    creatorType?: 'manager' | 'member' | 'guest' | null;
+  }>>(new Map());
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -97,24 +109,58 @@ export default function ManagerDashboardPage() {
             const ongoingResponse = await managerMatchService.getMatchesByTable(table.id, 'ongoing', 1, 1) as Record<string, unknown>;
             if (ongoingResponse.success && Array.isArray(ongoingResponse.data) && ongoingResponse.data.length > 0) {
               const match = ongoingResponse.data[0];
+
+              const teams = match.teams as Array<{ score: number }> || [];
+              const scoreA = teams[0]?.score || 0;
+              const scoreB = teams[1]?.score || 0;
+
+              let creatorType: 'manager' | 'member' | 'guest' | null = null;
+              if (match.managerId) {
+                creatorType = 'manager';
+              } else if (match.createdByMembershipId) {
+                creatorType = 'member';
+              } else if (match.creatorGuestToken) {
+                creatorType = 'guest';
+              }
+
               return {
                 tableId: table.id,
                 matchId: match.matchId,
                 status: match.status,
                 startTime: match.startTime ? new Date(match.startTime) : (match.status === 'ongoing' ? new Date() : null),
-                isAiAssisted: match.isAiAssisted
+                isAiAssisted: match.isAiAssisted,
+                scoreA: scoreA,
+                scoreB: scoreB,
+                creatorType: creatorType
               };
             }
 
             const pendingResponse = await managerMatchService.getMatchesByTable(table.id, 'pending', 1, 1) as Record<string, unknown>;
             if (pendingResponse.success && Array.isArray(pendingResponse.data) && pendingResponse.data.length > 0) {
               const match = pendingResponse.data[0];
+
+              const teams = match.teams as Array<{ score: number }> || [];
+              const scoreA = teams[0]?.score || 0;
+              const scoreB = teams[1]?.score || 0;
+
+              let creatorType: 'manager' | 'member' | 'guest' | null = null;
+              if (match.managerId) {
+                creatorType = 'manager';
+              } else if (match.createdByMembershipId) {
+                creatorType = 'member';
+              } else if (match.creatorGuestToken) {
+                creatorType = 'guest';
+              }
+
               return {
                 tableId: table.id,
                 matchId: match.matchId,
                 status: match.status,
                 startTime: match.startTime ? new Date(match.startTime) : (match.status === 'ongoing' ? new Date() : null),
-                isAiAssisted: match.isAiAssisted
+                isAiAssisted: match.isAiAssisted,
+                scoreA: scoreA,
+                scoreB: scoreB,
+                creatorType: creatorType
               };
             }
           } catch (error) {
@@ -193,13 +239,18 @@ export default function ManagerDashboardPage() {
       }
     }
 
-    return {
+    const result = {
       ...table,
       matchId: matchData?.matchId,
       matchStatus: matchData?.status as 'pending' | 'ongoing' | 'completed',
       elapsedTime,
-      isAiAssisted: matchData?.isAiAssisted
+      isAiAssisted: matchData?.isAiAssisted,
+      scoreA: matchData?.scoreA || 0,
+      scoreB: matchData?.scoreB || 0,
+      creatorType: matchData?.creatorType || null
     };
+
+    return result;
   }).filter(table => {
     const matchSearch = table.name.toLowerCase().includes(search.toLowerCase());
     const matchType = !type || table.type.toLowerCase() === type.toLowerCase();
@@ -216,6 +267,7 @@ export default function ManagerDashboardPage() {
 
   return (
     <>
+      {(loadingStats || loadingTables) && <ScoreLensLoading text="Đang tải..." />}
       <div className="flex min-h-screen bg-gray-50">
         <SidebarManager />
         <main className="flex-1 bg-[#FFFFFF] min-h-screen">
@@ -225,7 +277,7 @@ export default function ManagerDashboardPage() {
           <div className="px-10 pb-10">
             <div className="w-full mx-auto">
               {loadingStats ? (
-                <div className="my-6">
+                <div className="">
                   <LoadingSkeleton type="card" />
                 </div>
               ) : (
@@ -236,7 +288,7 @@ export default function ManagerDashboardPage() {
                   members={dashboardStats.members}
                 />
               )}
-              <div className="bg-white rounded-lg shadow p-6">
+              <div className="bg-white rounded-lg p-6">
                 <TableFilterBar
                   search={search}
                   onSearchChange={setSearch}
@@ -247,7 +299,7 @@ export default function ManagerDashboardPage() {
                 />
                 {loadingTables ? (
                   <div className="py-8">
-                    <LoadingSkeleton type="card" />
+                    <LoadingSkeleton type="card" lines={3} className="w-full max-w-2xl mx-auto" />
                   </div>
                 ) : filteredTables.length === 0 ? (
                   <EmptyState

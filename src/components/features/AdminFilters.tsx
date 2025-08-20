@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
+import Image from 'next/image';
 
 interface AdminFiltersProps {
   searchTerm: string;
@@ -24,31 +23,26 @@ export function AdminFilters({
         style={{ boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.10)' }}
       >
         {/* Search Input*/}
-        <div className="relative w-full sm:w-80 h-12 bg-white rounded-xl border-2 border-gray-200 focus-within:border-green-500 transition-all">
-          <Input
+        <div className="relative w-full sm:w-80 h-12 bg-white rounded-xl border-2 border-gray-200 focus:border-lime-400 transition-all">
+          <input
             type="text"
-            placeholder="Tìm kiếm admin..."
+            placeholder="Nhập tên hoặc email..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             className="h-full w-full bg-transparent px-4 pr-10 rounded-xl placeholder-gray-400 focus:outline-none"
           />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8ADB10] pointer-events-none">
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              viewBox="0 0 24 24"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
-            </svg>
-          </span>
+          <Image
+            src="/icon/search.svg"
+            alt="Search"
+            width={24}
+            height={24}
+            className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none w-6 h-6"
+          />
         </div>
 
         {/* Status Filter*/}
         <div className="relative w-full sm:w-55 h-12 bg-white rounded-xl border-2 border-gray-200 text-black focus-within:border-green-500 transition-all">
-          <Select
+          <select
             value={statusFilter}
             onChange={(e) => onStatusChange(e.target.value)}
             className="h-full w-full bg-transparent px-4 pr-10 rounded-xl appearance-none focus:outline-none"
@@ -57,19 +51,14 @@ export function AdminFilters({
             <option value="approved">Đã duyệt</option>
             <option value="pending">Chưa duyệt</option>
             <option value="rejected">Bị từ chối</option>
-          </Select>
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8ADB10] pointer-events-none">
-            <svg
-              width="22"
-              height="22"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="3"
-              viewBox="0 0 24 24"
-            >
-              <path d="M6 9l6 6 6-6" />
-            </svg>
-          </span>
+          </select>
+          <Image
+            src="/icon/chevron-down_Black.svg"
+            alt="Dropdown"
+            width={22}
+            height={22}
+            className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+          />
         </div>
       </div>
     </div>

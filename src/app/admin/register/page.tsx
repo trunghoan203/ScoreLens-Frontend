@@ -31,7 +31,6 @@ export default function AdminRegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  // OTP verification state
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isVerifying, setIsVerifying] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
@@ -59,7 +58,6 @@ export default function AdminRegisterPage() {
     }
   }, [resendTimer]);
 
-  // Validate từng bước
   const validateStep1 = () => {
     const newErrors: typeof errors = {};
     if (!formData.fullName) newErrors.fullName = "Họ tên là bắt buộc";
@@ -96,7 +94,7 @@ export default function AdminRegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateStep2()) return;
 
     setIsLoading(true);
@@ -109,7 +107,7 @@ export default function AdminRegisterPage() {
         password: formData.password,
       });
       toast.success('Đăng ký thành công! Vui lòng kiểm tra email để xác thực.');
-      setStep(3); // sang bước xác minh
+      setStep(3);
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       const errorMessage = err.response?.data?.message || "Đăng ký thất bại. Vui lòng thử lại.";
@@ -119,7 +117,6 @@ export default function AdminRegisterPage() {
     }
   };
 
-  // OTP handlers
   const handleOtpChange = (index: number, value: string) => {
     if (value.length > 1) return;
     const newOtp = [...otp];
@@ -193,10 +190,9 @@ export default function AdminRegisterPage() {
 
   return (
     <AuthLayout
-      title="Đăng ký tài khoản Admin"
-      description="Vui lòng nhập thông tin để đăng ký tài khoản quản trị viên."
+      title="Đăng ký Chủ doanh nghiệp"
+      description="Vui lòng nhập thông tin để đăng ký tài khoản Chủ doanh nghiệp."
     >
-
       {step === 1 && (
         <form className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]" onSubmit={e => { e.preventDefault(); if (validateStep1()) setStep(2); }}>
           <div>
@@ -241,14 +237,14 @@ export default function AdminRegisterPage() {
             </Link>
           </div>
           <div className="text-center mt-6">
-          <Link
-            href="/"
-            className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Quay lại trang chủ
-          </Link>
-        </div>
+            <Link
+              href="/"
+              className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Quay lại trang chủ
+            </Link>
+          </div>
         </form>
       )}
       {step === 2 && (
@@ -268,7 +264,7 @@ export default function AdminRegisterPage() {
               disabled={isLoading}
             />
             <p className="text-gray-500 text-xs mt-1">
-              Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số
+              Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và kí tự đặc biệt.
             </p>
             {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
           </div>
@@ -299,7 +295,7 @@ export default function AdminRegisterPage() {
               disabled={isLoading}
             />
             <label htmlFor="agree" className="text-gray-700 text-sm">
-              Tôi đồng ý với <Link href="#" className="text-lime-600 font-semibold hover:underline">điều khoản sử dụng</Link>
+              Tôi đồng ý với <Link href="/terms" className="text-lime-600 font-semibold hover:underline">điều khoản sử dụng</Link>
             </label>
           </div>
           <div className="flex gap-2">
@@ -316,7 +312,7 @@ export default function AdminRegisterPage() {
               <ArrowLeft className="w-4 h-4" />
               Quay lại
             </Link>
-          </div> 
+          </div>
         </form>
       )}
       {step === 3 && (
@@ -353,7 +349,7 @@ export default function AdminRegisterPage() {
                   />
                   {digit ? (
                     <Image
-                      src={numberImages[Number(digit)-1]}
+                      src={numberImages[Number(digit) - 1]}
                       alt={`Số ${digit}`}
                       width={36}
                       height={36}

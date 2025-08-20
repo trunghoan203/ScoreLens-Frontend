@@ -3,17 +3,14 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
-import { Hourglass } from 'lucide-react'; // ✅ Lucide icon
+import { Hourglass } from 'lucide-react';
 
 export default function AdminPendingPage() {
   const router = useRouter();
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-gray-50 via-white to-[#f0ffe5] overflow-hidden">
-      {/* Header full width */}
       <HeaderAdmin />
-
-      {/* Animated blob background */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob-slow" style={{ backgroundColor: '#8ADB10' }} />
         <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob-slow animation-delay-3000" style={{ backgroundColor: '#8ADB10' }} />
@@ -44,9 +41,9 @@ export default function AdminPendingPage() {
           </h1>
 
           <p className="text-gray-700 mb-8 leading-relaxed text-[16px]">
-            Tài khoản của bạn đã được gửi lên hệ thống và đang chờ quản trị viên xác nhận.
+            Tài khoản của bạn đã được gửi lên hệ thống và đang chờ Quản trị viên xác nhận.
             <br /><br />
-            Vui lòng kiểm tra lại sau hoặc liên hệ với quản trị viên để được hỗ trợ nhanh hơn.
+            Vui lòng kiểm tra lại sau hoặc liên hệ với Quản trị viên để được hỗ trợ nhanh hơn.
           </p>
 
           <button

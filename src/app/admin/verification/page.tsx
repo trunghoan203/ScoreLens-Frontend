@@ -39,7 +39,6 @@ function AdminVerificationPageInner({ searchParams }: { searchParams: URLSearchP
     '/images/numberBalls/ball_7.png',
     '/images/numberBalls/ball_8.png',
     '/images/numberBalls/ball_9.png',
-    // Có thể thêm ball_0.png nếu có
   ];
 
   useEffect(() => {
@@ -52,7 +51,7 @@ function AdminVerificationPageInner({ searchParams }: { searchParams: URLSearchP
   }, [resendTimer]);
 
   const handleOtpChange = (index: number, value: string) => {
-    if (value.length > 1) return; // Only allow single digit
+    if (value.length > 1) return;
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
@@ -73,7 +72,6 @@ function AdminVerificationPageInner({ searchParams }: { searchParams: URLSearchP
     if (/^\d{6}$/.test(pastedData)) {
       const newOtp = pastedData.split('');
       setOtp(newOtp);
-      // Focus vào ô cuối cùng
       setTimeout(() => {
         inputRefs.current[5]?.focus();
       }, 0);
@@ -104,12 +102,10 @@ function AdminVerificationPageInner({ searchParams }: { searchParams: URLSearchP
     if (!canResend) return;
     setIsLoading(true);
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       setResendTimer(60);
       setCanResend(false);
     } catch {
-      // Handle error
     } finally {
       setIsLoading(false);
     }

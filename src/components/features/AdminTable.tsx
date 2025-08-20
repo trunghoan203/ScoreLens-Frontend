@@ -40,9 +40,11 @@ export function AdminTable({ admins, searchTerm, statusFilter, onRowClick }: Adm
   });
 
   const filteredAdmins = sortedAdmins.filter((admin) => {
-    const matchesSearch =
-      admin.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      admin.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const searchLower = searchTerm.toLowerCase();
+    const nameLower = admin.name.toLowerCase();
+    const emailLower = admin.email.toLowerCase();
+
+    const matchesSearch = nameLower.includes(searchLower) || emailLower.includes(searchLower);
 
     let matchesStatus = true;
     if (statusFilter) {
@@ -88,7 +90,7 @@ export function AdminTable({ admins, searchTerm, statusFilter, onRowClick }: Adm
               onClick={() => onRowClick(admin.id)}
               className="grid grid-cols-3 items-center text-center text-sm text-gray-800 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition"
             >
-              <div className="pcol-span-3 py-4 font-semibold text-black text-lg">{admin.name}</div>
+              <div className="py-4 font-semibold text-black text-lg">{admin.name}</div>
               <div className="py-4">{admin.email}</div>
               <div className="py-4 flex justify-center">
                 <Badge

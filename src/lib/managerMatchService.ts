@@ -136,16 +136,20 @@ class ManagerMatchService {
 
   private handleError(error: unknown): Error {
     if (typeof error === 'object' && error !== null && 'response' in error) {
-      const axiosError = error as { response?: { data?: { message?: string } } };
-      if (axiosError.response?.data?.message) {
-        return new Error(axiosError.response.data.message);
-      }
+      const axiosError = error as { response?: { status?: number; data?: { message?: string } } };
+      const status = axiosError.response?.status ?? 500;
+      const message = axiosError.response?.data?.message ?? 'Đã xảy ra lỗi';
+      const err = new Error(message) as Error & { status?: number };
+      err.status = status;
+      return err;
     }
     if (typeof error === 'object' && error !== null && 'message' in error) {
       const errorWithMessage = error as { message: string };
-      return new Error(errorWithMessage.message);
+      const err = new Error(errorWithMessage.message) as Error & { status?: number };
+      return err;
     }
-    return new Error('Đã xảy ra lỗi không xác định');
+    const err = new Error('Đã xảy ra lỗi không xác định') as Error & { status?: number };
+    return err;
   }
 }
 
