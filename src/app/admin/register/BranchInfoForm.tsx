@@ -62,6 +62,7 @@ export function BranchInfoForm({
   const [editingBranches, setEditingBranches] = useState<Set<string>>(new Set());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletingClubId, setDeletingClubId] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (initialBranches && initialBranches.length > 0) {
@@ -117,8 +118,27 @@ export function BranchInfoForm({
     setDeletingClubId(null);
   };
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    branches.forEach((branch, idx) => {
+      if (!branch.name) newErrors[`name-${idx}`] = 'Tên chi nhánh là bắt buộc';
+      if (!branch.address) newErrors[`address-${idx}`] = 'Địa chỉ là bắt buộc';
+      if (!branch.deviceCount) newErrors[`deviceCount-${idx}`] = 'Số bàn là bắt buộc';
+      if (!branch.phone) newErrors[`phone-${idx}`] = 'Số điện thoại là bắt buộc';
+      else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(branch.phone)) newErrors[`phone-${idx}`] = 'Số điện thoại không hợp lệ';
+    });
+    setErrors(newErrors);
+    return newErrors;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      return;
+    }
+
     setShowConfirm(true);
   };
 
@@ -320,6 +340,7 @@ export function BranchInfoForm({
                       disabled={branch.id ? !editingBranches.has(branch.id) : false}
                       className={`${branch.id ? (editingBranches.has(branch.id) ? '' : '!bg-gray-100 text-gray-500') : ''} w-full truncate`}
                     />
+                    {errors[`name-${idx}`] && <div className="text-red-500 text-xs mt-1">{errors[`name-${idx}`]}</div>}
                   </div>
 
                   <div className="min-w-0">
@@ -327,15 +348,21 @@ export function BranchInfoForm({
                       Số Bàn <span className="text-red-500">*</span>
                     </label>
                     <Input
-                      type="number"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                       value={branch.deviceCount}
-                      onChange={e => handleBranchChange(idx, 'deviceCount', e.target.value)}
+                      onChange={e => {
+                        const val = e.target.value.replace(/\D/g, '');
+                        handleBranchChange(idx, 'deviceCount', val);
+                      }}
                       placeholder="Nhập Số Bàn..."
                       required
                       min="1"
                       disabled={branch.id ? !editingBranches.has(branch.id) : false}
                       className={`${branch.id ? (editingBranches.has(branch.id) ? '' : '!bg-gray-100 text-gray-500') : ''} w-full truncate`}
                     />
+                    {errors[`deviceCount-${idx}`] && <div className="text-red-500 text-xs mt-1">{errors[`deviceCount-${idx}`]}</div>}
                   </div>
 
                   <div className="min-w-0">
@@ -350,6 +377,7 @@ export function BranchInfoForm({
                       disabled={branch.id ? !editingBranches.has(branch.id) : false}
                       className={`${branch.id ? (editingBranches.has(branch.id) ? '' : '!bg-gray-100 text-gray-500') : ''} w-full truncate`}
                     />
+                    {errors[`address-${idx}`] && <div className="text-red-500 text-xs mt-1">{errors[`address-${idx}`]}</div>}
                   </div>
 
                   <div className="min-w-0">
@@ -364,6 +392,7 @@ export function BranchInfoForm({
                       disabled={branch.id ? !editingBranches.has(branch.id) : false}
                       className={`${branch.id ? (editingBranches.has(branch.id) ? '' : '!bg-gray-100 text-gray-500') : ''} w-full truncate`}
                     />
+                    {errors[`phone-${idx}`] && <div className="text-red-500 text-xs mt-1">{errors[`phone-${idx}`]}</div>}
                   </div>
                 </div>
 

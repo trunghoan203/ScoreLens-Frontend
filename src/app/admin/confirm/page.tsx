@@ -45,7 +45,13 @@ export default function CompleteProfilePage() {
       setCountdown(5);
    
       const interval = setInterval(() => {
-        setCountdown((prev) => prev - 1);
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
       }, 1000);
    
       const timeout = setTimeout(() => {

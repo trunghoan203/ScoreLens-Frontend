@@ -21,7 +21,7 @@ interface BrandInfoFormProps {
 }
 
 export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
-  const [image, setImage] = useState<File | null>(null);
+  const [, setImage] = useState<File | null>(null);
   const [logoUrl, setLogoUrl] = useState(initialData?.logo_url || '');
   const [brandName, setBrandName] = useState(initialData?.brandName || '');
   const [phoneNumber, setPhoneNumber] = useState(initialData?.phoneNumber || '');
@@ -29,6 +29,7 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
   const [citizenCode, setCitizenCode] = useState(initialData?.citizenCode || '');
   const [isLoading, setIsLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (initialData) {
@@ -75,12 +76,55 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
     }
   };
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!brandName) newErrors.brandName = 'Tên thương hiệu là bắt buộc';
+    else if (brandName.length < 2) newErrors.brandName = 'Tên thương hiệu phải có ít nhất 2 ký tự';
+    if (!phoneNumber) newErrors.phoneNumber = 'Số điện thoại là bắt buộc';
+    else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phoneNumber)) newErrors.phoneNumber = 'Số điện thoại không hợp lệ';
+    if (!citizenCode) {
+      newErrors.citizenCode = 'CCCD là bắt buộc';
+    } else if (!/^\d{12}$/.test(citizenCode)) {
+      newErrors.citizenCode = 'CCCD phải có đúng 12 chữ số';
+    } else {
+      const provinceCode = parseInt(citizenCode.slice(0, 3), 10);
+      if (provinceCode < 1 || provinceCode > 96) {
+      newErrors.citizenCode = 'Mã tỉnh/thành phố không hợp lệ';
+      }
+      const genderCentury = parseInt(citizenCode[3], 10);
+      if (genderCentury < 0 || genderCentury > 9) {
+      newErrors.citizenCode = 'Mã giới tính/thế kỷ không hợp lệ';
+      }
+      const yearTwoDigits = parseInt(citizenCode.slice(4, 6), 10);
+      if (yearTwoDigits < 0 || yearTwoDigits > 99) {
+      newErrors.citizenCode = 'Năm sinh không hợp lệ';
+      }
+    }
+    if (!logoUrl) newErrors.logoUrl = 'Logo là bắt buộc';
+    if (website) {
+      if (!/^https:\/\/[^\s/$.?#].[^\s]*$/i.test(website)) {
+        newErrors.website = 'URL không hợp lệ, phải bắt đầu bằng https://';
+      }
+    }
+    setErrors(newErrors);
+    return newErrors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      return;
+    }
+
     setIsLoading(true);
     try {
       let brandId = initialData?.brandId;
-      
+          const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      return;
+    }
       if (initialData?.brandId) {
         const response = await axios.put(`/admin/brands/${initialData.brandId}`, {
           brandName,
@@ -106,6 +150,7 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
         citizenCode,
       });
     } catch (error: unknown) {
+      setImage(null);
       const err = error as { response?: { data?: { message?: string } } };
       const message = err.response?.data?.message || 'Thao tác thất bại. Vui lòng thử lại.';
       toast.error(message);
@@ -113,6 +158,7 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
       setIsLoading(false);
     }
   };
+
 
   const isFormValid = brandName && phoneNumber && citizenCode && logoUrl;
 
@@ -126,8 +172,6 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
         <div className="relative w-60 h-60 bg-gray-100 rounded-xl flex items-center justify-center mb-4 border border-gray-200 overflow-hidden">
           {logoUrl ? (
             <Image src={logoUrl} alt="Logo" fill className="object-cover w-full h-full" />
-          ) : image ? (
-            <Image src={URL.createObjectURL(image)} alt="Preview" fill className="object-cover w-full h-full" />
           ) : (
             <span className="text-gray-400">Chưa chọn logo</span>
           )}
@@ -145,6 +189,7 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
         {logoUrl && !uploading}
       </div>
       <div className="w-full space-y-4">
+        <div className="text-center text-sm text-red-500">Định dạng ảnh cho phép: PNG, JPG, JPEG, tối đa 5MB</div>
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">Tên thương hiệu <span className="text-red-500">*</span></label>
           <Input 
@@ -153,6 +198,7 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
             placeholder="Nhập tên thương hiệu..." 
             required 
           />
+          {errors.brandName && <div className="text-red-500 text-xs mt-1">{errors.brandName}</div>}
         </div>
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">Số điện thoại <span className="text-red-500">*</span></label>
@@ -160,8 +206,9 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
             value={phoneNumber} 
             onChange={e => setPhoneNumber(e.target.value)} 
             placeholder="Nhập số điện thoại..." 
-            required 
+            required
           />
+          {errors.phoneNumber && <div className="text-red-500 text-xs mt-1">{errors.phoneNumber}</div>}
         </div>
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">Website</label>
@@ -170,6 +217,7 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
             onChange={e => setWebsite(e.target.value)} 
             placeholder="https://example.com" 
           />
+          {errors.website && <div className="text-red-500 text-xs mt-1">{errors.website}</div>}
         </div>
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">CCCD <span className="text-red-500">*</span></label>
@@ -179,6 +227,7 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
             placeholder="Nhập CCCD..." 
             required 
           />
+          {errors.citizenCode && <div className="text-red-500 text-xs mt-1">{errors.citizenCode}</div>}
         </div>
       </div>
              <Button
@@ -186,6 +235,12 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
          variant="lime"
          fullWidth
          disabled={!isFormValid || isLoading}
+         onClick={() => {
+           if (!isFormValid) {
+             const errors = validateForm();
+             setErrors(errors);
+           }
+         }}
        >
          {isLoading 
            ? (initialData?.brandId ? 'Đang cập nhật...' : 'Đang lưu...') 
@@ -194,4 +249,4 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
        </Button>
     </form>
   );
-} 
+}

@@ -25,17 +25,16 @@ export default function SuperAdminAccessPage() {
       toast.success('Email đã được gửi thành công!');
       window.location.href = `/superadmin/verification?email=${encodeURIComponent(email)}`;
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
+      const err = error as {
+        response?: { data?: { message?: string; errors?: Record<string, string[]> } };
+      };
       const message = err.response?.data?.message;
-      if (message) {
-        if (message.includes('not verified') || message.includes('verification')) {
-          toast.error('Tài khoản chưa được xác minh. Vui lòng kiểm tra email để lấy mã xác thực.');
-        } else {
-          toast.error(message);
-        }
-      } else {
-        const errorMessage = 'Đã xảy ra lỗi. Vui lòng thử lại.';
-        toast.error(errorMessage);
+      const errors = err.response?.data?.errors;
+      if (errors?.email && errors.email.length > 0) {
+      toast.error(errors.email[0]); 
+      setErrors((prev) => ({ ...prev, email: errors.email[0] }));
+      } else if (message) {
+        toast.error(message);
       }
     } finally {
       setIsLoading(false);

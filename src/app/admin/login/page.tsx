@@ -49,10 +49,11 @@ export default function AdminLoginPage() {
 
     if (!formData.password) {
       newErrors.password = 'Mật khẩu là bắt buộc';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    } else if (formData.password.length < 8) newErrors.password = "Mật khẩu phải có ít nhất 8 ký tự";
+      else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])/.test(formData.password)) 
+      newErrors.password = "Mật khẩu phải chứa chữ hoa, chữ thường, số và ký tự đặc biệt"; 
+      setErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent, searchParams: URLSearchParams | null) => {
@@ -130,9 +131,25 @@ export default function AdminLoginPage() {
         toast.error(errorMessage);
       }
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      const errorMessage = err?.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.';
-      toast.error(errorMessage);
+      const err = error as {
+        response?: { data?: { message?: string; errors?: Record<string, string[]> } };
+      };
+
+      const message = err.response?.data?.message;
+      const errors = err.response?.data?.errors;
+
+      if (errors) {
+        const firstError = Object.values(errors)[0]?.[0];
+        if (firstError) {
+          toast.error(firstError);
+        } else if (message) {
+          toast.error(message);
+        } else {
+          toast.error("Đăng nhập thất bại. Vui lòng thử lại.");
+        }
+      } else {
+        toast.error(message || "Đăng nhập thất bại. Vui lòng thử lại.");
+      }
     } finally {
       setIsLoading(false);
     }

@@ -191,6 +191,7 @@ export default function FeedbackDetailPage() {
   const handleSave = async () => {
     try {
       if (!id) return;
+
       await updateFeedback(id, {
         note: notes,
         status,
@@ -198,8 +199,21 @@ export default function FeedbackDetailPage() {
       toast.success('Cập nhật thành công');
       setIsEditMode(false);
       setNotes('');
-    } catch {
-      toast.error('Cập nhật thất bại');
+    } catch (error: unknown) {
+      const err = error as {
+        response?: { data?: { message?: string; errors?: Record<string, string[]> } };
+      };
+
+      const message = err.response?.data?.message;
+      const errors = err.response?.data?.errors;
+
+      if (errors?.note && errors.note.length > 0) {
+        toast.error(errors.note[0]);
+      } else if (message) {
+        toast.error(message);
+      } else {
+        toast.error("Cập nhật thất bại");
+      }
     }
   };
 

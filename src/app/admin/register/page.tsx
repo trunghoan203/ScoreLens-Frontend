@@ -62,7 +62,6 @@ export default function AdminRegisterPage() {
     const newErrors: typeof errors = {};
     if (!formData.fullName) newErrors.fullName = "Họ tên là bắt buộc";
     if (!formData.email) newErrors.email = "Email là bắt buộc";
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Email không hợp lệ";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -70,7 +69,7 @@ export default function AdminRegisterPage() {
     const newErrors: typeof errors = {};
     if (!formData.password) newErrors.password = "Mật khẩu là bắt buộc";
     else if (formData.password.length < 8) newErrors.password = "Mật khẩu phải có ít nhất 8 ký tự";
-    else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) newErrors.password = "Mật khẩu phải chứa chữ hoa, chữ thường và số";
+    else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])/.test(formData.password)) newErrors.password = "Mật khẩu phải chứa chữ hoa, chữ thường, số và ký tự đặc biệt";
     if (!formData.confirmPassword) newErrors.confirmPassword = "Xác nhận mật khẩu là bắt buộc";
     else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Mật khẩu xác nhận không khớp";
     if (!formData.agree) {
@@ -92,30 +91,48 @@ export default function AdminRegisterPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    if (!validateStep2()) return;
+  if (!validateStep2()) return;
 
-    setIsLoading(true);
-    setErrors({});
+  setIsLoading(true);
+  setErrors({});
 
-    try {
-      await axios.post("/admin/register", {
-        fullName: formData.fullName,
-        email: formData.email,
-        password: formData.password,
-      });
-      toast.success('Đăng ký thành công! Vui lòng kiểm tra email để xác thực.');
-      setStep(3);
-    } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      const errorMessage = err.response?.data?.message || "Đăng ký thất bại. Vui lòng thử lại.";
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
+  try {
+    await axios.post("/admin/register", {
+      fullName: formData.fullName,
+      email: formData.email,
+      password: formData.password,
+    });
+
+    toast.success("Đăng ký thành công! Vui lòng kiểm tra email để xác thực.");
+    setStep(3);
+  } catch (error: unknown) {
+    const err = error as {
+      response?: { data?: { message?: string; errors?: Record<string, string[]> } };
+    };
+
+    const message = err.response?.data?.message;
+    const errors = err.response?.data?.errors;
+
+    if (errors) {
+      const firstError = Object.values(errors)[0]?.[0];
+      if (firstError) {
+        toast.error(firstError);
+      } else if (message) {
+        toast.error(message);
+      } else {
+        toast.error("Đăng ký thất bại. Vui lòng thử lại.");
+      }
+    } else {
+      toast.error(message || "Đăng ký thất bại. Vui lòng thử lại.");
     }
-  };
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const handleOtpChange = (index: number, value: string) => {
     if (value.length > 1) return;
