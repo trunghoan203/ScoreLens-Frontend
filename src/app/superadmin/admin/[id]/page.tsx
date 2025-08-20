@@ -146,7 +146,6 @@ export default function AdminDetailPage() {
                     fill
                     className="object-cover rounded-md"
                     onError={() => {
-                      // Fallback sẽ được hiển thị bên dưới nếu có lỗi
                     }}
                   />
                 </div>
