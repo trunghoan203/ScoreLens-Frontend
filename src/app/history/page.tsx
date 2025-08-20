@@ -12,53 +12,6 @@ export default function HistoryPage() {
     const router = useRouter();
     const [memberId, setMemberId] = useState('');
     const [loading, setLoading] = useState(true);
-    // const [search, setSearch] = useState('');
-
-    // Mock data for match history
-    // const matches = [
-    //     {
-    //         id: '1',
-    //         time: '13:00 08/07/2025',
-    //         type: 'Pool',
-    //         teamA: ['Cao Trung Hoan', 'Vo Nguyen Kim Ngan'],
-    //         teamB: ['Tran Minh Tuan', 'Nguyen Minh Tuan'],
-    //         score: '3-0',
-    //         vod: '#',
-    //     },
-    //     {
-    //         id: '2',
-    //         time: '13:00 08/07/2025',
-    //         type: 'Pool',
-    //         teamA: ['Cao Trung Hoan', 'Vo Nguyen Kim Ngan'],
-    //         teamB: ['Tran Minh Tuan', 'Nguyen Minh Tuan'],
-    //         score: '3-0',
-    //         vod: '#',
-    //     },
-    //     {
-    //         id: '3',
-    //         time: '13:00 08/07/2025',
-    //         type: 'Pool',
-    //         teamA: ['Cao Trung Hoan', 'Vo Nguyen Kim Ngan'],
-    //         teamB: ['Tran Minh Tuan', 'Nguyen Minh Tuan'],
-    //         score: '3-0',
-    //         vod: '#',
-    //     },
-    //     {
-    //         id: '4',
-    //         time: '13:00 08/07/2025',
-    //         type: 'Pool',
-    //         teamA: ['Cao Trung Hoan', 'Vo Nguyen Kim Ngan'],
-    //         teamB: ['Tran Minh Tuan', 'Nguyen Minh Tuan'],
-    //         score: '3-0',
-    //         vod: '#',
-    //     },
-    // ];
-
-    // const filteredMatches = matches.filter(match =>
-    //     search === '' ||
-    //     match.teamA.join(' ').toLowerCase().includes(search.toLowerCase()) ||
-    //     match.teamB.join(' ').toLowerCase().includes(search.toLowerCase())
-    // );
 
     useEffect(() => {
         const timer = setTimeout(() => setLoading(false), 1200);
@@ -85,8 +38,8 @@ export default function HistoryPage() {
             {loading && <ScoreLensLoading text="Đang tải..." />}
             <HeaderHome />
             <HeroSection />
-            <div id="main-content" className="bg-white min-h-screen pt-24 flex flex-col items-center justify-start">
-                <div className="w-full max-w-3xl mx-auto mt-8">
+            <div id="main-content" className="bg-white min-h-screen pt-16 sm:pt-24 flex flex-col items-center justify-start">
+                <div className="w-full max-w-3xl mx-auto mt-4 sm:mt-8 px-4">
                     <MemberIdForm
                         memberId={memberId}
                         setMemberId={setMemberId}

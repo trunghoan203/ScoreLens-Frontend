@@ -10,6 +10,7 @@ import { LoginRolePopup } from '@/components/auth/LoginRolePopup';
 export function HeaderHome() {
   const [isRolePopupOpen, setIsRolePopupOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState<'VI' | 'EN'>('VI');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -42,16 +43,25 @@ export function HeaderHome() {
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-30 bg-black/60 backdrop-blur-md text-white shadow-md">
-        <div className="container mx-auto flex h-24 items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-10">
+        <div className="container mx-auto flex h-16 sm:h-20 md:h-24 items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-4 sm:gap-6 lg:gap-10">
             <ScoreLensLogo />
-            <div className="hidden md:flex items-center gap-8 text-lg">
+            <div className="hidden md:flex items-center gap-4 sm:gap-6 lg:gap-8 text-sm sm:text-base lg:text-lg">
               <Link href="/" className="hover:text-lime-400 transition-colors">Trang chủ</Link>
               <Link href="/history" className="hover:text-lime-400 transition-colors">Lịch sử đấu</Link>
               <Link href="/guide" className="hover:text-lime-400 transition-colors">Hướng dẫn</Link>
             </div>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3 sm:gap-4 lg:gap-6">
+            <button
+              className="md:hidden p-2 text-white hover:text-lime-400 transition-colors"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            
             <div className="hidden sm:block relative" ref={dropdownRef}>
               <div
                 className="flex items-center gap-2 cursor-pointer hover:text-lime-400 transition-colors"
@@ -64,7 +74,7 @@ export function HeaderHome() {
                   height={20}
                   className="rounded-sm"
                 />
-                <span className="text-lg font-medium text-[#FFFFFF]">{currentLanguage}</span>
+                <span className="text-sm sm:text-base lg:text-lg font-medium text-[#FFFFFF]">{currentLanguage}</span>
                 <Image
                   src="/icon/chevron-down.svg"
                   alt="Chevron Down"
@@ -74,7 +84,6 @@ export function HeaderHome() {
                 />
               </div>
 
-              {/* Dropdown Menu */}
               {dropdownOpen && (
                 <div className="absolute right-0 top-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[160px] z-50">
                   {languages.map((language) => (
@@ -108,18 +117,47 @@ export function HeaderHome() {
             </div>
             <Button 
               onClick={() => setIsRolePopupOpen(true)}
-              className="bg-lime-500 text-black font-bold hover:bg-lime-600 rounded-lg text-base px-6 py-3"
+              className="bg-lime-500 text-black font-bold hover:bg-lime-600 rounded-lg text-xs sm:text-sm lg:text-base px-3 sm:px-4 lg:px-6 py-2 sm:py-2.5 lg:py-3"
             >
               Đăng nhập
             </Button>
             <Button
               onClick={() => window.location.href = '/admin/register'}
-              className="bg-white text-lime-600 border border-lime-500 font-bold hover:bg-lime-100 rounded-lg text-base px-6 py-3 ml-2"
+              className="bg-white text-lime-600 border border-lime-500 font-bold hover:bg-lime-100 rounded-lg text-xs sm:text-sm lg:text-base px-3 sm:px-4 lg:px-6 py-2 sm:py-2.5 lg:py-3 ml-1 sm:ml-2"
             >
               Đăng ký
             </Button>
           </div>
         </div>
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-black/95 backdrop-blur-md border-t border-gray-700">
+            <div className="container mx-auto px-4 py-4">
+              <div className="flex flex-col space-y-4">
+                <Link 
+                  href="/" 
+                  className="text-white hover:text-lime-400 transition-colors py-2 text-base"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Trang chủ
+                </Link>
+                <Link 
+                  href="/history" 
+                  className="text-white hover:text-lime-400 transition-colors py-2 text-base"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Lịch sử đấu
+                </Link>
+                <Link 
+                  href="/guide" 
+                  className="text-white hover:text-lime-400 transition-colors py-2 text-base"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Hướng dẫn
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </header>
       {isRolePopupOpen && <LoginRolePopup onClose={() => setIsRolePopupOpen(false)} />}
     </>
