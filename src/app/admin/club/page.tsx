@@ -221,14 +221,15 @@ export default function ClubInfoPage() {
                 <div className="flex flex-col items-center w-full md:w-1/3">
                   <label className="block text-sm text-gray-700 font-semibold mb-2 w-full text-left ml-12">Hình ảnh</label>
                   {brandInfo?.logo_url ? (
-                    <div className="w-60 h-60 relative rounded-full overflow-hidden border border-gray-200 shadow">
+                    <div className="w-60 h-60 relative rounded-xl overflow-hidden border border-gray-200 shadow">
                       <Image
                         src={brandInfo.logo_url}
                         alt="Logo"
                         fill
-                        className="object-cover rounded-full"
+                        className="object-cover"
                       />
                       {isEditing && (
+                        <>
                         <input
                           type="file"
                           accept="image/*"
@@ -236,26 +237,26 @@ export default function ClubInfoPage() {
                           className="absolute inset-0 opacity-0 cursor-pointer"
                           disabled={uploading}
                         />
-                      )}
-                      {isEditing && (
                         <div className="absolute top-2 right-2 bg-white rounded-full p-1 shadow border border-gray-200">
                           <LucideImage className="w-5 h-5 text-gray-500" />
                         </div>
+                        </>
                       )}
                     </div>
                   ) : (
-                    <div className="w-32 h-32 mb-4 flex items-center justify-center bg-white border rounded-full shadow">
+                    <div className="relative w-32 h-32 mb-4 flex items-center justify-center bg-white border rounded-xl shadow">
                       {isEditing ? (
-                        <>
+                        <label className="flex flex-col items-center justify-center cursor-pointer w-full h-full">
                           <input
                             type="file"
                             accept="image/*"
                             onChange={handleImageChange}
-                            className="absolute inset-0 opacity-0 cursor-pointer"
+                            className="hidden"
                             disabled={uploading}
                           />
                           <LucideImage className="w-10 h-10 text-gray-400" />
-                        </>
+                          <span className="text-xs text-gray-400 mt-1">Tải ảnh</span>
+                        </label>
                       ) : (
                         <LucideImage className="w-10 h-10 text-gray-400" />
                       )}
