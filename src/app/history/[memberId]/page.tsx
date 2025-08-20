@@ -13,7 +13,6 @@ export default function MemberHistoryPage() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
 
-    // Mock data for match history - có thể thay bằng API call thực tế
     const matches = [
         {
             id: '1',
@@ -73,13 +72,13 @@ export default function MemberHistoryPage() {
             {loading && <ScoreLensLoading text="Đang tải..." />}
             <HeaderHome />
             <HeroSection />
-            <div id="main-content" className="bg-white min-h-screen pt-24 flex flex-col items-center justify-start">
-                <div className="w-full max-w-7xl mx-auto mt-8">
-                    <div className="mb-6 text-center">
-                        <h1 className="text-2xl font-bold text-black mb-2">
+            <div id="main-content" className="bg-white min-h-screen pt-16 sm:pt-20 md:pt-24 flex flex-col items-center justify-start">
+                <div className="w-full max-w-7xl mx-auto mt-4 sm:mt-6 md:mt-8 px-4 sm:px-6 lg:px-8">
+                    <div className="mb-4 sm:mb-6 text-center">
+                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-black mb-2">
                             Lịch sử thi đấu - Hội viên: {memberId}
                         </h1>
-                        <p className="text-gray-600">
+                        <p className="text-sm sm:text-base text-gray-600">
                             Tổng cộng {filteredMatches.length} trận đấu
                         </p>
                     </div>

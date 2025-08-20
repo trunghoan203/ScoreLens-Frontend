@@ -21,7 +21,7 @@ export function MatchHistorySection({ search, setSearch, matches }: MatchHistory
     return (
         <div className="w-full">
             <MatchHistorySearch search={search} setSearch={setSearch} />
-            <div className="overflow-x-auto w-full">
+            <div className="w-full">
                 <MatchHistoryTable matches={matches} />
             </div>
         </div>
