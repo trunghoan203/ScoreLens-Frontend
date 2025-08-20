@@ -1,6 +1,5 @@
-// src/components/auth/MemberIdForm.tsx
-import { Button }from '@/components/ui/button'; // Component Button tái sử dụng
-import { Input } from '@/components/ui/input';   // Component Input tái sử dụng
+import { Button }from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 interface MemberIdFormProps {
   memberId: string;
@@ -10,7 +9,7 @@ interface MemberIdFormProps {
 
 export default function MemberIdForm({ memberId, onMemberIdChange, onSubmit }: MemberIdFormProps) {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // Ngăn form reload lại trang
+    e.preventDefault();
     onSubmit();
   };
 
@@ -25,7 +24,7 @@ export default function MemberIdForm({ memberId, onMemberIdChange, onSubmit }: M
           type="text"
           value={memberId}
           onChange={(e) => onMemberIdChange(e.target.value)}
-          className="mt-1 text-center text-lg text-black" // Thêm style cho text ở giữa
+          className="mt-1 text-center text-lg text-black"
         />
       </div>
       <p className="text-left text-xs text-red-600">

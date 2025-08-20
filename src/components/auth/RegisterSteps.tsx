@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface RegisterStepsProps {
-  currentStep: number; // 1, 2, 3, 4
+  currentStep: number;
 }
 
 const steps = [
