@@ -17,10 +17,24 @@ const tableTypes = [
 export default function AddTablePage() {
   const [name, setName] = useState('');
   const [type, setType] = useState(tableTypes[0].value);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const router = useRouter();
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!name) newErrors.name = 'Tên bàn là bắt buộc';
+    else if (name.length < 2) newErrors.name = 'Tên bàn phải có ít nhất 2 ký tự';
+    setErrors(newErrors);
+    return newErrors;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
     try {
       await managerTableService.createTable({ name: name, category: type });
       toast.success('Đã thêm bàn thành công!');
@@ -52,6 +66,7 @@ export default function AddTablePage() {
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Tên Bàn<span className="text-red-500">*</span></label>
               <Input value={name} onChange={e => setName(e.target.value)} required placeholder="Nhập tên bàn" />
+              {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
             </div>
             <div className="w-full mb-10">
               <label className="block text-sm font-semibold mb-2 text-black">Loại Bàn<span className="text-red-500">*</span></label>

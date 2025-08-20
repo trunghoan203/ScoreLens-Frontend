@@ -12,11 +12,23 @@ export default function AddMemberPage() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const router = useRouter();
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!name) newErrors.name = 'Tên hội viên là bắt buộc';
+    else if (name.length < 2) newErrors.name = 'Tên hội viên phải có ít nhất 2 ký tự';
+    if (!phone) newErrors.phone = 'Số điện thoại là bắt buộc';
+    else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phone)) newErrors.phone = 'Số điện thoại không hợp lệ';
+    setErrors(newErrors);
+    return newErrors;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !phone) {
-      toast.error('Vui lòng điền đầy đủ thông tin');
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
     try {
@@ -50,10 +62,12 @@ export default function AddMemberPage() {
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Tên Hội Viên<span className="text-red-500">*</span></label>
               <Input value={name} onChange={e => setName(e.target.value)} required placeholder="Nhập tên hội viên" />
+              {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
             </div>
             <div className="w-full mb-10">
               <label className="block text-sm font-semibold mb-2 text-black">Số Điện Thoại<span className="text-red-500">*</span></label>
               <Input value={phone} onChange={e => setPhone(e.target.value)} required placeholder="Nhập số điện thoại" />
+              {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
             </div>
           </AddFormLayout>
         </div>
