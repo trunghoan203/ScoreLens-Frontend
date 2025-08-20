@@ -14,6 +14,8 @@ import brandService, { Brand, updateBrand } from "@/lib/brandService";
 import adminService from "@/lib/adminService";
 import clubsService, { ClubResponse } from "@/lib/clubsService";
 import { Image as LucideImage } from 'lucide-react';
+import { uploadAndGetUrl, type SignUrlResponse } from '@/lib/uploadFileService';
+import axios from '@/lib/axios';
 
 interface BranchForm {
   name: string;
@@ -34,6 +36,7 @@ export default function ClubInfoPage() {
   const [, setClubs] = useState<ClubResponse[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [uploading, setUploading] = useState(false);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -118,6 +121,44 @@ export default function ClubInfoPage() {
     setShowConfirm(true);
   };
 
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      await uploadLogo(file);
+    }
+  };
+
+  const uploadLogo = async (file: File) => {
+    setUploading(true);
+    try {
+      const token = localStorage.getItem('adminAccessToken');
+      const res = await axios.get('/admin/sign-url', {
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      });
+      
+      const signData: SignUrlResponse = res.data as SignUrlResponse;
+      
+      const uploadedUrl = await uploadAndGetUrl({
+        file,
+        sign: signData,
+        resourceType: 'image'
+      });
+      
+      if (brandInfo?.brandId) {
+        setBrandInfo(prev => prev ? { ...prev, logo_url: uploadedUrl } : null);
+      }
+      
+      toast.success('Upload logo thành công!');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      toast.error('Upload thất bại: ' + (error.response?.data?.message || (error as Error).message));
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleConfirm = async () => {
     setShowConfirm(false);
     setSubmitLoading(true);
@@ -187,16 +228,46 @@ export default function ClubInfoPage() {
                         fill
                         className="object-cover rounded-full"
                       />
+                      {isEditing && (
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                          disabled={uploading}
+                        />
+                      )}
+                      {isEditing && (
+                        <div className="absolute top-2 right-2 bg-white rounded-full p-1 shadow border border-gray-200">
+                          <LucideImage className="w-5 h-5 text-gray-500" />
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="w-32 h-32 mb-4 flex items-center justify-center bg-white border rounded-full shadow">
-                      <LucideImage className="w-10 h-10 text-gray-400" />
+                      {isEditing ? (
+                        <>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="absolute inset-0 opacity-0 cursor-pointer"
+                            disabled={uploading}
+                          />
+                          <LucideImage className="w-10 h-10 text-gray-400" />
+                        </>
+                      ) : (
+                        <LucideImage className="w-10 h-10 text-gray-400" />
+                      )}
                     </div>
+                  )}
+                  {uploading && (
+                    <div className="mt-2 text-sm text-gray-500">Đang upload...</div>
                   )}
                 </div>
                 <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="col-span-2">
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Tên Thương Hiệu</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">Tên Thương Hiệu <span className="text-red-500">*</span></label>
                     <Input value={brandName} onChange={e => setBrandName(e.target.value)} placeholder="Nhập tên thương hiệu..." required disabled={!isEditing} />
                     {errors.brandName && <span className="text-red-500">{errors.brandName}</span>}
                   </div>
@@ -211,7 +282,7 @@ export default function ClubInfoPage() {
                     {errors.citizenCode && <span className="text-red-500">{errors.citizenCode}</span>}
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Số Điện Thoại</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">Số Điện Thoại <span className="text-red-500">*</span></label>
                     <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Nhập SĐT ..." disabled={!isEditing} />
                     {errors.phone && <span className="text-red-500">{errors.phone}</span>}
                   </div>
