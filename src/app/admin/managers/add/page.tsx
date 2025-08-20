@@ -25,6 +25,7 @@ export default function AddManagerPage() {
   const [clubs, setClubs] = useState<ClubResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   React.useEffect(() => {
     const fetchClubs = async () => {
@@ -46,12 +47,47 @@ export default function AddManagerPage() {
     fetchClubs();
   }, []);
 
+    const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!form.fullName) newErrors.fullName = 'Tên quản lý là bắt buộc';
+    else if (form.fullName.length < 2) newErrors.fullName = 'Tên quản lý phải có ít nhất 2 ký tự';
+    if (!form.phoneNumber) newErrors.phoneNumber = 'Số điện thoại là bắt buộc';
+    else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(form.phoneNumber)) newErrors.phoneNumber = 'Số điện thoại không hợp lệ';
+    if (!form.dateOfBirth) {
+      newErrors.dateOfBirth = 'Ngày sinh là bắt buộc';
+    } else if (!/^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/.test(form.dateOfBirth)) {
+      newErrors.dateOfBirth = 'Ngày sinh không hợp lệ (định dạng phải là dd/mm/yyyy)';
+    } else {
+      const [day, month, year] = form.dateOfBirth.split("/").map(Number);
+      const dob = new Date(year, month - 1, day);
+      const today = new Date();
+      const isValidDate =
+      dob.getFullYear() === year &&
+      dob.getMonth() === month - 1 &&
+      dob.getDate() === day;
+      if (!isValidDate || dob > today) {
+      newErrors.dateOfBirth = 'Ngày sinh không hợp lệ hoặc ở tương lai';
+      }
+    }
+    if (!form.email) newErrors.email = 'Email là bắt buộc';
+    else if (!/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(form.email)) newErrors.email = 'Email không hợp lệ';
+    if (!form.citizenCode) newErrors.citizenCode = 'CMND/CCCD là bắt buộc';
+    if (!form.address) newErrors.address = 'Địa chỉ là bắt buộc';
+    setErrors(newErrors);
+    return newErrors;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const formErrors = validateForm();
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors);
+      return;
+    }
     try {
       await managerService.createManager(form);
       toast.success('Đã thêm quản lý thành công!');
@@ -110,10 +146,12 @@ export default function AddManagerPage() {
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Tên Quản Lý <span className="text-red-500">*</span></label>
                 <Input name="fullName" value={form.fullName} onChange={handleChange} placeholder="Nhập Tên..." required />
+                {errors.fullName && <span className="text-red-500">{errors.fullName}</span>}
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Số Điện Thoại <span className="text-red-500">*</span></label>
                 <Input name="phoneNumber" value={form.phoneNumber} onChange={handleChange} placeholder="Nhập Số Điện Thoại..." required />
+                {errors.phoneNumber && <span className="text-red-500">{errors.phoneNumber}</span>}
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Ngày Sinh <span className="text-red-500">*</span></label>
@@ -126,18 +164,22 @@ export default function AddManagerPage() {
                   className={`w-full bg-white border rounded-md border-gray-300 px-4 py-3 text-sm font-base placeholder-gray-500 focus:border-lime-500 outline-none ${form.dateOfBirth ? 'text-black' : 'text-gray-500'
                     }`}
                 />
+                {errors.dateOfBirth && <span className="text-red-500">{errors.dateOfBirth}</span>}
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Email <span className="text-red-500">*</span></label>
                 <Input name="email" value={form.email} onChange={handleChange} placeholder="Nhập Email..." required />
+                {errors.email && <span className="text-red-500">{errors.email}</span>}
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">CCCD <span className="text-red-500">*</span></label>
                 <Input name="citizenCode" value={form.citizenCode} onChange={handleChange} placeholder="Nhập Số CCCD..." required />
+                {errors.citizenCode && <span className="text-red-500">{errors.citizenCode}</span>}
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Địa Chỉ <span className="text-red-500">*</span></label>
                 <Input name="address" value={form.address} onChange={handleChange} placeholder="Nhập Địa Chỉ..." required />
+                {errors.address && <span className="text-red-500">{errors.address}</span>}
               </div>
             </div>
           </AddFormLayout>

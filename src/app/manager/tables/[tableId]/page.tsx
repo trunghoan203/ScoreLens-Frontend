@@ -39,6 +39,7 @@ export default function TableDetailPage() {
   const [qrCodeData, setQrCodeData] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     setLoading(true);
@@ -72,7 +73,20 @@ export default function TableDetailPage() {
     { value: 'maintenance', label: 'Bảo trì' },
   ];
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!name) newErrors.name = 'Tên bàn là bắt buộc';
+    else if (name.length < 2) newErrors.name = 'Tên bàn phải có ít nhất 2 ký tự';
+    setErrors(newErrors);
+    return newErrors;
+  };
+
   const handleSave = async () => {
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
     try {
       await managerTableService.updateTable(tableId, { name: name, category: type, status });
       toast.success('Đã lưu bàn thành công!');
@@ -171,6 +185,7 @@ export default function TableDetailPage() {
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Tên Bàn<span className="text-red-500">*</span></label>
               <Input value={name} onChange={e => setName(e.target.value)} required disabled={!isEditMode} />
+              {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
             </div>
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Loại Bàn<span className="text-red-500">*</span></label>

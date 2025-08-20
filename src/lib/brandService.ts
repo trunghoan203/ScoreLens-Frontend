@@ -30,7 +30,7 @@ export default brandService;
 // Tạo brand mới
 export const createBrand = (data: {
     brandName: string;
-    numberPhone: string;
+    phoneNumber: string;
     website: string;
     logo_url: string;
     citizenCode: string;
@@ -39,7 +39,7 @@ export const createBrand = (data: {
 // Cập nhật brand
 export const updateBrand = (brandId: string, data: {
     brandName: string;
-    numberPhone: string;
+    phoneNumber: string;
     website: string;
     logo_url: string;
     citizenCode: string;

@@ -24,6 +24,7 @@ export default function AddCameraPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [tables, setTables] = useState<Table[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const router = useRouter();
 
   useEffect(() => {
@@ -49,10 +50,23 @@ export default function AddCameraPage() {
       });
   }, []);
 
+    const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!ip) newErrors.ip = 'Địa chỉ IP là bắt buộc';
+    else if (!/^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/.test(ip)) newErrors.ip = 'Địa chỉ IP không hợp lệ';
+    if (!username) newErrors.username = 'Tên đăng nhập là bắt buộc';
+    else if (username.length < 2) newErrors.username = 'Tên đăng nhập phải có ít nhất 2 ký tự';
+    if (!password) newErrors.password = 'Mật khẩu là bắt buộc';
+    setErrors(newErrors);
+    return newErrors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!tableId || !ip || !username || !password) {
-      toast.error('Vui lòng điền đầy đủ thông tin');
+
+    const formErrors = validateForm();
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors);
       return;
     }
 
@@ -117,14 +131,17 @@ export default function AddCameraPage() {
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">IP<span className="text-red-500">*</span></label>
               <Input value={ip} onChange={e => setIp(e.target.value)} required placeholder="Nhập địa chỉ IP" />
+              {errors.ip && <p className="text-red-500 text-sm mt-1">{errors.ip}</p>}
             </div>
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Username<span className="text-red-500">*</span></label>
               <Input value={username} onChange={e => setUsername(e.target.value)} required placeholder="Nhập username" />
+              {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
             </div>
             <div className="w-full mb-10">
               <label className="block text-sm font-semibold mb-2 text-black">Mật khẩu<span className="text-red-500">*</span></label>
               <PasswordInput value={password} onChange={e => setPassword(e.target.value)} required placeholder="Nhập mật khẩu" />
+              {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
             </div>
           </AddFormLayout>
         </div>

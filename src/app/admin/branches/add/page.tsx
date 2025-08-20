@@ -14,12 +14,27 @@ export default function AddBranchPage() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [tableNumber, setTableNumber] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const router = useRouter();
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!clubName) newErrors.clubName = 'Tên chi nhánh là bắt buộc';
+    else if (clubName.length < 2) newErrors.clubName = 'Tên chi nhánh phải có ít nhất 2 ký tự';
+    if (!address) newErrors.address = 'Địa chỉ là bắt buộc';
+    else if (address.length < 5) newErrors.address = 'Địa chỉ phải có ít nhất 5 ký tự';
+    if (!phoneNumber) newErrors.phoneNumber = 'Số điện thoại là bắt buộc';
+    else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phoneNumber)) newErrors.phoneNumber = 'Số điện thoại không hợp lệ';
+    if (tableNumber <= 0) newErrors.tableNumber = 'Số bàn phải lớn hơn 0';
+    setErrors(newErrors);
+    return newErrors;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!clubName || !address || !phoneNumber || tableNumber <= 0) {
+    const formErrors = validateForm();
+    if (Object.keys(formErrors).length > 0) {
       toast.error('Vui lòng điền đầy đủ thông tin');
       return;
     }
@@ -73,6 +88,7 @@ export default function AddBranchPage() {
                 required
                 placeholder="Nhập tên chi nhánh"
               />
+              {errors.clubName && <span className="text-red-500">{errors.clubName}</span>}
             </div>
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Địa chỉ<span className="text-red-500">*</span></label>
@@ -82,6 +98,7 @@ export default function AddBranchPage() {
                 required
                 placeholder="Nhập địa chỉ"
               />
+              {errors.address && <span className="text-red-500">{errors.address}</span>}
             </div>
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Số điện thoại<span className="text-red-500">*</span></label>
@@ -91,17 +108,24 @@ export default function AddBranchPage() {
                 required
                 placeholder="Nhập số điện thoại"
               />
+              {errors.phoneNumber && <span className="text-red-500">{errors.phoneNumber}</span>}
             </div>
             <div className="w-full mb-10">
               <label className="block text-sm font-semibold mb-2 text-black">Số bàn<span className="text-red-500">*</span></label>
-              <Input
-                type="number"
-                value={tableNumber}
-                onChange={e => setTableNumber(Number(e.target.value))}
-                required
-                placeholder="Nhập số bàn"
-                min="1"
-              />
+            <Input
+              type="text"
+              value={tableNumber}
+              onChange={e => setTableNumber(Number(e.target.value))}
+              onKeyDown={(e) => {
+                if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete" && e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Tab") {
+                  e.preventDefault();
+                }
+              }}
+              required
+              placeholder="Nhập số bàn"
+              min="1"
+            />
+            {errors.tableNumber && <span className="text-red-500">{errors.tableNumber}</span>}
             </div>
           </AddFormLayout>
         </div>

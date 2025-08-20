@@ -42,6 +42,7 @@ export default function CameraDetailPage() {
   const [isConnect, setIsConnect] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const formatCategory = (category: string) => {
     switch (category) {
@@ -98,7 +99,24 @@ export default function CameraDetailPage() {
       });
   }, [cameraId]);
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!ip) newErrors.ip = 'Địa chỉ IP là bắt buộc';
+    else if (!/^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/.test(ip)) newErrors.ip = 'Địa chỉ IP không hợp lệ';
+    if (!username) newErrors.username = 'Tên đăng nhập là bắt buộc';
+    else if (username.length < 2) newErrors.username = 'Tên đăng nhập phải có ít nhất 2 ký tự';
+    if (!password) newErrors.password = 'Mật khẩu là bắt buộc';
+    setErrors(newErrors);
+    return newErrors;
+  };
+
   const handleSave = async () => {
+    const formErrors = validateForm();
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors);
+      return;
+    }
+
     try {
       await managerCameraService.updateCamera(cameraId, {
         tableId,
@@ -207,14 +225,17 @@ export default function CameraDetailPage() {
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">IP<span className="text-red-500">*</span></label>
               <Input value={ip} onChange={e => setIp(e.target.value)} required disabled={!isEditMode} />
+              {errors.ip && <p className="text-red-500 text-sm mt-1">{errors.ip}</p>}
             </div>
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Username<span className="text-red-500">*</span></label>
               <Input value={username} onChange={e => setUsername(e.target.value)} required disabled={!isEditMode} />
+              {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
             </div>
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Mật khẩu<span className="text-red-500">*</span></label>
               <PasswordInput value={password} onChange={e => setPassword(e.target.value)} required disabled={!isEditMode} />
+              {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
             </div>
             <div className="w-full mb-10">
               <label className="block text-sm font-semibold mb-2 text-black">Trạng thái kết nối<span className="text-red-500">*</span></label>
