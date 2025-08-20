@@ -24,7 +24,7 @@ interface BranchForm {
 export default function ClubInfoPage() {
   const [brandName, setBrandName] = useState("");
   const [website, setWebsite] = useState("");
-  const [cccd, setCccd] = useState("");
+  const [citizenCode, setCitizenCode] = useState("");
   const [phone, setPhone] = useState("");
   const [branches, setBranches] = useState<BranchForm[]>([{ name: "", address: "", tableCount: "" },]);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -33,6 +33,7 @@ export default function ClubInfoPage() {
   const [brandInfo, setBrandInfo] = useState<Brand | null>(null);
   const [, setClubs] = useState<ClubResponse[]>([]);
   const [isEditing, setIsEditing] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -44,7 +45,7 @@ export default function ClubInfoPage() {
           setBrandInfo(brand);
           setBrandName(brand.brandName || "");
           setWebsite(brand.website || "");
-          setCccd(brand.citizenCode || "");
+          setCitizenCode(brand.citizenCode || "");
           setPhone(brand.phoneNumber || "");
           const clubsData = await clubsService.getClubsByBrandId(brandId);
           setClubs(clubsData);
@@ -67,12 +68,53 @@ export default function ClubInfoPage() {
     fetchData();
   }, []);
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!brandName) newErrors.brandName = "Tên thương hiệu là bắt buộc";
+    else if (brandName.length < 2) newErrors.brandName = "Tên thương hiệu phải có ít nhất 2 ký tự";
+    if (website) {
+      if (!/^https:\/\/[^\s/$.?#].[^\s]*$/i.test(website)) {
+        newErrors.website = 'URL không hợp lệ, phải bắt đầu bằng https://';
+      }
+    }
+    if (!citizenCode) {
+      newErrors.citizenCode = 'CCCD là bắt buộc';
+    } else if (!/^\d{12}$/.test(citizenCode)) {
+      newErrors.citizenCode = 'CCCD phải có đúng 12 chữ số';
+    } else {
+      const provinceCode = parseInt(citizenCode.slice(0, 3), 10);
+      if (provinceCode < 1 || provinceCode > 96) {
+      newErrors.citizenCode = 'Mã tỉnh/thành phố không hợp lệ';
+      }
+      const genderCentury = parseInt(citizenCode[3], 10);
+      if (genderCentury < 0 || genderCentury > 9) {
+      newErrors.citizenCode = 'Mã giới tính/thế kỷ không hợp lệ';
+      }
+      const yearTwoDigits = parseInt(citizenCode.slice(4, 6), 10);
+      if (yearTwoDigits < 0 || yearTwoDigits > 99) {
+      newErrors.citizenCode = 'Năm sinh không hợp lệ';
+      }
+    }
+    if (!phone) newErrors.phone = "Số điện thoại là bắt buộc";
+    else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phone)) newErrors.phone = 'Số điện thoại không hợp lệ';
+    setErrors(newErrors);
+    return newErrors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!isEditing) {
       setIsEditing(true);
       return;
     }
+
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     setShowConfirm(true);
   };
 
@@ -84,10 +126,10 @@ export default function ClubInfoPage() {
       if (brandInfo?.brandId) {
         await updateBrand(brandInfo.brandId, {
           brandName: brandName,
-          numberPhone: phone,
+          phoneNumber: phone,
           website: website,
           logo_url: brandInfo.logo_url || '',
-          citizenCode: cccd,
+          citizenCode: citizenCode,
         });
         toast.success('Cập nhật thông tin thương hiệu thành công!');
         setIsEditing(false);
@@ -108,7 +150,7 @@ export default function ClubInfoPage() {
     if (brandInfo) {
       setBrandName(brandInfo.brandName || "");
       setWebsite(brandInfo.website || "");
-      setCccd(brandInfo.citizenCode || "");
+      setCitizenCode(brandInfo.citizenCode || "");
       setPhone(brandInfo.phoneNumber || "");
     }
     setIsEditing(false);
@@ -156,18 +198,22 @@ export default function ClubInfoPage() {
                   <div className="col-span-2">
                     <label className="block text-sm font-semibold text-gray-700 mb-1">Tên Thương Hiệu</label>
                     <Input value={brandName} onChange={e => setBrandName(e.target.value)} placeholder="Nhập tên thương hiệu..." required disabled={!isEditing} />
+                    {errors.brandName && <span className="text-red-500">{errors.brandName}</span>}
                   </div>
                   <div className="col-span-2">
                     <label className="block text-sm font-semibold text-gray-700 mb-1">Website</label>
                     <Input value={website} onChange={e => setWebsite(e.target.value)} placeholder="Nhập website..." disabled={!isEditing} />
+                    {errors.website && <span className="text-red-500">{errors.website}</span>}
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1">CCCD <span className="text-red-500">*</span></label>
-                    <Input value={cccd} onChange={e => setCccd(e.target.value)} placeholder="Nhập CCCD ..." required disabled={!isEditing} />
+                    <Input value={citizenCode} onChange={e => setCitizenCode(e.target.value)} placeholder="Nhập CCCD ..." required disabled={!isEditing} />
+                    {errors.citizenCode && <span className="text-red-500">{errors.citizenCode}</span>}
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1">Số Điện Thoại</label>
                     <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Nhập SĐT ..." disabled={!isEditing} />
+                    {errors.phone && <span className="text-red-500">{errors.phone}</span>}
                   </div>
                 </div>
               </div>
@@ -249,4 +295,4 @@ export default function ClubInfoPage() {
       </div>
     </>
   );
-} 
+}
