@@ -2,9 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, Calendar } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { getAllFeedback } from '@/lib/saFeedbackService';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
@@ -49,10 +48,11 @@ export function FeedbackTable() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
-  const [statusFilter, setStatusFilter] = useState('superadminP');
-  const [showAll, setShowAll] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('pending');
   const [feedbacks, setFeedbacks] = useState<ApiFeedback[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemPage = 10;
 
   useEffect(() => {
     setLoading(true);
@@ -69,19 +69,32 @@ export function FeedbackTable() {
       });
   }, []);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, selectedDate]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const filteredFeedbacks = feedbacks.filter((fb) => {
+    if (fb.status === 'managerP') {
+      return false;
+    }
+
     const matchesSearch =
       (fb.clubInfo?.brandName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (fb.clubInfo?.clubName || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesDate = !selectedDate || (fb.createdAt ? new Date(fb.createdAt).toISOString().slice(0, 10) : '') === selectedDate;
 
     let matchesStatus = true;
-    if (statusFilter === 'superadminP') {
+    if (statusFilter === 'pending') {
       matchesStatus = fb.status === 'superadminP';
     } else if (statusFilter === 'resolved') {
       matchesStatus = fb.status === 'resolved';
-    } else if (statusFilter === '') {
-      matchesStatus = true;
+    } else if (statusFilter === 'all') {
+      matchesStatus = fb.status === 'superadminP' || fb.status === 'adminP' || fb.status === 'resolved';
     }
 
     return matchesSearch && matchesDate && matchesStatus;
@@ -93,7 +106,10 @@ export function FeedbackTable() {
     return dateB - dateA;
   });
 
-  const displayedFeedbacks = showAll ? sortedFeedbacks : sortedFeedbacks.slice(0, 10);
+  const totalPages = Math.ceil(sortedFeedbacks.length / itemPage);
+  const startIndex = (currentPage - 1) * itemPage;
+  const endIndex = startIndex + itemPage;
+  const displayedFeedbacks = sortedFeedbacks.slice(startIndex, endIndex);
 
   const getStatusText = (status: string) => {
     switch (status) {
@@ -136,8 +152,8 @@ export function FeedbackTable() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 pl-4 pr-10 text-base font-medium text-black shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none appearance-none"
             >
-              <option value="">Tất cả</option>
-              <option value="superadminP">Chưa xử lý</option>
+              <option value="all">Tất cả</option>
+              <option value="pending">Chưa xử lý</option>
               <option value="resolved">Đã xử lý</option>
             </select>
             <Image
@@ -199,16 +215,60 @@ export function FeedbackTable() {
         )}
       </div>
 
-      {filteredFeedbacks.length > 10 && !showAll && (
-        <div className="text-center">
-          <Button
-            onClick={() => setShowAll(true)}
-            className="bg-lime-500 hover:bg-lime-600 text-white font-semibold px-8 py-3 text-base rounded-xl shadow hover:shadow-md transition"
+      {totalPages > 1 && (
+        <div className="mt-10 flex items-center justify-center gap-2">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={`px-3 py-3 w-16 rounded-lg font-medium transition flex items-center justify-center ${currentPage === 1
+              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              : 'bg-lime-400 hover:bg-lime-500 text-white'
+              }`}
           >
-            XEM THÊM
-          </Button>
+            <Image
+              src="/icon/chevron-left.svg"
+              alt="Previous"
+              width={20}
+              height={20}
+              className="w-5 h-5"
+            />
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => handlePageChange(page)}
+              className={`px-3 py-2 w-10 rounded-lg font-medium transition flex items-center justify-center ${currentPage === page
+                ? 'bg-lime-500 text-white'
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                }`}
+            >
+              {page}
+            </button>
+          ))}
+
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={`px-3 py-3 w-16 rounded-lg font-medium transition flex items-center justify-center ${currentPage === totalPages
+              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              : 'bg-lime-400 hover:bg-lime-500 text-white'
+              }`}
+          >
+            <Image
+              src="/icon/chevron-right.svg"
+              alt="Next"
+              width={20}
+              height={20}
+              className="w-5 h-5"
+            />
+          </button>
         </div>
       )}
+
+      <div className="mt-4 text-center text-gray-400 italic text-xs">
+        Hiển thị {startIndex + 1}-{Math.min(endIndex, sortedFeedbacks.length)} trong tổng số {sortedFeedbacks.length} phản hồi
+      </div>
     </div>
   );
 }
