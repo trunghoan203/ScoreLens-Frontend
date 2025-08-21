@@ -5,6 +5,7 @@ import HeaderManager from "@/components/manager/HeaderManager";
 import CameraSearchBar from "@/components/manager/CameraSearchBar";
 import CameraGrid from "@/components/manager/CameraGrid";
 import CameraPageBanner from "@/components/manager/CameraPageBanner";
+import { CameraVideoModal } from "@/components/manager/CameraVideoModal";
 import { useRouter } from "next/navigation";
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
@@ -40,6 +41,8 @@ export default function CameraPage() {
   const [tables, setTables] = useState<Table[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [selectedCameraId, setSelectedCameraId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -128,8 +131,31 @@ export default function CameraPage() {
     router.push(`/manager/camera/${cameraId}`);
   };
 
+  const handleViewCamera = (cameraId: string) => {
+    const camera = cameras.find(c => c.cameraId === cameraId);
+    if (camera && !camera.isConnect) {
+      toast.error('Camera chưa được kết nối. Vui lòng kiểm tra trạng thái kết nối.');
+      return;
+    }
+    setSelectedCameraId(cameraId);
+    setShowVideoModal(true);
+  };
+
+  const handleCloseVideoModal = () => {
+    setShowVideoModal(false);
+    setSelectedCameraId(null);
+  };
+
   return (
     <>
+      <CameraVideoModal
+        isOpen={showVideoModal}
+        cameraId={selectedCameraId}
+        onClose={handleCloseVideoModal}
+        onConfirm={handleCloseVideoModal}
+        isDetailView={true}
+      />
+
       {loading && <ScoreLensLoading text="Đang tải..." />}
       <div className="min-h-screen flex bg-[#18191A]">
         <SidebarManager />
@@ -181,6 +207,7 @@ export default function CameraPage() {
                   status: c.isConnect ? 'active' : 'inactive',
                 }))}
                 onCameraClick={handleCameraClick}
+                onViewCamera={handleViewCamera}
               />
             )}
           </div>
