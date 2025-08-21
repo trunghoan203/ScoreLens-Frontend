@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@cycjimmy/jsmpeg-player": "^6.1.2",
     "@headlessui/react": "^2.2.4",
     "@radix-ui/react-tooltip": "^1.2.7",
     "axios": "^1.10.0",
