@@ -28,6 +28,11 @@ const nextConfig: NextConfig = {
         hostname: "scorelens.io.vn",
         pathname: "/static/uploads/**",
       },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/**",
+      },
     ],
   },
 };

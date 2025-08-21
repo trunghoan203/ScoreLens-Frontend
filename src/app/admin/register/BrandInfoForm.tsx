@@ -5,6 +5,7 @@ import Image from 'next/image';
 import axios from '@/lib/axios';
 import toast from 'react-hot-toast';
 import { Image as LucideImage } from 'lucide-react';
+import { uploadAndGetUrl, type SignUrlResponse } from '@/lib/uploadFileService';
 
 interface BrandInfo {
   brandId: string;
@@ -52,21 +53,22 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
   const uploadLogo = async (file: File) => {
     setUploading(true);
     try {
-      const formData = new FormData();
-      formData.append('image', file);
-      const token = localStorage.getItem('token');
-      const res = await axios.post(
-        '/admin/upload-image',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            ...(token && { Authorization: `Bearer ${token}` }),
-          },
-        }
-      );
-      const data = res.data as { success: boolean; url: string };
-      setLogoUrl(data.url);
+      const token = localStorage.getItem('adminAccessToken');
+      const res = await axios.get('/admin/sign-url', {
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      });
+      
+      const signData: SignUrlResponse = res.data as SignUrlResponse;
+      
+      const uploadedUrl = await uploadAndGetUrl({
+        file,
+        sign: signData,
+        resourceType: 'image'
+      });
+      
+      setLogoUrl(uploadedUrl);
       toast.success('Upload logo thành công!');
     } catch (err) {
       const error = err as { response?: { data?: { message?: string } } };

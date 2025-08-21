@@ -9,6 +9,7 @@ import VerifyCodeForm from '@/components/auth/VerifyCodeForm';
 import axios from '@/lib/axios';
 import toast from 'react-hot-toast';
 import { Loader2, Mail, ArrowLeft, CheckCircle } from 'lucide-react';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 
 export default function AdminForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -148,8 +149,7 @@ export default function AdminForgotPasswordPage() {
             <label htmlFor="newPassword" className="block text-sm font-semibold text-gray-700 mb-2">
               Mật khẩu mới
             </label>
-            <Input
-              type="password"
+            <PasswordInput
               id="newPassword"
               name="newPassword"
               value={newPassword}
@@ -164,8 +164,7 @@ export default function AdminForgotPasswordPage() {
             <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
               Xác nhận mật khẩu mới
             </label>
-            <Input
-              type="password"
+            <PasswordInput
               id="confirmPassword"
               name="confirmPassword"
               value={confirmPassword}
