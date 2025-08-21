@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import axios from '@/lib/axios';
+import toast from 'react-hot-toast';
 
 interface VerifyCodeFormProps {
   email: string;
@@ -94,7 +95,8 @@ export default function VerifyCodeForm({ email, onBack, onSuccess, apiEndpoint, 
     if (!canResend) return;
     setIsLoading(true);
     try {
-      // Simulate API call
+      await axios.post('/admin/resend-reset-password', { email });
+      toast.success('Mã xác thực đã được gửi lại.');
       await new Promise(resolve => setTimeout(resolve, 1000));
       setResendTimer(60);
       setCanResend(false);

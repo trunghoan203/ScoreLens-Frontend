@@ -19,17 +19,18 @@ interface Table {
 }
 
 export default function AddCameraPage() {
+  const router = useRouter();
+  const [tables, setTables] = useState<Table[]>([]);
   const [tableId, setTableId] = useState('');
   const [ip, setIp] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [tables, setTables] = useState<Table[]>([]);
+  const [isChecking, setIsChecking] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const router = useRouter();
 
   useEffect(() => {
     managerTableService.getAllTables()
-      .then((data: unknown) => {
+      .then((data) => {
         let tablesArr: unknown[] = [];
         if (Array.isArray(data)) tablesArr = data;
         else if (data && typeof data === 'object' && Array.isArray((data as { tables?: unknown[] }).tables)) tablesArr = (data as { tables: unknown[] }).tables;
@@ -38,7 +39,7 @@ export default function AddCameraPage() {
           const obj = t as Partial<Table>;
           return {
             tableId: obj.tableId || '',
-            name: obj.name ?? '',
+            name: obj.name || '',
             category: obj.category ?? 'pool-8',
             status: obj.status ?? 'empty',
           };
@@ -50,7 +51,7 @@ export default function AddCameraPage() {
       });
   }, []);
 
-    const validateForm = () => {
+  const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (!ip) newErrors.ip = 'Địa chỉ IP là bắt buộc';
     else if (!/^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/.test(ip)) newErrors.ip = 'Địa chỉ IP không hợp lệ';
@@ -71,17 +72,39 @@ export default function AddCameraPage() {
     }
 
     try {
-      await managerCameraService.createCamera({
-        tableId,
+      const testResult = await managerCameraService.testConnection({
         IPAddress: ip,
         username,
-        password,
+        password
       });
-      toast.success('Đã thêm camera thành công!');
-      router.push('/manager/camera');
+
+      setIsChecking(true);
+
+      if (testResult.success) {
+        const createResult = await managerCameraService.createCamera({
+          tableId,
+          IPAddress: ip,
+          username,
+          password,
+          isConnect: true
+        }) as any; 
+        if (createResult.success) {
+          toast.success('Camera đã được thêm thành công!');
+          router.push('/manager/camera');
+        } else {
+          const errorMessage = createResult.message || 'Không thể tạo camera trong database';
+          console.error('Camera creation failed:', createResult);
+          toast.error(errorMessage);
+        }
+      } else {
+        toast.error(testResult.message || 'Không thể kết nối camera');
+      }
     } catch (error) {
-      console.error(error);
-      toast.error('Thêm camera thất bại.');
+      console.error('Error in handleCheckCamera:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Lỗi không xác định';
+      toast.error('Lỗi khi kiểm tra camera: ' + errorMessage);
+    } finally {
+      setIsChecking(false);
     }
   };
 
@@ -102,6 +125,7 @@ export default function AddCameraPage() {
             title="THÊM CAMERA"
             onSubmit={handleSubmit}
             onBack={() => router.push('/manager/camera')}
+            submitLabel={isChecking ? "Đang kiểm tra..." : "Kiểm tra"}
           >
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Bàn<span className="text-red-500">*</span></label>
