@@ -78,7 +78,19 @@ export default function AddManagerPage() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    
+    if (name === 'dateOfBirth') {
+      if (value) {
+        const [year, month, day] = value.split('-');
+        const formattedDate = `${day}/${month}/${year}`;
+        setForm({ ...form, [name]: formattedDate });
+      } else {
+        setForm({ ...form, [name]: value });
+      }
+    } else {
+      setForm({ ...form, [name]: value });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -158,7 +170,11 @@ export default function AddManagerPage() {
                 <input
                   type="date"
                   name="dateOfBirth"
-                  value={form.dateOfBirth}
+                  value={form.dateOfBirth ? (() => {
+                    // Convert dd/mm/yyyy back to YYYY-MM-DD for calendar input
+                    const [day, month, year] = form.dateOfBirth.split('/');
+                    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                  })() : ''}
                   onChange={handleChange}
                   required
                   className={`w-full bg-white border rounded-md border-gray-300 px-4 py-3 text-sm font-base placeholder-gray-500 focus:border-lime-500 outline-none ${form.dateOfBirth ? 'text-black' : 'text-gray-500'

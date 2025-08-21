@@ -14,6 +14,8 @@ import brandService, { Brand, updateBrand } from "@/lib/brandService";
 import adminService from "@/lib/adminService";
 import clubsService, { ClubResponse } from "@/lib/clubsService";
 import { Image as LucideImage } from 'lucide-react';
+import { uploadAndGetUrl, type SignUrlResponse } from '@/lib/uploadFileService';
+import axios from '@/lib/axios';
 
 interface BranchForm {
   name: string;
@@ -34,6 +36,8 @@ export default function ClubInfoPage() {
   const [, setClubs] = useState<ClubResponse[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [uploading, setUploading] = useState(false);
+  const [logoChanged, setLogoChanged] = useState(false);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -47,6 +51,7 @@ export default function ClubInfoPage() {
           setWebsite(brand.website || "");
           setCitizenCode(brand.citizenCode || "");
           setPhone(brand.phoneNumber || "");
+          setLogoChanged(false);     
           const clubsData = await clubsService.getClubsByBrandId(brandId);
           setClubs(clubsData);
           if (clubsData.length > 0) {
@@ -105,6 +110,13 @@ export default function ClubInfoPage() {
     e.preventDefault();
 
     if (!isEditing) {
+      if (brandInfo) {
+        setBrandName(brandInfo.brandName || "");
+        setWebsite(brandInfo.website || "");
+        setCitizenCode(brandInfo.citizenCode || "");
+        setPhone(brandInfo.phoneNumber || "");
+        setLogoChanged(false);
+      }
       setIsEditing(true);
       return;
     }
@@ -118,21 +130,74 @@ export default function ClubInfoPage() {
     setShowConfirm(true);
   };
 
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      await uploadLogo(file);
+    }
+  };
+
+  const uploadLogo = async (file: File) => {
+    setUploading(true);
+    try {
+      const token = localStorage.getItem('adminAccessToken');
+      const res = await axios.get('/admin/sign-url', {
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      });
+      
+      const signData: SignUrlResponse = res.data as SignUrlResponse;
+      
+      const uploadedUrl = await uploadAndGetUrl({
+        file,
+        sign: signData,
+        resourceType: 'image'
+      });
+      
+      if (brandInfo?.brandId) {
+        setBrandInfo(prev => prev ? { ...prev, logo_url: uploadedUrl } : null);
+        setLogoChanged(true);
+      }
+      
+      toast.success('Upload logo thành công!');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      toast.error('Upload thất bại: ' + (error.response?.data?.message || (error as Error).message));
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleConfirm = async () => {
     setShowConfirm(false);
     setSubmitLoading(true);
 
     try {
       if (brandInfo?.brandId) {
-        await updateBrand(brandInfo.brandId, {
-          brandName: brandName,
-          phoneNumber: phone,
-          website: website,
-          logo_url: brandInfo.logo_url || '',
-          citizenCode: citizenCode,
-        });
-        toast.success('Cập nhật thông tin thương hiệu thành công!');
-        setIsEditing(false);
+        const changedFields: Partial<{
+          brandName: string;
+          phoneNumber: string;
+          website: string;
+          logo_url: string;
+          citizenCode: string;
+        }> = {};
+
+        const normalizeValue = (value: string | undefined) => value || ''; 
+        if (normalizeValue(brandName) !== normalizeValue(brandInfo.brandName)) {changedFields.brandName = brandName;}
+        if (normalizeValue(phone) !== normalizeValue(brandInfo.phoneNumber)) {changedFields.phoneNumber = phone;}
+        if (normalizeValue(website) !== normalizeValue(brandInfo.website)) {changedFields.website = website;}
+        if (normalizeValue(citizenCode) !== normalizeValue(brandInfo.citizenCode)) {changedFields.citizenCode = citizenCode;}
+        if (logoChanged && brandInfo.logo_url) {changedFields.logo_url = brandInfo.logo_url;}
+
+        if (Object.keys(changedFields).length > 0) {
+          await updateBrand(brandInfo.brandId, changedFields);
+          toast.success('Cập nhật thông tin thương hiệu thành công!');
+          setIsEditing(false);
+        } else {
+          toast.success('Không có thông tin nào thay đổi');
+          setIsEditing(false);
+        }
       }
     } catch (error) {
       console.error('Error updating brand:', error);
@@ -154,6 +219,7 @@ export default function ClubInfoPage() {
       setPhone(brandInfo.phoneNumber || "");
     }
     setIsEditing(false);
+    setLogoChanged(false);
     window.location.reload();
   };
 
@@ -180,23 +246,54 @@ export default function ClubInfoPage() {
                 <div className="flex flex-col items-center w-full md:w-1/3">
                   <label className="block text-sm text-gray-700 font-semibold mb-2 w-full text-left ml-12">Hình ảnh</label>
                   {brandInfo?.logo_url ? (
-                    <div className="w-60 h-60 relative rounded-full overflow-hidden border border-gray-200 shadow">
+                    <div className="w-60 h-60 relative rounded-xl overflow-hidden border border-gray-200 shadow">
                       <Image
                         src={brandInfo.logo_url}
                         alt="Logo"
                         fill
-                        className="object-cover rounded-full"
+                        className="object-cover"
                       />
+                      {isEditing && (
+                        <>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                          disabled={uploading}
+                        />
+                        <div className="absolute top-2 right-2 bg-white rounded-full p-1 shadow border border-gray-200">
+                          <LucideImage className="w-5 h-5 text-gray-500" />
+                        </div>
+                        </>
+                      )}
                     </div>
                   ) : (
-                    <div className="w-32 h-32 mb-4 flex items-center justify-center bg-white border rounded-full shadow">
-                      <LucideImage className="w-10 h-10 text-gray-400" />
+                    <div className="relative w-32 h-32 mb-4 flex items-center justify-center bg-white border rounded-xl shadow">
+                      {isEditing ? (
+                        <label className="flex flex-col items-center justify-center cursor-pointer w-full h-full">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="hidden"
+                            disabled={uploading}
+                          />
+                          <LucideImage className="w-10 h-10 text-gray-400" />
+                          <span className="text-xs text-gray-400 mt-1">Tải ảnh</span>
+                        </label>
+                      ) : (
+                        <LucideImage className="w-10 h-10 text-gray-400" />
+                      )}
                     </div>
+                  )}
+                  {uploading && (
+                    <div className="mt-2 text-sm text-gray-500">Đang upload...</div>
                   )}
                 </div>
                 <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="col-span-2">
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Tên Thương Hiệu</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">Tên Thương Hiệu <span className="text-red-500">*</span></label>
                     <Input value={brandName} onChange={e => setBrandName(e.target.value)} placeholder="Nhập tên thương hiệu..." required disabled={!isEditing} />
                     {errors.brandName && <span className="text-red-500">{errors.brandName}</span>}
                   </div>
@@ -211,7 +308,7 @@ export default function ClubInfoPage() {
                     {errors.citizenCode && <span className="text-red-500">{errors.citizenCode}</span>}
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Số Điện Thoại</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">Số Điện Thoại <span className="text-red-500">*</span></label>
                     <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Nhập SĐT ..." disabled={!isEditing} />
                     {errors.phone && <span className="text-red-500">{errors.phone}</span>}
                   </div>

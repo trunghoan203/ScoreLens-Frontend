@@ -13,6 +13,30 @@ import adminService from '@/lib/adminService';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import Image from 'next/image';
 
+
+function convertDateFormat(dateString: string, fromFormat: 'iso' | 'ddmmyyyy', toFormat: 'iso' | 'ddmmyyyy'): string {
+  if (fromFormat === toFormat) return dateString;
+  
+  if (fromFormat === 'iso' && toFormat === 'ddmmyyyy') {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return '';
+      }
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    } catch {
+      return '';
+    }
+  } else if (fromFormat === 'ddmmyyyy' && toFormat === 'iso') {
+    const [day, month, year] = dateString.split('/');
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  }
+  return dateString;
+}
+
 export default function ManagerDetailPage() {
   const router = useRouter();
   const params = useParams();
@@ -40,7 +64,8 @@ export default function ManagerDetailPage() {
         const dataObj = data as Record<string, unknown>;
         setName(typeof dataObj.fullName === 'string' ? dataObj.fullName : '');
         setPhone(typeof dataObj.phoneNumber === 'string' ? dataObj.phoneNumber : '');
-        setDob(typeof dataObj.dateOfBirth === 'string' ? dataObj.dateOfBirth.slice(0, 10) : '');
+        const backendDate = typeof dataObj.dateOfBirth === 'string' ? dataObj.dateOfBirth : '';
+        setDob(backendDate ? convertDateFormat(backendDate, 'iso', 'ddmmyyyy') : '');
         setEmail(typeof dataObj.email === 'string' ? dataObj.email : '');
         setCitizenCode(typeof dataObj.citizenCode === 'string' ? dataObj.citizenCode : '');
         setAddress(typeof dataObj.address === 'string' ? dataObj.address : '');
@@ -97,6 +122,18 @@ export default function ManagerDetailPage() {
     } catch (error: unknown) {
       const errMsg = (typeof error === 'object' && error && 'message' in error) ? (error as { message?: string }).message : undefined;
       toast.error(errMsg || 'Xóa quản lý thất bại!');
+    }
+  };
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    
+    if (value) {
+      const [year, month, day] = value.split('-');
+      const formattedDate = `${day}/${month}/${year}`;
+      setDob(formattedDate);
+    } else {
+      setDob(value);
     }
   };
 
@@ -203,8 +240,18 @@ export default function ManagerDetailPage() {
               <label className="block text-sm font-semibold mb-2 text-black">Ngày Sinh<span className="text-red-500">*</span></label>
               <input
                 type="date"
-                value={dob}
-                onChange={(e) => setDob(e.target.value)}
+                value={dob ? (() => {
+                  try {
+                    const [day, month, year] = dob.split('/');
+                    if (day && month && year) {
+                      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                    }
+                  } catch {
+                  }
+                  return '';
+                })() : ''}
+                onChange={handleDateChange}
+                placeholder="dd/mm/yyyy"
                 disabled={!isEditMode}
                 className={`w-full bg-white border rounded-md px-4 py-3 text-sm font-base text-black placeholder-gray-500 hover:border-lime-400 outline-none transition-all ${isEditMode
                   ? 'border-gray-300 focus:border-lime-500 hover:border-lime-400'
