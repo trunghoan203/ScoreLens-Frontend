@@ -10,6 +10,7 @@ import FeedbackPageBanner from "@/components/manager/FeedbackPageBanner";
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
+import { NoteWithToggle } from '@/components/shared/NoteWithToggle';
 
 interface Feedback {
   feedbackId: string;
@@ -319,9 +320,7 @@ export default function FeedbackDetailPage() {
                                   </span>
                                 </div>
                                 {item.note && (
-                                  <div className="text-sm text-gray-600">
-                                    <span className="font-medium">Ghi chú:</span> {item.note}
-                                  </div>
+                                  <NoteWithToggle note={item.note} />
                                 )}
                               </div>
                             ))}
