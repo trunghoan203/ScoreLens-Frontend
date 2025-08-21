@@ -237,7 +237,7 @@ export default function CameraDetailPage() {
               <PasswordInput value={password} onChange={e => setPassword(e.target.value)} required disabled={!isEditMode} />
               {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
             </div>
-            <div className="w-full mb-10">
+            <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Trạng thái kết nối<span className="text-red-500">*</span></label>
               <div className="relative w-full">
                 <select
