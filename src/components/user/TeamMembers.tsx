@@ -101,7 +101,7 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
               }
 
               if (!membershipInfo.isBrandCompatible) {
-                validationErrors.push(`${teamName} - ${memberName}: Không thuộc cùng brand`);
+                validationErrors.push(`${teamName} - ${memberName}: Mã hội viên không đúng`);
                 continue;
               }
 
