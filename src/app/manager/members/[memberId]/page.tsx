@@ -28,6 +28,8 @@ export default function MemberDetailPage() {
   const [status, setStatus] = useState<'active' | 'inactive'>('active');
   const [showConfirm, setShowConfirm] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     managerMemberService.getAllMembers()
@@ -54,14 +56,38 @@ export default function MemberDetailPage() {
       });
   }, [memberId]);
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!name) newErrors.name = 'Tên hội viên là bắt buộc';
+    else if (name.length < 2) newErrors.name = 'Tên hội viên phải có ít nhất 2 ký tự';
+    if (!phone) newErrors.phone = 'Số điện thoại là bắt buộc';
+    else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phone)) newErrors.phone = 'Số điện thoại không hợp lệ';
+    setErrors(newErrors);
+    return newErrors;
+  };
+
   const handleSave = async () => {
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
       await managerMemberService.updateMember(memberId, { fullName: name, phoneNumber: phone, status });
       toast.success('Đã lưu hội viên thành công!');
       setIsEditMode(false);
-    } catch (error) {
+      setErrors({});
+    } catch (error: unknown) {
       console.error(error);
-      toast.error('Lưu hội viên thất bại.');
+      if (error instanceof Error && error.message === 'Số điện thoại đã được sử dụng bởi hội viên khác') {
+        setErrors({ phone: 'Số điện thoại đã được sử dụng bởi hội viên khác' });
+      } else {
+        toast.error('Lưu hội viên thất bại.');
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -95,6 +121,7 @@ export default function MemberDetailPage() {
             onBack={() => router.push('/manager/members')}
             backLabel="Quay lại"
             submitLabel={isEditMode ? "Lưu" : "Chỉnh sửa"}
+            submitButtonDisabled={isSubmitting}
             extraActions={
               !isEditMode && (
                 <button
@@ -131,16 +158,36 @@ export default function MemberDetailPage() {
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-gray-500">Mã Hội Viên<span className="text-red-500">*</span></label>
               <Input
-                value={phone}
-                onChange={e => setPhone(e.target.value)}
-                required
+                value={memberId}
                 disabled={true}
                 className="bg-gray-100 text-gray-500 cursor-not-allowed"
               />
             </div>
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Tên Hội Viên<span className="text-red-500">*</span></label>
-              <Input value={name} onChange={e => setName(e.target.value)} required disabled={!isEditMode} />
+              <Input 
+                value={name} 
+                onChange={e => {
+                  setName(e.target.value);
+                  if (errors.name) setErrors(prev => ({ ...prev, name: '' }));
+                }} 
+                required 
+                disabled={!isEditMode} 
+              />
+              {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+            </div>
+            <div className="w-full mb-6">
+              <label className="block text-sm font-semibold mb-2 text-black">Số Điện Thoại<span className="text-red-500">*</span></label>
+              <Input 
+                value={phone} 
+                onChange={e => {
+                  setPhone(e.target.value);
+                  if (errors.phone) setErrors(prev => ({ ...prev, phone: '' }));
+                }} 
+                required 
+                disabled={!isEditMode} 
+              />
+              {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
             </div>
             <div className="w-full mb-10">
               <label className="block text-sm font-semibold mb-2 text-black">Trạng thái<span className="text-red-500">*</span></label>
