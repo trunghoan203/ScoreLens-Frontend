@@ -30,13 +30,13 @@ export const LoginRolePopup: React.FC<LoginRolePopupProps> = ({ onClose }) => {
           />
         </div>
         <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
-          <Link href="/admin/login" onClick={onClose} className="w-full sm:w-auto">
-            <Button className="bg-lime-500 text-gray-900 font-semibold hover:bg-lime-600 rounded-lg text-sm sm:text-base lg:text-lg py-2 sm:py-3 transition-transform hover:scale-105 w-full sm:w-[200px] flex justify-center">
+          <Link href="/admin/login" onClick={onClose} className="w-full sm:flex-1">
+            <Button className="bg-lime-500 text-gray-900 hover:bg-lime-600 rounded-lg sm:text-base lg:text-base py-2 sm:py-3 transition-transform hover:scale-105 w-full flex justify-center">
               Chủ doanh nghiệp
             </Button>
           </Link>
-          <Link href="/manager/login" onClick={onClose} className="w-full sm:w-auto">
-            <Button className="bg-lime-500 text-gray-900 font-semibold hover:bg-lime-600 rounded-lg text-sm sm:text-base lg:text-lg py-2 sm:py-3 transition-transform hover:scale-105 w-full sm:w-[200px] flex justify-center">
+          <Link href="/manager/login" onClick={onClose} className="w-full sm:flex-1">
+            <Button className="bg-lime-500 text-gray-900 hover:bg-lime-600 rounded-lg sm:text-base lg:text-base py-2 sm:py-3 transition-transform hover:scale-105 w-full flex justify-center">
               Quản lý
             </Button>
           </Link>

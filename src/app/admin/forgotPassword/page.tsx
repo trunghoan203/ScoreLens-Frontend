@@ -23,7 +23,7 @@ export default function AdminForgotPasswordPage() {
 
   useLayoutEffect(() => {
     if (formRef.current) {
-      }
+    }
   }, []);
 
   const handleSubmitEmail = async (e: React.FormEvent) => {
@@ -187,16 +187,16 @@ export default function AdminForgotPasswordPage() {
       )}
       {step === 4 && (
         <div className="w-full max-w-lg mx-auto flex flex-col gap-6 items-center px-0 pb-8 animate-success-fade-in">
-          <h2 className="text-2xl md:text-3xl font-bold text-center text-black mt-8 mb-2">ĐẶT LẠI MẬT KHẨU THÀNH CÔNG</h2>
+          <h2 className="text-3xl font-bold text-center text-black mt-8 mb-2">ĐẶT LẠI MẬT KHẨU THÀNH CÔNG</h2>
           <p className="text-lg text-center text-gray-700 mb-2">Bạn có thể đăng nhập với mật khẩu mới.</p>
           <div className="flex justify-center my-6">
             <div className="animate-success-bounce">
-              <CheckCircle size={110} strokeWidth={2} fill="#A3E635" className="text-lime-400 bg-transparent rounded-full" />
+              <CheckCircle size={110} strokeWidth={2} className="text-lime-400" fill="none" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-black text-center mb-2 animate-success-pop">Bạn đã có thể đăng nhập!</div>
-          <Link href="/admin/login" className="text-lime-600 font-semibold hover:underline text-lg transition-colors">
-            Đăng nhập
+          <div className="text-xl font-bold text-black text-center mb-2 animate-success-pop">Bạn đã có thể đăng nhập!</div>
+          <Link href="/admin/login" className="bg-lime-400 text-white hover:bg-lime-500 rounded-lg sm:text-base lg:text-base sm:py-3 transition-transform w-full flex justify-center">
+            Trở về Đăng nhập
           </Link>
         </div>
       )}
