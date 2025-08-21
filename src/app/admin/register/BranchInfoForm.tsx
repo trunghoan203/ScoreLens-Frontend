@@ -142,11 +142,25 @@ export function BranchInfoForm({
     setShowConfirm(true);
   };
 
+  const validateUniqueName = async (name: string) => {
+    const response = await axios.get<{ exists: boolean }>(`/admin/clubs?name=${name}`);
+    return response.data.exists;
+  };
+
   const handleConfirm = async () => {
     setShowConfirm(false);
     setIsLoading(true);
 
     try {
+      for (const branch of branches) {
+        const isDuplicate = await validateUniqueName(branch.name);
+        if (isDuplicate) {
+          toast.error(`Tên chi nhánh '${branch.name}' đã tồn tại.`);
+          setIsLoading(false);
+          return;
+        }
+      }
+
       if (mode === 'edit') {
         onSuccess(branches);
         setIsLoading(false);
