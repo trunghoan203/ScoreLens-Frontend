@@ -109,8 +109,7 @@ export default function CameraPage() {
   };
 
   const filteredCameras = cameras.filter(
-    c => getTableDisplay(c.tableId).toLowerCase().includes(search.toLowerCase()) ||
-      c.IPAddress.toLowerCase().includes(search.toLowerCase())
+    c => getTableDisplay(c.tableId).toLowerCase().includes(search.toLowerCase())
   );
 
   const handleAddCamera = async () => {
