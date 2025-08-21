@@ -10,6 +10,8 @@ interface AddFormLayoutProps {
   showBackButton?: boolean;
   submitLabel?: string;
   extraActions?: React.ReactNode;
+  submitButtonClassName?: string;
+  submitButtonDisabled?: boolean;
 }
 
 export default function AddFormLayout({
@@ -21,6 +23,8 @@ export default function AddFormLayout({
   showBackButton = true,
   submitLabel = "Thêm",
   extraActions,
+  submitButtonClassName,
+  submitButtonDisabled = false,
 }: AddFormLayoutProps) {
   return (
     <div className="flex justify-center items-center min-h-[60vh]">
@@ -42,7 +46,8 @@ export default function AddFormLayout({
           )}
           <button
             type="submit"
-            className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
+            className={submitButtonClassName || "w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"}
+            disabled={submitButtonDisabled}
           >
             {submitLabel}
           </button>

@@ -97,6 +97,14 @@ export default function TableDetailPage() {
     }
   };
 
+  const handleEditClick = () => {
+    if (status === 'inuse') {
+      toast.error('Bàn này đang diễn ra trận đấu, không được phép chỉnh sửa!');
+      return;
+    }
+    setIsEditMode(true);
+  };
+
   const handleDelete = async () => {
     try {
       await managerTableService.deleteTable(tableId);
@@ -106,6 +114,14 @@ export default function TableDetailPage() {
       console.error(error);
       toast.error('Xóa bàn thất bại.');
     }
+  };
+
+  const handleDeleteClick = () => {
+    if (status === 'inuse') {
+      toast.error('Bàn này đang diễn ra trận đấu, không được phép chỉnh sửa!');
+      return;
+    }
+    setShowConfirm(true);
   };
 
   const handleDownloadQR = () => {
@@ -154,7 +170,7 @@ export default function TableDetailPage() {
                 <button
                   type="button"
                   className="w-40 bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded-lg transition text-lg"
-                  onClick={() => setShowConfirm(true)}
+                  onClick={handleDeleteClick}
                 >
                   Xóa
                 </button>
@@ -165,7 +181,7 @@ export default function TableDetailPage() {
               if (isEditMode) {
                 handleSave();
               } else {
-                setIsEditMode(true);
+                handleEditClick();
               }
             }}
           >
