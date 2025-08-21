@@ -13,6 +13,7 @@ export default function AddMemberPage() {
   const [phone, setPhone] = useState('');
   const router = useRouter();
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -31,13 +32,21 @@ export default function AddMemberPage() {
       setErrors(newErrors);
       return;
     }
+
+    setIsSubmitting(true);
     try {
       await managerMemberService.createMember({ fullName: name, phoneNumber: phone });
       toast.success('Đã thêm hội viên thành công!');
       router.push('/manager/members');
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(error);
-      toast.error('Thêm hội viên thất bại.');
+      if (error instanceof Error && error.message === 'Số điện thoại đã được sử dụng bởi hội viên khác') {
+        setErrors({ phone: 'Số điện thoại đã được sử dụng bởi hội viên khác' });
+      } else {
+        toast.error('Thêm hội viên thất bại.');
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -58,6 +67,7 @@ export default function AddMemberPage() {
             title="THÊM HỘI VIÊN"
             onSubmit={handleSubmit}
             onBack={() => router.push('/manager/members')}
+            submitButtonDisabled={isSubmitting}
           >
             <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Tên Hội Viên<span className="text-red-500">*</span></label>
