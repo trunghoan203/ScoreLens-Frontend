@@ -164,10 +164,10 @@ function StartSessionContent() {
         isAiAssisted: aiAssisted,
         teams: [
           {
-            teamName: 'Team A',
+            teamName: 'Đội A',
             members: verifiedMembershipId ? [] : [{ guestName: fullName.trim() }],
           },
-          { teamName: 'Team B', members: [] },
+          { teamName: 'Đội B', members: [] },
         ],
       };
 

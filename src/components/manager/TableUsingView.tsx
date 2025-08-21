@@ -71,7 +71,7 @@ export default function TableUsingView({ table, onBack, onEndMatch, onCancelMatc
             <div className="flex justify-center gap-8 mb-4">
               {/* Team A */}
               <div className="flex flex-col items-center">
-                <div className="font-semibold mb-6">Team A</div>
+                <div className="font-semibold mb-6">Đội A</div>
                 <div className="text-center text-sm mb-2 min-h-[40px] flex flex-col justify-center">
                   {table.teamA.length > 0 ? (
                     table.teamA.map((player, idx) => (
@@ -85,7 +85,7 @@ export default function TableUsingView({ table, onBack, onEndMatch, onCancelMatc
               <div className="flex flex-col justify-center font-bold text-xl">VS</div>
               {/* Team B */}
               <div className="flex flex-col items-center">
-                <div className="font-semibold mb-6">Team B</div>
+                <div className="font-semibold mb-6">Đội B</div>
                 <div className="text-center text-sm mb-2 min-h-[40px] flex flex-col justify-center">
                   {table.teamB.length > 0 ? (
                     table.teamB.map((player, idx) => (

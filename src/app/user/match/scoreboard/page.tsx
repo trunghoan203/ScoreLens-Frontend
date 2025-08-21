@@ -296,8 +296,8 @@ function ScoreboardPage() {
   }, [matchId, router, searchParams]);
 
   const exampleResults = [
-    'Team A - Bi số 5 vào đúng lỗ giữa.',
-    'Team B - Lỗi, đánh bi trắng vào lỗ.',
+    'Đội A - Bi số 5 vào đúng lỗ giữa.',
+    'Đội B - Lỗi, đánh bi trắng vào lỗ.',
     'Không xác định được tình huống – vui lòng kiểm tra lại video.',
   ];
 
@@ -603,7 +603,7 @@ function ScoreboardPage() {
               <div className="flex items-center justify-between gap-4">
                 <div className="text-center flex flex-col items-center w-20 flex-shrink-0">
                   <div className="text-4xl font-bold mb-2">{updating ? '...' : scoreA}</div>
-                  <p className="text-sm font-semibold">Team A</p>
+                  <p className="text-sm font-semibold">Đội A</p>
                   <div className="min-h-[60px] mt-1 text-center space-y-1">
                     {teamA.length > 0 ? (
                       teamA.map((member, index) => (
@@ -628,7 +628,7 @@ function ScoreboardPage() {
 
                 <div className="text-center flex flex-col items-center w-20 flex-shrink-0">
                   <div className="text-4xl font-bold mb-2">{updating ? '...' : scoreB}</div>
-                  <p className="text-sm font-semibold">Team B</p>
+                  <p className="text-sm font-semibold">Đội B</p>
                   <div className="min-h-[60px] mt-1 text-center space-y-1">
                     {teamB.length > 0 ? (
                       teamB.map((member, index) => (
@@ -657,147 +657,147 @@ function ScoreboardPage() {
               <div className="space-y-2">
                 <p className="text-sm font-semibold text-[#000000] mb-2">Thao tác nhanh</p>
                 <div className="grid grid-cols-2 gap-3">
-                    <Button
-                      variant="outline"
-                      onClick={async () => {
-                        if (!canEdit) {
-                          toast.error('Bạn không có quyền chỉnh sửa');
-                          return;
-                        }
-                        if (!validatePermissions()) return;
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      if (!canEdit) {
+                        toast.error('Bạn không có quyền chỉnh sửa');
+                        return;
+                      }
+                      if (!validatePermissions()) return;
 
-                        const newScore = scoreA + 1;
-                        setScoreA(newScore);
-                        try {
-                          await userMatchService.updateScore(matchId, {
-                            teamIndex: 0,
-                            score: newScore,
-                            actorGuestToken: actorGuestToken || undefined,
-                            actorMembershipId: matchInfo?.createdByMembershipId || undefined,
-                            sessionToken: sessionToken,
-                          });
+                      const newScore = scoreA + 1;
+                      setScoreA(newScore);
+                      try {
+                        await userMatchService.updateScore(matchId, {
+                          teamIndex: 0,
+                          score: newScore,
+                          actorGuestToken: actorGuestToken || undefined,
+                          actorMembershipId: matchInfo?.createdByMembershipId || undefined,
+                          sessionToken: sessionToken,
+                        });
 
-                          socketService.emitScoreUpdate(matchId, 0, newScore);
-                        } catch (error) {
+                        socketService.emitScoreUpdate(matchId, 0, newScore);
+                      } catch (error) {
 
-                          if ((error as Error).message?.includes('SessionToken không hợp lệ')) {
-                            try {
-                              await syncSessionTokenWithBackend();
+                        if ((error as Error).message?.includes('SessionToken không hợp lệ')) {
+                          try {
+                            await syncSessionTokenWithBackend();
 
-                              await userMatchService.updateScore(matchId, {
-                                teamIndex: 0,
-                                score: newScore,
-                                actorGuestToken: actorGuestToken || undefined,
-                                actorMembershipId: matchInfo?.createdByMembershipId || undefined,
-                                sessionToken: sessionToken,
-                              });
+                            await userMatchService.updateScore(matchId, {
+                              teamIndex: 0,
+                              score: newScore,
+                              actorGuestToken: actorGuestToken || undefined,
+                              actorMembershipId: matchInfo?.createdByMembershipId || undefined,
+                              sessionToken: sessionToken,
+                            });
 
-                              socketService.emitScoreUpdate(matchId, 0, newScore);
-                              return;
-                            } catch (retryError) {
+                            socketService.emitScoreUpdate(matchId, 0, newScore);
+                            return;
+                          } catch (retryError) {
 
-                            }
                           }
-
-                          toast.error('Cập nhật điểm Team A thất bại');
-                          setScoreA(scoreA);
                         }
-                      }}
-                      className="text-[#000000]"
-                    >
-                      +1 Team A
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={async () => {
-                        if (!canEdit) {
-                          toast.error('Bạn không có quyền chỉnh sửa');
-                          return;
-                        }
-                        if (!validatePermissions()) return;
 
-                        const newScore = scoreB + 1;
-                        setScoreB(newScore);
-                        try {
-                          await userMatchService.updateScore(matchId, {
-                            teamIndex: 1,
-                            score: newScore,
-                            actorGuestToken: actorGuestToken || undefined,
-                            actorMembershipId: matchInfo?.createdByMembershipId || undefined,
-                            sessionToken: sessionToken,
-                          });
+                        toast.error('Cập nhật điểm Đội A thất bại');
+                        setScoreA(scoreA);
+                      }
+                    }}
+                    className="text-[#000000]"
+                  >
+                    +1 Đội A
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      if (!canEdit) {
+                        toast.error('Bạn không có quyền chỉnh sửa');
+                        return;
+                      }
+                      if (!validatePermissions()) return;
 
-                          socketService.emitScoreUpdate(matchId, 1, newScore);
-                        } catch (error) {
-                          toast.error('Cập nhật điểm Team B thất bại');
-                          setScoreB(scoreB);
-                        }
-                      }}
-                      className="text-[#000000]"
-                    >
-                      +1 Team B
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={async () => {
-                        if (!canEdit) {
-                          toast.error('Bạn không có quyền chỉnh sửa');
-                          return;
-                        }
-                        if (!validatePermissions()) return;
+                      const newScore = scoreB + 1;
+                      setScoreB(newScore);
+                      try {
+                        await userMatchService.updateScore(matchId, {
+                          teamIndex: 1,
+                          score: newScore,
+                          actorGuestToken: actorGuestToken || undefined,
+                          actorMembershipId: matchInfo?.createdByMembershipId || undefined,
+                          sessionToken: sessionToken,
+                        });
 
-                        const newScore = Math.max(0, scoreA - 1);
-                        setScoreA(newScore);
-                        try {
-                          await userMatchService.updateScore(matchId, {
-                            teamIndex: 0,
-                            score: newScore,
-                            actorGuestToken: actorGuestToken || undefined,
-                            actorMembershipId: matchInfo?.createdByMembershipId || undefined,
-                            sessionToken: sessionToken,
-                          });
+                        socketService.emitScoreUpdate(matchId, 1, newScore);
+                      } catch (error) {
+                        toast.error('Cập nhật điểm Đội B thất bại');
+                        setScoreB(scoreB);
+                      }
+                    }}
+                    className="text-[#000000]"
+                  >
+                    +1 Đội B
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      if (!canEdit) {
+                        toast.error('Bạn không có quyền chỉnh sửa');
+                        return;
+                      }
+                      if (!validatePermissions()) return;
 
-                          socketService.emitScoreUpdate(matchId, 0, newScore);
-                        } catch (error) {
-                          toast.error('Cập nhật điểm Team A thất bại');
-                          setScoreA(scoreA);
-                        }
-                      }}
-                      className="text-[#000000]"
-                    >
-                      -1 Team A
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={async () => {
-                        if (!canEdit) {
-                          toast.error('Bạn không có quyền chỉnh sửa');
-                          return;
-                        }
-                        if (!validatePermissions()) return;
+                      const newScore = Math.max(0, scoreA - 1);
+                      setScoreA(newScore);
+                      try {
+                        await userMatchService.updateScore(matchId, {
+                          teamIndex: 0,
+                          score: newScore,
+                          actorGuestToken: actorGuestToken || undefined,
+                          actorMembershipId: matchInfo?.createdByMembershipId || undefined,
+                          sessionToken: sessionToken,
+                        });
 
-                        const newScore = Math.max(0, scoreB - 1);
-                        setScoreB(newScore);
-                        try {
-                          await userMatchService.updateScore(matchId, {
-                            teamIndex: 1,
-                            score: newScore,
-                            actorGuestToken: actorGuestToken || undefined,
-                            actorMembershipId: matchInfo?.createdByMembershipId || undefined,
-                            sessionToken: sessionToken,
-                          });
+                        socketService.emitScoreUpdate(matchId, 0, newScore);
+                      } catch (error) {
+                        toast.error('Cập nhật điểm Đội A thất bại');
+                        setScoreA(scoreA);
+                      }
+                    }}
+                    className="text-[#000000]"
+                  >
+                    -1 Đội A
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      if (!canEdit) {
+                        toast.error('Bạn không có quyền chỉnh sửa');
+                        return;
+                      }
+                      if (!validatePermissions()) return;
 
-                          socketService.emitScoreUpdate(matchId, 1, newScore);
-                        } catch (error) {
-                          toast.error('Cập nhật điểm Team B thất bại');
-                          setScoreB(scoreB);
-                        }
-                      }}
-                      className="text-[#000000]"
-                    >
-                      -1 Team B
-                    </Button>
-                  </div>
+                      const newScore = Math.max(0, scoreB - 1);
+                      setScoreB(newScore);
+                      try {
+                        await userMatchService.updateScore(matchId, {
+                          teamIndex: 1,
+                          score: newScore,
+                          actorGuestToken: actorGuestToken || undefined,
+                          actorMembershipId: matchInfo?.createdByMembershipId || undefined,
+                          sessionToken: sessionToken,
+                        });
+
+                        socketService.emitScoreUpdate(matchId, 1, newScore);
+                      } catch (error) {
+                        toast.error('Cập nhật điểm Đội B thất bại');
+                        setScoreB(scoreB);
+                      }
+                    }}
+                    className="text-[#000000]"
+                  >
+                    -1 Đội B
+                  </Button>
+                </div>
               </div>
             </div>
           </main>
@@ -890,25 +890,29 @@ function ScoreboardPage() {
                 setTeamB(newTeamB);
                 setShowEditMembersPopup(false);
 
+                // Delay refetch để đảm bảo backend đã save xong
                 if (matchId && matchId.trim() !== '') {
-                  try {
-                    const updatedMatchInfo = await userMatchService.getMatchById(matchId);
-                    const responseData = (updatedMatchInfo as { data?: { teams?: Array<{ members?: Array<{ guestName?: string; membershipName?: string; fullName?: string }> }> } })?.data || updatedMatchInfo;
-                    const matchInfoData = responseData as { teams?: Array<{ members?: Array<{ guestName?: string; membershipName?: string; fullName?: string }> }> };
+                  setTimeout(async () => {
+                    try {
+                      const updatedMatchInfo = await userMatchService.getMatchById(matchId);
+                      const responseData = (updatedMatchInfo as { data?: { teams?: Array<{ members?: Array<{ guestName?: string; membershipName?: string; fullName?: string }> }> } })?.data || updatedMatchInfo;
+                      const matchInfoData = responseData as { teams?: Array<{ members?: Array<{ guestName?: string; membershipName?: string; fullName?: string }> }> };
 
-                    if (matchInfoData?.teams) {
-                      const teamAMembers = matchInfoData.teams[0]?.members?.map((member: { guestName?: string; membershipName?: string; fullName?: string }) =>
-                        member.guestName || member.membershipName || member.fullName || ''
-                      ) || [''];
-                      const teamBMembers = matchInfoData.teams[1]?.members?.map((member: { guestName?: string; membershipName?: string; fullName?: string }) =>
-                        member.guestName || member.membershipName || member.fullName || ''
-                      ) || [''];
+                      if (matchInfoData?.teams) {
+                        const teamAMembers = matchInfoData.teams[0]?.members?.map((member: { guestName?: string; membershipName?: string; fullName?: string }) =>
+                          member.guestName || member.membershipName || member.fullName || ''
+                        ) || [''];
+                        const teamBMembers = matchInfoData.teams[1]?.members?.map((member: { guestName?: string; membershipName?: string; fullName?: string }) =>
+                          member.guestName || member.membershipName || member.fullName || ''
+                        ) || [''];
 
-                      setTeamA(teamAMembers);
-                      setTeamB(teamBMembers);
+                        setTeamA(teamAMembers);
+                        setTeamB(teamBMembers);
+                      }
+                    } catch (error) {
+                      // Silent error handling
                     }
-                  } catch (error) {
-                  }
+                  }, 500); // Delay 500ms
                 }
               }}
               initialTeamA={teamA}
