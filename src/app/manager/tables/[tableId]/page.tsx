@@ -91,9 +91,12 @@ export default function TableDetailPage() {
       await managerTableService.updateTable(tableId, { name: name, category: type, status });
       toast.success('Đã lưu bàn thành công!');
       setIsEditMode(false);
-    } catch (error) {
-      console.error(error);
-      toast.error('Lưu bàn thất bại.');
+    } catch (error: any) {
+      if (error?.response?.status !== 400) {
+        console.error(error);
+      }
+      const errorMessage = error?.response?.data?.message || 'Lưu bàn thất bại.';
+      toast.error(errorMessage);
     }
   };
 
