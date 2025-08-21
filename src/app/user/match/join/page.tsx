@@ -7,7 +7,6 @@ import HeaderUser from '@/components/user/HeaderUser';
 import FooterButton from '@/components/user/FooterButton';
 import toast from 'react-hot-toast';
 import { userMatchService } from '@/lib/userMatchService';
-import RoleBadge from '@/components/ui/RoleBadge';
 import { setIdentity, setSession } from '@/lib/session';
 
 function GuestJoinContent() {
@@ -138,23 +137,23 @@ function GuestJoinContent() {
           const joinResult = await userMatchService.joinMatch({
             matchCode: roomCode,
             teamIndex: selectedTeam,
-            joinerInfo: { 
+            joinerInfo: {
               guestName: fullName.trim(),
               membershipId: isMember ? verifiedMembershipId : undefined,
               membershipName: isMember ? fullName.trim() : undefined,
             },
           });
-          
+
           const joinData = joinResult as any;
-          
+
           let newSessionToken = '';
-          
+
           if (joinData?.success) {
             newSessionToken = joinData.userSessionToken || '';
-            
+
 
           }
-          
+
           if (!newSessionToken) {
             newSessionToken = sessionToken || '';
           }
@@ -171,12 +170,12 @@ function GuestJoinContent() {
               guestName: isMember ? undefined : fullName.trim(),
               fullName: fullName.trim(),
             });
-            
+
             setSession(matchId, {
               sessionToken: newSessionToken,
               role: 'participant'
             });
-            
+
           }
 
           toast.success('Tham gia phòng thành công!');
@@ -208,20 +207,22 @@ function GuestJoinContent() {
         isAiAssisted: false,
         teams: [
           {
-            teamName: 'Team A',
-            members: selectedTeam === 0 ? [{
+            teamName: 'ĐỘI A',
+            members: selectedTeam === 0 ? (isMember ? [{
+              membershipId: verifiedMembershipId,
+              membershipName: fullName.trim(),
+            }] : [{
               guestName: fullName.trim(),
-              membershipId: isMember ? verifiedMembershipId : undefined,
-              membershipName: isMember ? fullName.trim() : undefined,
-            }] : [],
+            }]) : [],
           },
           {
-            teamName: 'Team B',
-            members: selectedTeam === 1 ? [{
+            teamName: 'ĐỘI B',
+            members: selectedTeam === 1 ? (isMember ? [{
+              membershipId: verifiedMembershipId,
+              membershipName: fullName.trim(),
+            }] : [{
               guestName: fullName.trim(),
-              membershipId: isMember ? verifiedMembershipId : undefined,
-              membershipName: isMember ? fullName.trim() : undefined,
-            }] : [],
+            }]) : [],
           },
         ],
       };
@@ -252,12 +253,12 @@ function GuestJoinContent() {
           guestName: isMember ? undefined : fullName.trim(),
           fullName: fullName.trim(),
         });
-        
+
         setSession(newMatchId, {
           sessionToken: newSessionToken,
           role: 'participant'
         });
-        
+
       }
 
       toast.success('Tạo phòng thành công!');
@@ -374,8 +375,8 @@ function GuestJoinContent() {
               <button
                 onClick={() => setSelectedTeam(0)}
                 className={`w-full p-4 rounded-xl border-2 transition-all ${selectedTeam === 0
-                    ? 'border-[#8ADB10] bg-lime-50 text-lime-700'
-                    : 'border-gray-200 hover:border-[#8ADB10]'
+                  ? 'border-[#8ADB10] bg-lime-50 text-lime-700'
+                  : 'border-gray-200 hover:border-[#8ADB10]'
                   }`}
               >
                 <div className="text-center">
@@ -386,8 +387,8 @@ function GuestJoinContent() {
               <button
                 onClick={() => setSelectedTeam(1)}
                 className={`w-full p-4 rounded-xl border-2 transition-all ${selectedTeam === 1
-                    ? 'border-[#8ADB10] bg-lime-50 text-lime-700'
-                    : 'border-gray-200 hover:border-[#8ADB10]'
+                  ? 'border-[#8ADB10] bg-lime-50 text-lime-700'
+                  : 'border-gray-200 hover:border-[#8ADB10]'
                   }`}
               >
                 <div className="text-center">

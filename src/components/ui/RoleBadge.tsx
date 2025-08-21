@@ -7,9 +7,9 @@ interface RoleBadgeProps {
   className?: string;
 }
 
-const RoleBadge: React.FC<RoleBadgeProps> = ({ 
-  role, 
-  size = 'md', 
+const RoleBadge: React.FC<RoleBadgeProps> = ({
+  role,
+  size = 'md',
   showIcon = false,
   className = ''
 }) => {
@@ -17,7 +17,7 @@ const RoleBadge: React.FC<RoleBadgeProps> = ({
     switch (role) {
       case 'host':
         return {
-          label: 'Host',
+          label: 'Chủ phòng',
           description: 'Người tạo trận đấu',
           bgColor: 'bg-green-100',
           textColor: 'text-green-800',
@@ -31,7 +31,7 @@ const RoleBadge: React.FC<RoleBadgeProps> = ({
       case 'manager':
         return {
           label: 'Manager',
-          description: 'Quản lý hệ thống',
+          description: 'Quản lý',
           bgColor: 'bg-blue-100',
           textColor: 'text-blue-800',
           borderColor: 'border-blue-200',
@@ -67,7 +67,7 @@ const RoleBadge: React.FC<RoleBadgeProps> = ({
   };
 
   const config = getRoleConfig();
-  
+
   const sizeClasses = {
     sm: 'px-2 py-1 text-xs',
     md: 'px-3 py-1.5 text-sm',
