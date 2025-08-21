@@ -110,12 +110,12 @@ export default function TableCard({ name, type, status, teamA, teamB, time, matc
           <div className="flex flex-col items-center justify-center w-full">
             <div className="flex w-full justify-between items-center mb-3">
               <div className="flex flex-col items-center ml-10">
-                <span className="text-xs text-[#000000] font-medium mb-1">Team A</span>
+                <span className="text-xs text-[#000000] font-medium mb-1">Đội A</span>
                 <span className="text-4xl font-bold text-[#000000]">{scoreA}</span>
               </div>
               <span className="mx-2 text-[#000000] font-bold">VS</span>
               <div className="flex flex-col items-center mr-10">
-                <span className="text-xs text-[#000000] font-medium mb-1">Team B</span>
+                <span className="text-xs text-[#000000] font-medium mb-1">Đội B</span>
                 <span className="text-4xl font-bold text-[#000000]">{scoreB}</span>
               </div>
             </div>

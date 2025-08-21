@@ -126,7 +126,7 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
 
       for (let teamIndex = 0; teamIndex < 2; teamIndex++) {
         const team = teamIndex === 0 ? teamA : teamB;
-        const teamName = teamIndex === 0 ? 'Team A' : 'Team B';
+        const teamName = teamIndex === 0 ? 'Đội A' : 'Đội B';
 
         for (let memberIndex = 0; memberIndex < team.length; memberIndex++) {
           const memberName = team[memberIndex];
@@ -276,7 +276,7 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-lg">
         <h2 className="text-xl font-bold text-[#000000] mb-6 text-center">
-          Chỉnh sửa thành viên
+          CHỈNH SỬA THÀNH VIÊN
         </h2>
         <div className="space-y-6 mb-6">
           <div className="text-center mb-4">
@@ -286,7 +286,7 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
           </div>
 
           <div>
-            <div className="font-semibold mb-3 text-center text-[#000000] text-lg">Team A</div>
+            <div className="font-semibold mb-3 text-center text-[#000000] text-lg">Đội A</div>
             {teamA.map((player, idx) => (
               <div key={idx} className="flex items-center gap-2 mb-2">
                 <Input
@@ -333,7 +333,7 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
           </div>
 
           <div>
-            <div className="font-semibold mb-3 text-center text-lg text-[#000000]">Team B</div>
+            <div className="font-semibold mb-3 text-center text-lg text-[#000000]">Đội B</div>
             {teamB.map((player, idx) => (
               <div key={idx} className="flex items-center gap-2 mb-2">
                 <Input

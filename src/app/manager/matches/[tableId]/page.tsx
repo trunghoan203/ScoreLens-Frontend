@@ -330,11 +330,11 @@ export default function TableDetailPage() {
         isAiAssisted,
         teams: [
           {
-            teamName: 'Team A',
+            teamName: 'Đội A',
             members: pendingTeams.teamA
           },
           {
-            teamName: 'Team B',
+            teamName: 'Đội B',
             members: pendingTeams.teamB
           }
         ]
@@ -453,8 +453,8 @@ export default function TableDetailPage() {
 
       const buildKey = (m: { membershipId?: string; phoneNumber?: string; guestName?: string }) =>
         m.membershipId ? `mem:${m.membershipId}` :
-        m.phoneNumber ? `guest:${m.phoneNumber}` :
-        m.guestName ? `guest:${(m.guestName || '').trim().toLowerCase()}` : '';
+          m.phoneNumber ? `guest:${m.phoneNumber}` :
+            m.guestName ? `guest:${(m.guestName || '').trim().toLowerCase()}` : '';
 
       const validateNoDuplicate = (teams: Array<Array<{ membershipId?: string; phoneNumber?: string; guestName?: string }>>) => {
         const seen = new Set<string>();

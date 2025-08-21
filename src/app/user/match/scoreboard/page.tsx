@@ -296,8 +296,8 @@ function ScoreboardPage() {
   }, [matchId, router, searchParams]);
 
   const exampleResults = [
-    'Team A - Bi số 5 vào đúng lỗ giữa.',
-    'Team B - Lỗi, đánh bi trắng vào lỗ.',
+    'Đội A - Bi số 5 vào đúng lỗ giữa.',
+    'Đội B - Lỗi, đánh bi trắng vào lỗ.',
     'Không xác định được tình huống – vui lòng kiểm tra lại video.',
   ];
 
@@ -603,7 +603,7 @@ function ScoreboardPage() {
               <div className="flex items-center justify-between gap-4">
                 <div className="text-center flex flex-col items-center w-20 flex-shrink-0">
                   <div className="text-4xl font-bold mb-2">{updating ? '...' : scoreA}</div>
-                  <p className="text-sm font-semibold">Team A</p>
+                  <p className="text-sm font-semibold">Đội A</p>
                   <div className="min-h-[60px] mt-1 text-center space-y-1">
                     {teamA.length > 0 ? (
                       teamA.map((member, index) => (
@@ -628,7 +628,7 @@ function ScoreboardPage() {
 
                 <div className="text-center flex flex-col items-center w-20 flex-shrink-0">
                   <div className="text-4xl font-bold mb-2">{updating ? '...' : scoreB}</div>
-                  <p className="text-sm font-semibold">Team B</p>
+                  <p className="text-sm font-semibold">Đội B</p>
                   <div className="min-h-[60px] mt-1 text-center space-y-1">
                     {teamB.length > 0 ? (
                       teamB.map((member, index) => (
@@ -699,13 +699,13 @@ function ScoreboardPage() {
                           }
                         }
 
-                        toast.error('Cập nhật điểm Team A thất bại');
+                        toast.error('Cập nhật điểm Đội A thất bại');
                         setScoreA(scoreA);
                       }
                     }}
                     className="text-[#000000]"
                   >
-                    +1 Team A
+                    +1 Đội A
                   </Button>
                   <Button
                     variant="outline"
@@ -729,13 +729,13 @@ function ScoreboardPage() {
 
                         socketService.emitScoreUpdate(matchId, 1, newScore);
                       } catch (error) {
-                        toast.error('Cập nhật điểm Team B thất bại');
+                        toast.error('Cập nhật điểm Đội B thất bại');
                         setScoreB(scoreB);
                       }
                     }}
                     className="text-[#000000]"
                   >
-                    +1 Team B
+                    +1 Đội B
                   </Button>
                   <Button
                     variant="outline"
@@ -759,13 +759,13 @@ function ScoreboardPage() {
 
                         socketService.emitScoreUpdate(matchId, 0, newScore);
                       } catch (error) {
-                        toast.error('Cập nhật điểm Team A thất bại');
+                        toast.error('Cập nhật điểm Đội A thất bại');
                         setScoreA(scoreA);
                       }
                     }}
                     className="text-[#000000]"
                   >
-                    -1 Team A
+                    -1 Đội A
                   </Button>
                   <Button
                     variant="outline"
@@ -789,13 +789,13 @@ function ScoreboardPage() {
 
                         socketService.emitScoreUpdate(matchId, 1, newScore);
                       } catch (error) {
-                        toast.error('Cập nhật điểm Team B thất bại');
+                        toast.error('Cập nhật điểm Đội B thất bại');
                         setScoreB(scoreB);
                       }
                     }}
                     className="text-[#000000]"
                   >
-                    -1 Team B
+                    -1 Đội B
                   </Button>
                 </div>
               </div>

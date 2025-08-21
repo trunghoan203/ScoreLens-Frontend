@@ -207,7 +207,7 @@ function GuestJoinContent() {
         isAiAssisted: false,
         teams: [
           {
-            teamName: 'ĐỘI A',
+            teamName: 'Đội A',
             members: selectedTeam === 0 ? (isMember ? [{
               membershipId: verifiedMembershipId,
               membershipName: fullName.trim(),
@@ -216,7 +216,7 @@ function GuestJoinContent() {
             }]) : [],
           },
           {
-            teamName: 'ĐỘI B',
+            teamName: 'Đội B',
             members: selectedTeam === 1 ? (isMember ? [{
               membershipId: verifiedMembershipId,
               membershipName: fullName.trim(),

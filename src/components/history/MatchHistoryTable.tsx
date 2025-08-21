@@ -23,9 +23,9 @@ export function MatchHistoryTable({ matches }: MatchHistoryTableProps) {
                 <div className="grid grid-cols-12 bg-black text-white font-semibold text-center mb-2">
                     <div className="col-span-2 py-3">THỜI GIAN</div>
                     <div className="col-span-2 py-3">THỂ THỨC</div>
-                    <div className="col-span-2 py-3">TEAM A</div>
+                    <div className="col-span-2 py-3">ĐỘI A</div>
                     <div className="col-span-2 py-3">TỶ SỐ</div>
-                    <div className="col-span-2 py-3">TEAM B</div>
+                    <div className="col-span-2 py-3">ĐỘI B</div>
                     <div className="col-span-2 py-3">VIDEO</div>
                 </div>
                 {matches.map(match => (
@@ -33,12 +33,12 @@ export function MatchHistoryTable({ matches }: MatchHistoryTableProps) {
                         <div className="col-span-2 py-4 font-semibold text-black">{match.time}</div>
                         <div className="col-span-2 py-4 text-gray-700">{match.type}</div>
                         <div className="col-span-2 py-4 text-gray-700">
-                            <div className="font-bold">TEAM A</div>
+                            <div className="font-bold">ĐỘI A</div>
                             {match.teamA.map((name, idx) => <div key={idx} className="text-xs">{name}</div>)}
                         </div>
                         <div className="col-span-2 py-4 text-black text-2xl font-extrabold">{match.score}</div>
                         <div className="col-span-2 py-4 text-gray-700">
-                            <div className="font-bold">TEAM B</div>
+                            <div className="font-bold">ĐỘI B</div>
                             {match.teamB.map((name, idx) => <div key={idx} className="text-xs">{name}</div>)}
                         </div>
                         <div className="col-span-2 py-4 flex justify-center">
@@ -64,10 +64,10 @@ export function MatchHistoryTable({ matches }: MatchHistoryTableProps) {
                                 <div className="text-sm text-gray-700">{match.type}</div>
                             </div>
                         </div>
-                        
+
                         <div className="grid grid-cols-3 gap-2 mb-3">
                             <div className="text-center">
-                                <div className="text-xs font-bold text-gray-700 mb-1">TEAM A</div>
+                                <div className="text-xs font-bold text-gray-700 mb-1">ĐỘI A</div>
                                 {match.teamA.map((name, idx) => (
                                     <div key={idx} className="text-xs text-gray-700">{name}</div>
                                 ))}
@@ -77,13 +77,13 @@ export function MatchHistoryTable({ matches }: MatchHistoryTableProps) {
                                 <div className="text-lg sm:text-xl font-extrabold text-black">{match.score}</div>
                             </div>
                             <div className="text-center">
-                                <div className="text-xs font-bold text-gray-700 mb-1">TEAM B</div>
+                                <div className="text-xs font-bold text-gray-700 mb-1">ĐỘI B</div>
                                 {match.teamB.map((name, idx) => (
                                     <div key={idx} className="text-xs text-gray-700">{name}</div>
                                 ))}
                             </div>
                         </div>
-                        
+
                         <div className="flex justify-center">
                             <a href={match.vod} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-[#8ADB10] hover:bg-lime-500 text-white font-bold px-3 sm:px-4 py-2 rounded-lg transition text-sm">
                                 <Image key="playVideo" src="/icon/playVideo.svg" alt="Play Video" width={16} height={16} className="w-4 h-4" />
