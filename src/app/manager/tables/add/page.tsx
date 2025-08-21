@@ -39,9 +39,12 @@ export default function AddTablePage() {
       await managerTableService.createTable({ name: name, category: type });
       toast.success('Đã thêm bàn thành công!');
       router.push('/manager/tables');
-    } catch (error) {
-      console.error(error);
-      toast.error('Thêm bàn thất bại.');
+    } catch (error: any) {
+      if (error?.response?.status !== 400) {
+        console.error(error);
+      }
+      const errorMessage = error?.response?.data?.message || 'Thêm bàn thất bại.';
+      toast.error(errorMessage);
     }
   };
 
