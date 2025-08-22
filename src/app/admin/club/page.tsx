@@ -171,39 +171,39 @@ export default function ClubInfoPage() {
 
   const handleConfirm = async () => {
     setShowConfirm(false);
-    setSubmitLoading(true);
+    
+    if (brandInfo?.brandId) {
+      const changedFields: Partial<{
+        brandName: string;
+        phoneNumber: string;
+        website: string;
+        logo_url: string;
+        citizenCode: string;
+      }> = {};
 
-    try {
-      if (brandInfo?.brandId) {
-        const changedFields: Partial<{
-          brandName: string;
-          phoneNumber: string;
-          website: string;
-          logo_url: string;
-          citizenCode: string;
-        }> = {};
+      const normalizeValue = (value: string | undefined) => value || ''; 
+      if (normalizeValue(brandName) !== normalizeValue(brandInfo.brandName)) {changedFields.brandName = brandName;}
+      if (normalizeValue(phone) !== normalizeValue(brandInfo.phoneNumber)) {changedFields.phoneNumber = phone;}
+      if (normalizeValue(website) !== normalizeValue(brandInfo.website)) {changedFields.website = website;}
+      if (normalizeValue(citizenCode) !== normalizeValue(brandInfo.citizenCode)) {changedFields.citizenCode = citizenCode;}
+      if (logoChanged && brandInfo.logo_url) {changedFields.logo_url = brandInfo.logo_url;}
 
-        const normalizeValue = (value: string | undefined) => value || ''; 
-        if (normalizeValue(brandName) !== normalizeValue(brandInfo.brandName)) {changedFields.brandName = brandName;}
-        if (normalizeValue(phone) !== normalizeValue(brandInfo.phoneNumber)) {changedFields.phoneNumber = phone;}
-        if (normalizeValue(website) !== normalizeValue(brandInfo.website)) {changedFields.website = website;}
-        if (normalizeValue(citizenCode) !== normalizeValue(brandInfo.citizenCode)) {changedFields.citizenCode = citizenCode;}
-        if (logoChanged && brandInfo.logo_url) {changedFields.logo_url = brandInfo.logo_url;}
-
-        if (Object.keys(changedFields).length > 0) {
+      if (Object.keys(changedFields).length > 0) {
+        setSubmitLoading(true);
+        try {
           await updateBrand(brandInfo.brandId, changedFields);
           toast.success('Cập nhật thông tin thương hiệu thành công!');
           setIsEditing(false);
-        } else {
-          toast.success('Không có thông tin nào thay đổi');
-          setIsEditing(false);
+        } catch (error) {
+          console.error('Error updating brand:', error);
+          toast.error('Cập nhật thông tin thương hiệu thất bại!');
+        } finally {
+          setSubmitLoading(false);
         }
+      } else {
+        toast.success('Không có thông tin nào thay đổi');
+        setIsEditing(false);
       }
-    } catch (error) {
-      console.error('Error updating brand:', error);
-      toast.error('Cập nhật thông tin thương hiệu thất bại!');
-    } finally {
-      setSubmitLoading(false);
     }
   };
 
@@ -220,7 +220,8 @@ export default function ClubInfoPage() {
     }
     setIsEditing(false);
     setLogoChanged(false);
-    window.location.reload();
+    // Reset errors if any
+    setErrors({});
   };
 
   return (
@@ -228,25 +229,25 @@ export default function ClubInfoPage() {
       {loading && <ScoreLensLoading text="Đang tải..." />}
       <div className="min-h-screen flex bg-[#18191A]">
         <Sidebar />
-        <main className="flex-1 bg-white min-h-screen">
-          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+        <main className="flex-1 bg-white min-h-screen lg:ml-0 overflow-x-hidden">
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-4 sm:px-6 lg:px-8 py-6 lg:py-8 transition-all duration-300">
             <HeaderAdminPage />
           </div>
-          <div className="px-10 pb-10">
-            <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-              <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+          <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0 w-full">
+            <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
+              <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
                 THÔNG TIN THƯƠNG HIỆU
               </span>
             </div>
             <form
-              className="w-full flex flex-col gap-8 items-center px-0 pb-8"
+              className="w-full flex flex-col gap-6 sm:gap-8 items-center px-0 pb-8"
               onSubmit={handleSubmit}
             >
-              <div className="flex flex-col md:flex-row gap-8 items-start w-full max-w-6xl">
-                <div className="flex flex-col items-center w-full md:w-1/3">
-                  <label className="block text-sm text-gray-700 font-semibold mb-2 w-full text-left ml-12">Hình ảnh</label>
+              <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 items-start w-full max-w-6xl mx-auto">
+                <div className="flex flex-col items-center w-full lg:w-1/3">
+                  <label className="block text-sm text-gray-700 font-semibold mb-2 w-full text-left ml-0 sm:ml-12">Hình ảnh</label>
                   {brandInfo?.logo_url ? (
-                    <div className="w-60 h-60 relative rounded-xl overflow-hidden border border-gray-200 shadow">
+                    <div className="w-48 h-48 sm:w-60 sm:h-60 relative rounded-xl overflow-hidden border border-gray-200 shadow">
                       <Image
                         src={brandInfo.logo_url}
                         alt="Logo"
@@ -269,7 +270,7 @@ export default function ClubInfoPage() {
                       )}
                     </div>
                   ) : (
-                    <div className="relative w-32 h-32 mb-4 flex items-center justify-center bg-white border rounded-xl shadow">
+                    <div className="relative w-24 h-24 sm:w-32 sm:h-32 mb-4 flex items-center justify-center bg-white border rounded-xl shadow">
                       {isEditing ? (
                         <label className="flex flex-col items-center justify-center cursor-pointer w-full h-full">
                           <input
@@ -279,11 +280,11 @@ export default function ClubInfoPage() {
                             className="hidden"
                             disabled={uploading}
                           />
-                          <LucideImage className="w-10 h-10 text-gray-400" />
+                          <LucideImage className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
                           <span className="text-xs text-gray-400 mt-1">Tải ảnh</span>
                         </label>
                       ) : (
-                        <LucideImage className="w-10 h-10 text-gray-400" />
+                        <LucideImage className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
                       )}
                     </div>
                   )}
@@ -291,81 +292,83 @@ export default function ClubInfoPage() {
                     <div className="mt-2 text-sm text-gray-500">Đang upload...</div>
                   )}
                 </div>
-                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="col-span-2">
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Tên Thương Hiệu <span className="text-red-500">*</span></label>
-                    <Input value={brandName} onChange={e => setBrandName(e.target.value)} placeholder="Nhập tên thương hiệu..." required disabled={!isEditing} />
-                    {errors.brandName && <span className="text-red-500">{errors.brandName}</span>}
-                  </div>
-                  <div className="col-span-2">
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Website</label>
-                    <Input value={website} onChange={e => setWebsite(e.target.value)} placeholder="Nhập website..." disabled={!isEditing} />
-                    {errors.website && <span className="text-red-500">{errors.website}</span>}
+                <div className="flex-1 flex flex-col gap-3 sm:gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-1">Tên Thương Hiệu <span className="text-red-500">*</span></label>
+                    <Input value={brandName} onChange={e => setBrandName(e.target.value)} placeholder="Nhập tên thương hiệu..." required disabled={!isEditing} className="py-2.5 sm:py-3 w-full" />
+                    {errors.brandName && <span className="text-red-500 text-xs sm:text-sm">{errors.brandName}</span>}
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">CCCD <span className="text-red-500">*</span></label>
-                    <Input value={citizenCode} onChange={e => setCitizenCode(e.target.value)} placeholder="Nhập CCCD ..." required disabled={!isEditing} />
-                    {errors.citizenCode && <span className="text-red-500">{errors.citizenCode}</span>}
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-1">Website</label>
+                    <Input value={website} onChange={e => setWebsite(e.target.value)} placeholder="Nhập website..." disabled={!isEditing} className="py-2.5 sm:py-3 w-full" />
+                    {errors.website && <span className="text-red-500 text-xs sm:text-sm">{errors.website}</span>}
                   </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Số Điện Thoại <span className="text-red-500">*</span></label>
-                    <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Nhập SĐT ..." disabled={!isEditing} />
-                    {errors.phone && <span className="text-red-500">{errors.phone}</span>}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-1">CCCD <span className="text-red-500">*</span></label>
+                      <Input value={citizenCode} onChange={e => setCitizenCode(e.target.value)} placeholder="Nhập CCCD ..." required disabled={!isEditing} className="py-2.5 sm:py-3 w-full" />
+                      {errors.citizenCode && <span className="text-red-500 text-xs sm:text-sm">{errors.citizenCode}</span>}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-1">Số Điện Thoại <span className="text-red-500">*</span></label>
+                      <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Nhập SĐT ..." disabled={!isEditing} className="py-2.5 sm:py-3 w-full" />
+                      {errors.phone && <span className="text-red-500 text-xs sm:text-sm">{errors.phone}</span>}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className={`w-full max-w-6xl mt-6 space-y-4`}>
+              <div className={`w-full max-w-6xl mt-4 sm:mt-6 space-y-3 sm:space-y-4 mx-auto`}>
                 {branches.map((branch, idx) => (
                   <div
                     key={idx}
-                    className="relative p-6 border rounded-xl bg-white shadow-md mb-6 transition-shadow hover:shadow-lg"
+                    className="relative p-4 sm:p-6 border rounded-xl bg-white shadow-md mb-4 sm:mb-6 transition-shadow hover:shadow-lg"
                   >
-                    <div className="mb-4">
-                      <span className="text-base font-semibold text-lime-600">Chi nhánh {idx + 1}</span>
+                    <div className="mb-3 sm:mb-4">
+                      <span className="text-sm sm:text-base font-semibold text-lime-600">Chi nhánh {idx + 1}</span>
                     </div>
-                    <div className="grid grid-cols-12 gap-4">
-                      <div className="col-span-5">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4">
+                      <div className="col-span-1 lg:col-span-5">
                         <label className="block text-xs font-medium text-gray-500 mb-1">Tên chi nhánh <span className="text-red-500">*</span></label>
-                        <Input value={branch.name} disabled className="disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200 disabled:cursor-not-allowed disabled:hover:border-gray-200" />
+                        <Input value={branch.name} disabled className="disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200 disabled:cursor-not-allowed disabled:hover:border-gray-200 py-2.5 sm:py-3" />
                       </div>
-                      <div className="col-span-5">
+                      <div className="col-span-1 lg:col-span-5">
                         <label className="block text-xs font-medium text-gray-500 mb-1">Địa chỉ <span className="text-red-500">*</span></label>
-                        <Input value={branch.address} disabled className="disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200 disabled:cursor-not-allowed disabled:hover:border-gray-200" />
+                        <Input value={branch.address} disabled className="disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200 disabled:cursor-not-allowed disabled:hover:border-gray-200 py-2.5 sm:py-3" />
                       </div>
-                      <div className="col-span-2">
+                      <div className="col-span-1 lg:col-span-2">
                         <label className="block text-xs font-medium text-gray-500 mb-1">Số bàn hiện có <span className="text-red-500">*</span></label>
-                        <Input value={branch.tableCount} disabled className="disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200 disabled:cursor-not-allowed disabled:hover:border-gray-200" />
+                        <Input value={branch.tableCount} disabled className="disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200 disabled:cursor-not-allowed disabled:hover:border-gray-200 py-2.5 sm:py-3" />
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="w-full mt-4 flex justify-center gap-4">
+              <div className="w-full mt-4 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 max-w-6xl mx-auto">
                 {isEditing ? (
                   <>
+                    <Button
+                      type="submit"
+                      variant="lime"
+                      className="w-full sm:w-36 touch-manipulation order-1 sm:order-2"
+                      disabled={submitLoading}
+                    >
+                      {submitLoading ? <LoadingSpinner size="sm" color="white" text="Đang lưu..." /> : "Lưu thông tin"}
+                    </Button>
                     <Button
                       type="button"
                       variant="destructive"
                       onClick={handleCancelEdit}
-                      className="w-36"
+                      className="w-full sm:w-36 touch-manipulation order-2 sm:order-1"
                     >
                       Hủy
-                    </Button>
-                    <Button
-                      type="submit"
-                      variant="lime"
-                      className="w-36"
-                      disabled={submitLoading}
-                    >
-                      {submitLoading ? <LoadingSpinner size="sm" color="white" text="Đang lưu..." /> : "Lưu thông tin"}
                     </Button>
                   </>
                 ) : (
                   <Button
                     type="submit"
                     variant="lime"
-                    className="w-48"
+                    className="w-full sm:w-48 touch-manipulation"
                   >
                     Chỉnh sửa
                   </Button>
@@ -385,7 +388,7 @@ export default function ClubInfoPage() {
               confirmText="Cập nhật"
               cancelText="Hủy"
             >
-              <div className="text-center">Bạn có chắc chắn muốn cập nhật thông tin thương hiệu không?</div>
+              <div className="text-center text-[#000000]">Bạn có chắc chắn muốn cập nhật thông tin thương hiệu không?</div>
             </ConfirmPopup>
           </div>
         </main>

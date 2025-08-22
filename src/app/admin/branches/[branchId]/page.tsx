@@ -110,13 +110,13 @@ export default function BranchDetailPage() {
     return (
       <div className="min-h-screen flex bg-[#18191A]">
         <Sidebar />
-        <main className="flex-1 bg-white min-h-screen">
-          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+        <main className="flex-1 bg-white min-h-screen lg:ml-0">
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-4 sm:px-6 lg:px-8 py-6 lg:py-8 transition-all duration-300">
             <HeaderAdminPage />
           </div>
-          <div className="px-10 pb-10">
-            <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-              <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+          <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
+            <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
+              <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
                 CHI NHÁNH
               </span>
             </div>
@@ -133,13 +133,13 @@ export default function BranchDetailPage() {
     return (
       <div className="min-h-screen flex bg-[#18191A]">
         <Sidebar />
-        <main className="flex-1 bg-white min-h-screen">
-          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+        <main className="flex-1 bg-white min-h-screen lg:ml-0">
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-4 sm:px-6 lg:px-8 py-6 lg:py-8 transition-all duration-300">
             <HeaderAdminPage />
           </div>
-          <div className="px-10 pb-10">
-            <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-              <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+          <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
+            <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
+              <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
                 CHI NHÁNH
               </span>
             </div>
@@ -155,13 +155,13 @@ export default function BranchDetailPage() {
   return (
     <div className="min-h-screen flex bg-[#18191A]">
       <Sidebar />
-      <main className="flex-1 bg-white min-h-screen">
-        <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+      <main className="flex-1 bg-white min-h-screen lg:ml-0">
+        <div className="sticky top-0 z-10 bg-[#FFFFFF] px-4 sm:px-6 lg:px-8 py-6 lg:py-8 transition-all duration-300">
           <HeaderAdminPage />
         </div>
-        <div className="px-10 pb-10">
-          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+        <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
+          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
+            <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
               CHI NHÁNH
             </span>
           </div>
@@ -174,7 +174,7 @@ export default function BranchDetailPage() {
               !isEditMode && (
                 <button
                   type="button"
-                  className="w-40 bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded-lg transition text-lg disabled:opacity-50"
+                  className="w-full sm:w-40 bg-red-500 hover:bg-red-600 text-white font-bold py-2.5 sm:py-2 rounded-lg transition text-sm sm:text-lg disabled:opacity-50 touch-manipulation"
                   onClick={() => setShowConfirm(true)}
                   disabled={isDeleting}
                 >
@@ -197,54 +197,58 @@ export default function BranchDetailPage() {
               </div>
             </ConfirmPopup>
 
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Tên Chi Nhánh<span className="text-red-500">*</span></label>
+            <div className="w-full mb-4 sm:mb-6">
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Tên Chi Nhánh<span className="text-red-500">*</span></label>
               <Input
                 value={name}
                 onChange={e => setName(e.target.value)}
                 required
                 disabled={!isEditMode}
+                className="py-2.5 sm:py-3"
               />
             </div>
 
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Địa chỉ<span className="text-red-500">*</span></label>
+            <div className="w-full mb-4 sm:mb-6">
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Địa chỉ<span className="text-red-500">*</span></label>
               <Input
                 value={address}
                 onChange={e => setAddress(e.target.value)}
                 required
                 disabled={!isEditMode}
+                className="py-2.5 sm:py-3"
               />
             </div>
 
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Số điện thoại<span className="text-red-500">*</span></label>
+            <div className="w-full mb-4 sm:mb-6">
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Số điện thoại<span className="text-red-500">*</span></label>
               <Input
                 value={phoneNumber}
                 onChange={e => setPhoneNumber(e.target.value)}
                 required
                 disabled={!isEditMode}
+                className="py-2.5 sm:py-3"
               />
             </div>
 
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Số bàn đã đăng ký<span className="text-red-500">*</span></label>
+            <div className="w-full mb-4 sm:mb-6">
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Số bàn đã đăng ký<span className="text-red-500">*</span></label>
               <Input
                 type="number"
                 value={tableNumber}
                 onChange={e => setTableNumber(Number(e.target.value))}
                 required
                 disabled={!isEditMode}
+                className="py-2.5 sm:py-3"
               />
             </div>
 
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Số bàn thực tế trên hệ thống<span className="text-red-500">*</span></label>
+            <div className="w-full mb-4 sm:mb-6">
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Số bàn thực tế trên hệ thống<span className="text-red-500">*</span></label>
               <Input
                 type="number"
                 value={actualTableCount}
                 disabled={true}
-                className="bg-gray-100 cursor-not-allowed"
+                className="bg-gray-100 cursor-not-allowed py-2.5 sm:py-3"
               />
               {actualTableCount !== tableNumber && (
                 <p className="text-xs text-red-600 italic mt-1 font-medium">
@@ -253,14 +257,14 @@ export default function BranchDetailPage() {
               )}
             </div>
 
-            <div className="w-full mb-10">
-              <label className="block text-sm font-semibold mb-2 text-black">Trạng thái</label>
+            <div className="w-full mb-8 sm:mb-10">
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Trạng thái</label>
               <div className="relative w-full">
                 <select
                   value={status}
                   onChange={e => setStatus(e.target.value as 'open' | 'closed' | 'maintenance')}
                   disabled={!isEditMode}
-                  className="flex w-full border border-gray-300 rounded-md bg-white px-4 py-3 text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all appearance-none"
+                  className="flex w-full border border-gray-300 rounded-md bg-white px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all appearance-none"
                 >
                   <option value="open">Mở cửa</option>
                   <option value="closed">Đóng cửa</option>
@@ -270,9 +274,9 @@ export default function BranchDetailPage() {
                   <Image
                     src="/icon/chevron-down_Black.svg"
                     alt="Dropdown"
-                    width={20}
-                    height={20}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                    width={16}
+                    height={16}
+                    className="sm:w-5 sm:h-5 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
                   />
                 )}
               </div>

@@ -184,7 +184,7 @@ function ScoreboardPage() {
         const identity = getIdentity(matchId);
 
         if (identity && (identity.membershipId || identity.guestName)) {
-          let sessionTokenPayload: { membershipId?: string; guestName?: string } = {};
+          const sessionTokenPayload: { membershipId?: string; guestName?: string } = {};
           if (identity.membershipId) {
             sessionTokenPayload.membershipId = identity.membershipId;
           } else if (identity.guestName) {
@@ -506,7 +506,7 @@ function ScoreboardPage() {
     if (matchId) {
       try {
 
-        let sessionTokenPayload: { membershipId?: string; guestName?: string } = {};
+        const sessionTokenPayload: { membershipId?: string; guestName?: string } = {};
 
         if (matchInfo?.createdByMembershipId) {
           sessionTokenPayload.membershipId = matchInfo.createdByMembershipId;
