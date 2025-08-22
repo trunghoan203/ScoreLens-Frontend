@@ -1,14 +1,33 @@
 import JSMpeg from '@cycjimmy/jsmpeg-player';
+import axios from '@/lib/axios';
 
 export interface StreamResponse {
   success: boolean;
   message: string;
   streamUrl?: string;
+  streamInfo?: {
+    isNewStream: boolean;
+    viewerCount: number;
+    startTime: Date;
+  };
+  cameraInfo?: {
+    cameraId: string;
+    IPAddress: string;
+    tableId: string;
+  };
+}
+
+export interface StreamStatus {
+  isActive: boolean;
+  viewerCount: number;
+  startTime: Date;
+  wsUrl: string;
 }
 
 export class CameraStreamService {
   private player: any = null;
   private currentCameraId: string | null = null;
+  private streamInfo: any = null;
 
   constructor() {
   }
@@ -20,22 +39,59 @@ export class CameraStreamService {
     return null;
   }
 
-  async startVideoStream(cameraId: string, canvasElement: HTMLCanvasElement): Promise<StreamResponse> {
+  private getSessionToken(): string | null {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const matchId = urlParams.get('matchId');
+      if (matchId) {
+        const sessionKey = `sl:session:${matchId}`;
+        const session = JSON.parse(localStorage.getItem(sessionKey) || '{}');
+        if (session.sessionToken) {
+          return session.sessionToken;
+        }
+        
+        const fallbackSession = JSON.parse(localStorage.getItem(`session_${matchId}`) || '{}');
+        if (fallbackSession.sessionToken) {
+          return fallbackSession.sessionToken;
+        }
+        
+        const directToken = localStorage.getItem(`sessionToken_${matchId}`);
+        if (directToken) {
+          return directToken;
+        }
+        
+        const globalToken = localStorage.getItem('sessionToken');
+        if (globalToken) {
+          return globalToken;
+        }
+      }
+    }
+    return null;
+  }
+
+  async startVideoStream(cameraId: string, canvasElement: HTMLCanvasElement, providedSessionToken?: string): Promise<StreamResponse> {
     try {
       const managerToken = this.getManagerToken();
-      if (!managerToken) {
-        throw new Error('Manager token not found');
+      const sessionToken = providedSessionToken || this.getSessionToken();
+      
+
+      
+      if (!managerToken && !sessionToken) {
+        throw new Error('No authentication token found');
       }
 
-      await this.connectCamera(cameraId, managerToken);
+      const response = await this.connectCamera(cameraId, managerToken, sessionToken);
 
-      this.createPlayer(canvasElement, cameraId);
+      this.createPlayer(canvasElement, cameraId, response.wsUrl);
 
       this.currentCameraId = cameraId;
+      this.streamInfo = response.streamInfo;
 
       return {
         success: true,
-        message: 'Video stream started successfully'
+        message: response.message,
+        streamInfo: response.streamInfo,
+        cameraInfo: response.cameraInfo
       };
 
     } catch (error) {
@@ -47,36 +103,44 @@ export class CameraStreamService {
     }
   }
 
-  private async connectCamera(cameraId: string, managerToken: string) {
+  private async connectCamera(cameraId: string, managerToken?: string | null, sessionToken?: string | null) {
     try {
-      const response = await fetch(`http://localhost:8000/api/manager/camera/${cameraId}/stream/start`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${managerToken}`,
-          'Content-Type': 'application/json'
-        }
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+      };
+
+      if (managerToken) {
+        headers['Authorization'] = `Bearer ${managerToken}`;
+      } else if (sessionToken) {
+        headers['X-Session-Token'] = sessionToken;
+      }
+
+      const response = await axios.post(`/manager/camera/${cameraId}/stream/start`, {}, {
+        headers
       });
 
-      if (!response.ok) {
-        throw new Error(`Failed to connect camera: ${response.statusText}`);
-      }
+      return response.data as any;
 
     } catch (error) {
       console.error('Error connecting camera:', error);
+      const axiosError = error as any;
+      if (axiosError.response?.data?.message) {
+        throw new Error(axiosError.response.data.message);
+      }
       throw error;
     }
   }
 
-  private createPlayer(canvasElement: HTMLCanvasElement, cameraId: string) {
+  private createPlayer(canvasElement: HTMLCanvasElement, cameraId: string, wsUrl: string) {
     try {
       if (this.player) {
         this.player.destroy();
       }
-      const wsUrl = `ws://${window.location.hostname}:8000/api/stream?cameraId=${cameraId}`;
 
       if (typeof JSMpeg === 'undefined') {
         throw new Error('JSMpeg not loaded');
       }
+      
       this.player = new JSMpeg.Player(wsUrl, {
         canvas: canvasElement,
         audio: false,
@@ -99,16 +163,27 @@ export class CameraStreamService {
   async stopVideoStream(cameraId: string): Promise<StreamResponse> {
     try {
       const managerToken = this.getManagerToken();
-      if (!managerToken) {
-        throw new Error('Manager token not found');
-      } 
-      await fetch(`http://localhost:8000/api/manager/camera/${cameraId}/stream/stop`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${managerToken}`,
-          'Content-Type': 'application/json'
-        }
+      const sessionToken = this.getSessionToken();
+      
+      if (!managerToken && !sessionToken) {
+        throw new Error('No authentication token found');
+      }
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+      };
+
+      if (managerToken) {
+        headers['Authorization'] = `Bearer ${managerToken}`;
+      } else if (sessionToken) {
+        headers['Authorization'] = `Session ${sessionToken}`;
+      }
+
+      const response = await axios.post(`/manager/camera/${cameraId}/stream/stop`, {}, {
+        headers
       });
+
+      const data = response.data as any;
 
       if (this.player) {
         this.player.destroy();
@@ -116,10 +191,12 @@ export class CameraStreamService {
       }
 
       this.currentCameraId = null;
+      this.streamInfo = null;
 
       return {
         success: true,
-        message: 'Video stream stopped successfully'
+        message: data.message,
+        streamInfo: data.streamInfo
       };
 
     } catch (error) {
@@ -139,6 +216,14 @@ export class CameraStreamService {
     return this.currentCameraId;
   }
 
+  getStreamInfo(): any {
+    return this.streamInfo;
+  }
+
+  getViewerCount(): number {
+    return this.streamInfo?.viewerCount || 0;
+  }
+
   disconnect() {
     if (this.player) {
       this.player.destroy();
@@ -146,6 +231,7 @@ export class CameraStreamService {
     }
 
     this.currentCameraId = null;
+    this.streamInfo = null;
   }
 }
 

@@ -8,8 +8,25 @@ import FooterButton from '@/components/user/FooterButton';
 import AiSelection from '@/components/user/AiSelection';
 import toast from 'react-hot-toast';
 import { userMatchService } from '@/lib/userMatchService';
-import RoleBadge from '@/components/ui/RoleBadge';
 import { setIdentity, setSession } from '@/lib/session';
+
+interface CameraInfo {
+  cameraId?: string;
+  IPAddress?: string;
+  username?: string;
+  password?: string;
+  port?: string;
+  isConnect?: boolean;
+  hasCamera?: boolean;
+  rtspUrl?: string;
+}
+
+interface TableData {
+  name?: string;
+  category?: string;
+  clubId?: string;
+  camera?: CameraInfo;
+}
 
 function StartSessionContent() {
   const [loading, setLoading] = useState(true);
@@ -28,12 +45,7 @@ function StartSessionContent() {
   const [tableCategory, setTableCategory] = useState<string | null>(null);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
 
-  const [tableInfo, setTableInfo] = useState<{
-    name?: string;
-    category?: string;
-    tableId?: string;
-    clubId?: string;
-  } | null>(null);
+  const [tableInfo, setTableInfo] = useState<TableData & { tableId?: string } | null>(null);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -91,10 +103,10 @@ function StartSessionContent() {
         setSessionToken(sessionToken);
       }
 
-      try {
-        const result = await userMatchService.verifyTable({ tableId: idFromUrl });
-        const responseData = (result as { data?: { name?: string; category?: string; clubId?: string } })?.data || result;
-        const tableData = responseData as { name?: string; category?: string; clubId?: string };
+             try {
+         const result = await userMatchService.verifyTable({ tableId: idFromUrl });
+         const responseData = (result as { data?: TableData })?.data || result;
+         const tableData = responseData as TableData;
 
         if (tableData && tableData.name) {
           setTableName(tableData.name);
