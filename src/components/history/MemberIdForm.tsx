@@ -10,7 +10,7 @@ export function MemberIdForm({ memberId, setMemberId, onSubmit }: MemberIdFormPr
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-8 text-black text-center">
                 TRA CỨU LỊCH SỬ ĐẤU
             </h1>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
                 <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-4 sm:p-6 text-center shadow-lg">
                     <div className="text-2xl sm:text-3xl font-bold mb-2">1,250</div>
@@ -25,7 +25,7 @@ export function MemberIdForm({ memberId, setMemberId, onSubmit }: MemberIdFormPr
                     <div className="text-xs sm:text-sm opacity-90">Trận đấu hôm nay</div>
                 </div>
             </div>
-            
+
             <div className="bg-white/10 rounded-xl p-4 sm:p-6 lg:p-8 shadow-lg">
                 <form onSubmit={onSubmit} className="w-full space-y-4">
                     <div>
@@ -34,7 +34,7 @@ export function MemberIdForm({ memberId, setMemberId, onSubmit }: MemberIdFormPr
                         </label>
                         <input
                             id="memberId"
-                            type="text"
+                            type="tel"
                             value={memberId}
                             onChange={e => setMemberId(e.target.value)}
                             className="mt-1 w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg text-center text-base sm:text-lg text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all"
