@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { NoteWithToggle } from '@/components/shared/NoteWithToggle';
+import EmptyState from '@/components/ui/EmptyState';
 
 interface Feedback {
   feedbackId: string;
@@ -130,12 +131,10 @@ export default function FeedbackDetailPage() {
           setError(null);
         } else {
           setError('Không tìm thấy phản hồi');
-          toast.error('Không tìm thấy phản hồi');
         }
       } catch (error) {
         console.error('Error fetching feedback detail:', error);
         setError('Không thể tải dữ liệu phản hồi');
-        toast.error('Không thể tải dữ liệu phản hồi');
       } finally {
         setLoading(false);
       }
@@ -202,15 +201,37 @@ export default function FeedbackDetailPage() {
               <LoadingSkeleton type="card" lines={6} className="w-full max-w-2xl mx-auto" />
             </div>
           ) : error ? (
-            <div className="text-center py-20">
-              <h1 className="text-2xl font-bold text-gray-700 mb-4">{error}</h1>
-              <button
-                onClick={() => router.push('/admin/feedbacks')}
-                className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
-              >
-                Quay lại danh sách
-              </button>
-            </div>
+            <EmptyState
+              icon={
+                <svg className="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              }
+              title={error}
+              description="Đã xảy ra lỗi khi tải thông tin phản hồi. Vui lòng thử lại sau."
+              primaryAction={{
+                label: "Thử lại",
+                onClick: () => {
+                  setError(null);
+                  window.location.reload();
+                },
+                icon: (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                )
+              }}
+              secondaryAction={{
+                label: "Quay lại danh sách",
+                onClick: () => router.push('/manager/feedbacks'),
+                icon: (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                )
+              }}
+              showAdditionalInfo={false}
+            />
           ) : feedback ? (
             <FeedbackDetailLayout title="QUẢN LÝ PHẢN HỒI">
               <div className="flex flex-col md:flex-row gap-8">

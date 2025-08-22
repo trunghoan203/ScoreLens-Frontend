@@ -6,6 +6,8 @@ import { HeroSection } from '@/components/landing/HeroSection';
 import { Footer } from '@/components/landing/Footer';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { MemberIdForm } from '@/components/history/MemberIdForm';
+import { userMatchService } from '@/lib/userMatchService';
+import toast from 'react-hot-toast';
 
 
 export default function HistoryPage() {
@@ -22,14 +24,25 @@ export default function HistoryPage() {
         return () => clearTimeout(timer);
     }, []);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (memberId.trim()) {
             setLoading(true);
-            setTimeout(() => {
+            try {
+                const response = await userMatchService.getMembershipByPhoneNumber(memberId.trim());
+
+                if (response && typeof response === 'object' && 'success' in response && response.success && 'data' in response && response.data) {
+                    const membershipData = response.data as any;
+                    router.push(`/history/${membershipData.membershipId}`);
+                } else {
+                    toast.error('Không tìm thấy hội viên với số điện thoại này');
+                    setLoading(false);
+                }
+            } catch (error: any) {
+                console.error('Error finding membership:', error);
+                toast.error('Không tìm thấy hội viên với số điện thoại này');
                 setLoading(false);
-                router.push(`/history/${memberId.trim()}`);
-            }, 1000);
+            }
         }
     };
 

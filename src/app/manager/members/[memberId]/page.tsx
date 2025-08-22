@@ -44,7 +44,7 @@ export default function MemberDetailPage() {
         });
         if (found) {
           const memberObj = found as Partial<Member>;
-          setName(memberObj.fullName || '');
+          setName((memberObj.fullName || '').trim());
           setPhone(memberObj.phoneNumber || '');
           setStatus(memberObj.status || 'active');
         } else {
@@ -58,8 +58,9 @@ export default function MemberDetailPage() {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!name) newErrors.name = 'Tên hội viên là bắt buộc';
-    else if (name.length < 2) newErrors.name = 'Tên hội viên phải có ít nhất 2 ký tự';
+    const trimmedName = name.trim();
+    if (!trimmedName) newErrors.name = 'Tên hội viên là bắt buộc';
+    else if (trimmedName.length < 2) newErrors.name = 'Tên hội viên phải có ít nhất 2 ký tự';
     if (!phone) newErrors.phone = 'Số điện thoại là bắt buộc';
     else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phone)) newErrors.phone = 'Số điện thoại không hợp lệ';
     setErrors(newErrors);
@@ -75,10 +76,12 @@ export default function MemberDetailPage() {
 
     setIsSubmitting(true);
     try {
-      await managerMemberService.updateMember(memberId, { fullName: name, phoneNumber: phone, status });
+      const trimmedName = name.trim();
+      await managerMemberService.updateMember(memberId, { fullName: trimmedName, phoneNumber: phone, status });
       toast.success('Đã lưu hội viên thành công!');
       setIsEditMode(false);
       setErrors({});
+      setName(trimmedName);
     } catch (error: unknown) {
       console.error(error);
       if (error instanceof Error && error.message === 'Số điện thoại đã được sử dụng bởi hội viên khác') {
@@ -156,36 +159,30 @@ export default function MemberDetailPage() {
               <></>
             </ConfirmPopup>
             <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-gray-500">Mã Hội Viên<span className="text-red-500">*</span></label>
-              <Input
-                value={memberId}
-                disabled={true}
-                className="bg-gray-100 text-gray-500 cursor-not-allowed"
-              />
-            </div>
-            <div className="w-full mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Tên Hội Viên<span className="text-red-500">*</span></label>
-              <Input 
-                value={name} 
+              <Input
+                value={name}
                 onChange={e => {
-                  setName(e.target.value);
+                  // Trim khoảng trắng khi user nhập
+                  const trimmedValue = e.target.value.trim();
+                  setName(trimmedValue);
                   if (errors.name) setErrors(prev => ({ ...prev, name: '' }));
-                }} 
-                required 
-                disabled={!isEditMode} 
+                }}
+                required
+                disabled={!isEditMode}
               />
               {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
             </div>
             <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Số Điện Thoại<span className="text-red-500">*</span></label>
-              <Input 
-                value={phone} 
+              <label className="block text-sm font-semibold mb-2 text-black">Mã hội viên<span className="text-red-500">*</span></label>
+              <Input
+                value={phone}
                 onChange={e => {
                   setPhone(e.target.value);
                   if (errors.phone) setErrors(prev => ({ ...prev, phone: '' }));
-                }} 
-                required 
-                disabled={!isEditMode} 
+                }}
+                required
+                disabled={!isEditMode}
               />
               {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
             </div>

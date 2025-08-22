@@ -5,10 +5,13 @@ interface Match {
     id: string;
     time: string;
     type: string;
-    teamA: string[];
-    teamB: string[];
+    winningTeam: string;
+    winningTeamMembers: string[];
     score: string;
     vod: string;
+    status?: string;
+    matchCode?: string;
+    clubName?: string;
 }
 
 interface MatchHistorySectionProps {
