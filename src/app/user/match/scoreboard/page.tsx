@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import ScoreEditor from '@/components/user/ScoreEditor';
@@ -14,12 +14,39 @@ import toast from 'react-hot-toast';
 import { useWebSocket } from '@/lib/hooks/useWebSocket';
 import socketService from '@/lib/socketService';
 import { useMatchRole } from '@/lib/hooks/useMatchRole';
-import RoleBadge from '@/components/ui/RoleBadge';
-import PermissionGuard from '@/components/ui/PermissionGuard';
-import Image from 'next/image';
+import { cameraStreamService } from '@/lib/cameraStreamService';
 
 import { getIdentity, getSession, setSession } from '@/lib/session';
 
+interface CameraInfo {
+  cameraId?: string;
+  IPAddress?: string;
+  username?: string;
+  password?: string;
+  port?: string;
+  isConnect?: boolean;
+  hasCamera?: boolean;
+  rtspUrl?: string;
+}
+
+interface MatchData {
+  status?: 'pending' | 'ongoing' | 'completed';
+  tableId?: string;
+  isAiAssisted?: boolean;
+  createdByMembershipId?: string;
+  creatorGuestToken?: string;
+  teams?: Array<{
+    score?: number;
+    members?: Array<{
+      guestName?: string;
+      membershipName?: string;
+      fullName?: string;
+      role?: 'host' | 'participant';
+      sessionToken?: string;
+    }>;
+  }>;
+  camera?: CameraInfo;
+}
 
 function ScoreboardPage() {
   const router = useRouter();
@@ -40,23 +67,7 @@ function ScoreboardPage() {
   const [tableId, setTableId] = useState<string | null>(null);
   const [sessionToken, setSessionToken] = useState<string>('');
 
-  const [matchInfo, setMatchInfo] = useState<{
-    status?: 'pending' | 'ongoing' | 'completed';
-    tableId?: string;
-    isAiAssisted?: boolean;
-    createdByMembershipId?: string;
-    creatorGuestToken?: string;
-    teams?: Array<{
-      score?: number;
-      members?: Array<{
-        guestName?: string;
-        membershipName?: string;
-        fullName?: string;
-        role?: 'host' | 'participant';
-        sessionToken?: string;
-      }>;
-    }>;
-  } | null>(null);
+  const [matchInfo, setMatchInfo] = useState<MatchData | null>(null);
   const [tableInfo, setTableInfo] = useState<{
     name?: string;
     category?: string;
@@ -68,6 +79,19 @@ function ScoreboardPage() {
   const [aiResults] = useState<string[]>([]);
   const [matchStartTime, setMatchStartTime] = useState<Date | null>(null);
   const [elapsedTime, setElapsedTime] = useState<string>('00:00:00');
+  const [showCamera, setShowCamera] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(`camera_${matchId}`);
+      return saved === 'true';
+    }
+    return false;
+  });
+  const [isCameraLoading, setIsCameraLoading] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [viewerCount, setViewerCount] = useState(0);
+  const [streamInfo, setStreamInfo] = useState<any>(null);
+  const videoRef = useRef<HTMLCanvasElement>(null);
 
   const {
     role: matchRole,
@@ -75,9 +99,101 @@ function ScoreboardPage() {
     isManager,
     canEdit,
     authenticateMatch,
-    isLoading: authLoading,
     error: authError
   } = useMatchRole(matchId);
+
+  const handleStartCamera = async () => {
+    if (!matchInfo?.camera?.cameraId) {
+      toast.error('Không có thông tin camera');
+      return;
+    }
+
+    if (!videoRef.current) {
+      setTimeout(() => {
+        handleStartCamera();
+      }, 200);
+      return;
+    }
+
+    try {
+      setIsCameraLoading(true);
+      setCameraError(null);
+      setIsStreaming(false);
+
+      if (!matchInfo.camera?.isConnect) {
+        setCameraError('Camera không kết nối');
+        setIsCameraLoading(false);
+        return;
+      }
+
+      const result = await cameraStreamService.startVideoStream(matchInfo.camera.cameraId, videoRef.current, sessionToken);
+
+      if (result.success) {
+        setIsStreaming(true);
+        setViewerCount(result.streamInfo?.viewerCount || 0);
+        setStreamInfo(result.streamInfo);
+
+        const message = result.streamInfo?.isNewStream
+          ? 'Đã bắt đầu video stream'
+          : `Đã tham gia stream hiện tại (${result.streamInfo?.viewerCount || 0} người đang xem)`;
+        toast.success(message);
+      } else {
+        setCameraError(result.message);
+        toast.error('Không thể bắt đầu video stream: ' + result.message);
+
+        if (showCamera) {
+          setTimeout(() => {
+            if (showCamera && !isStreaming) {
+              handleStartCamera();
+            }
+          }, 3000);
+        }
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Lỗi không xác định';
+      setCameraError(errorMessage);
+      toast.error('Lỗi khi bắt đầu video stream: ' + errorMessage);
+
+      if (showCamera) {
+        setTimeout(() => {
+          if (showCamera && !isStreaming) {
+            handleStartCamera();
+          }
+        }, 3000);
+      }
+    } finally {
+      setIsCameraLoading(false);
+    }
+  };
+
+  const handleToggleCamera = () => {
+    if (!showCamera) {
+      setShowCamera(true);
+      if (typeof window !== 'undefined' && matchId) {
+        localStorage.setItem(`camera_${matchId}`, 'true');
+      }
+      setTimeout(() => {
+        handleStartCamera();
+      }, 100);
+    } else {
+      handleStopCamera();
+      setShowCamera(false);
+      if (typeof window !== 'undefined' && matchId) {
+        localStorage.setItem(`camera_${matchId}`, 'false');
+      }
+    }
+  };
+
+  const handleStopCamera = () => {
+    if (matchInfo?.camera?.cameraId && isStreaming) {
+      cameraStreamService.stopVideoStream(matchInfo.camera.cameraId);
+    }
+    setIsStreaming(false);
+    setIsCameraLoading(false);
+    setCameraError(null);
+    setViewerCount(0);
+    setStreamInfo(null);
+  };
 
   const { isConnected } = useWebSocket({
     matchId,
@@ -126,7 +242,32 @@ function ScoreboardPage() {
           setTeamB(teamBMembers);
         }
 
-        setMatchInfo(matchData);
+        setMatchInfo(prev => {
+          if (prev && matchData) {
+            const updatedMatchInfo = {
+              ...matchData,
+              camera: prev.camera,
+              isAiAssisted: prev.isAiAssisted
+            };
+
+            if (showCamera && prev.camera?.hasCamera && !isStreaming && !isCameraLoading) {
+              setTimeout(() => {
+                if (videoRef.current) {
+                  handleStartCamera();
+                } else {
+                  setTimeout(() => {
+                    if (videoRef.current) {
+                      handleStartCamera();
+                    }
+                  }, 200);
+                }
+              }, 100);
+            }
+
+            return updatedMatchInfo;
+          }
+          return matchData;
+        });
       }
     },
     onMatchEnded: (matchData: unknown) => {
@@ -249,6 +390,41 @@ function ScoreboardPage() {
       setTeamA(teamAMembers);
       setTeamB(teamBMembers);
     }
+
+    if (matchInfo && !matchInfo.camera && matchInfo.tableId) {
+      const restoreCameraInfo = async () => {
+        try {
+          const tableData = await userMatchService.verifyTable({ tableId: matchInfo.tableId! });
+          const tableResponseData = (tableData as { data?: { camera?: CameraInfo } })?.data || tableData;
+          const tableInfoData = tableResponseData as { camera?: CameraInfo };
+
+          if (tableInfoData?.camera) {
+            setMatchInfo(prev => prev ? {
+              ...prev,
+              camera: tableInfoData.camera,
+              isAiAssisted: tableInfoData.camera?.hasCamera || false
+            } : null);
+
+            if (showCamera && tableInfoData.camera?.hasCamera) {
+              setTimeout(() => {
+                if (videoRef.current) {
+                  handleStartCamera();
+                } else {
+                  setTimeout(() => {
+                    if (videoRef.current) {
+                      handleStartCamera();
+                    }
+                  }, 200);
+                }
+              }, 100);
+            }
+          }
+        } catch (error) {
+        }
+      };
+
+      restoreCameraInfo();
+    }
   }, [matchInfo]);
 
   useEffect(() => {
@@ -333,10 +509,28 @@ function ScoreboardPage() {
       try {
         if (mId) {
           const matchData = await userMatchService.getMatchById(mId);
-          const responseData = (matchData as { data?: { teams?: Array<{ score?: number; members?: Array<{ guestName?: string; membershipName?: string; fullName?: string }> }>; tableId?: string; startTime?: string; createdByMembershipId?: string; creatorGuestToken?: string } })?.data || matchData;
-          const matchInfoData = responseData as { teams?: Array<{ score?: number; members?: Array<{ guestName?: string; membershipName?: string; fullName?: string }> }>; tableId?: string; startTime?: string; createdByMembershipId?: string; creatorGuestToken?: string };
+          const responseData = (matchData as { data?: { teams?: Array<{ score?: number; members?: Array<{ guestName?: string; membershipName?: string; fullName?: string }> }>; tableId?: string; startTime?: string; createdByMembershipId?: string; creatorGuestToken?: string; camera?: CameraInfo; isAiAssisted?: boolean } })?.data || matchData;
+          const matchInfoData = responseData as { teams?: Array<{ score?: number; members?: Array<{ guestName?: string; membershipName?: string; fullName?: string }> }>; tableId?: string; startTime?: string; createdByMembershipId?: string; creatorGuestToken?: string; camera?: CameraInfo; isAiAssisted?: boolean };
 
           setMatchInfo(matchInfoData);
+
+          if (matchInfoData?.tableId) {
+            try {
+              const tableData = await userMatchService.verifyTable({ tableId: matchInfoData.tableId });
+              const tableResponseData = (tableData as { data?: { name?: string; category?: string; clubId?: string; camera?: CameraInfo } })?.data || tableData;
+              const tableInfoData = tableResponseData as { name?: string; category?: string; clubId?: string; camera?: CameraInfo };
+
+              if (tableInfoData?.camera) {
+                setMatchInfo(prev => prev ? {
+                  ...prev,
+                  camera: tableInfoData.camera,
+                  isAiAssisted: tableInfoData.camera?.hasCamera || false
+                } : null);
+              }
+            } catch (error) {
+
+            }
+          }
 
           if (matchInfoData?.creatorGuestToken && !actorGuestToken) {
             setActorGuestToken(matchInfoData.creatorGuestToken);
@@ -407,6 +601,61 @@ function ScoreboardPage() {
 
     verifyTableInfo();
   }, [tableId, matchInfo?.tableId]);
+
+  useEffect(() => {
+    return () => {
+      if (matchInfo?.camera?.cameraId && isStreaming) {
+        cameraStreamService.stopVideoStream(matchInfo.camera.cameraId);
+      }
+    };
+  }, [matchInfo?.camera?.cameraId, isStreaming]);
+
+  useEffect(() => {
+    if (showCamera && matchInfo?.camera?.cameraId && !isStreaming && !isCameraLoading) {
+      const timer = setTimeout(() => {
+        handleStartCamera();
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [matchInfo?.camera?.cameraId, showCamera, isStreaming, isCameraLoading]);
+
+  useEffect(() => {
+    if (showCamera && matchInfo?.camera?.cameraId && !isStreaming && !isCameraLoading) {
+      const timer = setTimeout(() => {
+        if (videoRef.current) {
+          handleStartCamera();
+        } else {
+          setTimeout(() => {
+            if (videoRef.current) {
+              handleStartCamera();
+            }
+          }, 200);
+        }
+      }, 300);
+
+      return () => clearTimeout(timer);
+    }
+  }, [matchInfo]);
+
+  useEffect(() => {
+    if (showCamera && matchInfo?.camera?.cameraId && isStreaming) {
+      const pollInterval = setInterval(async () => {
+        try {
+          const cameraId = matchInfo?.camera?.cameraId;
+          if (cameraId) {
+            const status = await cameraStreamService.getStreamStatus(cameraId);
+            if (status) {
+              setViewerCount(status.viewerCount);
+            }
+          }
+        } catch (error) {
+        }
+      }, 5000);
+
+      return () => clearInterval(pollInterval);
+    }
+  }, [showCamera, matchInfo?.camera?.cameraId, isStreaming]);
 
   useEffect(() => {
     if (!matchStartTime) return;
@@ -607,7 +856,12 @@ function ScoreboardPage() {
                   <div className="min-h-[60px] mt-1 text-center space-y-1">
                     {teamA.length > 0 ? (
                       teamA.map((member, index) => (
-                        <p key={index} className="text-xs">{member || `Người Chơi ${index + 1}`}</p>
+                        <p key={index} className="text-xs">
+                          {member && member.length > 12
+                            ? `${member.substring(0, 8)}...`
+                            : (member || `Người Chơi ${index + 1}`)
+                          }
+                        </p>
                       ))
                     ) : (
                       <p className="text-xs text-gray-400">Chưa có thành viên</p>
@@ -632,7 +886,12 @@ function ScoreboardPage() {
                   <div className="min-h-[60px] mt-1 text-center space-y-1">
                     {teamB.length > 0 ? (
                       teamB.map((member, index) => (
-                        <p key={index} className="text-xs">{member || `Người Chơi ${index + 1}`}</p>
+                        <p key={index} className="text-xs">
+                          {member && member.length > 12
+                            ? `${member.substring(0, 8)}...`
+                            : (member || `Người Chơi ${index + 1}`)
+                          }
+                        </p>
                       ))
                     ) : (
                       <p className="text-xs text-gray-400">Chưa có thành viên</p>
@@ -643,6 +902,66 @@ function ScoreboardPage() {
             </div>
             <div className="text-left w-full space-y-4 mt-2">
 
+              {matchInfo?.isAiAssisted && showCamera && matchInfo?.camera?.hasCamera && (
+                <div className="relative mb-4">
+                  <canvas
+                    ref={videoRef}
+                    className="w-full h-64 bg-black rounded-lg"
+                    width={854}
+                    height={480}
+                    style={{
+                      background: '#000',
+                      width: '100%',
+                      height: 'auto',
+                      display: 'block'
+                    }}
+                  />
+
+                  {isCameraLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg">
+                      <div className="text-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
+                        <p className="text-white text-sm">Đang kết nối camera...</p>
+                        {matchInfo.camera?.IPAddress && (
+                          <p className="text-white text-xs mt-1">IP: {matchInfo.camera.IPAddress}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {cameraError && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-red-500 bg-opacity-50 rounded-lg">
+                      <div className="text-center">
+                        <svg className="w-12 h-12 text-white mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                        <p className="text-white font-medium">Lỗi kết nối camera</p>
+                        <p className="text-white text-sm">{cameraError}</p>
+                        {matchInfo.camera?.IPAddress && (
+                          <p className="text-white text-xs mt-1">IP: {matchInfo.camera.IPAddress}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {isStreaming && !isCameraLoading && !cameraError && (
+                    <div className="absolute top-2 right-2 bg-green-500 w-3 h-3 rounded-full animate-pulse"></div>
+                  )}
+                  {viewerCount > 0 && (
+                    <div className="absolute bottom-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                      👥 {viewerCount} người xem
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {matchInfo?.isAiAssisted && showCamera && !matchInfo?.camera?.hasCamera && (
+                <div className="relative mb-4 bg-gray-100 rounded-lg p-8 text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600 mx-auto mb-2"></div>
+                  <div className="text-gray-500">Đang khôi phục thông tin camera...</div>
+                </div>
+              )}
+
               {matchInfo?.isAiAssisted && (
                 <>
                   <p className="text-sm font-semibold text-[#000000] mb-1">Kết Quả AI</p>
@@ -651,159 +970,173 @@ function ScoreboardPage() {
                       <p key={index}>[AI]: {item}</p>
                     ))}
                   </div>
+
                 </>
               )}
 
-              <div className="space-y-2">
-                <p className="text-sm font-semibold text-[#000000] mb-2">Thao tác nhanh</p>
-                <div className="grid grid-cols-2 gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={async () => {
-                      if (!canEdit) {
-                        toast.error('Bạn không có quyền chỉnh sửa');
-                        return;
-                      }
-                      if (!validatePermissions()) return;
-
-                      const newScore = scoreA + 1;
-                      setScoreA(newScore);
-                      try {
-                        await userMatchService.updateScore(matchId, {
-                          teamIndex: 0,
-                          score: newScore,
-                          actorGuestToken: actorGuestToken || undefined,
-                          actorMembershipId: matchInfo?.createdByMembershipId || undefined,
-                          sessionToken: sessionToken,
-                        });
-
-                        socketService.emitScoreUpdate(matchId, 0, newScore);
-                      } catch (error) {
-
-                        if ((error as Error).message?.includes('SessionToken không hợp lệ')) {
-                          try {
-                            await syncSessionTokenWithBackend();
-
-                            await userMatchService.updateScore(matchId, {
-                              teamIndex: 0,
-                              score: newScore,
-                              actorGuestToken: actorGuestToken || undefined,
-                              actorMembershipId: matchInfo?.createdByMembershipId || undefined,
-                              sessionToken: sessionToken,
-                            });
-
-                            socketService.emitScoreUpdate(matchId, 0, newScore);
-                            return;
-                          } catch (retryError) {
-
-                          }
+              {!matchInfo?.isAiAssisted && (
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold text-[#000000] mb-2">Thao tác nhanh</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={async () => {
+                        if (!canEdit) {
+                          toast.error('Bạn không có quyền chỉnh sửa');
+                          return;
                         }
+                        if (!validatePermissions()) return;
 
-                        toast.error('Cập nhật điểm Đội A thất bại');
-                        setScoreA(scoreA);
-                      }
-                    }}
-                    className="text-[#000000]"
-                  >
-                    +1 Đội A
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={async () => {
-                      if (!canEdit) {
-                        toast.error('Bạn không có quyền chỉnh sửa');
-                        return;
-                      }
-                      if (!validatePermissions()) return;
+                        const newScore = scoreA + 1;
+                        setScoreA(newScore);
+                        try {
+                          await userMatchService.updateScore(matchId, {
+                            teamIndex: 0,
+                            score: newScore,
+                            actorGuestToken: actorGuestToken || undefined,
+                            actorMembershipId: matchInfo?.createdByMembershipId || undefined,
+                            sessionToken: sessionToken,
+                          });
 
-                      const newScore = scoreB + 1;
-                      setScoreB(newScore);
-                      try {
-                        await userMatchService.updateScore(matchId, {
-                          teamIndex: 1,
-                          score: newScore,
-                          actorGuestToken: actorGuestToken || undefined,
-                          actorMembershipId: matchInfo?.createdByMembershipId || undefined,
-                          sessionToken: sessionToken,
-                        });
+                          socketService.emitScoreUpdate(matchId, 0, newScore);
+                        } catch (error) {
 
-                        socketService.emitScoreUpdate(matchId, 1, newScore);
-                      } catch (error) {
-                        toast.error('Cập nhật điểm Đội B thất bại');
-                        setScoreB(scoreB);
-                      }
-                    }}
-                    className="text-[#000000]"
-                  >
-                    +1 Đội B
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={async () => {
-                      if (!canEdit) {
-                        toast.error('Bạn không có quyền chỉnh sửa');
-                        return;
-                      }
-                      if (!validatePermissions()) return;
+                          if ((error as Error).message?.includes('SessionToken không hợp lệ')) {
+                            try {
+                              await syncSessionTokenWithBackend();
 
-                      const newScore = Math.max(0, scoreA - 1);
-                      setScoreA(newScore);
-                      try {
-                        await userMatchService.updateScore(matchId, {
-                          teamIndex: 0,
-                          score: newScore,
-                          actorGuestToken: actorGuestToken || undefined,
-                          actorMembershipId: matchInfo?.createdByMembershipId || undefined,
-                          sessionToken: sessionToken,
-                        });
+                              await userMatchService.updateScore(matchId, {
+                                teamIndex: 0,
+                                score: newScore,
+                                actorGuestToken: actorGuestToken || undefined,
+                                actorMembershipId: matchInfo?.createdByMembershipId || undefined,
+                                sessionToken: sessionToken,
+                              });
 
-                        socketService.emitScoreUpdate(matchId, 0, newScore);
-                      } catch (error) {
-                        toast.error('Cập nhật điểm Đội A thất bại');
-                        setScoreA(scoreA);
-                      }
-                    }}
-                    className="text-[#000000]"
-                  >
-                    -1 Đội A
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={async () => {
-                      if (!canEdit) {
-                        toast.error('Bạn không có quyền chỉnh sửa');
-                        return;
-                      }
-                      if (!validatePermissions()) return;
+                              socketService.emitScoreUpdate(matchId, 0, newScore);
+                              return;
+                            } catch (retryError) {
 
-                      const newScore = Math.max(0, scoreB - 1);
-                      setScoreB(newScore);
-                      try {
-                        await userMatchService.updateScore(matchId, {
-                          teamIndex: 1,
-                          score: newScore,
-                          actorGuestToken: actorGuestToken || undefined,
-                          actorMembershipId: matchInfo?.createdByMembershipId || undefined,
-                          sessionToken: sessionToken,
-                        });
+                            }
+                          }
 
-                        socketService.emitScoreUpdate(matchId, 1, newScore);
-                      } catch (error) {
-                        toast.error('Cập nhật điểm Đội B thất bại');
-                        setScoreB(scoreB);
-                      }
-                    }}
-                    className="text-[#000000]"
-                  >
-                    -1 Đội B
-                  </Button>
+                          toast.error('Cập nhật điểm Đội A thất bại');
+                          setScoreA(scoreA);
+                        }
+                      }}
+                      className="text-[#000000]"
+                    >
+                      +1 Đội A
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={async () => {
+                        if (!canEdit) {
+                          toast.error('Bạn không có quyền chỉnh sửa');
+                          return;
+                        }
+                        if (!validatePermissions()) return;
+
+                        const newScore = scoreB + 1;
+                        setScoreB(newScore);
+                        try {
+                          await userMatchService.updateScore(matchId, {
+                            teamIndex: 1,
+                            score: newScore,
+                            actorGuestToken: actorGuestToken || undefined,
+                            actorMembershipId: matchInfo?.createdByMembershipId || undefined,
+                            sessionToken: sessionToken,
+                          });
+
+                          socketService.emitScoreUpdate(matchId, 1, newScore);
+                        } catch (error) {
+                          toast.error('Cập nhật điểm Đội B thất bại');
+                          setScoreB(scoreB);
+                        }
+                      }}
+                      className="text-[#000000]"
+                    >
+                      +1 Đội B
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={async () => {
+                        if (!canEdit) {
+                          toast.error('Bạn không có quyền chỉnh sửa');
+                          return;
+                        }
+                        if (!validatePermissions()) return;
+
+                        const newScore = Math.max(0, scoreA - 1);
+                        setScoreA(newScore);
+                        try {
+                          await userMatchService.updateScore(matchId, {
+                            teamIndex: 0,
+                            score: newScore,
+                            actorGuestToken: actorGuestToken || undefined,
+                            actorMembershipId: matchInfo?.createdByMembershipId || undefined,
+                            sessionToken: sessionToken,
+                          });
+
+                          socketService.emitScoreUpdate(matchId, 0, newScore);
+                        } catch (error) {
+                          toast.error('Cập nhật điểm Đội A thất bại');
+                          setScoreA(scoreA);
+                        }
+                      }}
+                      className="text-[#000000]"
+                    >
+                      -1 Đội A
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={async () => {
+                        if (!canEdit) {
+                          toast.error('Bạn không có quyền chỉnh sửa');
+                          return;
+                        }
+                        if (!validatePermissions()) return;
+
+                        const newScore = Math.max(0, scoreB - 1);
+                        setScoreB(newScore);
+                        try {
+                          await userMatchService.updateScore(matchId, {
+                            teamIndex: 1,
+                            score: newScore,
+                            actorGuestToken: actorGuestToken || undefined,
+                            actorMembershipId: matchInfo?.createdByMembershipId || undefined,
+                            sessionToken: sessionToken,
+                          });
+
+                          socketService.emitScoreUpdate(matchId, 1, newScore);
+                        } catch (error) {
+                          toast.error('Cập nhật điểm Đội B thất bại');
+                          setScoreB(scoreB);
+                        }
+                      }}
+                      className="text-[#000000]"
+                    >
+                      -1 Đội B
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </main>
           <div className="h-20"></div>
           <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200 p-4 z-50">
             <div className="flex flex-row gap-4 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
+              {matchInfo?.isAiAssisted && (
+                <Button
+                  onClick={handleToggleCamera}
+                  style={{ backgroundColor: showCamera ? '#FF6B6B' : '#055EC8' }}
+                  className="w-1/3 hover:bg-blue-700 hover:bg-red-600 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center"
+                  disabled={!matchInfo?.camera?.hasCamera}
+                >
+                  {showCamera ? 'Ẩn Camera' : 'Xem Camera'}
+                </Button>
+              )}
+
               <Button
                 onClick={() => {
                   if (!canEdit) {
@@ -813,7 +1146,7 @@ function ScoreboardPage() {
                   handleEditScore();
                 }}
                 style={{ backgroundColor: '#8ADB10' }}
-                className="w-1/2 hover:bg-red-600 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center"
+                className={`${matchInfo?.isAiAssisted ? 'w-1/3' : 'w-1/2'} hover:bg-lime-600 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center`}
               >
                 Chỉnh sửa
               </Button>
@@ -827,7 +1160,7 @@ function ScoreboardPage() {
                   handleEndMatch();
                 }}
                 style={{ backgroundColor: '#FF0000' }}
-                className="w-1/2 hover:bg-lime-600 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center"
+                className={`${matchInfo?.isAiAssisted ? 'w-1/3' : 'w-1/2'} hover:bg-red-700 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center`}
               >
                 Kết thúc
               </Button>
@@ -890,7 +1223,6 @@ function ScoreboardPage() {
                 setTeamB(newTeamB);
                 setShowEditMembersPopup(false);
 
-                // Delay refetch để đảm bảo backend đã save xong
                 if (matchId && matchId.trim() !== '') {
                   setTimeout(async () => {
                     try {
@@ -910,9 +1242,8 @@ function ScoreboardPage() {
                         setTeamB(teamBMembers);
                       }
                     } catch (error) {
-                      // Silent error handling
                     }
-                  }, 500); // Delay 500ms
+                  }, 500);
                 }
               }}
               initialTeamA={teamA}
@@ -986,5 +1317,3 @@ export default function ScoreboardPageWrapper() {
     </Suspense>
   );
 }
-
-
