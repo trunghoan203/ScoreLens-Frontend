@@ -188,7 +188,7 @@ function HomeRandomContent() {
         const identity = getIdentity(matchId);
         if (identity && (identity.membershipId || identity.guestName)) {
 
-          let sessionTokenPayload: { membershipId?: string; guestName?: string } = {};
+          const sessionTokenPayload: { membershipId?: string; guestName?: string } = {};
 
           if (identity.membershipId) {
             sessionTokenPayload.membershipId = identity.membershipId;
@@ -227,7 +227,7 @@ function HomeRandomContent() {
       } else if (matchId && !sessionToken) {
         try {
 
-          let sessionTokenPayload: { membershipId?: string; guestName?: string } = {};
+          const sessionTokenPayload: { membershipId?: string; guestName?: string } = {};
 
           const membershipId = searchParams?.get('membershipId');
           if (membershipId) {
@@ -398,7 +398,7 @@ function HomeRandomContent() {
         return;
       }
 
-      let startMatchPayload: { actorGuestToken?: string; actorMembershipId?: string; sessionToken: string } = { sessionToken: '' };
+      const startMatchPayload: { actorGuestToken?: string; actorMembershipId?: string; sessionToken: string } = { sessionToken: '' };
 
       try {
         const matchData = await userMatchService.getMatchById(matchId);

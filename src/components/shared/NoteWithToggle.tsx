@@ -9,17 +9,16 @@ export function NoteWithToggle({ note }: { note: string }) {
   return (
     <div className="relative w-full">
       <div className="bg-gradient-to-br from-slate-50 to-gray-50 border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
-        {/* Header */}
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-200 bg-gradient-to-r from-slate-100 to-gray-100">
-          <StickyNote size={18} className="text-slate-600 flex-shrink-0" />
-          <span className="font-semibold text-slate-800 text-sm tracking-wide">
+        <div className="flex items-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 border-b border-slate-200 bg-gradient-to-r from-slate-100 to-gray-100">
+          <StickyNote size={16} className="sm:w-[18px] sm:h-[18px] text-slate-600 flex-shrink-0" />
+          <span className="font-semibold text-slate-800 text-xs sm:text-sm tracking-wide">
             GHI CHÚ
           </span>
         </div>
 
-        <div className="relative px-4 py-3">
+        <div className="relative px-3 sm:px-4 py-2.5 sm:py-3">
           <div
-            className={`text-sm text-gray-700 leading-relaxed break-words hyphens-auto transition-all duration-300 ${
+            className={`text-xs sm:text-sm text-gray-700 leading-relaxed break-words hyphens-auto transition-all duration-300 ${
               isLong && !expanded 
                 ? "line-clamp-3" 
                 : ""
@@ -38,20 +37,20 @@ export function NoteWithToggle({ note }: { note: string }) {
           </div>
 
           {isLong && (
-            <div className="flex justify-center mt-3">
+            <div className="flex justify-center mt-2 sm:mt-3">
               <button
                 onClick={() => setExpanded(!expanded)}
-                className="group flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-lime-700 
+                className="group flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-medium text-lime-700 
                            bg-lime-100 hover:bg-lime-200 rounded-full border border-lime-300
-                           transition-all duration-200 hover:shadow-sm"
+                           transition-all duration-200 hover:shadow-sm touch-manipulation"
               >
                 <span>
                   {expanded ? "Thu gọn" : "Xem thêm"}
                 </span>
                 {expanded ? (
-                  <ChevronUp size={14} className="group-hover:-translate-y-0.5 transition-transform" />
+                  <ChevronUp size={12} className="sm:w-[14px] sm:h-[14px] group-hover:-translate-y-0.5 transition-transform" />
                 ) : (
-                  <ChevronDown size={14} className="group-hover:translate-y-0.5 transition-transform" />
+                  <ChevronDown size={12} className="sm:w-[14px] sm:h-[14px] group-hover:translate-y-0.5 transition-transform" />
                 )}
               </button>
             </div>

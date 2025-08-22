@@ -64,13 +64,13 @@ export default function AddBranchPage() {
   return (
     <div className="min-h-screen flex bg-[#18191A]">
       <Sidebar />
-      <main className="flex-1 bg-white min-h-screen">
-        <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+      <main className="flex-1 bg-white min-h-screen lg:ml-0">
+        <div className="sticky top-0 z-10 bg-[#FFFFFF] px-4 sm:px-6 lg:px-8 py-6 lg:py-8 transition-all duration-300">
           <HeaderAdminPage />
         </div>
-        <div className="px-10 pb-10">
-          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+        <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
+          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
+            <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
               CHI NHÁNH
             </span>
           </div>
@@ -80,38 +80,41 @@ export default function AddBranchPage() {
             onBack={() => router.push('/admin/branches')}
             submitLabel={isSubmitting ? "Đang thêm..." : "Thêm chi nhánh"}
           >
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Tên Chi Nhánh<span className="text-red-500">*</span></label>
+            <div className="w-full mb-4 sm:mb-6">
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Tên Chi Nhánh<span className="text-red-500">*</span></label>
               <Input
                 value={clubName}
                 onChange={e => setClubName(e.target.value)}
                 required
                 placeholder="Nhập tên chi nhánh"
+                className="py-2.5 sm:py-3"
               />
-              {errors.clubName && <span className="text-red-500">{errors.clubName}</span>}
+              {errors.clubName && <span className="text-red-500 text-xs sm:text-sm">{errors.clubName}</span>}
             </div>
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Địa chỉ<span className="text-red-500">*</span></label>
+            <div className="w-full mb-4 sm:mb-6">
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Địa chỉ<span className="text-red-500">*</span></label>
               <Input
                 value={address}
                 onChange={e => setAddress(e.target.value)}
                 required
                 placeholder="Nhập địa chỉ"
+                className="py-2.5 sm:py-3"
               />
-              {errors.address && <span className="text-red-500">{errors.address}</span>}
+              {errors.address && <span className="text-red-500 text-xs sm:text-sm">{errors.address}</span>}
             </div>
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Số điện thoại<span className="text-red-500">*</span></label>
+            <div className="w-full mb-4 sm:mb-6">
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Số điện thoại<span className="text-red-500">*</span></label>
               <Input
                 value={phoneNumber}
                 onChange={e => setPhoneNumber(e.target.value)}
                 required
                 placeholder="Nhập số điện thoại"
+                className="py-2.5 sm:py-3"
               />
-              {errors.phoneNumber && <span className="text-red-500">{errors.phoneNumber}</span>}
+              {errors.phoneNumber && <span className="text-red-500 text-xs sm:text-sm">{errors.phoneNumber}</span>}
             </div>
-            <div className="w-full mb-10">
-              <label className="block text-sm font-semibold mb-2 text-black">Số bàn<span className="text-red-500">*</span></label>
+            <div className="w-full mb-8 sm:mb-10">
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Số bàn<span className="text-red-500">*</span></label>
             <Input
               type="text"
               value={tableNumber}
@@ -124,8 +127,9 @@ export default function AddBranchPage() {
               required
               placeholder="Nhập số bàn"
               min="1"
+              className="py-2.5 sm:py-3"
             />
-            {errors.tableNumber && <span className="text-red-500">{errors.tableNumber}</span>}
+            {errors.tableNumber && <span className="text-red-500 text-xs sm:text-sm">{errors.tableNumber}</span>}
             </div>
           </AddFormLayout>
         </div>

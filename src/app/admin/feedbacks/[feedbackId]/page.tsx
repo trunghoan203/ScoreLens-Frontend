@@ -249,7 +249,7 @@ export default function AdminFeedbackDetailPage() {
                     {isEditMode ? (
                       <div className="relative w-full">
                         <select
-                          className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black outline-none appearance-none"
+                          className="w-full bg-gray-100 rounded-lg px-6 py-3 text-black outline-none appearance-none min-w-[280px] sm:min-w-[320px] lg:min-w-[380px]"
                           value={status}
                           onChange={e => setStatus(e.target.value as Feedback['status'])}
                         >
@@ -262,7 +262,7 @@ export default function AdminFeedbackDetailPage() {
                           alt="Dropdown"
                           width={20}
                           height={20}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                          className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
                         />
                       </div>
                     ) : (
@@ -346,29 +346,40 @@ export default function AdminFeedbackDetailPage() {
                 </div>
               </div>
               <div className="flex flex-col md:flex-row justify-center items-center gap-4 mt-8">
-                <button
-                  type="button"
-                  className="w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 rounded-lg transition text-lg"
-                  onClick={() => router.push('/admin/feedbacks')}
-                >
-                  Quay lại
-                </button>
                 {isEditMode ? (
-                  <button
-                    type="button"
-                    className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
-                    onClick={handleSave}
-                  >
-                    Lưu
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg order-1 md:order-2 touch-manipulation"
+                      onClick={handleSave}
+                    >
+                      Lưu
+                    </button>
+                    <button
+                      type="button"
+                      className="w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 rounded-lg transition text-lg order-2 md:order-1 touch-manipulation"
+                      onClick={() => router.push('/admin/feedbacks')}
+                    >
+                      Quay lại
+                    </button>
+                  </>
                 ) : (
-                  <button
-                    type="button"
-                    className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
-                    onClick={handleEditMode}
-                  >
-                    Chỉnh sửa
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg order-1 md:order-2 touch-manipulation"
+                      onClick={handleEditMode}
+                    >
+                      Chỉnh sửa
+                    </button>
+                    <button
+                      type="button"
+                      className="w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 rounded-lg transition text-lg order-2 md:order-1 touch-manipulation"
+                      onClick={() => router.push('/admin/feedbacks')}
+                    >
+                      Quay lại
+                    </button>
+                  </>
                 )}
               </div>
             </FeedbackDetailLayout>

@@ -165,17 +165,17 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
   const isFormValid = brandName && phoneNumber && citizenCode && logoUrl;
 
   return (
-    <form className="w-full max-w-2xl mx-auto flex flex-col gap-6 items-center px-0 pb-8" onSubmit={handleSubmit}>
-      <h2 className="text-2xl font-bold text-center text-gray-900 mb-4">
+    <form className="w-full max-w-4xl mx-auto flex flex-col gap-4 sm:gap-6 items-center px-4 sm:px-6 lg:px-0 pb-8" onSubmit={handleSubmit}>
+      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center text-gray-900 mb-4 sm:mb-6">
         {initialData?.brandId ? 'Chỉnh sửa thông tin thương hiệu' : 'Thông tin thương hiệu'}
       </h2>
       <div className="flex flex-col items-center w-full">
-        <label className="block text-lg font-semibold mb-4 w-full text-center">Logo thương hiệu</label>
-        <div className="relative w-60 h-60 bg-gray-100 rounded-xl flex items-center justify-center mb-4 border border-gray-200 overflow-hidden">
+        <label className="block text-[#000000] sm:text-lg font-semibold mb-3 sm:mb-4 w-full text-center">Logo thương hiệu</label>
+        <div className="relative w-48 h-48 sm:w-60 sm:h-60 lg:w-72 lg:h-72 bg-gray-100 rounded-xl flex items-center justify-center mb-4 border border-gray-200 overflow-hidden touch-manipulation">
           {logoUrl ? (
             <Image src={logoUrl} alt="Logo" fill className="object-cover w-full h-full" />
           ) : (
-            <span className="text-gray-400">Chưa chọn logo</span>
+            <span className="text-gray-400 text-sm sm:text-base text-center px-4">Chưa chọn logo</span>
           )}
           <input
             type="file"
@@ -183,72 +183,85 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
             onChange={handleImageChange}
             className="absolute inset-0 opacity-0 cursor-pointer"
           />
-          <div className="absolute top-2 right-2 bg-white rounded-full p-1 shadow border border-gray-200">
-            <LucideImage className="w-5 h-5 text-gray-500" />
+          <div className="absolute top-2 right-2 bg-white rounded-full p-1.5 sm:p-2 shadow border border-gray-200">
+            <LucideImage className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
           </div>
         </div>
-        {uploading}
-        {logoUrl && !uploading}
+        {uploading && (
+          <div className="text-sm sm:text-base text-gray-600 mb-2">Đang tải lên...</div>
+        )}
       </div>
-      <div className="w-full space-y-4">
-        <div className="text-center text-sm text-red-500">Định dạng ảnh cho phép: PNG, JPG, JPEG, tối đa 5MB</div>
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Tên thương hiệu <span className="text-red-500">*</span></label>
-          <Input 
-            value={brandName} 
-            onChange={e => setBrandName(e.target.value)} 
-            placeholder="Nhập tên thương hiệu..." 
-            required 
-          />
-          {errors.brandName && <div className="text-red-500 text-xs mt-1">{errors.brandName}</div>}
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Số điện thoại <span className="text-red-500">*</span></label>
-          <Input 
-            value={phoneNumber} 
-            onChange={e => setPhoneNumber(e.target.value)} 
-            placeholder="Nhập số điện thoại..." 
-            required
-          />
-          {errors.phoneNumber && <div className="text-red-500 text-xs mt-1">{errors.phoneNumber}</div>}
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Website</label>
-          <Input 
-            value={website} 
-            onChange={e => setWebsite(e.target.value)} 
-            placeholder="https://example.com" 
-          />
-          {errors.website && <div className="text-red-500 text-xs mt-1">{errors.website}</div>}
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">CCCD <span className="text-red-500">*</span></label>
-          <Input 
-            value={citizenCode} 
-            onChange={e => setCitizenCode(e.target.value)} 
-            placeholder="Nhập CCCD..." 
-            required 
-          />
-          {errors.citizenCode && <div className="text-red-500 text-xs mt-1">{errors.citizenCode}</div>}
+      <div className="w-full space-y-4 sm:space-y-6">
+        <div className="text-center text-xs sm:text-sm text-red-500">Định dạng ảnh cho phép: PNG, JPG, JPEG, tối đa 5MB</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <div className="sm:col-span-2">
+            <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-1 sm:mb-2">Tên thương hiệu <span className="text-red-500">*</span></label>
+            <Input 
+              value={brandName} 
+              onChange={e => setBrandName(e.target.value)} 
+              placeholder="Nhập tên thương hiệu..." 
+              required 
+              className="text-sm sm:text-base py-2 sm:py-3"
+            />
+            {errors.brandName && <div className="text-red-500 text-xs sm:text-sm mt-1">{errors.brandName}</div>}
+          </div>
+          
+          <div>
+            <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-1 sm:mb-2">Số điện thoại <span className="text-red-500">*</span></label>
+            <Input 
+              value={phoneNumber} 
+              onChange={e => setPhoneNumber(e.target.value)} 
+              placeholder="Nhập số điện thoại..." 
+              required
+              className="text-sm sm:text-base py-2 sm:py-3"
+            />
+            {errors.phoneNumber && <div className="text-red-500 text-xs sm:text-sm mt-1">{errors.phoneNumber}</div>}
+          </div>
+          
+          <div>
+            <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-1 sm:mb-2">CCCD <span className="text-red-500">*</span></label>
+            <Input 
+              value={citizenCode} 
+              onChange={e => setCitizenCode(e.target.value)} 
+              placeholder="Nhập CCCD..." 
+              required 
+              className="text-sm sm:text-base py-2 sm:py-3"
+            />
+            {errors.citizenCode && <div className="text-red-500 text-xs sm:text-sm mt-1">{errors.citizenCode}</div>}
+          </div>
+          
+          <div className="sm:col-span-2">
+            <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-1 sm:mb-2">Website</label>
+            <Input 
+              value={website} 
+              onChange={e => setWebsite(e.target.value)} 
+              placeholder="https://example.com" 
+              className="text-sm sm:text-base py-2 sm:py-3"
+            />
+            {errors.website && <div className="text-red-500 text-xs sm:text-sm mt-1">{errors.website}</div>}
+          </div>
         </div>
       </div>
-             <Button
-         type="submit"
-         variant="lime"
-         fullWidth
-         disabled={!isFormValid || isLoading}
-         onClick={() => {
-           if (!isFormValid) {
-             const errors = validateForm();
-             setErrors(errors);
-           }
-         }}
-       >
-         {isLoading 
-           ? (initialData?.brandId ? 'Đang cập nhật...' : 'Đang lưu...') 
-           : (initialData?.brandId ? 'Cập nhật và tiếp tục' : 'Lưu và tiếp tục')
-         }
-       </Button>
+      
+      <div className="w-full mt-6 sm:mt-8">
+        <Button
+          type="submit"
+          variant="lime"
+          className="w-full py-3 sm:py-4 text-base sm:text-lg font-semibold"
+          disabled={!isFormValid || isLoading}
+          onClick={() => {
+            if (!isFormValid) {
+              const errors = validateForm();
+              setErrors(errors);
+            }
+          }}
+        >
+          {isLoading 
+            ? (initialData?.brandId ? 'Đang cập nhật...' : 'Đang lưu...') 
+            : (initialData?.brandId ? 'Cập nhật và tiếp tục' : 'Lưu và tiếp tục')
+          }
+        </Button>
+      </div>
     </form>
   );
 }

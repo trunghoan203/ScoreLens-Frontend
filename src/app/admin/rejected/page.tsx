@@ -25,7 +25,7 @@ export default function AdminRejectedPage() {
         <div className="absolute top-48 left-48 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob-slow animation-delay-6000" style={{ backgroundColor: '#EF4444' }} />
       </div>
 
-      <div className="flex justify-center pt-16 px-4">
+      <div className="flex justify-center pt-24 sm:pt-28 px-4">
         <div className="bg-white backdrop-blur-xl rounded-3xl shadow-2xl ring-2 ring-red-400 transition-all p-10 max-w-md w-full text-center animate-fade-in-up">
           <div className="mb-6">
             <div

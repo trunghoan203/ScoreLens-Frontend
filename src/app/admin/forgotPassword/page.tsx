@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AuthLayout } from '@/components/shared/AuthLayout';
 import Link from 'next/link';
+import Image from 'next/image';
 import VerifyCodeForm from '@/components/auth/VerifyCodeForm';
 import axios from '@/lib/axios';
 import toast from 'react-hot-toast';
@@ -71,13 +72,54 @@ export default function AdminForgotPasswordPage() {
   };
 
   return (
-    <AuthLayout
-      title="Quên mật khẩu?"
-      description="Nhập email để lấy lại mật khẩu"
-    >
+    <>
+      {step === 4 ? (
+        <div className="flex items-center justify-center w-full min-h-screen bg-gray-50">
+          <div className="relative z-30 flex flex-col md:flex-row bg-white rounded-2xl shadow-2xl overflow-hidden max-w-4xl w-full mx-4">
+            <div className="flex flex-col justify-center p-8 md:p-12 w-full md:w-[450px] min-h-[200px]">
+              <div className="w-full max-w-lg mx-auto flex flex-col gap-4 sm:gap-6 items-center px-4 sm:px-0 animate-success-fade-in">
+                <div className="flex flex-col items-center text-center mb-6">
+                  <Image
+                    src="/images/logoScoreLensBlack.png"
+                    alt="ScoreLens Logo"
+                    width={200}
+                    height={50}
+                    priority
+                    className="mb-4"
+                  />
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-bold text-center text-black mb-2">ĐẶT LẠI MẬT KHẨU THÀNH CÔNG</h2>
+                <p className="text-base sm:text-lg text-center text-gray-700 mb-2">Bạn có thể đăng nhập với mật khẩu mới.</p>
+                <div className="flex justify-center my-4 sm:my-6">
+                  <div className="animate-success-bounce">
+                    <CheckCircle size={80} strokeWidth={2} className="sm:w-[110px] sm:h-[110px] text-lime-400" fill="none" />
+                  </div>
+                </div>
+                <div className="text-lg sm:text-xl font-bold text-black text-center mb-2 animate-success-pop">Bạn đã có thể đăng nhập!</div>
+                <Link href="/admin/login" className="bg-lime-400 text-white hover:bg-lime-500 rounded-lg py-3 sm:py-4 text-sm sm:text-base font-semibold transition-transform w-full flex justify-center items-center touch-manipulation">
+                  Trở về Đăng nhập
+                </Link>
+              </div>
+            </div>
+            <div className="hidden md:block w-[450px] h-[710px]">
+              <Image
+                src="/images/imgLogin.png"
+                alt="Billiards table"
+                width={450}
+                height={500}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        </div>
+      ) : (
+        <AuthLayout
+          title="Quên mật khẩu?"
+          description="Nhập email để lấy lại mật khẩu"
+        >
 
-      {step === 1 && (
-        <form onSubmit={handleSubmitEmail} className="space-y-6 p-4 md:p-6 overflow-hidden">
+          {step === 1 && (
+        <form onSubmit={handleSubmitEmail} className="space-y-4 sm:space-y-6 p-4 sm:p-6 overflow-hidden">
           <div>
             <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
               Email
@@ -88,7 +130,7 @@ export default function AdminForgotPasswordPage() {
               name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all border-gray-300"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all border-gray-300 text-sm sm:text-base"
               placeholder="Nhập email của bạn"
               required
               disabled={isLoading}
@@ -99,34 +141,35 @@ export default function AdminForgotPasswordPage() {
             variant="lime"
             fullWidth
             disabled={isLoading || !email}
+            className="w-full py-3 sm:py-4 text-base sm:text-lg font-semibold"
           >
             {isLoading ? (
               <div className="flex items-center justify-center">
-                <Loader2 className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-900" />
-                Đang gửi...
+                <Loader2 className="animate-spin -ml-1 mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5 text-gray-900" />
+                <span className="text-sm sm:text-base">Đang gửi...</span>
               </div>
             ) : (
               <div className="flex items-center justify-center">
-                <Mail className="w-5 h-5 mr-2" />
-                Gửi
+                <Mail className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                <span className="text-sm sm:text-base">Gửi</span>
               </div>
             )}
           </Button>
           <div className="text-center w-full mt-4">
-            <span className="text-gray-800 text-sm">Đã nhớ mật khẩu? </span>
+            <span className="text-gray-800 text-xs sm:text-sm">Đã nhớ mật khẩu? </span>
             <Link
               href="/admin/login"
-              className="text-lime-600 font-semibold hover:underline text-sm transition-colors"
+              className="text-lime-600 font-semibold hover:underline text-xs sm:text-sm transition-colors touch-manipulation"
             >
               Quay lại đăng nhập
             </Link>
           </div>
-          <div className="text-center mt-6">
+          <div className="text-center mt-4 sm:mt-6">
             <Link
               href="/"
-              className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1"
+              className="text-xs sm:text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1 touch-manipulation"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
               Quay lại trang chủ
             </Link>
           </div>
@@ -144,7 +187,7 @@ export default function AdminForgotPasswordPage() {
         />
       )}
       {step === 3 && (
-        <form onSubmit={handleSubmitNewPassword} className="space-y-6 p-4 md:p-6 overflow-hidden">
+        <form onSubmit={handleSubmitNewPassword} className="space-y-4 sm:space-y-6 p-4 sm:p-6 overflow-hidden">
           <div>
             <label htmlFor="newPassword" className="block text-sm font-semibold text-gray-700 mb-2">
               Mật khẩu mới
@@ -154,7 +197,7 @@ export default function AdminForgotPasswordPage() {
               name="newPassword"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all border-gray-300"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all border-gray-300 text-sm sm:text-base"
               placeholder="Nhập mật khẩu mới"
               required
               disabled={isLoading}
@@ -169,7 +212,7 @@ export default function AdminForgotPasswordPage() {
               name="confirmPassword"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all border-gray-300"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all border-gray-300 text-sm sm:text-base"
               placeholder="Nhập lại mật khẩu mới"
               required
               disabled={isLoading}
@@ -180,26 +223,14 @@ export default function AdminForgotPasswordPage() {
             variant="lime"
             fullWidth
             disabled={isLoading || !newPassword || !confirmPassword}
+            className="w-full py-3 sm:py-4 text-base sm:text-lg font-semibold"
           >
             {isLoading ? 'Đang đặt lại...' : 'Đặt lại mật khẩu'}
           </Button>
         </form>
       )}
-      {step === 4 && (
-        <div className="w-full max-w-lg mx-auto flex flex-col gap-6 items-center px-0 pb-8 animate-success-fade-in">
-          <h2 className="text-3xl font-bold text-center text-black mt-8 mb-2">ĐẶT LẠI MẬT KHẨU THÀNH CÔNG</h2>
-          <p className="text-lg text-center text-gray-700 mb-2">Bạn có thể đăng nhập với mật khẩu mới.</p>
-          <div className="flex justify-center my-6">
-            <div className="animate-success-bounce">
-              <CheckCircle size={110} strokeWidth={2} className="text-lime-400" fill="none" />
-            </div>
-          </div>
-          <div className="text-xl font-bold text-black text-center mb-2 animate-success-pop">Bạn đã có thể đăng nhập!</div>
-          <Link href="/admin/login" className="bg-lime-400 text-white hover:bg-lime-500 rounded-lg sm:text-base lg:text-base sm:py-3 transition-transform w-full flex justify-center">
-            Trở về Đăng nhập
-          </Link>
-        </div>
+        </AuthLayout>
       )}
-    </AuthLayout>
+    </>
   );
 }

@@ -9,7 +9,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <>
       {showHeader && <HeaderAdmin />}
-      {children}
+      <div className={showHeader ? 'pt-16 sm:pt-20' : ''}>
+        {children}
+      </div>
     </>
   );
 } 

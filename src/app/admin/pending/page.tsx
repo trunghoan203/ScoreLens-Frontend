@@ -17,8 +17,7 @@ export default function AdminPendingPage() {
         <div className="absolute top-48 left-48 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob-slow animation-delay-6000" style={{ backgroundColor: '#8ADB10' }} />
       </div>
 
-      {/* Main content */}
-      <div className="flex justify-center pt-16 px-4">
+      <div className="flex justify-center pt-24 sm:pt-28 px-4">
         <div
           className="bg-white backdrop-blur-xl rounded-3xl shadow-2xl ring-2 ring-black transition-all p-10 max-w-md w-full text-center animate-fade-in-up"
         >
@@ -58,7 +57,6 @@ export default function AdminPendingPage() {
         </div>
       </div>
 
-      {/* Custom animation styles */}
       <style jsx>{`
         @keyframes blob-slow {
           0% {
