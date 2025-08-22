@@ -713,6 +713,8 @@ export default function TableDetailPage() {
                     matchStatus={matchStatus}
                     elapsedTime={elapsedTime}
                     isAiAssisted={isAiAssisted}
+                    matchId={activeMatchId || undefined}
+                    onScoresUpdated={(a, b) => { setTeamAScore(a); setTeamBScore(b); }}
                   />
                 )}
               </div>
