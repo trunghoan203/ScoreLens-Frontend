@@ -29,18 +29,24 @@ export default function HistoryPage() {
         if (memberId.trim()) {
             setLoading(true);
             try {
-                const response = await userMatchService.getMembershipByPhoneNumber(memberId.trim());
+                const response = await userMatchService.getMatchHistory(memberId.trim(), 1, 1);
 
-                if (response && typeof response === 'object' && 'success' in response && response.success && 'data' in response && response.data) {
-                    const membershipData = response.data as any;
-                    router.push(`/history/${membershipData.membershipId}`);
+                if (response && typeof response === 'object' && 'success' in response && response.success) {
+                    router.push(`/history/${memberId.trim()}`);
                 } else {
-                    toast.error('Không tìm thấy hội viên với số điện thoại này');
+                    const errorMessage = response && typeof response === 'object' && 'message' in response
+                        ? (response.message as string)
+                        : 'Không tìm thấy Hội viên với số điện thoại này';
+                    toast.error(errorMessage);
                     setLoading(false);
                 }
             } catch (error: any) {
-                console.error('Error finding membership:', error);
-                toast.error('Không tìm thấy hội viên với số điện thoại này');
+                console.error('Error checking membership:', error);
+                if (error.message) {
+                    toast.error(error.message);
+                } else {
+                    toast.error('Không tìm thấy Hội viên với số điện thoại này');
+                }
                 setLoading(false);
             }
         }

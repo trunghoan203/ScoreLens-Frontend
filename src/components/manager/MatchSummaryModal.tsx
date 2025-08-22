@@ -3,7 +3,6 @@ import React from 'react';
 interface MatchSummaryModalProps {
   open: boolean;
   matchData: {
-    matchId: string;
     tableName: string;
     gameType: string;
     startTime?: Date;
@@ -68,12 +67,8 @@ export const MatchSummaryModal: React.FC<MatchSummaryModalProps> = ({
         <div className="flex-1 overflow-y-auto p-4">
           {/* Match Info */}
           <div className="bg-gray-50 rounded-lg p-2">
-            <h3 className="font-semibold text-center text-xl mb-2 text-[#000000]">Thông tin trận đấu</h3>
+            <h3 className="font-semibold text-center text-xl mb-6 text-[#000000]">Thông tin trận đấu</h3>
             <div className="space-y-1 text-sm">
-              <div className="flex justify-between">
-                <span className="text-[#000000]">Mã trận:</span>
-                <span className="font-medium text-[#000000] truncate ml-2">{matchData.matchId}</span>
-              </div>
               <div className="flex justify-between">
                 <span className="text-[#000000]">Loại game:</span>
                 <span className="font-medium capitalize text-[#000000]">{matchData.gameType}</span>
