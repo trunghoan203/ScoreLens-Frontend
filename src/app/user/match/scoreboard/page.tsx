@@ -639,25 +639,6 @@ function ScoreboardPage() {
   }, [matchInfo]);
 
   useEffect(() => {
-    if (showCamera && matchInfo?.camera?.cameraId && isStreaming) {
-      const pollInterval = setInterval(async () => {
-        try {
-          const cameraId = matchInfo?.camera?.cameraId;
-          if (cameraId) {
-            const status = await cameraStreamService.getStreamStatus(cameraId);
-            if (status) {
-              setViewerCount(status.viewerCount);
-            }
-          }
-        } catch (error) {
-        }
-      }, 5000);
-
-      return () => clearInterval(pollInterval);
-    }
-  }, [showCamera, matchInfo?.camera?.cameraId, isStreaming]);
-
-  useEffect(() => {
     if (!matchStartTime) return;
 
     const timer = setInterval(() => {
