@@ -6,22 +6,50 @@ import { HeroSection } from '@/components/landing/HeroSection';
 import { Footer } from '@/components/landing/Footer';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { MatchHistorySection } from '@/components/history/MatchHistorySection';
+import { MatchDetailPopup } from '@/components/history/MatchDetailPopup';
 import { userMatchService } from '@/lib/userMatchService';
 import toast from 'react-hot-toast';
+import EmptyState from '@/components/ui/EmptyState';
+import { Search, RotateCcw } from 'lucide-react';
 
 export default function MemberHistoryPage() {
     const params = useParams();
     const router = useRouter();
-    const membershipId = params?.memberId as string;
+    const phoneNumber = params?.memberId as string;
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [dateFilter, setDateFilter] = useState('');
     const [matches, setMatches] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [membershipInfo, setMembershipInfo] = useState<any>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalMatches, setTotalMatches] = useState(0);
+    const [selectedMatch, setSelectedMatch] = useState<any>(null);
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
     const itemPage = 10;
+
+    const formatPlayTime = (milliseconds: number): string => {
+        const seconds = Math.floor(milliseconds / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+
+        const remainingMinutes = minutes % 60;
+        const remainingSeconds = seconds % 60;
+
+        return `${hours.toString().padStart(2, '0')}:${remainingMinutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    };
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setLoading(false);
+            const el = document.getElementById('main-content');
+            if (el) {
+                el.scrollIntoView({ behavior: "smooth" });
+            }
+        }, 1200);
+        return () => clearTimeout(timer);
+    }, []);
 
     interface MatchData {
         matchId: string;
@@ -30,12 +58,13 @@ export default function MemberHistoryPage() {
         status: string;
         startTime?: string;
         endTime?: string;
-        createdAt: string;
         tableId: string;
         clubInfo?: {
             clubId: string;
             clubName: string;
+            address: string;
         };
+        isAIAssisted?: boolean;
         teams: Array<{
             teamName: string;
             score: number;
@@ -51,15 +80,13 @@ export default function MemberHistoryPage() {
 
     useEffect(() => {
         const fetchMatchHistory = async () => {
-            if (!membershipId) {
-                setError('Không tìm thấy mã hội viên');
-                setLoading(false);
+            if (!phoneNumber) {
+                setError('Không tìm thấy số điện thoại');
                 return;
             }
 
             try {
-                setLoading(true);
-                const response = await userMatchService.getMatchHistory(membershipId, itemPage, currentPage);
+                const response = await userMatchService.getMatchHistory(phoneNumber, itemPage, currentPage);
 
                 if (response && typeof response === 'object' && 'success' in response && response.success && 'data' in response && response.data) {
                     const matchHistory = response.data as MatchData[];
@@ -81,14 +108,11 @@ export default function MemberHistoryPage() {
             } catch (error: any) {
                 console.error('Error fetching match history:', error);
                 setError('Không thể tải lịch sử trận đấu');
-                toast.error('Không thể tải lịch sử trận đấu');
-            } finally {
-                setLoading(false);
             }
         };
 
         fetchMatchHistory();
-    }, [membershipId, currentPage]);
+    }, [phoneNumber, currentPage]);
 
     const transformMatches = (apiMatches: MatchData[]) => {
         return apiMatches.map(match => {
@@ -115,8 +139,11 @@ export default function MemberHistoryPage() {
 
             return {
                 id: match.matchId,
-                time: match.startTime ? new Date(match.startTime).toLocaleString('vi-VN') :
-                    match.createdAt ? new Date(match.createdAt).toLocaleString('vi-VN') : 'N/A',
+                time: match.endTime ? new Date(match.endTime).toLocaleString('vi-VN') : 'N/A',
+                startTime: match.startTime ? new Date(match.startTime).toLocaleString('vi-VN') : 'N/A',
+                endTime: match.endTime ? new Date(match.endTime).toLocaleString('vi-VN') : 'N/A',
+                playTime: match.startTime && match.endTime ?
+                    formatPlayTime(new Date(match.endTime).getTime() - new Date(match.startTime).getTime()) : 'N/A',
                 type: gameType,
                 winningTeam: winningTeam,
                 winningTeamMembers: winningTeamMembers,
@@ -124,22 +151,44 @@ export default function MemberHistoryPage() {
                 vod: '#',
                 status: match.status,
                 matchCode: match.matchCode,
-                clubName: match.clubInfo?.clubName || 'Không xác định'
+                clubName: match.clubInfo?.clubName || 'Không xác định',
+                address: match.clubInfo?.address || 'Không xác định',
+                isAIAssisted: match.isAIAssisted,
+                teams: match.teams
             };
         });
     };
 
-    const transformedMatches = transformMatches(matches);
-    const filteredMatches = transformedMatches.filter(match =>
-        search === '' ||
-        match.winningTeamMembers.join(' ').toLowerCase().includes(search.toLowerCase()) ||
-        match.type.toLowerCase().includes(search.toLowerCase()) ||
-        match.clubName.toLowerCase().includes(search.toLowerCase())
-    );
+    const dateFilteredMatches = dateFilter ? matches.filter(match => {
+        if (match.endTime) {
+            const matchDate = new Date(match.endTime);
+            const filterDate = new Date(dateFilter);
+            return matchDate.toDateString() === filterDate.toDateString();
+        }
+        return false;
+    }) : matches;
+
+    const transformedMatches = transformMatches(dateFilteredMatches);
+    const filteredMatches = transformedMatches.filter(match => {
+        return search === '' ||
+            match.winningTeamMembers.join(' ').toLowerCase().includes(search.toLowerCase()) ||
+            match.type.toLowerCase().includes(search.toLowerCase()) ||
+            match.clubName.toLowerCase().includes(search.toLowerCase());
+    });
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleViewDetail = (match: any) => {
+        setSelectedMatch(match);
+        setIsPopupOpen(true);
+    };
+
+    const handleClosePopup = () => {
+        setIsPopupOpen(false);
+        setSelectedMatch(null);
     };
 
     return (
@@ -147,19 +196,19 @@ export default function MemberHistoryPage() {
             {loading && <ScoreLensLoading text="Đang tải..." />}
             <HeaderHome />
             <HeroSection />
-            <div id="main-content" className="bg-white min-h-screen pt-16 sm:pt-20 md:pt-24 flex flex-col items-center justify-start">
-                <div className="w-full max-w-7xl mx-auto mt-4 sm:mt-6 md:mt-8 px-4 sm:px-6 lg:px-8">
+            <div id="main-content" className="bg-white min-h-screen pt-16 sm:pt-12 md:pt-16 flex flex-col items-center justify-start">
+                <div className="w-full max-w-7xl mx-auto sm:mt-6 md:mt-8 px-4 sm:px-6 lg:px-8">
                     <div className="mb-4 sm:mb-6 text-center">
-                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-black mb-2">
-                            Lịch sử thi đấu - Hội viên: {membershipInfo?.fullName || membershipId}
+                        <h1 className="text-3xl sm:text-2xl lg:text-6xl font-bold text-black mb-10">
+                            LỊCH SỬ ĐẤU
                         </h1>
-                        <p className="text-sm sm:text-base text-gray-600">
+                        <p className="text-sm sm:text-base text-black">
                             {membershipInfo && (
-                                <span className="block mb-1">
-                                    Mã hội viên: {membershipInfo.phoneNumber}
+                                <span className="block mb-2">
+                                    Mã Hội viên: <span className="text-xl font-bold">{membershipInfo.phoneNumber}</span>
                                 </span>
                             )}
-                            Tổng cộng {totalMatches} trận đấu
+                            Tổng cộng <span className="text-xl font-bold">{totalMatches}</span> trận đấu
                         </p>
                     </div>
                     {error ? (
@@ -177,8 +226,46 @@ export default function MemberHistoryPage() {
                             <MatchHistorySection
                                 search={search}
                                 setSearch={setSearch}
+                                dateFilter={dateFilter}
+                                setDateFilter={setDateFilter}
                                 matches={filteredMatches}
+                                onViewDetail={handleViewDetail}
                             />
+
+                            {/* Empty State khi không có kết quả tìm kiếm hoặc lọc */}
+                            {filteredMatches.length === 0 && (
+                                <EmptyState
+                                    icon={
+                                        <Search className="w-14 h-14 text-white" strokeWidth={1.5} />
+                                    }
+                                    title={
+                                        search || dateFilter
+                                            ? 'Không tìm thấy trận đấu phù hợp'
+                                            : 'Chưa có trận đấu nào'
+                                    }
+                                    description={
+                                        search && dateFilter
+                                            ? 'Thử thay đổi từ khóa tìm kiếm hoặc ngày tháng để tìm thấy trận đấu phù hợp'
+                                            : search
+                                                ? 'Thử thay đổi từ khóa tìm kiếm để tìm thấy trận đấu phù hợp'
+                                                : dateFilter
+                                                    ? 'Thử thay đổi ngày tháng để tìm thấy trận đấu phù hợp'
+                                                    : 'Hội viên này chưa có trận đấu nào trong hệ thống'
+                                    }
+                                    secondaryAction={
+                                        search || dateFilter ? {
+                                            label: 'Xem tất cả',
+                                            onClick: () => {
+                                                setSearch('');
+                                                setDateFilter('');
+                                            },
+                                            icon: (
+                                                <RotateCcw className="w-5 h-5" />
+                                            )
+                                        } : undefined
+                                    }
+                                />
+                            )}
 
                             {totalPages > 1 && (
                                 <div className="mt-10 flex items-center justify-center gap-2">
@@ -233,6 +320,11 @@ export default function MemberHistoryPage() {
                 </div>
             </div>
             <Footer />
+            <MatchDetailPopup
+                match={selectedMatch}
+                isOpen={isPopupOpen}
+                onClose={handleClosePopup}
+            />
         </>
     );
 } 

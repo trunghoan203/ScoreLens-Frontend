@@ -354,9 +354,9 @@ class UserMatchService {
     }
   }
 
-  async getMatchHistory(membershipId: string, limit = 10, page = 1) {
+  async getMatchHistory(phoneNumber: string, limit = 10, page = 1) {
     try {
-      const res = await axios.get(`/membership/matches/history/${membershipId}?limit=${limit}&page=${page}`);
+      const res = await axios.get(`/membership/matches/history/${phoneNumber}?limit=${limit}&page=${page}`);
       return res.data;
     } catch (error) {
       throw this.handleError(error);
