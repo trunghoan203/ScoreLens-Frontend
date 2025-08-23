@@ -1,25 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import TableStatusBadge from './TableStatusBadge';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import axios from '@/lib/axios';
 
 interface TableAvailableViewProps {
   table: { id: string; name: string; category?: string };
-  onReady: (teamA: Array<{ guestName?: string; phoneNumber?: string }>, teamB: Array<{ guestName?: string; phoneNumber?: string }>) => void;
+  onReady: (teamA: Array<{ guestName?: string; phoneNumber?: string; membershipId?: string; membershipName?: string }>, teamB: Array<{ guestName?: string; phoneNumber?: string; membershipId?: string; membershipName?: string }>) => void;
   loading?: boolean;
   teamA?: string[];
   teamB?: string[];
   isEditing?: boolean;
   onBack?: () => void;
   elapsedTime?: string;
+  activeMatchId?: string | null;
 }
 
-export default function TableAvailableView({ table, onReady, loading = false, teamA: initialTeamA, teamB: initialTeamB, isEditing = false, onBack, elapsedTime }: TableAvailableViewProps) {
+export default function TableAvailableView({ table, onReady, loading = false, teamA: initialTeamA, teamB: initialTeamB, isEditing = false, onBack, elapsedTime, activeMatchId }: TableAvailableViewProps) {
   const [teamA, setTeamA] = useState<string[]>(initialTeamA && initialTeamA.length > 0 ? initialTeamA : ['']);
   const [teamB, setTeamB] = useState<string[]>(initialTeamB && initialTeamB.length > 0 ? initialTeamB : ['']);
+  const [teamAMembershipInfo, setTeamAMembershipInfo] = useState<Map<string, { membershipId: string; membershipName: string }>>(new Map());
+  const [teamBMembershipInfo, setTeamBMembershipInfo] = useState<Map<string, { membershipId: string; membershipName: string }>>(new Map());
   const router = useRouter();
 
   useEffect(() => {
@@ -30,6 +34,56 @@ export default function TableAvailableView({ table, onReady, loading = false, te
       setTeamB(initialTeamB);
     }
   }, [initialTeamA, initialTeamB]);
+
+  // Load membership info when editing
+  const loadMembershipInfo = useMemo(() => {
+    return async () => {
+      if (isEditing && activeMatchId) {
+        try {
+          const matchResponse = await axios.get(`/manager/matches/${activeMatchId}`);
+          const matchData = matchResponse.data as any;
+
+          if (matchData.success && matchData.data?.teams) {
+            const newTeamAMembershipInfo = new Map();
+            const newTeamBMembershipInfo = new Map();
+
+            // Process Team A
+            if (matchData.data.teams[0]?.members) {
+              matchData.data.teams[0].members.forEach((member: any) => {
+                if (member.membershipId && member.membershipName) {
+                  newTeamAMembershipInfo.set(member.membershipName.trim().toLowerCase(), {
+                    membershipId: member.membershipId,
+                    membershipName: member.membershipName
+                  });
+                }
+              });
+            }
+
+            // Process Team B
+            if (matchData.data.teams[1]?.members) {
+              matchData.data.teams[1].members.forEach((member: any) => {
+                if (member.membershipId && member.membershipName) {
+                  newTeamBMembershipInfo.set(member.membershipName.trim().toLowerCase(), {
+                    membershipId: member.membershipId,
+                    membershipName: member.membershipName
+                  });
+                }
+              });
+            }
+
+            setTeamAMembershipInfo(newTeamAMembershipInfo);
+            setTeamBMembershipInfo(newTeamBMembershipInfo);
+          }
+        } catch (error) {
+          console.error('Error loading membership info:', error);
+        }
+      }
+    };
+  }, [isEditing, activeMatchId]);
+
+  useEffect(() => {
+    loadMembershipInfo();
+  }, [loadMembershipInfo]);
 
   const handleChange = (team: 'A' | 'B', index: number, value: string) => {
     const setter = team === 'A' ? setTeamA : setTeamB;
@@ -76,22 +130,66 @@ export default function TableAvailableView({ table, onReady, loading = false, te
       const processedTeamA = [];
       const processedTeamB = [];
 
-      for (const player of teamA) {
-        if (player.trim()) {
-          if (player.length >= 10 && /^\d+$/.test(player)) {
-            processedTeamA.push({ phoneNumber: player });
-          } else {
-            processedTeamA.push({ guestName: player });
+      // Khi chỉnh sửa trận đấu, sử dụng thông tin membership đã load
+      if (isEditing) {
+        // Xử lý Team A
+        for (const player of teamA) {
+          if (player.trim()) {
+            const playerKey = player.trim().toLowerCase();
+            const existingMember = teamAMembershipInfo.get(playerKey);
+
+            if (existingMember) {
+              // Giữ nguyên membership
+              processedTeamA.push({
+                membershipId: existingMember.membershipId,
+                membershipName: existingMember.membershipName
+              });
+            } else if (player.length >= 10 && /^\d+$/.test(player)) {
+              processedTeamA.push({ phoneNumber: player });
+            } else {
+              processedTeamA.push({ guestName: player });
+            }
           }
         }
-      }
 
-      for (const player of teamB) {
-        if (player.trim()) {
-          if (player.length >= 10 && /^\d+$/.test(player)) {
-            processedTeamB.push({ phoneNumber: player });
-          } else {
-            processedTeamB.push({ guestName: player });
+        // Xử lý Team B
+        for (const player of teamB) {
+          if (player.trim()) {
+            const playerKey = player.trim().toLowerCase();
+            const existingMember = teamBMembershipInfo.get(playerKey);
+
+            if (existingMember) {
+              // Giữ nguyên membership
+              processedTeamB.push({
+                membershipId: existingMember.membershipId,
+                membershipName: existingMember.membershipName
+              });
+            } else if (player.length >= 10 && /^\d+$/.test(player)) {
+              processedTeamB.push({ phoneNumber: player });
+            } else {
+              processedTeamB.push({ guestName: player });
+            }
+          }
+        }
+      } else {
+        // Khi tạo trận đấu mới
+        for (const player of teamA) {
+          if (player.trim()) {
+            if (player.length >= 10 && /^\d+$/.test(player)) {
+              processedTeamA.push({ phoneNumber: player });
+            } else {
+              processedTeamA.push({ guestName: player });
+            }
+          }
+        }
+
+        for (const player of teamB) {
+          if (player.trim()) {
+            if (player.length >= 10 && /^\d+$/.test(player)) {
+              processedTeamB.push({ phoneNumber: player });
+            } else {
+              processedTeamB.push({ guestName: player });
+            }
           }
         }
       }
