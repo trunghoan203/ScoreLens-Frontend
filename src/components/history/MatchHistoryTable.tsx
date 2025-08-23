@@ -1,5 +1,4 @@
 import React from 'react';
-import Image from 'next/image';
 
 interface Match {
     id: string;
@@ -11,7 +10,7 @@ interface Match {
     winningTeam: string;
     winningTeamMembers: string[];
     score: string;
-    vod: string;
+    videoUrl: string;
     status?: string;
     matchCode?: string;
     clubName?: string;

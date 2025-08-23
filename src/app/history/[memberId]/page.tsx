@@ -59,6 +59,7 @@ export default function MemberHistoryPage() {
         startTime?: string;
         endTime?: string;
         tableId: string;
+        videoUrl?: string;
         clubInfo?: {
             clubId: string;
             clubName: string;
@@ -148,7 +149,7 @@ export default function MemberHistoryPage() {
                 winningTeam: winningTeam,
                 winningTeamMembers: winningTeamMembers,
                 score: score,
-                vod: '#',
+                videoUrl: match.videoUrl && match.videoUrl.trim() !== '' && match.matchId ? match.videoUrl : '#',
                 status: match.status,
                 matchCode: match.matchCode,
                 clubName: match.clubInfo?.clubName || 'Không xác định',
