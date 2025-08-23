@@ -19,16 +19,18 @@ interface Table {
 }
 
 export default function AddCameraPage() {
+  const router = useRouter();
+  const [tables, setTables] = useState<Table[]>([]);
   const [tableId, setTableId] = useState('');
   const [ip, setIp] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [tables, setTables] = useState<Table[]>([]);
-  const router = useRouter();
+  const [isChecking, setIsChecking] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     managerTableService.getAllTables()
-      .then((data: unknown) => {
+      .then((data) => {
         let tablesArr: unknown[] = [];
         if (Array.isArray(data)) tablesArr = data;
         else if (data && typeof data === 'object' && Array.isArray((data as { tables?: unknown[] }).tables)) tablesArr = (data as { tables: unknown[] }).tables;
@@ -37,7 +39,7 @@ export default function AddCameraPage() {
           const obj = t as Partial<Table>;
           return {
             tableId: obj.tableId || '',
-            name: obj.name ?? '',
+            name: obj.name || '',
             category: obj.category ?? 'pool-8',
             status: obj.status ?? 'empty',
           };
@@ -49,38 +51,73 @@ export default function AddCameraPage() {
       });
   }, []);
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!ip) newErrors.ip = 'Địa chỉ IP là bắt buộc';
+    else if (!/^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/.test(ip)) newErrors.ip = 'Địa chỉ IP không hợp lệ';
+    if (!username) newErrors.username = 'Tên đăng nhập là bắt buộc';
+    else if (username.length < 2) newErrors.username = 'Tên đăng nhập phải có ít nhất 2 ký tự';
+    if (!password) newErrors.password = 'Mật khẩu là bắt buộc';
+    setErrors(newErrors);
+    return newErrors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!tableId || !ip || !username || !password) {
-      toast.error('Vui lòng điền đầy đủ thông tin');
+
+    const formErrors = validateForm();
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors);
       return;
     }
 
     try {
-      await managerCameraService.createCamera({
-        tableId,
+      const testResult = await managerCameraService.testConnection({
         IPAddress: ip,
         username,
-        password,
+        password
       });
-      toast.success('Đã thêm camera thành công!');
-      router.push('/manager/camera');
+
+      setIsChecking(true);
+
+      if (testResult.success) {
+        const createResult = await managerCameraService.createCamera({
+          tableId,
+          IPAddress: ip,
+          username,
+          password,
+          isConnect: true
+        }) as any; 
+        if (createResult.success) {
+          toast.success('Camera đã được thêm thành công!');
+          router.push('/manager/camera');
+        } else {
+          const errorMessage = createResult.message || 'Không thể tạo camera trong database';
+          console.error('Camera creation failed:', createResult);
+          toast.error(errorMessage);
+        }
+      } else {
+        toast.error(testResult.message || 'Không thể kết nối camera');
+      }
     } catch (error) {
-      console.error(error);
-      toast.error('Thêm camera thất bại.');
+      console.error('Error in handleCheckCamera:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Lỗi không xác định';
+      toast.error('Lỗi khi kiểm tra camera: ' + errorMessage);
+    } finally {
+      setIsChecking(false);
     }
   };
 
   return (
     <div className="min-h-screen flex bg-[#18191A]">
       <SidebarManager />
-      <main className="flex-1 bg-white min-h-screen">
-        <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+      <main className="flex-1 bg-white min-h-screen lg:ml-0">
+        <div className="sticky top-0 z-10 bg-[#FFFFFF] px-4 sm:px-6 lg:px-8 py-6 lg:py-8 transition-all duration-300">
           <HeaderManager />
         </div>
-        <div className="px-10 pb-10">
-          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+        <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
+          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6">
+            <span className="text-lg sm:text-xl lg:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
               QUẢN LÝ CAMERA
             </span>
           </div>
@@ -88,15 +125,16 @@ export default function AddCameraPage() {
             title="THÊM CAMERA"
             onSubmit={handleSubmit}
             onBack={() => router.push('/manager/camera')}
+            submitLabel={isChecking ? "Đang kiểm tra..." : "Kiểm tra"}
           >
-            <div className="w-full mb-6">
+            <div className="w-full mb-4 sm:mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Bàn<span className="text-red-500">*</span></label>
               <div className="relative w-full">
                 <select
                   value={tableId}
                   onChange={e => setTableId(e.target.value)}
                   required
-                  className="w-full border border-gray-300 bg-white rounded-lg px-4 py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none"
+                  className="w-full border border-gray-300 bg-white rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none"
                 >
                   <option className="text-black" value="">Chọn bàn</option>
                   {tables.map(table => (
@@ -114,17 +152,20 @@ export default function AddCameraPage() {
                 />
               </div>
             </div>
-            <div className="w-full mb-6">
+            <div className="w-full mb-4 sm:mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">IP<span className="text-red-500">*</span></label>
               <Input value={ip} onChange={e => setIp(e.target.value)} required placeholder="Nhập địa chỉ IP" />
+              {errors.ip && <p className="text-red-500 text-sm mt-1">{errors.ip}</p>}
             </div>
-            <div className="w-full mb-6">
+            <div className="w-full mb-4 sm:mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Username<span className="text-red-500">*</span></label>
               <Input value={username} onChange={e => setUsername(e.target.value)} required placeholder="Nhập username" />
+              {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
             </div>
-            <div className="w-full mb-10">
+            <div className="w-full mb-8 sm:mb-10">
               <label className="block text-sm font-semibold mb-2 text-black">Mật khẩu<span className="text-red-500">*</span></label>
               <PasswordInput value={password} onChange={e => setPassword(e.target.value)} required placeholder="Nhập mật khẩu" />
+              {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
             </div>
           </AddFormLayout>
         </div>

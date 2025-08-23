@@ -19,7 +19,7 @@ export default function Home() {
     <>
       {loading && <ScoreLensLoading text="Đang tải..." />}
       <HeaderHome />
-      <div className="bg-black text-white">
+      <div className="bg-black text-white min-h-screen">
         <HeroSection />
         <ScoringSystemSection />
         <FeatureCardsSection />

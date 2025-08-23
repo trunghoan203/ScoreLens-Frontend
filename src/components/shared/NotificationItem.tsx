@@ -69,39 +69,39 @@ export const NotificationItem = ({ notification, onMarkAsRead, onDelete, role = 
             onMouseLeave={() => setIsHovered(false)}
             onClick={handleNotificationClick}
         >
-            <div className="p-4">
-                <div className="flex items-start gap-3">
+            <div className="p-2 sm:p-4">
+                <div className="flex items-start gap-2 sm:gap-3">
                     <div className="flex-shrink-0">
                         <Image
                             src="/icon/bell.svg"
                             alt="Notification"
                             width={20}
                             height={20}
-                            className="mt-1"
+                            className="mt-1 w-4 h-4 sm:w-5 sm:h-5"
                         />
                     </div>
                     
                     <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between">
                             <div className="flex-1">
-                                <h4 className={`text-sm font-medium ${
+                                <h4 className={`text-xs sm:text-sm font-medium ${
                                     !notification.isRead ? 'text-gray-900' : 'text-gray-600'
                                 }`}>
                                     {notification.title}
                                 </h4>
-                                <p className="text-sm text-gray-600 mt-1">
+                                <p className="text-xs sm:text-sm text-gray-600 mt-0.5 sm:mt-1 line-clamp-1 sm:line-clamp-2">
                                     {notification.message}
                                 </p>
-                                <p className="text-xs text-gray-400 mt-2">
+                                <p className="text-xs text-gray-400 mt-0.5 sm:mt-2">
                                     {formatTime(notification.createdAt)}
                                 </p>
                             </div>
                             
-                            <div className="flex items-center gap-2 ml-2">
+                            <div className="flex items-center gap-1 sm:gap-2 ml-1 sm:ml-2">
                                 {!notification.isRead && (
                                     <button
                                         onClick={(e) => handleButtonClick(e, () => onMarkAsRead(notification.id))}
-                                        className="text-xs text-blue-600 hover:text-blue-800 transition-colors"
+                                        className="text-xs text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap"
                                     >
                                         Đánh dấu đã đọc
                                     </button>
@@ -121,6 +121,7 @@ export const NotificationItem = ({ notification, onMarkAsRead, onDelete, role = 
                                                 alt="Delete"
                                                 width={16}
                                                 height={16}
+                                                className="w-3 h-3 sm:w-4 sm:h-4"
                                             />
                                         </motion.button>
                                     )}

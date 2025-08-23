@@ -5,6 +5,7 @@ import Image from 'next/image';
 import axios from '@/lib/axios';
 import toast from 'react-hot-toast';
 import { Image as LucideImage } from 'lucide-react';
+import { uploadAndGetUrl, type SignUrlResponse } from '@/lib/uploadFileService';
 
 interface BrandInfo {
   brandId: string;
@@ -21,7 +22,7 @@ interface BrandInfoFormProps {
 }
 
 export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
-  const [image, setImage] = useState<File | null>(null);
+  const [, setImage] = useState<File | null>(null);
   const [logoUrl, setLogoUrl] = useState(initialData?.logo_url || '');
   const [brandName, setBrandName] = useState(initialData?.brandName || '');
   const [phoneNumber, setPhoneNumber] = useState(initialData?.phoneNumber || '');
@@ -29,6 +30,7 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
   const [citizenCode, setCitizenCode] = useState(initialData?.citizenCode || '');
   const [isLoading, setIsLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (initialData) {
@@ -51,21 +53,22 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
   const uploadLogo = async (file: File) => {
     setUploading(true);
     try {
-      const formData = new FormData();
-      formData.append('image', file);
-      const token = localStorage.getItem('token');
-      const res = await axios.post(
-        '/admin/upload-image',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            ...(token && { Authorization: `Bearer ${token}` }),
-          },
-        }
-      );
-      const data = res.data as { success: boolean; url: string };
-      setLogoUrl(data.url);
+      const token = localStorage.getItem('adminAccessToken');
+      const res = await axios.get('/admin/sign-url', {
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      });
+      
+      const signData: SignUrlResponse = res.data as SignUrlResponse;
+      
+      const uploadedUrl = await uploadAndGetUrl({
+        file,
+        sign: signData,
+        resourceType: 'image'
+      });
+      
+      setLogoUrl(uploadedUrl);
       toast.success('Upload logo thành công!');
     } catch (err) {
       const error = err as { response?: { data?: { message?: string } } };
@@ -75,12 +78,55 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
     }
   };
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!brandName) newErrors.brandName = 'Tên thương hiệu là bắt buộc';
+    else if (brandName.length < 2) newErrors.brandName = 'Tên thương hiệu phải có ít nhất 2 ký tự';
+    if (!phoneNumber) newErrors.phoneNumber = 'Số điện thoại là bắt buộc';
+    else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phoneNumber)) newErrors.phoneNumber = 'Số điện thoại không hợp lệ';
+    if (!citizenCode) {
+      newErrors.citizenCode = 'CCCD là bắt buộc';
+    } else if (!/^\d{12}$/.test(citizenCode)) {
+      newErrors.citizenCode = 'CCCD phải có đúng 12 chữ số';
+    } else {
+      const provinceCode = parseInt(citizenCode.slice(0, 3), 10);
+      if (provinceCode < 1 || provinceCode > 96) {
+      newErrors.citizenCode = 'Mã tỉnh/thành phố không hợp lệ';
+      }
+      const genderCentury = parseInt(citizenCode[3], 10);
+      if (genderCentury < 0 || genderCentury > 9) {
+      newErrors.citizenCode = 'Mã giới tính/thế kỷ không hợp lệ';
+      }
+      const yearTwoDigits = parseInt(citizenCode.slice(4, 6), 10);
+      if (yearTwoDigits < 0 || yearTwoDigits > 99) {
+      newErrors.citizenCode = 'Năm sinh không hợp lệ';
+      }
+    }
+    if (!logoUrl) newErrors.logoUrl = 'Logo là bắt buộc';
+    if (website) {
+      if (!/^https:\/\/[^\s/$.?#].[^\s]*$/i.test(website)) {
+        newErrors.website = 'URL không hợp lệ, phải bắt đầu bằng https://';
+      }
+    }
+    setErrors(newErrors);
+    return newErrors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      return;
+    }
+
     setIsLoading(true);
     try {
       let brandId = initialData?.brandId;
-      
+          const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      return;
+    }
       if (initialData?.brandId) {
         const response = await axios.put(`/admin/brands/${initialData.brandId}`, {
           brandName,
@@ -106,6 +152,7 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
         citizenCode,
       });
     } catch (error: unknown) {
+      setImage(null);
       const err = error as { response?: { data?: { message?: string } } };
       const message = err.response?.data?.message || 'Thao tác thất bại. Vui lòng thử lại.';
       toast.error(message);
@@ -114,22 +161,21 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
     }
   };
 
+
   const isFormValid = brandName && phoneNumber && citizenCode && logoUrl;
 
   return (
-    <form className="w-full max-w-2xl mx-auto flex flex-col gap-6 items-center px-0 pb-8" onSubmit={handleSubmit}>
-      <h2 className="text-2xl font-bold text-center text-gray-900 mb-4">
+    <form className="w-full max-w-4xl mx-auto flex flex-col gap-4 sm:gap-6 items-center px-4 sm:px-6 lg:px-0 pb-8" onSubmit={handleSubmit}>
+      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center text-gray-900 mb-4 sm:mb-6">
         {initialData?.brandId ? 'Chỉnh sửa thông tin thương hiệu' : 'Thông tin thương hiệu'}
       </h2>
       <div className="flex flex-col items-center w-full">
-        <label className="block text-lg font-semibold mb-4 w-full text-center">Logo thương hiệu</label>
-        <div className="relative w-60 h-60 bg-gray-100 rounded-xl flex items-center justify-center mb-4 border border-gray-200 overflow-hidden">
+        <label className="block text-[#000000] sm:text-lg font-semibold mb-3 sm:mb-4 w-full text-center">Logo thương hiệu</label>
+        <div className="relative w-48 h-48 sm:w-60 sm:h-60 lg:w-72 lg:h-72 bg-gray-100 rounded-xl flex items-center justify-center mb-4 border border-gray-200 overflow-hidden touch-manipulation">
           {logoUrl ? (
             <Image src={logoUrl} alt="Logo" fill className="object-cover w-full h-full" />
-          ) : image ? (
-            <Image src={URL.createObjectURL(image)} alt="Preview" fill className="object-cover w-full h-full" />
           ) : (
-            <span className="text-gray-400">Chưa chọn logo</span>
+            <span className="text-gray-400 text-sm sm:text-base text-center px-4">Chưa chọn logo</span>
           )}
           <input
             type="file"
@@ -137,61 +183,85 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
             onChange={handleImageChange}
             className="absolute inset-0 opacity-0 cursor-pointer"
           />
-          <div className="absolute top-2 right-2 bg-white rounded-full p-1 shadow border border-gray-200">
-            <LucideImage className="w-5 h-5 text-gray-500" />
+          <div className="absolute top-2 right-2 bg-white rounded-full p-1.5 sm:p-2 shadow border border-gray-200">
+            <LucideImage className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
           </div>
         </div>
-        {uploading}
-        {logoUrl && !uploading}
+        {uploading && (
+          <div className="text-sm sm:text-base text-gray-600 mb-2">Đang tải lên...</div>
+        )}
       </div>
-      <div className="w-full space-y-4">
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Tên thương hiệu <span className="text-red-500">*</span></label>
-          <Input 
-            value={brandName} 
-            onChange={e => setBrandName(e.target.value)} 
-            placeholder="Nhập tên thương hiệu..." 
-            required 
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Số điện thoại <span className="text-red-500">*</span></label>
-          <Input 
-            value={phoneNumber} 
-            onChange={e => setPhoneNumber(e.target.value)} 
-            placeholder="Nhập số điện thoại..." 
-            required 
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Website</label>
-          <Input 
-            value={website} 
-            onChange={e => setWebsite(e.target.value)} 
-            placeholder="https://example.com" 
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">CCCD <span className="text-red-500">*</span></label>
-          <Input 
-            value={citizenCode} 
-            onChange={e => setCitizenCode(e.target.value)} 
-            placeholder="Nhập CCCD..." 
-            required 
-          />
+      <div className="w-full space-y-4 sm:space-y-6">
+        <div className="text-center text-xs sm:text-sm text-red-500">Định dạng ảnh cho phép: PNG, JPG, JPEG, tối đa 5MB</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <div className="sm:col-span-2">
+            <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-1 sm:mb-2">Tên thương hiệu <span className="text-red-500">*</span></label>
+            <Input 
+              value={brandName} 
+              onChange={e => setBrandName(e.target.value)} 
+              placeholder="Nhập tên thương hiệu..." 
+              required 
+              className="text-sm sm:text-base py-2 sm:py-3"
+            />
+            {errors.brandName && <div className="text-red-500 text-xs sm:text-sm mt-1">{errors.brandName}</div>}
+          </div>
+          
+          <div>
+            <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-1 sm:mb-2">Số điện thoại <span className="text-red-500">*</span></label>
+            <Input 
+              value={phoneNumber} 
+              onChange={e => setPhoneNumber(e.target.value)} 
+              placeholder="Nhập số điện thoại..." 
+              required
+              className="text-sm sm:text-base py-2 sm:py-3"
+            />
+            {errors.phoneNumber && <div className="text-red-500 text-xs sm:text-sm mt-1">{errors.phoneNumber}</div>}
+          </div>
+          
+          <div>
+            <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-1 sm:mb-2">CCCD <span className="text-red-500">*</span></label>
+            <Input 
+              value={citizenCode} 
+              onChange={e => setCitizenCode(e.target.value)} 
+              placeholder="Nhập CCCD..." 
+              required 
+              className="text-sm sm:text-base py-2 sm:py-3"
+            />
+            {errors.citizenCode && <div className="text-red-500 text-xs sm:text-sm mt-1">{errors.citizenCode}</div>}
+          </div>
+          
+          <div className="sm:col-span-2">
+            <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-1 sm:mb-2">Website</label>
+            <Input 
+              value={website} 
+              onChange={e => setWebsite(e.target.value)} 
+              placeholder="https://example.com" 
+              className="text-sm sm:text-base py-2 sm:py-3"
+            />
+            {errors.website && <div className="text-red-500 text-xs sm:text-sm mt-1">{errors.website}</div>}
+          </div>
         </div>
       </div>
-             <Button
-         type="submit"
-         variant="lime"
-         fullWidth
-         disabled={!isFormValid || isLoading}
-       >
-         {isLoading 
-           ? (initialData?.brandId ? 'Đang cập nhật...' : 'Đang lưu...') 
-           : (initialData?.brandId ? 'Cập nhật và tiếp tục' : 'Lưu và tiếp tục')
-         }
-       </Button>
+      
+      <div className="w-full mt-6 sm:mt-8">
+        <Button
+          type="submit"
+          variant="lime"
+          className="w-full py-3 sm:py-4 text-base sm:text-lg font-semibold"
+          disabled={!isFormValid || isLoading}
+          onClick={() => {
+            if (!isFormValid) {
+              const errors = validateForm();
+              setErrors(errors);
+            }
+          }}
+        >
+          {isLoading 
+            ? (initialData?.brandId ? 'Đang cập nhật...' : 'Đang lưu...') 
+            : (initialData?.brandId ? 'Cập nhật và tiếp tục' : 'Lưu và tiếp tục')
+          }
+        </Button>
+      </div>
     </form>
   );
-} 
+}

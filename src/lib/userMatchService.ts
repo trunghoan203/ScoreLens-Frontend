@@ -5,13 +5,13 @@ export interface VerifyTableRequest {
 }
 export interface VerifyMembershipRequest {
   phoneNumber: string;
-  clubId: string; 
+  clubId: string;
 }
 
 export interface VerifyMembershipResponse {
   success: boolean;
   isMember: boolean;
-  isBrandCompatible?: boolean;  
+  isBrandCompatible?: boolean;
   message: string;
   data?: {
     membershipId: string;
@@ -104,8 +104,8 @@ export interface UpdateTeamMembersRequest {
 }
 
 export interface UpdateTeamMembersRequestV2 {
-  teams: Array<Array<{ 
-    guestName?: string; 
+  teams: Array<Array<{
+    guestName?: string;
     phoneNumber?: string;
   }>>;
   sessionToken: string;
@@ -156,8 +156,8 @@ export interface MatchResponse {
 
 class UserMatchService {
   private handleError(error: unknown): Error {
-    
-    
+
+
     if (
       typeof error === 'object' &&
       error !== null &&
@@ -165,9 +165,9 @@ class UserMatchService {
       (error as { response?: { data?: { message?: string; code?: string } } }).response?.data
     ) {
       const responseData = (error as { response?: { data?: { message?: string; code?: string } } }).response!.data!;
-      
 
-      
+
+
       if (responseData.code === 'FORBIDDEN') {
         return new Error('Bạn không có quyền thực hiện thao tác này. Chỉ người tạo trận đấu mới có thể chỉnh sửa.');
       }
@@ -180,7 +180,7 @@ class UserMatchService {
       if (responseData.code === 'HOST_REQUIRED') {
         return new Error('Chỉ người tạo trận đấu mới có thể thực hiện thao tác này.');
       }
-      
+
       return new Error(responseData.message || 'Đã xảy ra lỗi không xác định');
     }
     if (typeof error === 'object' && error !== null && 'message' in error) {
@@ -279,13 +279,13 @@ class UserMatchService {
 
   async updateTeamMembersV2(matchId: string, teams: Array<Array<{ guestName?: string; phoneNumber?: string }>>, sessionToken: string, actorGuestToken?: string, actorMembershipId?: string) {
     try {
-      
-      const payload = { 
+
+      const payload = {
         teams,
         sessionToken
       };
-      
-      
+
+
       const res = await axios.put(`/membership/matches/${matchId}/teams`, payload);
       return res.data;
     } catch (error) {
@@ -305,10 +305,10 @@ class UserMatchService {
   async endMatch(matchId: string, payload: StartOrEndMatchRequest) {
     try {
       const res = await axios.put(`/membership/matches/${matchId}/end`, payload);
-      
+
       if (typeof window !== 'undefined') {
         localStorage.removeItem(`sl:session:${matchId}`);
-        localStorage.removeItem(`sl:identity:${matchId}`);   
+        localStorage.removeItem(`sl:identity:${matchId}`);
         const keysToRemove: string[] = [];
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
@@ -318,7 +318,7 @@ class UserMatchService {
         }
         keysToRemove.forEach(key => localStorage.removeItem(key));
       }
-      
+
       return res.data;
     } catch (error) {
       throw this.handleError(error);
@@ -345,16 +345,25 @@ class UserMatchService {
     }
   }
 
-  async getMatchHistory(membershipId: string) {
+  async getMembershipByPhoneNumber(phoneNumber: string) {
     try {
-      const res = await axios.get(`/membership/matches/history/${membershipId}`);
+      const res = await axios.get(`/membership/phone/${phoneNumber}`);
       return res.data;
     } catch (error) {
       throw this.handleError(error);
     }
   }
 
-  
+  async getMatchHistory(phoneNumber: string, limit = 10, page = 1) {
+    try {
+      const res = await axios.get(`/membership/matches/history/${phoneNumber}?limit=${limit}&page=${page}`);
+      return res.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+
   async getSessionToken(matchId: string, payload: { membershipId?: string; guestName?: string }) {
     try {
       const res = await axios.post(`/membership/matches/${matchId}/session-token`, payload);

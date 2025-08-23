@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useRef, Suspense } from 'react';
+import React, { useState, useRef, Suspense, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { AuthLayout } from '@/components/shared/AuthLayout';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
-import { verifySuperAdminLogin } from '@/lib/saService';
+import { verifySuperAdminLogin, resendLoginCode } from '@/lib/saService';
 
 export default function SuperAdminVerificationPage() {
   return (
@@ -24,6 +24,8 @@ function SuperAdminVerificationPageInner() {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [resendTimer, setResendTimer] = useState(0);
+  const [canResend, setCanResend] = useState(false);
 
   const numberImages = [
     '/images/numberBalls/ball_0.png',
@@ -37,6 +39,15 @@ function SuperAdminVerificationPageInner() {
     '/images/numberBalls/ball_8.png',
     '/images/numberBalls/ball_9.png',
   ];
+
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+      return () => clearTimeout(timer);
+    } else {
+      setCanResend(true);
+    }
+  }, [resendTimer]);
 
   const handleOtpChange = (index: number, value: string) => {
     const digit = value.replace(/\D/g, '');
@@ -91,6 +102,22 @@ function SuperAdminVerificationPageInner() {
     }
   };
 
+  const handleResendCode = async () => {
+    if (!canResend) return;
+    setIsLoading(true);
+    try {
+      await resendLoginCode(email);
+      toast.success('Mã xác thực đã được gửi lại!');
+      setResendTimer(60);
+      setCanResend(false);
+    } catch (error) {
+      const err = error as { message?: string };
+      toast.error(err.message || 'Gửi lại mã thất bại.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   return (
     <AuthLayout
@@ -136,11 +163,24 @@ function SuperAdminVerificationPageInner() {
             </div>
           ))}
         </div>
-
-        <p className="text-sm text-gray-500 text-center">
-          Nếu bạn không nhận được mã,{' '}
-          <span className="text-green-600 hover:underline cursor-pointer">Hãy gửi lại</span>
-        </p>
+          
+        <div className='text-center space-y-4'>
+            <span className="text-gray-600 text-sm">Không nhận được mã? </span>
+            {canResend ? (
+              <button
+                type="button"
+                onClick={handleResendCode}
+                disabled={isLoading}
+                className="text-lime-600 font-semibold hover:underline text-sm transition-colors disabled:opacity-50"
+              >
+                Gửi lại mã
+              </button>
+            ) : (
+              <span className="text-gray-500 text-sm">
+                Gửi lại sau {resendTimer}s
+              </span>
+            )}
+          </div>
 
         <Button
           type="submit"

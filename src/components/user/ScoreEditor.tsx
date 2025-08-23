@@ -10,17 +10,17 @@ interface Props {
   onSave: (scoreA: number, scoreB: number) => void;
   initialScoreA?: number;
   initialScoreB?: number;
-  canEdit?: boolean; // ← MỚI: Kiểm tra quyền chỉnh sửa
-  userRole?: 'host' | 'participant' | 'manager'; // ← MỚI: Role của user
+  canEdit?: boolean;
+  userRole?: 'host' | 'participant' | 'manager';
 }
 
-export default function ScoreEditor({ 
-  onClose, 
-  onSave, 
-  initialScoreA = 0, 
+export default function ScoreEditor({
+  onClose,
+  onSave,
+  initialScoreA = 0,
   initialScoreB = 0,
-  canEdit = true, // ← MỚI: Mặc định cho phép chỉnh sửa
-  userRole = 'participant' // ← MỚI: Mặc định là participant
+  canEdit = true,
+  userRole = 'participant'
 }: Props) {
   const [scoreA, setScoreA] = useState(initialScoreA);
   const [scoreB, setScoreB] = useState(initialScoreB);
@@ -30,21 +30,23 @@ export default function ScoreEditor({
       toast.error('Bạn không có quyền chỉnh sửa điểm. Chỉ người tạo trận đấu mới có thể thực hiện.');
       return;
     }
-    
+
     onSave(scoreA, scoreB);
     toast.success('Đã cập nhật thành công!');
     onClose();
   };
 
-  // ← MỚI: Hiển thị thông báo quyền nếu không thể chỉnh sửa
   if (!canEdit) {
     return (
       <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4">
         <div className="bg-white rounded-2xl p-6 w-full max-w-md sm:max-w-lg shadow-lg max-h-[90vh] overflow-y-auto">
-          <h2 className="text-xl sm:text-2xl font-bold text-center text-[#000000] mb-6">
-            Sửa điểm trận đấu
-          </h2>
-          
+          <div className="text-center mb-4">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#000000] mb-2">
+              CHỈNH SỬA ĐIỂM SỐ
+            </h2>
+            <RoleBadge role={userRole} size="sm" showIcon />
+          </div>
+
           <div className="text-center mb-6">
             <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -57,11 +59,6 @@ export default function ScoreEditor({
             <p className="text-sm text-gray-500">
               Chỉ người tạo trận đấu (Host) mới có thể thực hiện thao tác này
             </p>
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">
-                <strong>Role hiện tại:</strong> {userRole === 'host' ? 'Host (Người tạo)' : userRole === 'manager' ? 'Manager' : 'Participant (Người tham gia)'}
-              </p>
-            </div>
           </div>
 
           <div className="flex justify-center">
@@ -81,44 +78,41 @@ export default function ScoreEditor({
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl p-6 w-full max-w-md sm:max-w-lg shadow-lg max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl sm:text-2xl font-bold text-center text-[#000000]">
-            Sửa điểm trận đấu
+        <div className="text-center mb-4">
+          <h2 className="text-xl sm:text-2xl font-bold text-[#000000] mb-2">
+            CHỈNH SỬA ĐIỂM SỐ
           </h2>
-          {/* ← MỚI: Hiển thị role badge */}
           <RoleBadge role={userRole} size="sm" showIcon />
         </div>
 
         <div className="flex justify-between items-center mb-5">
           <div className="flex flex-col items-center">
-            <p className="font-semibold text-sm text-[#000000] mb-1">Đội A</p>
-            <div className="w-12 h-12 bg-gray-200 rounded-full mb-2" />
+            <p className="font-semibold text-xl text-[#000000] mb-4">Đội A</p>
             <div className="flex items-center gap-2">
               <input
                 type="number"
                 value={scoreA}
                 onChange={(e) => setScoreA(Math.max(0, parseInt(e.target.value) || 0))}
-                className="w-16 text-center border border-gray-300 rounded px-2 py-1 text-lg font-bold text-[#000000] focus:outline-none focus:ring-2 focus:ring-[#8ADB10]"
+                className="w-16 text-center border border-gray-300 rounded px-2 py-3 text-lg font-bold text-[#000000] focus:outline-none focus:ring-2 focus:ring-[#8ADB10]"
                 min="0"
               />
             </div>
           </div>
 
           <div className="flex items-center gap-3 text-3xl font-bold text-[#000000]">
-            <span>{scoreA}</span>
-            <span>:</span>
-            <span>{scoreB}</span>
+            <span className="text-4xl mr-4">{scoreA}</span>
+            <span className="text-4xl">:</span>
+            <span className="text-4xl ml-4">{scoreB}</span>
           </div>
 
           <div className="flex flex-col items-center">
-            <p className="font-semibold text-sm text-[#000000] mb-1">Đội B</p>
-            <div className="w-12 h-12 bg-gray-200 rounded-full mb-2" />
+            <p className="font-semibold text-xl text-[#000000] mb-4">Đội B</p>
             <div className="flex items-center gap-2">
               <input
                 type="number"
                 value={scoreB}
                 onChange={(e) => setScoreB(Math.max(0, parseInt(e.target.value) || 0))}
-                className="w-16 text-center border border-gray-300 rounded px-2 py-1 text-lg font-bold text-[#000000] focus:outline-none focus:ring-2 focus:ring-[#8ADB10]"
+                className="w-16 text-center border border-gray-300 rounded px-2 py-3 text-lg font-bold text-[#000000] focus:outline-none focus:ring-2 focus:ring-[#8ADB10]"
                 min="0"
               />
             </div>
@@ -127,19 +121,19 @@ export default function ScoreEditor({
 
         <div className="mb-5">
           <div className="grid grid-cols-2 gap-3">
-            <Button 
-              variant="outline" 
-              onClick={() => setScoreA(0)} 
+            <Button
+              variant="outline"
+              onClick={() => setScoreA(0)}
               className="text-[#000000] hover:bg-red-50"
             >
-              Reset Team A
+              Đặt lại điểm Đội A
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => setScoreB(0)} 
+            <Button
+              variant="outline"
+              onClick={() => setScoreB(0)}
               className="text-[#000000] hover:bg-red-50"
             >
-              Reset Team B
+              Đặt lại điểm Đội B
             </Button>
           </div>
         </div>

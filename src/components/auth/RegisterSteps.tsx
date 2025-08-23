@@ -13,7 +13,7 @@ const defaultSteps = [
 
 export function RegisterSteps({ currentStep, steps = defaultSteps }: RegisterStepsProps) {
   return (
-    <div className="flex flex-row justify-center mb-10 w-full max-w-5xl mx-auto">
+    <div className="flex flex-col sm:flex-row justify-center mb-6 sm:mb-10 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       {steps.map((label, idx) => {
         const isActive = currentStep === idx + 1;
         const isFirst = idx === 0;
@@ -23,16 +23,23 @@ export function RegisterSteps({ currentStep, steps = defaultSteps }: RegisterSte
             key={label}
             type="button"
             className={
-              'flex-1 flex justify-center items-center py-3 font-semibold text-lg whitespace-nowrap w-[220px] transition-colors duration-300 ' +
+              'flex-1 flex justify-center items-center py-2 sm:py-3 font-semibold text-sm sm:text-base lg:text-lg whitespace-nowrap transition-colors duration-300 ' +
               (isActive
                 ? 'bg-lime-400 text-black shadow-md'
                 : 'bg-black text-white') +
-              (isFirst ? ' rounded-tl-lg rounded-bl-lg' : '') +
-              (isLast ? ' rounded-tr-lg rounded-br-lg' : '')
+              (isFirst 
+                ? ' sm:rounded-tl-lg sm:rounded-bl-lg rounded-t-lg' 
+                : '') +
+              (isLast 
+                ? ' sm:rounded-tr-lg sm:rounded-br-lg rounded-b-lg' 
+                : '') +
+              (idx > 0 && idx < steps.length - 1 
+                ? ' sm:rounded-none' 
+                : '')
             }
             disabled
           >
-            {label}
+            <span className="px-2 sm:px-4 text-center">{label}</span>
           </button>
         );
       })}

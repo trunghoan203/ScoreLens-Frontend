@@ -28,6 +28,8 @@ export default function MemberDetailPage() {
   const [status, setStatus] = useState<'active' | 'inactive'>('active');
   const [showConfirm, setShowConfirm] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     managerMemberService.getAllMembers()
@@ -42,7 +44,7 @@ export default function MemberDetailPage() {
         });
         if (found) {
           const memberObj = found as Partial<Member>;
-          setName(memberObj.fullName || '');
+          setName((memberObj.fullName || '').trim());
           setPhone(memberObj.phoneNumber || '');
           setStatus(memberObj.status || 'active');
         } else {
@@ -54,14 +56,41 @@ export default function MemberDetailPage() {
       });
   }, [memberId]);
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    const trimmedName = name.trim();
+    if (!trimmedName) newErrors.name = 'Tên hội viên là bắt buộc';
+    else if (trimmedName.length < 2) newErrors.name = 'Tên hội viên phải có ít nhất 2 ký tự';
+    if (!phone) newErrors.phone = 'Số điện thoại là bắt buộc';
+    else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phone)) newErrors.phone = 'Số điện thoại không hợp lệ';
+    setErrors(newErrors);
+    return newErrors;
+  };
+
   const handleSave = async () => {
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
-      await managerMemberService.updateMember(memberId, { fullName: name, phoneNumber: phone, status });
+      const trimmedName = name.trim();
+      await managerMemberService.updateMember(memberId, { fullName: trimmedName, phoneNumber: phone, status });
       toast.success('Đã lưu hội viên thành công!');
       setIsEditMode(false);
-    } catch (error) {
+      setErrors({});
+      setName(trimmedName);
+    } catch (error: unknown) {
       console.error(error);
-      toast.error('Lưu hội viên thất bại.');
+      if (error instanceof Error && error.message === 'Số điện thoại đã được sử dụng bởi hội viên khác') {
+        setErrors({ phone: 'Số điện thoại đã được sử dụng bởi hội viên khác' });
+      } else {
+        toast.error('Lưu hội viên thất bại.');
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -80,13 +109,13 @@ export default function MemberDetailPage() {
   return (
     <div className="min-h-screen flex bg-[#18191A]">
       <SidebarManager />
-      <main className="flex-1 bg-white min-h-screen">
-        <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+      <main className="flex-1 bg-white min-h-screen lg:ml-0">
+        <div className="sticky top-0 z-10 bg-[#FFFFFF] px-4 sm:px-6 lg:px-8 py-6 lg:py-8 transition-all duration-300">
           <HeaderManager />
         </div>
-        <div className="px-10 pb-10">
-          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+        <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
+          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
+            <span className="text-lg sm:text-xl lg:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
               QUẢN LÝ HỘI VIÊN
             </span>
           </div>
@@ -95,11 +124,12 @@ export default function MemberDetailPage() {
             onBack={() => router.push('/manager/members')}
             backLabel="Quay lại"
             submitLabel={isEditMode ? "Lưu" : "Chỉnh sửa"}
+            submitButtonDisabled={isSubmitting}
             extraActions={
               !isEditMode && (
                 <button
                   type="button"
-                  className="w-40 bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded-lg transition text-lg"
+                  className="w-full sm:w-32 lg:w-40 bg-red-500 hover:bg-red-600 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg"
                   onClick={() => setShowConfirm(true)}
                 >
                   Xóa
@@ -128,28 +158,41 @@ export default function MemberDetailPage() {
             >
               <></>
             </ConfirmPopup>
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-gray-500">Mã Hội Viên<span className="text-red-500">*</span></label>
+            <div className="w-full mb-4 sm:mb-6">
+              <label className="block text-sm font-semibold mb-2 text-black">Tên Hội Viên<span className="text-red-500">*</span></label>
+              <Input
+                value={name}
+                onChange={e => {
+                  const trimmedValue = e.target.value.trim();
+                  setName(trimmedValue);
+                  if (errors.name) setErrors(prev => ({ ...prev, name: '' }));
+                }}
+                required
+                disabled={!isEditMode}
+              />
+              {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+            </div>
+            <div className="w-full mb-4 sm:mb-6">
+              <label className="block text-sm font-semibold mb-2 text-black">Mã hội viên<span className="text-red-500">*</span></label>
               <Input
                 value={phone}
-                onChange={e => setPhone(e.target.value)}
+                onChange={e => {
+                  setPhone(e.target.value);
+                  if (errors.phone) setErrors(prev => ({ ...prev, phone: '' }));
+                }}
                 required
-                disabled={true}
-                className="bg-gray-100 text-gray-500 cursor-not-allowed"
+                disabled={!isEditMode}
               />
+              {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
             </div>
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Tên Hội Viên<span className="text-red-500">*</span></label>
-              <Input value={name} onChange={e => setName(e.target.value)} required disabled={!isEditMode} />
-            </div>
-            <div className="w-full mb-10">
+            <div className="w-full mb-8 sm:mb-10">
               <label className="block text-sm font-semibold mb-2 text-black">Trạng thái<span className="text-red-500">*</span></label>
               <div className="relative w-full">
                 <select
                   value={status}
                   onChange={e => setStatus(e.target.value as 'active' | 'inactive')}
                   disabled={!isEditMode}
-                  className="w-full border border-gray-300 bg-white rounded-lg px-4 py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none"
+                  className="w-full border border-gray-300 bg-white rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none"
                 >
                   <option value="active">Hoạt động</option>
                   <option value="inactive">Không hoạt động</option>

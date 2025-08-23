@@ -87,8 +87,8 @@ export default function TableDetailPage() {
   const [showEditScoreModal, setShowEditScoreModal] = useState(false);
   const [showAISelectionModal, setShowAISelectionModal] = useState(false);
   const [pendingTeams, setPendingTeams] = useState<{
-    teamA: Array<{ guestName?: string; phoneNumber?: string }>;
-    teamB: Array<{ guestName?: string; phoneNumber?: string }>;
+    teamA: Array<{ guestName?: string; phoneNumber?: string; membershipId?: string; membershipName?: string }>;
+    teamB: Array<{ guestName?: string; phoneNumber?: string; membershipId?: string; membershipName?: string }>;
   } | null>(null);
   const [isAiAssisted, setIsAiAssisted] = useState<boolean>(false);
   const [matchData, setMatchData] = useState<MatchData | null>(null);
@@ -240,7 +240,6 @@ export default function TableDetailPage() {
         const membersData = await managerMemberService.getAllMembers();
         const members = Array.isArray(membersData) ? membersData : (membersData as MembersData)?.memberships || [];
 
-        // Use refreshDashboardStats function instead of manual calculation
         await refreshDashboardStats();
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -267,7 +266,6 @@ export default function TableDetailPage() {
       setMatchStatus(match.status as 'pending' | 'ongoing' | 'completed');
       if (match.status === 'completed') {
         setElapsedTime('00:00:00');
-        // Refresh dashboard stats when match is completed
         refreshDashboardStats();
       }
     }
@@ -295,13 +293,12 @@ export default function TableDetailPage() {
     };
   }, [matchStatus, matchStartTime]);
 
-  // Auto-refresh dashboard stats every 30 seconds to keep data fresh
   useEffect(() => {
     const statsInterval = setInterval(() => {
       if (!loading && !isChecking) {
         refreshDashboardStats();
       }
-    }, 30000); // Refresh every 30 seconds
+    }, 30000);
 
     return () => {
       if (statsInterval) {
@@ -311,7 +308,7 @@ export default function TableDetailPage() {
   }, [loading, isChecking]);
 
 
-  const handleCreateMatch = async (teamA: Array<{ guestName?: string; phoneNumber?: string }>, teamB: Array<{ guestName?: string; phoneNumber?: string }>) => {
+  const handleCreateMatch = async (teamA: Array<{ guestName?: string; phoneNumber?: string; membershipId?: string; membershipName?: string }>, teamB: Array<{ guestName?: string; phoneNumber?: string; membershipId?: string; membershipName?: string }>) => {
     setPendingTeams({ teamA, teamB });
     setShowAISelectionModal(true);
   };
@@ -330,11 +327,11 @@ export default function TableDetailPage() {
         isAiAssisted,
         teams: [
           {
-            teamName: 'Team A',
+            teamName: 'Đội A',
             members: pendingTeams.teamA
           },
           {
-            teamName: 'Team B',
+            teamName: 'Đội B',
             members: pendingTeams.teamB
           }
         ]
@@ -376,7 +373,6 @@ export default function TableDetailPage() {
           setIsAiAssisted(responseData.isAiAssisted as boolean);
         }
 
-        // Refresh dashboard stats after creating match
         await refreshDashboardStats();
 
       } else {
@@ -444,7 +440,7 @@ export default function TableDetailPage() {
     }
   };
 
-  const handleUpdateTeams = async (updatedTeamA: Array<{ guestName?: string; phoneNumber?: string }>, updatedTeamB: Array<{ guestName?: string; phoneNumber?: string }>) => {
+  const handleUpdateTeams = async (updatedTeamA: Array<{ guestName?: string; phoneNumber?: string; membershipId?: string; membershipName?: string }>, updatedTeamB: Array<{ guestName?: string; phoneNumber?: string; membershipId?: string; membershipName?: string }>) => {
     try {
       if (!activeMatchId) {
         toast.error('Không xác định được trận đấu để cập nhật');
@@ -453,8 +449,8 @@ export default function TableDetailPage() {
 
       const buildKey = (m: { membershipId?: string; phoneNumber?: string; guestName?: string }) =>
         m.membershipId ? `mem:${m.membershipId}` :
-        m.phoneNumber ? `guest:${m.phoneNumber}` :
-        m.guestName ? `guest:${(m.guestName || '').trim().toLowerCase()}` : '';
+          m.phoneNumber ? `guest:${m.phoneNumber}` :
+            m.guestName ? `guest:${(m.guestName || '').trim().toLowerCase()}` : '';
 
       const validateNoDuplicate = (teams: Array<Array<{ membershipId?: string; phoneNumber?: string; guestName?: string }>>) => {
         const seen = new Set<string>();
@@ -471,7 +467,7 @@ export default function TableDetailPage() {
 
       const teamsPayloadPrecheck = [updatedTeamA, updatedTeamB];
       if (!validateNoDuplicate(teamsPayloadPrecheck)) {
-        toast.error('Bạn đã tham gia trận đấu này rồi.');
+        toast.error('Tên người chơi không được giống nhau.');
         return;
       }
 
@@ -529,7 +525,6 @@ export default function TableDetailPage() {
       if (res?.success) {
         toast.success('Hủy trận đấu thành công!');
 
-        // Refresh dashboard stats after canceling match
         await refreshDashboardStats();
 
         router.push('/manager/dashboard');
@@ -594,7 +589,6 @@ export default function TableDetailPage() {
       if (res?.success) {
         toast.success('Kết thúc trận đấu thành công!');
 
-        // Refresh dashboard stats after ending match
         await refreshDashboardStats();
 
         router.push('/manager/dashboard');
@@ -613,16 +607,16 @@ export default function TableDetailPage() {
     return (
       <div className="flex min-h-screen bg-gray-50">
         <SidebarManager />
-        <main className="flex-1 bg-[#FFFFFF] min-h-screen">
-          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+        <main className="flex-1 bg-[#FFFFFF] min-h-screen lg:ml-0">
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-4 sm:px-6 lg:px-8 py-6 lg:py-8 transition-all duration-300">
             <HeaderManager />
           </div>
-          <div className="p-10">
+          <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
             <div className="w-full mx-auto">
               <div className="my-6">
                 <LoadingSkeleton type="card" />
               </div>
-              <div className="bg-white rounded-lg shadow p-6">
+              <div className="bg-white rounded-lg shadow p-4 sm:p-6">
                 <div className="py-8">
                   <LoadingSkeleton type="card" />
                 </div>
@@ -638,13 +632,13 @@ export default function TableDetailPage() {
     return (
       <div className="flex min-h-screen bg-gray-50">
         <SidebarManager />
-        <main className="flex-1 bg-[#FFFFFF] min-h-screen">
-          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+        <main className="flex-1 bg-[#FFFFFF] min-h-screen lg:ml-0">
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-4 sm:px-6 lg:px-8 py-6 lg:py-8 transition-all duration-300">
             <HeaderManager />
           </div>
-          <div className="p-10">
+          <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
             <div className="w-full mx-auto">
-              <div className="bg-white rounded-lg shadow p-6">
+              <div className="bg-white rounded-lg shadow p-4 sm:p-6">
                 <div className="py-8 text-center text-gray-400">
                   <div>Không tìm thấy bàn</div>
                 </div>
@@ -660,11 +654,11 @@ export default function TableDetailPage() {
     <>
       <div className="flex min-h-screen bg-gray-50">
         <SidebarManager />
-        <main className="flex-1 bg-[#FFFFFF] min-h-screen">
-          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+        <main className="flex-1 bg-[#FFFFFF] min-h-screen lg:ml-0">
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-4 sm:px-6 lg:px-8 py-6 lg:py-8 transition-all duration-300">
             <HeaderManager />
           </div>
-          <div className="px-10 pb-10">
+          <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
             <div className="w-full mx-auto">
               {loadingStats ? (
                 <div className="my-6">
@@ -678,7 +672,7 @@ export default function TableDetailPage() {
                   members={dashboardStats.members}
                 />
               )}
-              <div className="bg-white rounded-lg shadow p-6">
+              <div className="bg-white rounded-lg shadow p-4 sm:p-6">
                 {tableStatus === 'available' || isEditing ? (
                   <TableAvailableView
                     table={{
@@ -691,6 +685,7 @@ export default function TableDetailPage() {
                     isEditing={isEditing}
                     onBack={() => setIsEditing(false)}
                     elapsedTime={elapsedTime}
+                    activeMatchId={activeMatchId}
                     {...(isEditing ? { teamA, teamB } : {})}
                   />
                 ) : (
@@ -713,6 +708,8 @@ export default function TableDetailPage() {
                     matchStatus={matchStatus}
                     elapsedTime={elapsedTime}
                     isAiAssisted={isAiAssisted}
+                    matchId={activeMatchId || undefined}
+                    onScoresUpdated={(a, b) => { setTeamAScore(a); setTeamBScore(b); }}
                   />
                 )}
               </div>

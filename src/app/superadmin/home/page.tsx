@@ -34,7 +34,7 @@ export interface TableAdmin {
 function SuperAdminHomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialTab = searchParams.get('tab') === 'feedback' ? 'feedback' : 'approval';
+  const initialTab = searchParams?.get('tab') === 'feedback' ? 'feedback' : 'approval';
   const { isChecking } = useSuperAdminAuthGuard();
 
   const [activeTab, setActiveTab] = useState<'approval' | 'feedback'>(initialTab);
@@ -115,11 +115,11 @@ function SuperAdminHomeContent() {
       )}
       <HeaderSuperAdmin />
       <PageBanner title={activeTab === 'approval' ? 'DANH SÁCH ADMIN' : 'DANH SÁCH PHẢN HỒI'} />
-      <div className="bg-[#EEEDED] w-full px-4 md:px-8 py-8 min-h-[calc(100vh-200px)]">
-        <div className="max-w-6xl mx-auto space-y-6 md:space-y-8">
+      <div className="bg-[#EEEDED] w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 min-h-[calc(100vh-200px)]">
+        <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6 lg:space-y-8">
           {/* Toggle Tabs */}
           <div className="flex justify-center">
-            <div className="relative flex w-[280px] h-[42px] bg-black shadow-md rounded-lg overflow-hidden">
+            <div className="relative flex w-[280px] sm:w-[320px] lg:w-[360px] h-[42px] bg-black shadow-md rounded-lg overflow-hidden">
               <motion.div
                 layout
                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
@@ -150,7 +150,7 @@ function SuperAdminHomeContent() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.25 }}
-                className="space-y-6"
+                className="space-y-4 sm:space-y-6"
               >
                 <AdminFilters
                   searchTerm={searchTerm}
@@ -172,7 +172,7 @@ function SuperAdminHomeContent() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.25 }}
-                className="space-y-6"
+                className="space-y-4 sm:space-y-6"
               >
                 <FeedbackTable />
               </motion.div>

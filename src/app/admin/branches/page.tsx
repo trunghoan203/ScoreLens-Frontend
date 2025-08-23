@@ -86,13 +86,13 @@ export default function BranchesPage() {
       {isPageLoading && <ScoreLensLoading text="Đang tải..." />}
       <div className="min-h-screen flex bg-[#18191A]">
         <Sidebar />
-        <main className="flex-1 bg-white min-h-screen">
-          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+        <main className="flex-1 bg-white min-h-screen lg:ml-0">
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-4 sm:px-6 lg:px-8 py-6 lg:py-8 transition-all duration-300">
             <HeaderAdminPage />
           </div>
-          <div className="px-10 pb-10">
-            <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-              <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+          <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
+            <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
+              <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
                 CHI NHÁNH
               </span>
             </div>

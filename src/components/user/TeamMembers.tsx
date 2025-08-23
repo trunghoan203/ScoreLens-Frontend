@@ -10,11 +10,89 @@ import { userMatchService, TeamMembersProps } from '@/lib/userMatchService';
 export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeamB, matchId, actorGuestToken, actorMembershipId, clubId, sessionToken }: TeamMembersProps) {
   const [teamA, setTeamA] = useState<string[]>(initialTeamA && initialTeamA.length > 0 ? initialTeamA : ['']);
   const [teamB, setTeamB] = useState<string[]>(initialTeamB && initialTeamB.length > 0 ? initialTeamB : ['']);
+  const [creatorMembershipName, setCreatorMembershipName] = useState<string>('');
+  const [teamAMembershipInfo, setTeamAMembershipInfo] = useState<Map<string, { membershipId: string; membershipName: string }>>(new Map());
+  const [teamBMembershipInfo, setTeamBMembershipInfo] = useState<Map<string, { membershipId: string; membershipName: string }>>(new Map());
 
   useEffect(() => {
-    if (initialTeamA && initialTeamA.length > 0) setTeamA(initialTeamA);
-    if (initialTeamB && initialTeamB.length > 0) setTeamB(initialTeamB);
-  }, [initialTeamA, initialTeamB]);
+    const cleanupDuplicates = (team: string[]) => {
+      const seen = new Set<string>();
+      const cleaned: string[] = [];
+
+      team.forEach(member => {
+        if (member.trim() === '') {
+          cleaned.push(member);
+        } else if (!seen.has(member)) {
+          seen.add(member);
+          cleaned.push(member);
+        }
+      });
+
+      return cleaned.length > 0 ? cleaned : [''];
+    };
+
+    if (initialTeamA && initialTeamA.length > 0) {
+      const cleanedTeamA = cleanupDuplicates(initialTeamA);
+      setTeamA(cleanedTeamA);
+    }
+    if (initialTeamB && initialTeamB.length > 0) {
+      const cleanedTeamB = cleanupDuplicates(initialTeamB);
+      setTeamB(cleanedTeamB);
+    }
+
+    const getCreatorMembershipName = async () => {
+      if (matchId && actorMembershipId) {
+        try {
+          const matchData = await userMatchService.getMatchById(matchId);
+          const responseData = (matchData as { data?: { teams?: Array<{ members?: Array<{ membershipId?: string; membershipName?: string }> }> } })?.data || matchData;
+          const matchInfoData = responseData as { teams?: Array<{ members?: Array<{ membershipId?: string; membershipName?: string }> }> };
+
+          if (matchInfoData?.teams) {
+            const newTeamAMembershipInfo = new Map();
+            const newTeamBMembershipInfo = new Map();
+
+            // Process Team A
+            if (matchInfoData.teams[0]?.members) {
+              matchInfoData.teams[0].members.forEach((member: any) => {
+                if (member.membershipId && member.membershipName) {
+                  newTeamAMembershipInfo.set(member.membershipName.trim().toLowerCase(), {
+                    membershipId: member.membershipId,
+                    membershipName: member.membershipName
+                  });
+                  // Check if this is the creator
+                  if (member.membershipId === actorMembershipId) {
+                    setCreatorMembershipName(member.membershipName);
+                  }
+                }
+              });
+            }
+
+            // Process Team B
+            if (matchInfoData.teams[1]?.members) {
+              matchInfoData.teams[1].members.forEach((member: any) => {
+                if (member.membershipId && member.membershipName) {
+                  newTeamBMembershipInfo.set(member.membershipName.trim().toLowerCase(), {
+                    membershipId: member.membershipId,
+                    membershipName: member.membershipName
+                  });
+                  // Check if this is the creator
+                  if (member.membershipId === actorMembershipId) {
+                    setCreatorMembershipName(member.membershipName);
+                  }
+                }
+              });
+            }
+
+            setTeamAMembershipInfo(newTeamAMembershipInfo);
+            setTeamBMembershipInfo(newTeamBMembershipInfo);
+          }
+        } catch (error) {
+        }
+      }
+    };
+
+    getCreatorMembershipName();
+  }, [initialTeamA, initialTeamB, matchId, actorMembershipId]);
 
   const handleChange = (team: 'A' | 'B', index: number, value: string) => {
     const setter = team === 'A' ? setTeamA : setTeamB;
@@ -35,9 +113,17 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
   };
 
   const handleRemovePlayer = (team: 'A' | 'B', index: number) => {
-    if (index === 0) return;
     const setter = team === 'A' ? setTeamA : setTeamB;
     const current = team === 'A' ? teamA : teamB;
+
+    const playerName = current[index];
+    const duplicateCount = current.filter(name => name === playerName).length;
+
+    if (index === 0 && duplicateCount === 1) {
+      toast.error('Không thể xóa chủ phòng duy nhất!');
+      return;
+    }
+
     const updated = [...current];
     updated.splice(index, 1);
     setter(updated);
@@ -71,7 +157,7 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
 
       for (let teamIndex = 0; teamIndex < 2; teamIndex++) {
         const team = teamIndex === 0 ? teamA : teamB;
-        const teamName = teamIndex === 0 ? 'Team A' : 'Team B';
+        const teamName = teamIndex === 0 ? 'Đội A' : 'Đội B';
 
         for (let memberIndex = 0; memberIndex < team.length; memberIndex++) {
           const memberName = team[memberIndex];
@@ -101,7 +187,7 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
               }
 
               if (!membershipInfo.isBrandCompatible) {
-                validationErrors.push(`${teamName} - ${memberName}: Không thuộc cùng brand`);
+                validationErrors.push(`${teamName} - ${memberName}: Mã hội viên không đúng`);
                 continue;
               }
 
@@ -167,13 +253,35 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
           }
         });
       }
+
+
+
+
       const teams = [
         teamA.filter(name => name.trim() !== '').map(name => {
           const isPhoneNumber = /^\d+$/.test(name.trim());
           if (isPhoneNumber) {
             return { phoneNumber: name.trim() };
           } else {
-            return { guestName: name.trim() };
+            // Kiểm tra xem có phải là membership đã có không
+            const playerKey = name.trim().toLowerCase();
+            const existingMember = teamAMembershipInfo.get(playerKey);
+
+            if (existingMember) {
+              // Giữ nguyên membership
+              return {
+                membershipId: existingMember.membershipId,
+                membershipName: existingMember.membershipName
+              };
+            } else {
+              // Kiểm tra xem có phải là creator không
+              const isCreatorName = creatorMembershipName && name.trim().toLowerCase() === creatorMembershipName.toLowerCase();
+              if (isCreatorName) {
+                return { membershipId: actorMembershipId };
+              } else {
+                return { guestName: name.trim() };
+              }
+            }
           }
         }),
         teamB.filter(name => name.trim() !== '').map(name => {
@@ -181,10 +289,32 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
           if (isPhoneNumber) {
             return { phoneNumber: name.trim() };
           } else {
-            return { guestName: name.trim() };
+            // Kiểm tra xem có phải là membership đã có không
+            const playerKey = name.trim().toLowerCase();
+            const existingMember = teamBMembershipInfo.get(playerKey);
+
+            if (existingMember) {
+              // Giữ nguyên membership
+              return {
+                membershipId: existingMember.membershipId,
+                membershipName: existingMember.membershipName
+              };
+            } else {
+              // Kiểm tra xem có phải là creator không
+              const isCreatorName = creatorMembershipName && name.trim().toLowerCase() === creatorMembershipName.toLowerCase();
+              if (isCreatorName) {
+                return { membershipId: actorMembershipId };
+              } else {
+                return { guestName: name.trim() };
+              }
+            }
           }
         })
       ];
+
+
+
+
       await userMatchService.updateTeamMembersV2(matchId, teams, sessionToken, actorGuestToken || undefined, actorMembershipId || undefined);
 
       toast.success('Cập nhật thành viên thành công!');
@@ -202,7 +332,7 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-lg">
         <h2 className="text-xl font-bold text-[#000000] mb-6 text-center">
-          Chỉnh sửa thành viên
+          CHỈNH SỬA THÀNH VIÊN
         </h2>
         <div className="space-y-6 mb-6">
           <div className="text-center mb-4">
@@ -212,7 +342,7 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
           </div>
 
           <div>
-            <div className="font-semibold mb-3 text-center text-[#000000] text-lg">Team A</div>
+            <div className="font-semibold mb-3 text-center text-[#000000] text-lg">Đội A</div>
             {teamA.map((player, idx) => (
               <div key={idx} className="flex items-center gap-2 mb-2">
                 <Input
@@ -259,7 +389,7 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
           </div>
 
           <div>
-            <div className="font-semibold mb-3 text-center text-lg text-[#000000]">Team B</div>
+            <div className="font-semibold mb-3 text-center text-lg text-[#000000]">Đội B</div>
             {teamB.map((player, idx) => (
               <div key={idx} className="flex items-center gap-2 mb-2">
                 <Input

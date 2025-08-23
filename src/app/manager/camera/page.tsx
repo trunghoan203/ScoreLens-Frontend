@@ -5,6 +5,7 @@ import HeaderManager from "@/components/manager/HeaderManager";
 import CameraSearchBar from "@/components/manager/CameraSearchBar";
 import CameraGrid from "@/components/manager/CameraGrid";
 import CameraPageBanner from "@/components/manager/CameraPageBanner";
+import { CameraVideoModal } from "@/components/manager/CameraVideoModal";
 import { useRouter } from "next/navigation";
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
@@ -40,6 +41,8 @@ export default function CameraPage() {
   const [tables, setTables] = useState<Table[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [selectedCameraId, setSelectedCameraId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -109,8 +112,7 @@ export default function CameraPage() {
   };
 
   const filteredCameras = cameras.filter(
-    c => getTableDisplay(c.tableId).toLowerCase().includes(search.toLowerCase()) ||
-      c.IPAddress.toLowerCase().includes(search.toLowerCase())
+    c => getTableDisplay(c.tableId).toLowerCase().includes(search.toLowerCase())
   );
 
   const handleAddCamera = async () => {
@@ -129,16 +131,39 @@ export default function CameraPage() {
     router.push(`/manager/camera/${cameraId}`);
   };
 
+  const handleViewCamera = (cameraId: string) => {
+    const camera = cameras.find(c => c.cameraId === cameraId);
+    if (camera && !camera.isConnect) {
+      toast.error('Camera chưa được kết nối. Vui lòng kiểm tra trạng thái kết nối.');
+      return;
+    }
+    setSelectedCameraId(cameraId);
+    setShowVideoModal(true);
+  };
+
+  const handleCloseVideoModal = () => {
+    setShowVideoModal(false);
+    setSelectedCameraId(null);
+  };
+
   return (
     <>
+      <CameraVideoModal
+        isOpen={showVideoModal}
+        cameraId={selectedCameraId}
+        onClose={handleCloseVideoModal}
+        onConfirm={handleCloseVideoModal}
+        isDetailView={true}
+      />
+
       {loading && <ScoreLensLoading text="Đang tải..." />}
       <div className="min-h-screen flex bg-[#18191A]">
         <SidebarManager />
-        <main className="flex-1 bg-white min-h-screen">
-          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+        <main className="flex-1 bg-white min-h-screen lg:ml-0">
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-4 sm:px-6 lg:px-8 py-6 lg:py-8 transition-all duration-300">
             <HeaderManager />
           </div>
-          <div className="px-10 pb-10">
+          <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
             <CameraPageBanner />
             <CameraSearchBar
               search={search}
@@ -182,6 +207,7 @@ export default function CameraPage() {
                   status: c.isConnect ? 'active' : 'inactive',
                 }))}
                 onCameraClick={handleCameraClick}
+                onViewCamera={handleViewCamera}
               />
             )}
           </div>

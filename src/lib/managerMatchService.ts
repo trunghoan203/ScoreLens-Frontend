@@ -124,6 +124,16 @@ class ManagerMatchService {
     }
   }
 
+  // Update Video URL
+  async updateVideoUrl(matchId: string, videoUrl: string) {
+    try {
+      const res = await axios.put(`/manager/matches/${matchId}/video-url`, { videoUrl });
+      return res.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
   // Delete Match
   async deleteMatch(matchId: string) {
     try {

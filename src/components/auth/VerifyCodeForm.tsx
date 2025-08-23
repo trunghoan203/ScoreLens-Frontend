@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import axios from '@/lib/axios';
+import toast from 'react-hot-toast';
 
 interface VerifyCodeFormProps {
   email: string;
@@ -94,12 +95,12 @@ export default function VerifyCodeForm({ email, onBack, onSuccess, apiEndpoint, 
     if (!canResend) return;
     setIsLoading(true);
     try {
-      // Simulate API call
+      await axios.post('/admin/resend-reset-password', { email });
+      toast.success('Mã xác thực đã được gửi lại.');
       await new Promise(resolve => setTimeout(resolve, 1000));
       setResendTimer(60);
       setCanResend(false);
     } catch {
-      // Handle error
     } finally {
       setIsLoading(false);
     }
@@ -107,23 +108,23 @@ export default function VerifyCodeForm({ email, onBack, onSuccess, apiEndpoint, 
   const isFormValid = otp.every(digit => digit !== '') && !isLoading;
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-md mx-auto flex flex-col gap-6 items-center px-0 pb-8">
-      <h2 className="text-2xl font-bold text-center text-gray-900 mb-2">Xác thực tài khoản</h2>
-      <p className="text-gray-600 text-center mb-4">Chúng tôi đã gửi mã xác thực đến <span className="font-semibold text-black">{email}</span></p>
+    <form onSubmit={handleSubmit} className="w-full max-w-md mx-auto flex flex-col gap-4 sm:gap-6 items-center px-4 sm:px-0 pb-6 sm:pb-8">
+      <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-900 mb-2">Xác thực tài khoản</h2>
+      <p className="text-gray-600 text-center mb-4 text-sm sm:text-base">Chúng tôi đã gửi mã xác thực đến <span className="font-semibold text-black">{email}</span></p>
       {error && (
-        <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded-lg w-full">
-          <p className="text-red-600 text-sm">{error}</p>
+        <div className="mb-2 p-3 sm:p-2 bg-red-50 border border-red-200 rounded-lg w-full">
+          <p className="text-red-600 text-xs sm:text-sm">{error}</p>
         </div>
       )}
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-4">
+      <div className="w-full">
+        <label className="block text-sm font-semibold text-gray-700 mb-3 sm:mb-4">
           Nhập mã xác minh 6 chữ số
         </label>
-        <div className="flex gap-3 justify-center mb-4" onPaste={handlePaste}>
+        <div className="flex gap-2 sm:gap-3 justify-center mb-4 px-2 sm:px-0" onPaste={handlePaste}>
           {otp.map((digit, index) => (
             <div
               key={index}
-              className={`relative w-12 h-12 flex items-center justify-center rounded-full border-2 transition-all duration-200 bg-white shadow-md cursor-pointer
+              className={`relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full border-2 transition-all duration-200 bg-white shadow-md cursor-pointer touch-manipulation
                 ${inputRefs.current[index] && document.activeElement === inputRefs.current[index] ? 'border-lime-500 shadow-lg' : digit ? 'border-lime-400' : 'border-gray-300'}
               `}
               onClick={() => inputRefs.current[index]?.focus()}
@@ -147,12 +148,12 @@ export default function VerifyCodeForm({ email, onBack, onSuccess, apiEndpoint, 
                 <Image
                   src={numberImages[Number(digit)-1]}
                   alt={`Số ${digit}`}
-                  width={36}
-                  height={36}
-                  className="drop-shadow"
+                  width={30}
+                  height={30}
+                  className="sm:w-9 sm:h-9 drop-shadow"
                 />
               ) : (
-                <span className="text-gray-300 text-2xl select-none">-</span>
+                <span className="text-gray-300 text-xl sm:text-2xl select-none">-</span>
               )}
             </div>
           ))}
@@ -163,23 +164,24 @@ export default function VerifyCodeForm({ email, onBack, onSuccess, apiEndpoint, 
         variant="lime"
         fullWidth
         disabled={!isFormValid}
+        className="w-full py-3 sm:py-4 text-base sm:text-lg font-semibold"
       >
         {isLoading ? 'Đang xác minh...' : 'Xác minh'}
       </Button>
-      <div className="text-center space-y-4">
+      <div className="text-center space-y-3 sm:space-y-4">
         <div>
-          <span className="text-gray-600 text-sm">Không nhận được mã? </span>
+          <span className="text-gray-600 text-xs sm:text-sm">Không nhận được mã? </span>
           {canResend ? (
             <button
               type="button"
               onClick={handleResendCode}
               disabled={isLoading}
-              className="text-lime-600 font-semibold hover:underline text-sm transition-colors disabled:opacity-50"
+              className="text-lime-600 font-semibold hover:underline text-xs sm:text-sm transition-colors disabled:opacity-50 touch-manipulation"
             >
               Gửi lại mã
             </button>
           ) : (
-            <span className="text-gray-500 text-sm">
+            <span className="text-gray-500 text-xs sm:text-sm">
               Gửi lại sau {resendTimer}s
             </span>
           )}
@@ -188,9 +190,9 @@ export default function VerifyCodeForm({ email, onBack, onSuccess, apiEndpoint, 
           <button
             type="button"
             onClick={onBack}
-            className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1"
+            className="text-xs sm:text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1 touch-manipulation"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             Quay lại đăng ký

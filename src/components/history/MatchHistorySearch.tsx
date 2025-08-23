@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 interface MatchHistorySearchProps {
     search: string;
     setSearch: (value: string) => void;
+    dateFilter?: string;
+    setDateFilter?: (value: string) => void;
     isSearching?: boolean;
 }
 
-export function MatchHistorySearch({ search, setSearch, isSearching = false }: MatchHistorySearchProps) {
+export function MatchHistorySearch({
+    search,
+    setSearch,
+    dateFilter = '',
+    setDateFilter = () => { },
+    isSearching = false
+}: MatchHistorySearchProps) {
     const [inputValue, setInputValue] = useState(search);
 
     useEffect(() => {
@@ -20,27 +29,30 @@ export function MatchHistorySearch({ search, setSearch, isSearching = false }: M
     }, [inputValue, setSearch, search]);
 
     return (
-        <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center bg-gray-100 rounded-lg px-4 py-2 w-96 relative">
+        <div className="mb-6 backdrop-blur-md bg-white/60 rounded-2xl shadow-l flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 transition-all duration-300">
+            <div className="flex items-center border border-gray-300 bg-gray-100 rounded-lg px-4 py-2 w-96">
                 <input
                     type="text"
-                    placeholder="Nhập tên trận đấu để tìm kiếm"
-                    className="bg-transparent outline-none flex-1 text-gray-700 pr-8"
+                    placeholder="Tìm kiếm trận đấu"
+                    className="bg-transparent outline-none flex-1 text-gray-700"
                     value={inputValue}
                     onChange={e => setInputValue(e.target.value)}
                     disabled={isSearching}
                 />
-                
-                <div className="absolute right-3">
-                    {isSearching ? (
-                        <div className="w-5 h-5 border-2 border-lime-400 border-t-transparent rounded-full animate-spin"></div>
-                    ) : (
-                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <circle cx="11" cy="11" r="8" />
-                            <path d="M21 21l-4.35-4.35" strokeWidth="2" strokeLinecap="round" />
-                        </svg>
-                    )}
-                </div>
+                {isSearching ? (
+                    <div className="w-5 h-5 border-2 border-lime-400 border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                    <Image src="/icon/search.svg" alt="Search" width={20} height={20} className="text-gray-400" />
+                )}
+            </div>
+
+            <div className="relative w-full sm:w-60">
+                <input
+                    type="date"
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 pl-4 pr-4 text-base font-medium text-black placeholder-gray-400 shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none"
+                />
             </div>
         </div>
     );

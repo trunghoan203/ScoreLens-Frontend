@@ -29,7 +29,7 @@ export default function SessionTokenSync({
     }
     setSyncing(true);
     try {
-      let sessionTokenPayload: { membershipId?: string; guestName?: string } = {};
+      const sessionTokenPayload: { membershipId?: string; guestName?: string } = {};
       if (matchInfo?.createdByMembershipId) {
         sessionTokenPayload.membershipId = matchInfo.createdByMembershipId;
 

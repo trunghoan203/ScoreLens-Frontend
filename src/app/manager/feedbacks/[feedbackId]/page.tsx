@@ -10,6 +10,8 @@ import FeedbackPageBanner from "@/components/manager/FeedbackPageBanner";
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
+import { NoteWithToggle } from '@/components/shared/NoteWithToggle';
+import EmptyState from '@/components/ui/EmptyState';
 
 interface Feedback {
   feedbackId: string;
@@ -129,12 +131,10 @@ export default function FeedbackDetailPage() {
           setError(null);
         } else {
           setError('Không tìm thấy phản hồi');
-          toast.error('Không tìm thấy phản hồi');
         }
       } catch (error) {
         console.error('Error fetching feedback detail:', error);
         setError('Không thể tải dữ liệu phản hồi');
-        toast.error('Không thể tải dữ liệu phản hồi');
       } finally {
         setLoading(false);
       }
@@ -190,60 +190,82 @@ export default function FeedbackDetailPage() {
   return (
     <div className="min-h-screen flex bg-[#18191A]">
       <SidebarManager />
-      <main className="flex-1 bg-white min-h-screen">
-        <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+      <main className="flex-1 bg-white min-h-screen lg:ml-0">
+        <div className="sticky top-0 z-10 bg-[#FFFFFF] px-4 sm:px-6 lg:px-8 py-6 lg:py-8 transition-all duration-300">
           <HeaderManager />
         </div>
-        <div className="px-10 pb-10">
+        <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
           <FeedbackPageBanner />
           {loading ? (
             <div className="py-8">
               <LoadingSkeleton type="card" lines={6} className="w-full max-w-2xl mx-auto" />
             </div>
           ) : error ? (
-            <div className="text-center py-20">
-              <h1 className="text-2xl font-bold text-gray-700 mb-4">{error}</h1>
-              <button
-                onClick={() => router.push('/admin/feedbacks')}
-                className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
-              >
-                Quay lại danh sách
-              </button>
-            </div>
+            <EmptyState
+              icon={
+                <svg className="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              }
+              title={error}
+              description="Đã xảy ra lỗi khi tải thông tin phản hồi. Vui lòng thử lại sau."
+              primaryAction={{
+                label: "Thử lại",
+                onClick: () => {
+                  setError(null);
+                  window.location.reload();
+                },
+                icon: (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                )
+              }}
+              secondaryAction={{
+                label: "Quay lại danh sách",
+                onClick: () => router.push('/manager/feedbacks'),
+                icon: (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                )
+              }}
+              showAdditionalInfo={false}
+            />
           ) : feedback ? (
             <FeedbackDetailLayout title="QUẢN LÝ PHẢN HỒI">
-              <div className="flex flex-col md:flex-row gap-8">
-                <div className="flex-1 space-y-6 order-1 md:order-none">
+              <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
+                <div className="flex-1 space-y-4 sm:space-y-6 order-1 lg:order-none">
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">Chi nhánh</label>
-                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.clubInfo?.clubName || feedback?.clubId || ''} disabled />
+                    <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black text-sm sm:text-base" value={feedback?.clubInfo?.clubName || feedback?.clubId || ''} disabled />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">Bàn</label>
-                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.tableInfo?.tableName || feedback?.tableId || ''} disabled />
+                    <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black text-sm sm:text-base" value={feedback?.tableInfo?.tableName || feedback?.tableId || ''} disabled />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">Loại bàn</label>
-                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.tableInfo?.category === 'pool-8' ? 'Pool - 8' : feedback?.tableInfo?.category === 'carom' ? 'Carom' : feedback?.tableInfo?.category || 'Không xác định'} disabled />
+                    <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black text-sm sm:text-base" value={feedback?.tableInfo?.category === 'pool-8' ? 'Pool - 8' : feedback?.tableInfo?.category === 'carom' ? 'Carom' : feedback?.tableInfo?.category || 'Không xác định'} disabled />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">Loại người tạo</label>
-                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.createdBy?.type === 'guest' ? 'Khách' : (feedback?.createdBy?.type === 'membership' ? 'Hội viên' : '')} disabled />
+                    <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black text-sm sm:text-base" value={feedback?.createdBy?.type === 'guest' ? 'Khách' : (feedback?.createdBy?.type === 'membership' ? 'Hội viên' : '')} disabled />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">Thời gian tạo</label>
-                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.createdAt ? new Date(feedback.createdAt).toLocaleString('vi-VN') : ''} disabled />
+                    <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black text-sm sm:text-base" value={feedback?.createdAt ? new Date(feedback.createdAt).toLocaleString('vi-VN') : ''} disabled />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">Thời gian cập nhật</label>
-                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.updatedAt ? new Date(feedback.updatedAt).toLocaleString('vi-VN') : ''} disabled />
+                    <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black text-sm sm:text-base" value={feedback?.updatedAt ? new Date(feedback.updatedAt).toLocaleString('vi-VN') : ''} disabled />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">Trạng thái</label>
                     {isEditMode ? (
                       <div className="relative w-full">
                         <select
-                          className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black outline-none appearance-none"
+                          className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black outline-none appearance-none text-sm sm:text-base"
                           value={status}
                           onChange={e => setStatus(e.target.value as Feedback['status'])}
                         >
@@ -271,7 +293,7 @@ export default function FeedbackDetailPage() {
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">Nội dung phản hồi</label>
                     <textarea
-                      className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
+                      className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black text-sm sm:text-base"
                       value={feedback?.content || ''}
                       disabled
                       rows={4}
@@ -281,7 +303,7 @@ export default function FeedbackDetailPage() {
                     <label className="block text-sm font-semibold mb-2 text-black">Ghi chú xử lý</label>
                     {isEditMode ? (
                       <textarea
-                        className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
+                        className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black text-sm sm:text-base"
                         value={notes}
                         onChange={e => setNotes(e.target.value)}
                         rows={3}
@@ -289,7 +311,7 @@ export default function FeedbackDetailPage() {
                       />
                     ) : (
                       <textarea
-                        className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
+                        className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black text-sm sm:text-base"
                         value={notes}
                         disabled
                         rows={3}
@@ -297,10 +319,10 @@ export default function FeedbackDetailPage() {
                     )}
                   </div>
                 </div>
-                <div className="flex-1 space-y-6 order-2 md:order-none">
+                <div className="flex-1 space-y-4 sm:space-y-6 order-2 lg:order-none">
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black text-center">Lịch sử xử lý</label>
-                    <div className="bg-gray-50 rounded-lg p-4 max-h-[925px] overflow-y-auto">
+                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4 max-h-[600px] sm:max-h-[925px] overflow-y-auto">
                       {feedback?.history && feedback.history.length > 0 ? (
                         <div className="space-y-3">
                           {feedback.history
@@ -308,10 +330,10 @@ export default function FeedbackDetailPage() {
                             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                             .slice(0, 15)
                             .map((item, index) => (
-                              <div key={index} className="border-l-4 border-lime-400 pl-4 py-2 bg-white rounded-r-lg">
-                                <div className="flex justify-between items-start mb-1">
+                              <div key={index} className="border-l-4 border-lime-400 pl-3 sm:pl-4 py-2 bg-white rounded-r-lg">
+                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-0 mb-1">
                                   <div className="flex items-center gap-2">
-                                    <span className="font-semibold text-sm text-gray-800">{item.byName}</span>
+                                    <span className="font-semibold text-xs sm:text-sm text-gray-800">{item.byName}</span>
                                     <span className="text-xs bg-gray-200 px-2 py-1 rounded-full text-gray-600">{item.byRole}</span>
                                   </div>
                                   <span className="text-xs text-gray-500">
@@ -319,17 +341,15 @@ export default function FeedbackDetailPage() {
                                   </span>
                                 </div>
                                 {item.note && (
-                                  <div className="text-sm text-gray-600">
-                                    <span className="font-medium">Ghi chú:</span> {item.note}
-                                  </div>
+                                  <NoteWithToggle note={item.note} />
                                 )}
                               </div>
                             ))}
                         </div>
                       ) : (
-                        <div className="text-center py-8">
+                        <div className="text-center py-6 sm:py-8">
                           <div className="text-gray-400 mb-2">
-                            <svg className="w-12 h-12 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                           </div>
@@ -341,10 +361,10 @@ export default function FeedbackDetailPage() {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col md:flex-row justify-center items-center gap-4 mt-8">
+              <div className="flex flex-col sm:flex-row w-full justify-between gap-3 sm:gap-4 mt-6 sm:mt-8">
                 <button
                   type="button"
-                  className="w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 rounded-lg transition text-lg"
+                  className="w-full sm:w-32 lg:w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-3 sm:order-1"
                   onClick={() => router.push('/manager/feedbacks')}
                 >
                   Quay lại
@@ -352,7 +372,7 @@ export default function FeedbackDetailPage() {
                 {isEditMode ? (
                   <button
                     type="button"
-                    className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
+                    className="w-full sm:w-32 lg:w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-1 sm:order-2"
                     onClick={handleSave}
                   >
                     Lưu
@@ -360,7 +380,7 @@ export default function FeedbackDetailPage() {
                 ) : (
                   <button
                     type="button"
-                    className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
+                    className="w-full sm:w-32 lg:w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-1 sm:order-2"
                     onClick={handleEditMode}
                   >
                     Chỉnh sửa

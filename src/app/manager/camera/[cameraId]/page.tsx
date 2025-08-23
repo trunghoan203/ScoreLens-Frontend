@@ -42,6 +42,7 @@ export default function CameraDetailPage() {
   const [isConnect, setIsConnect] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const formatCategory = (category: string) => {
     switch (category) {
@@ -98,7 +99,24 @@ export default function CameraDetailPage() {
       });
   }, [cameraId]);
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!ip) newErrors.ip = 'Địa chỉ IP là bắt buộc';
+    else if (!/^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/.test(ip)) newErrors.ip = 'Địa chỉ IP không hợp lệ';
+    if (!username) newErrors.username = 'Tên đăng nhập là bắt buộc';
+    else if (username.length < 2) newErrors.username = 'Tên đăng nhập phải có ít nhất 2 ký tự';
+    if (!password) newErrors.password = 'Mật khẩu là bắt buộc';
+    setErrors(newErrors);
+    return newErrors;
+  };
+
   const handleSave = async () => {
+    const formErrors = validateForm();
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors);
+      return;
+    }
+
     try {
       await managerCameraService.updateCamera(cameraId, {
         tableId,
@@ -129,13 +147,13 @@ export default function CameraDetailPage() {
   return (
     <div className="min-h-screen flex bg-[#18191A]">
       <SidebarManager />
-      <main className="flex-1 bg-white min-h-screen">
-        <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+      <main className="flex-1 bg-white min-h-screen lg:ml-0">
+        <div className="sticky top-0 z-10 bg-[#FFFFFF] px-4 sm:px-6 lg:px-8 py-6 lg:py-8 transition-all duration-300">
           <HeaderManager />
         </div>
-        <div className="px-10 pb-10">
-          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+        <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
+          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6">
+            <span className="text-lg sm:text-xl lg:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
               QUẢN LÝ CAMERA
             </span>
           </div>
@@ -148,7 +166,7 @@ export default function CameraDetailPage() {
               !isEditMode && (
                 <button
                   type="button"
-                  className="w-40 bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded-lg transition text-lg"
+                  className="w-full sm:w-32 lg:w-40 bg-red-500 hover:bg-red-600 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg"
                   onClick={() => setShowConfirm(true)}
                 >
                   Xóa
@@ -177,7 +195,7 @@ export default function CameraDetailPage() {
             >
               <></>
             </ConfirmPopup>
-            <div className="w-full mb-6">
+            <div className="w-full mb-4 sm:mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Bàn<span className="text-red-500">*</span></label>
               <div className="relative w-full">
                 <select
@@ -185,7 +203,7 @@ export default function CameraDetailPage() {
                   onChange={e => setTableId(e.target.value)}
                   required
                   disabled={!isEditMode}
-                  className="w-full border border-gray-300 bg-white rounded-lg px-4 py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none"
+                  className="w-full border border-gray-300 bg-white rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none"
                 >
                   {tables.map(table => (
                     <option className="text-black" key={table.tableId} value={table.tableId}>
@@ -204,19 +222,22 @@ export default function CameraDetailPage() {
                 )}
               </div>
             </div>
-            <div className="w-full mb-6">
+            <div className="w-full mb-4 sm:mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">IP<span className="text-red-500">*</span></label>
               <Input value={ip} onChange={e => setIp(e.target.value)} required disabled={!isEditMode} />
+              {errors.ip && <p className="text-red-500 text-sm mt-1">{errors.ip}</p>}
             </div>
-            <div className="w-full mb-6">
+            <div className="w-full mb-4 sm:mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Username<span className="text-red-500">*</span></label>
               <Input value={username} onChange={e => setUsername(e.target.value)} required disabled={!isEditMode} />
+              {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
             </div>
-            <div className="w-full mb-6">
+            <div className="w-full mb-4 sm:mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Mật khẩu<span className="text-red-500">*</span></label>
               <PasswordInput value={password} onChange={e => setPassword(e.target.value)} required disabled={!isEditMode} />
+              {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
             </div>
-            <div className="w-full mb-10">
+            <div className="w-full mb-8 sm:mb-10">
               <label className="block text-sm font-semibold mb-2 text-black">Trạng thái kết nối<span className="text-red-500">*</span></label>
               <div className="relative w-full">
                 <select
@@ -224,7 +245,7 @@ export default function CameraDetailPage() {
                   onChange={e => setIsConnect(e.target.value === 'true')}
                   required
                   disabled={!isEditMode}
-                  className="w-full border border-gray-300 bg-white rounded-lg px-4 py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none"
+                  className="w-full border border-gray-300 bg-white rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none"
                 >
                   <option className="text-black" value="true">Đã kết nối</option>
                   <option className="text-black" value="false">Chưa kết nối</option>

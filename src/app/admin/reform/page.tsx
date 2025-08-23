@@ -257,7 +257,8 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
       {(isLoading || isCheckingAuth) && <ScoreLensLoading text="Đang tải..." />}
       <div className="min-h-screen bg-white">
         <HeaderAdmin />
-        <h1 className="text-3xl md:text-4xl font-bold text-center pt-12 pb-8 text-black">THÔNG TIN BỊ TỪ CHỐI</h1>
+        <div className="pt-16 sm:pt-20">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center pt-8 sm:pt-12 pb-6 sm:pb-8 text-black px-4">THÔNG TIN BỊ TỪ CHỐI</h1>
         <RegisterSteps currentStep={step} steps={["Thông tin chi tiết", "Thông tin thương hiệu", "Thông tin chi nhánh", "Xác nhận"]} />
 
         <div className="w-full max-w-5xl mx-auto px-4 pb-12">
@@ -430,18 +431,18 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 mt-6">
+              <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
                 <Button
-                  onClick={handleDeleteAccountClick}
-                  className="bg-red-500 hover:bg-red-600 text-white font-medium transition"
-                >
-                  Xóa tài khoản
-                </Button>
-                <Button
-                  className="bg-lime-500 hover:bg-lime-600 text-white font-medium transition"
+                  className="bg-lime-500 hover:bg-lime-600 text-white font-medium transition order-1 sm:order-2"
                   onClick={() => { setEditMode(true); setStep(2); }}
                 >
                   Chỉnh sửa thông tin đăng ký
+                </Button>
+                <Button
+                  onClick={handleDeleteAccountClick}
+                  className="bg-red-500 hover:bg-red-600 text-white font-medium transition order-2 sm:order-1"
+                >
+                  Xóa tài khoản
                 </Button>
               </div>
             </>
@@ -521,6 +522,7 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
               </div>
             </>
           )}
+        </div>
         </div>
       </div>
 

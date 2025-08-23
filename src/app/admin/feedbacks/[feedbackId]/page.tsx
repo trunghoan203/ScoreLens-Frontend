@@ -9,6 +9,8 @@ import FeedbackDetailLayout from "@/components/shared/FeedbackDetailLayout";
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
+import { NoteWithToggle } from '@/components/shared/NoteWithToggle';
+import EmptyState from '@/components/ui/EmptyState';
 
 interface Feedback {
   feedbackId: string;
@@ -31,7 +33,7 @@ interface Feedback {
     category?: string;
   };
   content: string;
-  status: 'pending' | 'managerP' | 'adminP' | 'superadminP' | 'resolved';
+  status: 'managerP' | 'adminP' | 'superadminP' | 'resolved';
   note?: string;
   history: Array<{
     byId: string;
@@ -51,7 +53,7 @@ export default function AdminFeedbackDetailPage() {
 
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [status, setStatus] = useState<Feedback['status']>('pending');
+  const [status, setStatus] = useState<Feedback['status']>('adminP');
   const [notes, setNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -98,7 +100,7 @@ export default function AdminFeedbackDetailPage() {
               category: String(tableInfo?.category || 'Không xác định')
             },
             content: String(feedbackObj.content || ''),
-            status: (feedbackObj.status as Feedback['status']) || 'pending',
+            status: (feedbackObj.status as Feedback['status']) || 'adminP',
             note: String(feedbackObj.note || ''),
             history: (history || []).map(h => ({
               byId: String(h.byId || ''),
@@ -111,27 +113,35 @@ export default function AdminFeedbackDetailPage() {
             updatedAt: feedbackObj.updatedAt ? new Date(feedbackObj.updatedAt as string) : new Date(),
           };
 
-          setFeedback(mappedFeedback);
-          setStatus(mappedFeedback.status);
-          let latestNote = '';
-          if (mappedFeedback.history && mappedFeedback.history.length > 0) {
-            const sortedHistory = [...mappedFeedback.history].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-            latestNote = sortedHistory.find(h => h.note && h.note.trim() !== '')?.note || '';
-          }
-          if (!isEditMode) {
-            setNotes(latestNote || mappedFeedback.note || '');
+          const hasUndefinedInfo =
+            mappedFeedback.tableInfo?.tableName === 'Không xác định' ||
+            mappedFeedback.tableInfo?.category === 'Không xác định' ||
+            !mappedFeedback.tableInfo?.tableName ||
+            !mappedFeedback.tableInfo?.category;
+
+          if (hasUndefinedInfo) {
+            setError('Không thể tải dữ liệu phản hồi');
           } else {
-            setNotes('');
+            setFeedback(mappedFeedback);
+            setStatus(mappedFeedback.status);
+            let latestNote = '';
+            if (mappedFeedback.history && mappedFeedback.history.length > 0) {
+              const sortedHistory = [...mappedFeedback.history].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+              latestNote = sortedHistory.find(h => h.note && h.note.trim() !== '')?.note || '';
+            }
+            if (!isEditMode) {
+              setNotes(latestNote || mappedFeedback.note || '');
+            } else {
+              setNotes('');
+            }
+            setError(null);
           }
-          setError(null);
         } else {
           setError('Không tìm thấy phản hồi');
-          toast.error('Không tìm thấy phản hồi');
         }
       } catch (error) {
         console.error('Error fetching feedback detail:', error);
         setError('Không thể tải dữ liệu phản hồi');
-        toast.error('Không thể tải dữ liệu phản hồi');
       } finally {
         setLoading(false);
       }
@@ -206,15 +216,37 @@ export default function AdminFeedbackDetailPage() {
               <LoadingSkeleton type="card" lines={6} className="w-full max-w-2xl mx-auto" />
             </div>
           ) : error ? (
-            <div className="text-center py-20">
-              <h1 className="text-2xl font-bold text-gray-700 mb-4">{error}</h1>
-              <button
-                onClick={() => router.push('/admin/feedbacks')}
-                className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
-              >
-                Quay lại danh sách
-              </button>
-            </div>
+            <EmptyState
+              icon={
+                <svg className="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              }
+              title={error}
+              description="Đã xảy ra lỗi khi tải thông tin phản hồi. Vui lòng thử lại sau."
+              primaryAction={{
+                label: "Thử lại",
+                onClick: () => {
+                  setError(null);
+                  window.location.reload();
+                },
+                icon: (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                )
+              }}
+              secondaryAction={{
+                label: "Quay lại danh sách",
+                onClick: () => router.push('/admin/feedbacks'),
+                icon: (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                )
+              }}
+              showAdditionalInfo={false}
+            />
           ) : feedback ? (
             <FeedbackDetailLayout title="QUẢN LÝ PHẢN HỒI">
               <div className="flex flex-col md:flex-row gap-8">
@@ -248,7 +280,7 @@ export default function AdminFeedbackDetailPage() {
                     {isEditMode ? (
                       <div className="relative w-full">
                         <select
-                          className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black outline-none appearance-none"
+                          className="w-full bg-gray-100 rounded-lg px-6 py-3 text-black outline-none appearance-none min-w-[280px] sm:min-w-[320px] lg:min-w-[380px]"
                           value={status}
                           onChange={e => setStatus(e.target.value as Feedback['status'])}
                         >
@@ -261,7 +293,7 @@ export default function AdminFeedbackDetailPage() {
                           alt="Dropdown"
                           width={20}
                           height={20}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                          className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
                         />
                       </div>
                     ) : (
@@ -324,9 +356,7 @@ export default function AdminFeedbackDetailPage() {
                                   </span>
                                 </div>
                                 {item.note && (
-                                  <div className="text-sm text-gray-600">
-                                    <span className="font-medium">Ghi chú:</span> {item.note}
-                                  </div>
+                                  <NoteWithToggle note={item.note} />
                                 )}
                               </div>
                             ))}
@@ -347,29 +377,40 @@ export default function AdminFeedbackDetailPage() {
                 </div>
               </div>
               <div className="flex flex-col md:flex-row justify-center items-center gap-4 mt-8">
-                <button
-                  type="button"
-                  className="w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 rounded-lg transition text-lg"
-                  onClick={() => router.push('/admin/feedbacks')}
-                >
-                  Quay lại
-                </button>
                 {isEditMode ? (
-                  <button
-                    type="button"
-                    className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
-                    onClick={handleSave}
-                  >
-                    Lưu
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg order-1 md:order-2 touch-manipulation"
+                      onClick={handleSave}
+                    >
+                      Lưu
+                    </button>
+                    <button
+                      type="button"
+                      className="w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 rounded-lg transition text-lg order-2 md:order-1 touch-manipulation"
+                      onClick={() => router.push('/admin/feedbacks')}
+                    >
+                      Quay lại
+                    </button>
+                  </>
                 ) : (
-                  <button
-                    type="button"
-                    className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
-                    onClick={handleEditMode}
-                  >
-                    Chỉnh sửa
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg order-1 md:order-2 touch-manipulation"
+                      onClick={handleEditMode}
+                    >
+                      Chỉnh sửa
+                    </button>
+                    <button
+                      type="button"
+                      className="w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 rounded-lg transition text-lg order-2 md:order-1 touch-manipulation"
+                      onClick={() => router.push('/admin/feedbacks')}
+                    >
+                      Quay lại
+                    </button>
+                  </>
                 )}
               </div>
             </FeedbackDetailLayout>

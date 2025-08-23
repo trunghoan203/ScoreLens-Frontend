@@ -17,7 +17,7 @@ export function ScoreLensLogo({ href = '/', onClick, className }: ScoreLensLogoP
       height={40}
       priority
       onClick={onClick}
-      className={className}
+      className={`w-32 sm:w-36 md:w-40 ${className || ''}`}
       style={{ cursor: onClick || href ? 'pointer' : 'default' }}
     />
   );

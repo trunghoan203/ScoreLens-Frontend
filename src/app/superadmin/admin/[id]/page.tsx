@@ -146,7 +146,6 @@ export default function AdminDetailPage() {
                     fill
                     className="object-cover rounded-md"
                     onError={() => {
-                      // Fallback sẽ được hiển thị bên dưới nếu có lỗi
                     }}
                   />
                 </div>
@@ -261,7 +260,7 @@ export default function AdminDetailPage() {
                     disabled={rejecting}
                   />
 
-                  <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+                  <div className="flex flex-col sm:flex-row justify-center items-center mt-6 gap-4">
                     <MotionButton
                       whileHover={{
                         scale: 1.05,
@@ -272,7 +271,7 @@ export default function AdminDetailPage() {
                       transition={{ type: "spring", stiffness: 400, damping: 17 }}
                       onClick={() => setShowRejectReason(false)}
                       disabled={rejecting}
-                      className="w-full sm:w-40 h-11 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 shadow-md hover:shadow-lg transform transition-all duration-200"
+                      className="w-full sm:w-40 h-11 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 shadow-md hover:shadow-lg transform transition-all duration-200 order-2 sm:order-1"
                     >
                       Hủy
                     </MotionButton>
@@ -287,7 +286,7 @@ export default function AdminDetailPage() {
                       transition={{ type: "spring", stiffness: 400, damping: 17 }}
                       onClick={handleConfirmReject}
                       disabled={rejecting}
-                      className="w-full sm:w-52 h-11 bg-lime-500 text-white font-semibold rounded-xl hover:bg-lime-600 shadow-md hover:shadow-lg transform transition-all duration-200"
+                      className="w-full sm:w-52 h-11 bg-lime-500 text-white font-semibold rounded-xl hover:bg-lime-600 shadow-md hover:shadow-lg transform transition-all duration-200 order-1 sm:order-2"
                     >
                       {rejecting ? (
                         <div className="flex items-center gap-2">

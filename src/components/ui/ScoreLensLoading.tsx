@@ -3,9 +3,7 @@ import React from 'react';
 export const ScoreLensLoading: React.FC<{ text?: string }> = ({ text }) => {
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm">
-      {/* Logo animation */}
       <div className="relative w-[320px] h-[90px] flex items-center justify-center select-none">
-        {/* Đường kẻ xanh lá hình thang, đầu phải nhọn */}
         <div
           className="absolute left-[10px] bottom-[32px] origin-left"
           style={{
@@ -14,7 +12,6 @@ export const ScoreLensLoading: React.FC<{ text?: string }> = ({ text }) => {
             zIndex: 1,
             bottom: '15px',
             background: 'linear-gradient(90deg, #8ADB10 60%, #8ADB10 100%)',
-            // Đầu trái to, đầu phải nhọn
             clipPath: 'polygon(0% 0%, 98% 40%, 100% 50%, 98% 60%, 0% 100%)',
             borderTopLeftRadius: '8px',
             borderBottomLeftRadius: '8px',
@@ -22,10 +19,8 @@ export const ScoreLensLoading: React.FC<{ text?: string }> = ({ text }) => {
             transform: 'skew(-12deg) rotate(-6deg)',
           }}
         >
-          {/* Animation chạy sáng dọc đường kẻ */}
           <div className="absolute left-0 top-0 h-full w-1/3 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shine" />
         </div>
-        {/* Text ScoreLens */}
         <span
           className="absolute left-4 top-2 text-white font-extrabold text-4xl tracking-tight drop-shadow-lg"
           style={{
@@ -38,7 +33,6 @@ export const ScoreLensLoading: React.FC<{ text?: string }> = ({ text }) => {
         >
           ScoreLens
         </span>
-        {/* Bi đỏ số 3 full đỏ, có vòng tròn trắng lớn hơn số 3 */}
         <div
           className="absolute"
           style={{
@@ -55,7 +49,6 @@ export const ScoreLensLoading: React.FC<{ text?: string }> = ({ text }) => {
               position: 'relative',
             }}
           >
-            {/* Vòng tròn trắng */}
             <div
               className="absolute left-1/2 top-1/2"
               style={{
@@ -70,19 +63,16 @@ export const ScoreLensLoading: React.FC<{ text?: string }> = ({ text }) => {
                 justifyContent: 'center',
               }}
             >
-              {/* Số 3 */}
               <span className="text-black font-bold text-lg select-none" style={{ textShadow: '0 1px 2px #fff', zIndex: 3 }}>3</span>
             </div>
           </div>
         </div>
       </div>
-      {/* Text dưới loading */}
       {text && (
         <div className="text-[24px] text-white font-semibold tracking-wide animate-pulse text-center">
           {text}
         </div>
       )}
-      {/* Custom keyframes */}
       <style>{`
         @keyframes spinBall {
           0% { transform: rotate(0deg); }
