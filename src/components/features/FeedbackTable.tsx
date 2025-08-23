@@ -132,16 +132,16 @@ export function FeedbackTable() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="backdrop-blur-md border-lime-400 bg-white/60 border border-gray-200 rounded-2xl shadow-lg px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 transition-all duration-300">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="backdrop-blur-md border-lime-400 bg-white/60 border border-gray-200 rounded-2xl shadow-lg px-4 sm:px-6 py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 transition-all duration-300">
         <div className="relative w-full sm:w-90">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-lime-500 w-5 h-5" />
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-lime-500 w-4 h-4 sm:w-5 sm:h-5" />
           <input
             type="text"
             placeholder="Nhập thương hiệu hoặc chi nhánh..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 pl-4 pr-10 text-base font-medium text-black placeholder-gray-400 shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none"
+            className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 sm:py-2.5 pl-3 sm:pl-4 pr-8 sm:pr-10 text-sm sm:text-base font-medium text-black placeholder-gray-400 shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none"
           />
         </div>
 
@@ -150,7 +150,7 @@ export function FeedbackTable() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 pl-4 pr-10 text-base font-medium text-black shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none appearance-none"
+              className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 sm:py-2.5 pl-3 sm:pl-4 pr-8 sm:pr-10 text-sm sm:text-base font-medium text-black shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none appearance-none"
             >
               <option value="all">Tất cả</option>
               <option value="pending">Chưa xử lý</option>
@@ -161,7 +161,7 @@ export function FeedbackTable() {
               alt="Dropdown"
               width={20}
               height={20}
-              className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none w-5 h-5"
+              className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 pointer-events-none w-4 h-4 sm:w-5 sm:h-5"
             />
           </div>
 
@@ -170,57 +170,106 @@ export function FeedbackTable() {
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 pl-4 pr-4 text-base font-medium text-black placeholder-gray-400 shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none"
+              className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 sm:py-2.5 pl-3 sm:pl-4 pr-3 sm:pr-4 text-sm sm:text-base font-medium text-black placeholder-gray-400 shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none"
             />
           </div>
         </div>
       </div>
 
-      <div className="space-y-2">
-        <div className="grid grid-cols-11 bg-black text-white text-center text-sm font-semibold rounded-lg">
-          <div className="col-span-3 py-3">THƯƠNG HIỆU</div>
-          <div className="col-span-3 py-3">CHI NHÁNH</div>
-          <div className="col-span-2 py-3">NGÀY</div>
-          <div className="col-span-3 py-3">TRẠNG THÁI</div>
+      <div className="w-full">
+        <div className="hidden lg:block overflow-x-auto">
+          <div className="space-y-2 rounded-lg min-w-[800px]">
+            <div className="grid grid-cols-12 bg-black text-white font-semibold text-center">
+              <div className="col-span-3 py-3 text-sm xl:text-base">THƯƠNG HIỆU</div>
+              <div className="col-span-3 py-3 text-sm xl:text-base">CHI NHÁNH</div>
+              <div className="col-span-3 py-3 text-sm xl:text-base">NGÀY</div>
+              <div className="col-span-3 py-3 text-sm xl:text-base">TRẠNG THÁI</div>
+            </div>
+            {loading ? (
+              <div className="py-6 sm:py-8 text-center text-gray-500 text-sm sm:text-base">Đang tải...</div>
+            ) : displayedFeedbacks.length > 0 ? (
+              displayedFeedbacks.map((fb) => (
+                <div
+                  key={fb.feedbackId}
+                  className="grid grid-cols-12 items-center text-center bg-white rounded-lg cursor-pointer hover:bg-lime-50 transition"
+                  onClick={() => router.push(`/superadmin/feedback/${fb.feedbackId}`)}
+                >
+                  <div className="col-span-3 py-4 font-semibold text-black text-sm xl:text-base px-2">
+                    {fb.clubInfo?.brandName || 'Không xác định'}
+                  </div>
+                  <div className="col-span-3 py-4 text-gray-700 text-sm xl:text-base px-2">
+                    {fb.clubInfo?.clubName || ''}
+                  </div>
+                  <div className="col-span-3 py-4 text-gray-700 text-sm xl:text-base px-2">
+                    {fb.createdAt ? new Date(fb.createdAt).toISOString().slice(0, 10) : ''}
+                  </div>
+                  <div className="col-span-3 py-4 flex justify-center px-2">
+                    <Badge
+                      variant={getStatusColor(fb.status)}
+                      className="rounded-full px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-base font-semibold"
+                    >
+                      {getStatusText(fb.status)}
+                    </Badge>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="py-6 sm:py-8 text-center text-gray-500 text-sm sm:text-base">Không tìm thấy phản hồi nào.</div>
+            )}
+          </div>
         </div>
 
-        {loading ? (
-          <div className="py-8 text-center text-gray-500">Đang tải...</div>
-        ) : displayedFeedbacks.length > 0 ? (
-          <div className="space-y-2">
-            {displayedFeedbacks.map((fb) => (
+        <div className="block lg:hidden space-y-3">
+          {loading ? (
+            <div className="py-6 sm:py-8 text-center text-gray-500 text-sm sm:text-base">Đang tải...</div>
+          ) : displayedFeedbacks.length > 0 ? (
+            displayedFeedbacks.map((fb) => (
               <div
                 key={fb.feedbackId}
+                className="bg-white rounded-lg shadow-md border border-gray-200 p-4 cursor-pointer hover:shadow-lg transition-shadow touch-manipulation"
                 onClick={() => router.push(`/superadmin/feedback/${fb.feedbackId}`)}
-                className="grid grid-cols-11 items-center text-center bg-white border border-gray-300 rounded-lg shadow hover:bg-gray-50 cursor-pointer transition"
               >
-                <div className="col-span-3 p-4 font-semibold text-black text-base">
-                  {fb.clubInfo?.brandName || 'Không xác định'}
-                </div>
-                <div className="col-span-3 p-4 font-semibold text-black text-base">{fb.clubInfo?.clubName || ''}</div>
-                <div className="col-span-2 py-4 text-sm text-gray-800">{fb.createdAt ? new Date(fb.createdAt).toISOString().slice(0, 10) : ''}</div>
-                <div className="col-span-3 flex justify-center items-center py-4 px-2">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 text-base mb-1">
+                      {fb.clubInfo?.brandName || 'Không xác định'}
+                    </h3>
+                    <p className="text-gray-600 text-sm">{fb.clubInfo?.clubName || 'Chưa có chi nhánh'}</p>
+                  </div>
                   <Badge
                     variant={getStatusColor(fb.status)}
-                    className="text-sm font-semibold flex-shrink-0 whitespace-nowrap"
+                    className="ml-3 px-3 py-1 rounded-full text-white font-medium text-xs flex-shrink-0"
                   >
                     {getStatusText(fb.status)}
                   </Badge>
                 </div>
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    <span className="text-gray-500 text-xs font-medium w-8">Ngày:</span>
+                    <span className="text-gray-800 text-sm font-medium">
+                      {fb.createdAt ? new Date(fb.createdAt).toISOString().slice(0, 10) : ''}
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-3 pt-3 border-t border-gray-100">
+                  <div className="flex justify-end">
+                    <span className="text-lime-600 text-xs font-medium">Nhấn để xem chi tiết →</span>
+                  </div>
+                </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="py-8 text-center text-gray-500">Không tìm thấy phản hồi nào.</div>
-        )}
+            ))
+          ) : (
+            <div className="py-6 sm:py-8 text-center text-gray-500 text-sm sm:text-base">Không tìm thấy phản hồi nào.</div>
+          )}
+        </div>
       </div>
 
       {totalPages > 1 && (
-        <div className="mt-10 flex items-center justify-center gap-2">
+        <div className="mt-8 sm:mt-10 flex items-center justify-center gap-2">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className={`px-3 py-3 w-16 rounded-lg font-medium transition flex items-center justify-center ${currentPage === 1
+            className={`px-3 py-2 sm:py-3 w-12 sm:w-16 rounded-lg font-medium transition flex items-center justify-center text-xs sm:text-sm ${currentPage === 1
               ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
               : 'bg-lime-400 hover:bg-lime-500 text-white'
               }`}
@@ -230,7 +279,7 @@ export function FeedbackTable() {
               alt="Previous"
               width={20}
               height={20}
-              className="w-5 h-5"
+              className="w-4 h-4 sm:w-5 sm:h-5"
             />
           </button>
 
@@ -238,7 +287,7 @@ export function FeedbackTable() {
             <button
               key={page}
               onClick={() => handlePageChange(page)}
-              className={`px-3 py-2 w-10 rounded-lg font-medium transition flex items-center justify-center ${currentPage === page
+              className={`px-2 sm:px-3 py-2 w-8 sm:w-10 rounded-lg font-medium transition flex items-center justify-center text-xs sm:text-sm ${currentPage === page
                 ? 'bg-lime-500 text-white'
                 : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
                 }`}
@@ -250,7 +299,7 @@ export function FeedbackTable() {
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className={`px-3 py-3 w-16 rounded-lg font-medium transition flex items-center justify-center ${currentPage === totalPages
+            className={`px-3 py-2 sm:py-3 w-12 sm:w-16 rounded-lg font-medium transition flex items-center justify-center text-xs sm:text-sm ${currentPage === totalPages
               ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
               : 'bg-lime-400 hover:bg-lime-500 text-white'
               }`}
@@ -260,13 +309,13 @@ export function FeedbackTable() {
               alt="Next"
               width={20}
               height={20}
-              className="w-5 h-5"
+              className="w-4 h-4 sm:w-5 sm:h-5"
             />
           </button>
         </div>
       )}
 
-      <div className="mt-4 text-center text-gray-400 italic text-xs">
+      <div className="mt-3 sm:mt-4 text-center text-gray-400 italic text-xs sm:text-sm">
         Hiển thị {startIndex + 1}-{Math.min(endIndex, sortedFeedbacks.length)} trong tổng số {sortedFeedbacks.length} phản hồi
       </div>
     </div>
