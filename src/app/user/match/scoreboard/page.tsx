@@ -402,7 +402,7 @@ function ScoreboardPage() {
             setMatchInfo(prev => prev ? {
               ...prev,
               camera: tableInfoData.camera,
-              isAiAssisted: tableInfoData.camera?.hasCamera || false
+              isAiAssisted: prev.isAiAssisted
             } : null);
 
             if (showCamera && tableInfoData.camera?.hasCamera) {
@@ -524,7 +524,7 @@ function ScoreboardPage() {
                 setMatchInfo(prev => prev ? {
                   ...prev,
                   camera: tableInfoData.camera,
-                  isAiAssisted: tableInfoData.camera?.hasCamera || false
+                  isAiAssisted: prev.isAiAssisted
                 } : null);
               }
             } catch (error) {
@@ -788,8 +788,6 @@ function ScoreboardPage() {
     }
   }, []);
 
-
-
   return (
     <>
       {loading && <ScoreLensLoading text="Đang tải..." />}
@@ -883,7 +881,7 @@ function ScoreboardPage() {
             </div>
             <div className="text-left w-full space-y-4 mt-2">
 
-              {matchInfo?.isAiAssisted && showCamera && matchInfo?.camera?.hasCamera && (
+              {matchInfo?.isAiAssisted && matchInfo?.camera?.hasCamera && showCamera && (
                 <div className="relative mb-4">
                   <canvas
                     ref={videoRef}
@@ -943,7 +941,7 @@ function ScoreboardPage() {
                 </div>
               )}
 
-              {matchInfo?.isAiAssisted && (
+              {matchInfo?.isAiAssisted && matchInfo?.camera?.hasCamera && (
                 <>
                   <p className="text-sm font-semibold text-[#000000] mb-1">Kết Quả AI</p>
                   <div className="border border-gray-300 rounded-md p-3 text-sm text-[#000000] bg-white shadow-sm space-y-1">
@@ -955,7 +953,7 @@ function ScoreboardPage() {
                 </>
               )}
 
-              {!matchInfo?.isAiAssisted && (
+              {(!matchInfo?.isAiAssisted || !matchInfo?.camera?.hasCamera) && (
                 <div className="space-y-2">
                   <p className="text-sm font-semibold text-[#000000] mb-2">Thao tác nhanh</p>
                   <div className="grid grid-cols-2 gap-3">
@@ -1107,12 +1105,11 @@ function ScoreboardPage() {
           <div className="h-20"></div>
           <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200 p-4 z-50">
             <div className="flex flex-row gap-4 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
-              {matchInfo?.isAiAssisted && (
+              {matchInfo?.isAiAssisted && matchInfo?.camera?.hasCamera && (
                 <Button
                   onClick={handleToggleCamera}
                   style={{ backgroundColor: showCamera ? '#FF6B6B' : '#055EC8' }}
                   className="w-1/3 hover:bg-blue-700 hover:bg-red-600 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center"
-                  disabled={!matchInfo?.camera?.hasCamera}
                 >
                   {showCamera ? 'Ẩn Camera' : 'Xem Camera'}
                 </Button>
@@ -1127,7 +1124,7 @@ function ScoreboardPage() {
                   handleEditScore();
                 }}
                 style={{ backgroundColor: '#8ADB10' }}
-                className={`${matchInfo?.isAiAssisted ? 'w-1/3' : 'w-1/2'} hover:bg-lime-600 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center`}
+                className={`${matchInfo?.isAiAssisted && matchInfo?.camera?.hasCamera ? 'w-1/3' : 'w-1/2'} hover:bg-lime-600 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center`}
               >
                 Chỉnh sửa
               </Button>
@@ -1141,7 +1138,7 @@ function ScoreboardPage() {
                   handleEndMatch();
                 }}
                 style={{ backgroundColor: '#FF0000' }}
-                className={`${matchInfo?.isAiAssisted ? 'w-1/3' : 'w-1/2'} hover:bg-red-700 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center`}
+                className={`${matchInfo?.isAiAssisted && matchInfo?.camera?.hasCamera ? 'w-1/3' : 'w-1/2'} hover:bg-red-700 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center`}
               >
                 Kết thúc
               </Button>
