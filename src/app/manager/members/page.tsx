@@ -101,11 +101,11 @@ export default function MembersPage() {
       {loading && <ScoreLensLoading text="Đang tải..." />}
       <div className="min-h-screen flex bg-[#18191A]">
         <SidebarManager />
-        <main className="flex-1 bg-white min-h-screen">
-          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+        <main className="flex-1 bg-white min-h-screen lg:ml-0">
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-4 sm:px-6 lg:px-8 py-6 lg:py-8 transition-all duration-300">
             <HeaderManager />
           </div>
-          <div className="px-10 pb-10">
+          <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
             <MemberPageBanner />
             <MemberSearchBar
               search={search}
@@ -151,11 +151,11 @@ export default function MembersPage() {
                 />
 
                 {totalPages > 1 && (
-                  <div className="mt-10 flex items-center justify-center gap-2">
+                  <div className="mt-8 sm:mt-10 flex items-center justify-center gap-2">
                     <button
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className={`px-3 py-3 w-16 rounded-lg font-medium transition flex items-center justify-center ${currentPage === 1
+                      className={`px-2 sm:px-3 py-2 sm:py-3 w-12 sm:w-16 rounded-lg font-medium transition flex items-center justify-center text-sm sm:text-base ${currentPage === 1
                         ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                         : 'bg-lime-400 hover:bg-lime-500 text-white'
                         }`}
@@ -165,7 +165,7 @@ export default function MembersPage() {
                         alt="Previous"
                         width={20}
                         height={20}
-                        className="w-5 h-5"
+                        className="w-4 h-4 sm:w-5 sm:h-5"
                       />
                     </button>
 
@@ -173,7 +173,7 @@ export default function MembersPage() {
                       <button
                         key={page}
                         onClick={() => handlePageChange(page)}
-                        className={`px-3 py-2 w-10 rounded-lg font-medium transition flex items-center justify-center ${currentPage === page
+                        className={`px-2 sm:px-3 py-2 w-8 sm:w-10 rounded-lg font-medium transition flex items-center justify-center text-sm sm:text-base ${currentPage === page
                           ? 'bg-lime-500 text-white'
                           : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
                           }`}
@@ -185,7 +185,7 @@ export default function MembersPage() {
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
-                      className={`px-3 py-3 w-16 rounded-lg font-medium transition flex items-center justify-center ${currentPage === totalPages
+                      className={`px-2 sm:px-3 py-2 sm:py-3 w-12 sm:w-16 rounded-lg font-medium transition flex items-center justify-center text-sm sm:text-base ${currentPage === totalPages
                         ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                         : 'bg-lime-400 hover:bg-lime-500 text-white'
                         }`}
@@ -195,13 +195,13 @@ export default function MembersPage() {
                         alt="Next"
                         width={20}
                         height={20}
-                        className="w-5 h-5"
+                        className="w-4 h-4 sm:w-5 sm:h-5"
                       />
                     </button>
                   </div>
                 )}
 
-                <div className="mt-4 text-center text-gray-400 italic text-xs">
+                <div className="mt-4 text-center text-gray-400 italic text-xs sm:text-sm">
                   Hiển thị {startIndex + 1}-{Math.min(endIndex, filteredMembers.length)} trong tổng số {filteredMembers.length} hội viên
                 </div>
               </>

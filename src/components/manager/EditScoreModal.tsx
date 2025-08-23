@@ -40,7 +40,6 @@ export const EditScoreModal: React.FC<EditScoreModalProps> = ({
         </div>
 
         <div className="space-y-6 mb-8">
-          {/* Team A Score */}
           <div className="bg-gray-50 rounded-lg p-4">
             <h3 className="font-semibold text-lg mb-3 text-[#000000]">Đội A</h3>
             <div className="flex items-center gap-4">
@@ -61,7 +60,6 @@ export const EditScoreModal: React.FC<EditScoreModalProps> = ({
             </div>
           </div>
 
-          {/* Team B Score */}
           <div className="bg-gray-50 rounded-lg p-4">
             <h3 className="font-semibold text-lg mb-3 text-[#000000]">Đội B</h3>
             <div className="flex items-center gap-4">

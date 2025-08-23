@@ -143,11 +143,11 @@ export default function FeedbacksPage() {
       {loading && <ScoreLensLoading text="Đang tải..." />}
       <div className="min-h-screen flex bg-[#18191A]">
         <SidebarManager />
-        <main className="flex-1 bg-white min-h-screen">
-          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+        <main className="flex-1 bg-white min-h-screen lg:ml-0">
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-4 sm:px-6 lg:px-8 py-6 lg:py-8 transition-all duration-300">
             <HeaderManager />
           </div>
-          <div className="px-10 pb-10">
+          <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
             <FeedbackPageBanner />
             <FeedbackSearchBar
               search={search}
@@ -195,11 +195,11 @@ export default function FeedbacksPage() {
                 />
 
                 {totalPages > 1 && (
-                  <div className="mt-10 flex items-center justify-center gap-2">
+                  <div className="mt-6 sm:mt-10 flex items-center justify-center gap-1 sm:gap-2">
                     <button
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className={`px-3 py-3 w-16 rounded-lg font-medium transition flex items-center justify-center ${currentPage === 1
+                      className={`px-2 sm:px-3 py-2 sm:py-3 w-12 sm:w-16 rounded-lg font-medium transition flex items-center justify-center text-xs sm:text-sm ${currentPage === 1
                         ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                         : 'bg-lime-400 hover:bg-lime-500 text-white'
                         }`}
@@ -209,7 +209,7 @@ export default function FeedbacksPage() {
                         alt="Previous"
                         width={20}
                         height={20}
-                        className="w-5 h-5"
+                        className="w-4 h-4 sm:w-5 sm:h-5"
                       />
                     </button>
 
@@ -217,7 +217,7 @@ export default function FeedbacksPage() {
                       <button
                         key={page}
                         onClick={() => handlePageChange(page)}
-                        className={`px-3 py-2 w-10 rounded-lg font-medium transition flex items-center justify-center ${currentPage === page
+                        className={`px-2 sm:px-3 py-2 w-8 sm:w-10 rounded-lg font-medium transition flex items-center justify-center text-xs sm:text-sm ${currentPage === page
                           ? 'bg-lime-500 text-white'
                           : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
                           }`}
@@ -229,7 +229,7 @@ export default function FeedbacksPage() {
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
-                      className={`px-3 py-3 w-16 rounded-lg font-medium transition flex items-center justify-center ${currentPage === totalPages
+                      className={`px-2 sm:px-3 py-2 sm:py-3 w-12 sm:w-16 rounded-lg font-medium transition flex items-center justify-center text-xs sm:text-sm ${currentPage === totalPages
                         ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                         : 'bg-lime-400 hover:bg-lime-500 text-white'
                         }`}
@@ -239,7 +239,7 @@ export default function FeedbacksPage() {
                         alt="Next"
                         width={20}
                         height={20}
-                        className="w-5 h-5"
+                        className="w-4 h-4 sm:w-5 sm:h-5"
                       />
                     </button>
                   </div>

@@ -268,13 +268,13 @@ export default function ManagerDashboardPage() {
   return (
     <>
       {(loadingStats || loadingTables) && <ScoreLensLoading text="Đang tải..." />}
-      <div className="flex min-h-screen bg-gray-50">
+      <div className="min-h-screen flex bg-[#18191A]">
         <SidebarManager />
-        <main className="flex-1 bg-[#FFFFFF] min-h-screen">
-          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+        <main className="flex-1 bg-white min-h-screen lg:ml-0">
+          <div className="sticky top-0 z-10 bg-[#FFFFFF] px-4 sm:px-6 lg:px-8 py-6 lg:py-8 transition-all duration-300">
             <HeaderManager />
           </div>
-          <div className="px-10 pb-10">
+          <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
             <div className="w-full mx-auto">
               {loadingStats ? (
                 <div className="">
@@ -288,7 +288,7 @@ export default function ManagerDashboardPage() {
                   members={dashboardStats.members}
                 />
               )}
-              <div className="bg-white rounded-lg p-6">
+              <div className="bg-white rounded-lg p-4 sm:p-6 lg:p-8">
                 <TableFilterBar
                   search={search}
                   onSearchChange={setSearch}
@@ -342,7 +342,10 @@ export default function ManagerDashboardPage() {
                 )}
                 {filteredTables.length > 9 && (
                   <div className="flex justify-center mt-6">
-                    <ButtonViewMore onClick={handleXemThem}>
+                    <ButtonViewMore 
+                      onClick={handleXemThem}
+                      primaryText="Xem thêm"
+                    >
                       {actionLoading ? <LoadingSpinner size="sm" /> : 'Xem thêm'}
                     </ButtonViewMore>
                   </div>

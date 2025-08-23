@@ -26,24 +26,66 @@ export default function TableGrid({ tables, onTableClick }: TableGridProps) {
   };
 
   return (
-    <div className="rounded-lg overflow-hidden space-y-2">
-      <div className="grid grid-cols-12 bg-[#000000] text-[#FFFFFF] font-semibold text-center">
-        <div className="col-span-4 py-3">BÀN</div>
-        <div className="col-span-4 py-3">LOẠI BÀN</div>
-        <div className="col-span-4 py-3">TRẠNG THÁI</div>
+    <div className="w-full">
+      <div className="hidden lg:block overflow-x-auto">
+        <div className="space-y-2 rounded-lg min-w-[800px]">
+          <div className="grid grid-cols-12 bg-black text-white font-semibold text-center">
+            <div className="col-span-4 py-3 text-sm xl:text-base">BÀN</div>
+            <div className="col-span-4 py-3 text-sm xl:text-base">LOẠI BÀN</div>
+            <div className="col-span-4 py-3 text-sm xl:text-base">TRẠNG THÁI</div>
+          </div>
+          {tables.map((table) => (
+            <div
+              key={table.id}
+              className="grid grid-cols-12 items-center text-center bg-gray-200 rounded-lg cursor-pointer hover:bg-lime-50 transition"
+              onClick={() => onTableClick && onTableClick(table.id)}
+            >
+              <div className="col-span-4 py-4 font-semibold text-black text-sm xl:text-base px-2">{table.name}</div>
+              <div className="col-span-4 py-4 uppercase text-gray-700 text-sm xl:text-base px-2">{formatCategory(table.type)}</div>
+              <div className="col-span-4 py-4 flex justify-center px-2">
+                <StatusBadge status={table.status} />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="block lg:hidden space-y-3">
         {tables.map((table) => (
           <div
             key={table.id}
-            className="grid grid-cols-12 items-center text-center bg-gray-200 rounded-lg cursor-pointer hover:bg-lime-50 transition"
+            className="bg-white rounded-lg shadow-md border border-gray-200 p-4 cursor-pointer hover:shadow-lg transition-shadow touch-manipulation"
             onClick={() => onTableClick && onTableClick(table.id)}
           >
-            <div className="col-span-4 py-4 font-semibold text-[#000000] text-lg">{table.name}</div>
-            <div className="col-span-4 py-4 uppercase text-gray-700 text-base">{formatCategory(table.type)}</div>
-            <div className="col-span-4 py-4 flex justify-center items-center gap-2">
-              <StatusBadge status={table.status} />
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex-1">
+                <h3 className="font-semibold text-gray-900 text-base mb-1">{table.name}</h3>
+                <p className="text-gray-600 text-sm uppercase">{formatCategory(table.type)}</p>
+              </div>
+              <div className="ml-3 flex-shrink-0">
+                <StatusBadge status={table.status} />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-500 text-xs font-medium">Loại bàn:</span>
+                <span className="text-gray-800 text-xs font-medium uppercase">{formatCategory(table.type)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-500 text-xs font-medium">Trạng thái:</span>
+                <span className={`text-xs font-medium ${
+                  table.status === 'empty' ? 'text-green-600' : 
+                  table.status === 'inuse' ? 'text-blue-600' : 'text-red-600'
+                }`}>
+                  {table.status === 'empty' ? 'Trống' : 
+                   table.status === 'inuse' ? 'Đang sử dụng' : 'Bảo trì'}
+                </span>
+              </div>
+            </div>
+            <div className="mt-3 pt-3 border-t border-gray-100">
+              <div className="flex justify-end">
+                <span className="text-lime-600 text-xs font-medium">Nhấn để xem chi tiết →</span>
+              </div>
             </div>
           </div>
         ))}

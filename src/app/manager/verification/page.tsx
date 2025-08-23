@@ -38,7 +38,6 @@ function ManagerVerificationPageInner() {
     '/images/numberBalls/ball_7.png',
     '/images/numberBalls/ball_8.png',
     '/images/numberBalls/ball_9.png',
-    // Có thể thêm ball_0.png nếu có
   ];
 
   useEffect(() => {
@@ -124,16 +123,16 @@ function ManagerVerificationPageInner() {
       title="Xác minh mã quản lý"
       description={`Chúng tôi đã gửi mã xác minh đến ${email}`}
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-4">
+          <label className="block text-sm font-semibold text-gray-700 mb-3 sm:mb-4">
             Nhập mã xác minh 6 chữ số
           </label>
-          <div className="flex gap-3 justify-center mb-4" onPaste={handlePaste}>
+          <div className="flex gap-2 sm:gap-3 justify-center mb-3 sm:mb-4" onPaste={handlePaste}>
             {otp.map((digit, index) => (
               <div
                 key={index}
-                className={`relative w-12 h-12 flex items-center justify-center rounded-full border-2 transition-all duration-200 bg-white shadow-md cursor-pointer
+                className={`relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full border-2 transition-all duration-200 bg-white shadow-md cursor-pointer
                   ${inputRefs.current[index] && document.activeElement === inputRefs.current[index] ? 'border-lime-500 shadow-lg' : digit ? 'border-lime-400' : 'border-gray-300'}
                 `}
                 onClick={() => inputRefs.current[index]?.focus()}
@@ -158,10 +157,10 @@ function ManagerVerificationPageInner() {
                     alt={`Số ${digit}`}
                     width={36}
                     height={36}
-                    className="drop-shadow"
+                    className="drop-shadow w-8 h-8 sm:w-9 sm:h-9"
                   />
                 ) : (
-                  <span className="text-gray-300 text-2xl select-none">-</span>
+                  <span className="text-gray-300 text-xl sm:text-2xl select-none">-</span>
                 )}
               </div>
             ))}
@@ -173,11 +172,12 @@ function ManagerVerificationPageInner() {
           variant="lime"
           fullWidth
           disabled={!isFormValid}
+          className="py-2 sm:py-3 text-sm sm:text-base"
         >
           {isLoading ? 'Đang xác minh...' : 'Xác minh'}
         </Button>
 
-        <div className="text-center space-y-4">
+        <div className="text-center space-y-3 sm:space-y-4">
           <div>
             <span className="text-gray-600 text-sm">Không nhận được mã? </span>
             {canResend ? (
