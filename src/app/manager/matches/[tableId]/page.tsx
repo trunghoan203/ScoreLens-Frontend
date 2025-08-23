@@ -87,8 +87,8 @@ export default function TableDetailPage() {
   const [showEditScoreModal, setShowEditScoreModal] = useState(false);
   const [showAISelectionModal, setShowAISelectionModal] = useState(false);
   const [pendingTeams, setPendingTeams] = useState<{
-    teamA: Array<{ guestName?: string; phoneNumber?: string }>;
-    teamB: Array<{ guestName?: string; phoneNumber?: string }>;
+    teamA: Array<{ guestName?: string; phoneNumber?: string; membershipId?: string; membershipName?: string }>;
+    teamB: Array<{ guestName?: string; phoneNumber?: string; membershipId?: string; membershipName?: string }>;
   } | null>(null);
   const [isAiAssisted, setIsAiAssisted] = useState<boolean>(false);
   const [matchData, setMatchData] = useState<MatchData | null>(null);
@@ -308,7 +308,7 @@ export default function TableDetailPage() {
   }, [loading, isChecking]);
 
 
-  const handleCreateMatch = async (teamA: Array<{ guestName?: string; phoneNumber?: string }>, teamB: Array<{ guestName?: string; phoneNumber?: string }>) => {
+  const handleCreateMatch = async (teamA: Array<{ guestName?: string; phoneNumber?: string; membershipId?: string; membershipName?: string }>, teamB: Array<{ guestName?: string; phoneNumber?: string; membershipId?: string; membershipName?: string }>) => {
     setPendingTeams({ teamA, teamB });
     setShowAISelectionModal(true);
   };
@@ -440,7 +440,7 @@ export default function TableDetailPage() {
     }
   };
 
-  const handleUpdateTeams = async (updatedTeamA: Array<{ guestName?: string; phoneNumber?: string }>, updatedTeamB: Array<{ guestName?: string; phoneNumber?: string }>) => {
+  const handleUpdateTeams = async (updatedTeamA: Array<{ guestName?: string; phoneNumber?: string; membershipId?: string; membershipName?: string }>, updatedTeamB: Array<{ guestName?: string; phoneNumber?: string; membershipId?: string; membershipName?: string }>) => {
     try {
       if (!activeMatchId) {
         toast.error('Không xác định được trận đấu để cập nhật');
@@ -467,7 +467,7 @@ export default function TableDetailPage() {
 
       const teamsPayloadPrecheck = [updatedTeamA, updatedTeamB];
       if (!validateNoDuplicate(teamsPayloadPrecheck)) {
-        toast.error('Bạn đã tham gia trận đấu này rồi.');
+        toast.error('Tên người chơi không được giống nhau.');
         return;
       }
 
@@ -685,6 +685,7 @@ export default function TableDetailPage() {
                     isEditing={isEditing}
                     onBack={() => setIsEditing(false)}
                     elapsedTime={elapsedTime}
+                    activeMatchId={activeMatchId}
                     {...(isEditing ? { teamA, teamB } : {})}
                   />
                 ) : (

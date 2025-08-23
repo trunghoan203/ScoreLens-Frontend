@@ -11,6 +11,8 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
   const [teamA, setTeamA] = useState<string[]>(initialTeamA && initialTeamA.length > 0 ? initialTeamA : ['']);
   const [teamB, setTeamB] = useState<string[]>(initialTeamB && initialTeamB.length > 0 ? initialTeamB : ['']);
   const [creatorMembershipName, setCreatorMembershipName] = useState<string>('');
+  const [teamAMembershipInfo, setTeamAMembershipInfo] = useState<Map<string, { membershipId: string; membershipName: string }>>(new Map());
+  const [teamBMembershipInfo, setTeamBMembershipInfo] = useState<Map<string, { membershipId: string; membershipName: string }>>(new Map());
 
   useEffect(() => {
     const cleanupDuplicates = (team: string[]) => {
@@ -46,14 +48,43 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
           const matchInfoData = responseData as { teams?: Array<{ members?: Array<{ membershipId?: string; membershipName?: string }> }> };
 
           if (matchInfoData?.teams) {
-            for (const team of matchInfoData.teams) {
-              for (const member of team.members || []) {
-                if (member.membershipId === actorMembershipId && member.membershipName) {
-                  setCreatorMembershipName(member.membershipName);
-                  return;
+            const newTeamAMembershipInfo = new Map();
+            const newTeamBMembershipInfo = new Map();
+
+            // Process Team A
+            if (matchInfoData.teams[0]?.members) {
+              matchInfoData.teams[0].members.forEach((member: any) => {
+                if (member.membershipId && member.membershipName) {
+                  newTeamAMembershipInfo.set(member.membershipName.trim().toLowerCase(), {
+                    membershipId: member.membershipId,
+                    membershipName: member.membershipName
+                  });
+                  // Check if this is the creator
+                  if (member.membershipId === actorMembershipId) {
+                    setCreatorMembershipName(member.membershipName);
+                  }
                 }
-              }
+              });
             }
+
+            // Process Team B
+            if (matchInfoData.teams[1]?.members) {
+              matchInfoData.teams[1].members.forEach((member: any) => {
+                if (member.membershipId && member.membershipName) {
+                  newTeamBMembershipInfo.set(member.membershipName.trim().toLowerCase(), {
+                    membershipId: member.membershipId,
+                    membershipName: member.membershipName
+                  });
+                  // Check if this is the creator
+                  if (member.membershipId === actorMembershipId) {
+                    setCreatorMembershipName(member.membershipName);
+                  }
+                }
+              });
+            }
+
+            setTeamAMembershipInfo(newTeamAMembershipInfo);
+            setTeamBMembershipInfo(newTeamBMembershipInfo);
           }
         } catch (error) {
         }
@@ -232,12 +263,24 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
           if (isPhoneNumber) {
             return { phoneNumber: name.trim() };
           } else {
-            const isCreatorName = creatorMembershipName && name.trim().toLowerCase() === creatorMembershipName.toLowerCase();
+            // Kiểm tra xem có phải là membership đã có không
+            const playerKey = name.trim().toLowerCase();
+            const existingMember = teamAMembershipInfo.get(playerKey);
 
-            if (isCreatorName) {
-              return { membershipId: actorMembershipId };
+            if (existingMember) {
+              // Giữ nguyên membership
+              return {
+                membershipId: existingMember.membershipId,
+                membershipName: existingMember.membershipName
+              };
             } else {
-              return { guestName: name.trim() };
+              // Kiểm tra xem có phải là creator không
+              const isCreatorName = creatorMembershipName && name.trim().toLowerCase() === creatorMembershipName.toLowerCase();
+              if (isCreatorName) {
+                return { membershipId: actorMembershipId };
+              } else {
+                return { guestName: name.trim() };
+              }
             }
           }
         }),
@@ -246,11 +289,24 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
           if (isPhoneNumber) {
             return { phoneNumber: name.trim() };
           } else {
-            const isCreatorName = creatorMembershipName && name.trim().toLowerCase() === creatorMembershipName.toLowerCase();
-            if (isCreatorName) {
-              return { membershipId: actorMembershipId };
+            // Kiểm tra xem có phải là membership đã có không
+            const playerKey = name.trim().toLowerCase();
+            const existingMember = teamBMembershipInfo.get(playerKey);
+
+            if (existingMember) {
+              // Giữ nguyên membership
+              return {
+                membershipId: existingMember.membershipId,
+                membershipName: existingMember.membershipName
+              };
             } else {
-              return { guestName: name.trim() };
+              // Kiểm tra xem có phải là creator không
+              const isCreatorName = creatorMembershipName && name.trim().toLowerCase() === creatorMembershipName.toLowerCase();
+              if (isCreatorName) {
+                return { membershipId: actorMembershipId };
+              } else {
+                return { guestName: name.trim() };
+              }
             }
           }
         })
