@@ -17,35 +17,33 @@ export function AdminFilters({
   onStatusChange,
 }: AdminFiltersProps) {
   return (
-    <div className="w-full mb-8">
+    <div className="w-full mb-6 sm:mb-8">
       <div
-        className="backdrop-blur-md border-lime-400 bg-white/60 border border-gray-200 rounded-2xl shadow-lg px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 transition-all duration-300"
+        className="backdrop-blur-md border-lime-400 bg-white/60 border border-gray-200 rounded-2xl shadow-lg px-4 sm:px-6 py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 transition-all duration-300"
         style={{ boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.10)' }}
       >
-        {/* Search Input*/}
-        <div className="relative w-full sm:w-80 h-12 bg-white rounded-xl border-2 border-gray-200 focus:border-lime-400 transition-all">
+        <div className="relative w-full sm:w-80 h-10 sm:h-12 bg-white rounded-xl border-2 border-gray-200 focus:border-lime-400 transition-all">
           <input
             type="text"
             placeholder="Nhập tên hoặc email..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="h-full w-full bg-transparent px-4 pr-10 rounded-xl placeholder-gray-400 focus:outline-none"
+            className="h-full w-full bg-transparent px-3 sm:px-4 pr-8 sm:pr-10 rounded-xl placeholder-gray-400 focus:outline-none text-[#000000] sm:text-base"
           />
           <Image
             src="/icon/search.svg"
             alt="Search"
             width={24}
             height={24}
-            className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none w-6 h-6"
+            className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 pointer-events-none w-5 h-5 sm:w-6 sm:h-6"
           />
         </div>
 
-        {/* Status Filter*/}
-        <div className="relative w-full sm:w-55 h-12 bg-white rounded-xl border-2 border-gray-200 text-black focus-within:border-green-500 transition-all">
+        <div className="relative w-full sm:w-55 h-10 sm:h-12 bg-white rounded-xl border-2 border-gray-200 text-black focus-within:border-green-500 transition-all">
           <select
             value={statusFilter}
             onChange={(e) => onStatusChange(e.target.value)}
-            className="h-full w-full bg-transparent px-4 pr-10 rounded-xl appearance-none focus:outline-none"
+            className="h-full w-full bg-transparent px-3 sm:px-4 pr-8 sm:pr-10 rounded-xl appearance-none focus:outline-none text-sm sm:text-base"
           >
             <option value="">Tất cả</option>
             <option value="approved">Đã duyệt</option>
@@ -57,7 +55,7 @@ export function AdminFilters({
             alt="Dropdown"
             width={22}
             height={22}
-            className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+            className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 pointer-events-none w-5 h-5 sm:w-6 sm:h-6"
           />
         </div>
       </div>

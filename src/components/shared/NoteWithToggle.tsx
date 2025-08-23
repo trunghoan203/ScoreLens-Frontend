@@ -9,14 +9,14 @@ export function NoteWithToggle({ note }: { note: string }) {
   return (
     <div className="relative w-full">
       <div className="bg-gradient-to-br from-slate-50 to-gray-50 border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
-        <div className="flex items-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 border-b border-slate-200 bg-gradient-to-r from-slate-100 to-gray-100">
+        <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3 border-b border-slate-200 bg-gradient-to-r from-slate-100 to-gray-100">
           <StickyNote size={16} className="sm:w-[18px] sm:h-[18px] text-slate-600 flex-shrink-0" />
           <span className="font-semibold text-slate-800 text-xs sm:text-sm tracking-wide">
             GHI CHÚ
           </span>
         </div>
 
-        <div className="relative px-3 sm:px-4 py-2.5 sm:py-3">
+        <div className="relative px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3">
           <div
             className={`text-xs sm:text-sm text-gray-700 leading-relaxed break-words hyphens-auto transition-all duration-300 ${
               isLong && !expanded 
