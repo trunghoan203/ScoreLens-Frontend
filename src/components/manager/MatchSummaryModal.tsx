@@ -57,15 +57,12 @@ export const MatchSummaryModal: React.FC<MatchSummaryModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
-        {/* Header */}
         <div className="text-center p-4 border-b border-gray-300">
           <h2 className="text-2xl font-bold text-[#000000] mb-1">Tổng kết trận đấu</h2>
           <p className="text-xl font-semibold text-[#000000]">{matchData.tableName}</p>
         </div>
 
-        {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-4">
-          {/* Match Info */}
           <div className="bg-gray-50 rounded-lg p-2">
             <h3 className="font-semibold text-center text-xl mb-6 text-[#000000]">Thông tin trận đấu</h3>
             <div className="space-y-1 text-sm">
@@ -88,7 +85,6 @@ export const MatchSummaryModal: React.FC<MatchSummaryModalProps> = ({
             </div>
           </div>
 
-          {/* Teams */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-center">
             {matchData.teams.map((team, index) => (
               <div key={index} className="bg-gray-50 rounded-lg p-3">
@@ -115,7 +111,6 @@ export const MatchSummaryModal: React.FC<MatchSummaryModalProps> = ({
             ))}
           </div>
 
-          {/* Winner Announcement */}
           {winningTeam && (
             <div className="text-center p-2 bg-lime-50 rounded-lg border border-lime-200">
               <div className="text-xl mb-1">🎉</div>
@@ -126,7 +121,6 @@ export const MatchSummaryModal: React.FC<MatchSummaryModalProps> = ({
           )}
         </div>
 
-        {/* Footer Buttons */}
         <div className="p-4 border-t border-gray-200">
           <div className="flex gap-3 justify-center">
             <button

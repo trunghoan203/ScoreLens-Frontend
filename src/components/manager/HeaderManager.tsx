@@ -4,6 +4,8 @@ import axios from '@/lib/axios';
 import Image from 'next/image';
 import { useManagerNotifications } from '@/lib/hooks/useManagerNotifications';
 import { NotificationItem } from '@/components/shared/NotificationItem';
+import { Menu, X } from 'lucide-react';
+import { useMobileMenuStore } from '@/lib/mobileMenuState';
 
 
 export default function HeaderManager() {
@@ -11,6 +13,7 @@ export default function HeaderManager() {
   const [clubName, setClubName] = useState<string>('Đang tải...');
   const [notificationOpen, setNotificationOpen] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
+  const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenuStore();
   
   const {
     notifications,
@@ -65,17 +68,24 @@ export default function HeaderManager() {
 
   return (
     <>
-      <div className="flex items-center justify-between w-full min-h-[60px]">
-        <div className="px-6 rounded-lg">
-          <h1 className="text-2xl font-bold text-black">
+      <div className="flex items-center justify-between w-full min-h-[60px] gap-4 sm:gap-6">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <button
+            className="lg:hidden p-2 rounded-lg bg-[#181818] text-white shadow-lg"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle navigation menu"
+          >
+            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+          <h1 className="text-[#000000] sm:text-xl lg:text-2xl font-bold truncate">
             {clubName}
           </h1>
         </div>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3 sm:gap-6">
           <div className="relative" ref={notificationRef}>
             <motion.button
               onClick={() => setNotificationOpen(prev => !prev)}
-              className={`relative focus:outline-none p-3 rounded-full transition-all duration-300 ${
+              className={`relative focus:outline-none p-2 sm:p-3 rounded-full transition-all duration-300 touch-manipulation ${
                 notificationOpen 
                   ? 'bg-lime-500/20 border-2 border-lime-400 shadow-lg shadow-lime-500/25' 
                   : 'hover:bg-gray-100 hover:shadow-md hover:scale-105 active:scale-95'
@@ -112,7 +122,7 @@ export default function HeaderManager() {
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0, opacity: 0 }}
-                    className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg border-2 border-white"
+                    className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full h-5 w-5 sm:h-6 sm:w-6 flex items-center justify-center font-bold shadow-lg border-2 border-white"
                   >
                     {unreadCount > 99 ? '99+' : unreadCount}
                   </motion.span>
@@ -127,13 +137,13 @@ export default function HeaderManager() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -20, scale: 0.95 }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
-                  className="absolute right-0 mt-3 w-96 bg-white shadow-2xl rounded-2xl overflow-hidden z-50 border border-gray-100"
+                  className="absolute right-0 mt-3 w-80 sm:w-96 bg-white shadow-2xl rounded-2xl overflow-hidden z-50 border border-gray-100"
                   style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}
                 >
-                  <div className="bg-gradient-to-r from-slate-50 to-gray-50 p-5 border-b border-gray-200">
+                  <div className="bg-gradient-to-r from-slate-50 to-gray-50 p-3 sm:p-5 border-b border-gray-200">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-lime-100 rounded-lg">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="p-1.5 sm:p-2 bg-lime-100 rounded-lg">
                           <Image
                             src="/icon/bell.svg"
                             alt="Notifications"
@@ -143,11 +153,11 @@ export default function HeaderManager() {
                           />
                         </div>
                         <div>
-                          <h3 className="text-lg font-bold text-gray-900">
+                          <h3 className="text-base sm:text-lg font-bold text-gray-900">
                             Thông báo
                           </h3>
                           {unreadCount > 0 && (
-                            <p className="text-sm text-gray-600">
+                            <p className="text-xs sm:text-sm text-gray-600">
                               {unreadCount} thông báo mới
                             </p>
                           )}
@@ -156,7 +166,7 @@ export default function HeaderManager() {
                       {unreadCount > 0 && (
                         <motion.button
                           onClick={markAllAsRead}
-                          className="text-xs bg-lime-500 hover:bg-lime-600 text-white px-3 py-1.5 rounded-full transition-all duration-200 font-medium shadow-md hover:shadow-lg"
+                          className="text-xs bg-lime-500 hover:bg-lime-600 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-full transition-all duration-200 font-medium shadow-md hover:shadow-lg touch-manipulation"
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >
@@ -166,15 +176,15 @@ export default function HeaderManager() {
                     </div>
                   </div>
 
-                  <div className="max-h-[500px] overflow-y-auto custom-scrollbar">
+                  <div className="max-h-[400px] sm:max-h-[500px] overflow-y-auto custom-scrollbar">
                     {loading ? (
-                      <div className="p-8 text-center">
+                      <div className="p-6 sm:p-8 text-center">
                         <motion.div
-                          className="animate-spin rounded-full h-8 w-8 border-b-2 border-lime-500 mx-auto"
+                          className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-lime-500 mx-auto"
                           animate={{ rotate: 360 }}
                           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                         />
-                        <p className="text-sm text-gray-500 mt-4 font-medium">Đang tải thông báo...</p>
+                        <p className="text-xs sm:text-sm text-gray-500 mt-3 sm:mt-4 font-medium">Đang tải thông báo...</p>
                       </div>
                     ) : notifications.length > 0 ? (
                       <motion.div
@@ -201,12 +211,12 @@ export default function HeaderManager() {
                       </motion.div>
                     ) : (
                       <motion.div 
-                        className="p-12 text-center"
+                        className="p-8 sm:p-12 text-center"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
                       >
-                        <div className="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <div className="bg-gray-100 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                           <Image
                             src="/icon/bell.svg"
                             alt="No notifications"
@@ -215,8 +225,8 @@ export default function HeaderManager() {
                             className="opacity-60"
                           />
                         </div>
-                        <p className="text-base font-medium text-gray-600 mb-2">Không có thông báo</p>
-                        <p className="text-sm text-gray-400">Các thông báo mới sẽ xuất hiện tại đây</p>
+                        <p className="text-sm sm:text-base font-medium text-gray-600 mb-1 sm:mb-2">Không có thông báo</p>
+                        <p className="text-xs sm:text-sm text-gray-400">Các thông báo mới sẽ xuất hiện tại đây</p>
                       </motion.div>
                     )}
                   </div>
@@ -225,7 +235,7 @@ export default function HeaderManager() {
             </AnimatePresence>
           </div>
 
-          <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-100">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-100">
             <Image
               src="/images/Avatar.png"
               alt="Manager Avatar"
@@ -234,7 +244,7 @@ export default function HeaderManager() {
               className="w-full h-full object-cover"
             />
           </div>
-          <span className="text-[#000000] font-medium text-base">{managerName}</span>
+          <span className="text-sm sm:text-base text-gray-700 truncate hidden sm:block">{managerName}</span>
         </div>
       </div>
 

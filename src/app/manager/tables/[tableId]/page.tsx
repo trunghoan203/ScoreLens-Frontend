@@ -153,13 +153,13 @@ export default function TableDetailPage() {
   return (
     <div className="min-h-screen flex bg-[#18191A]">
       <SidebarManager />
-      <main className="flex-1 bg-white min-h-screen">
-        <div className="sticky top-0 z-10 bg-[#FFFFFF] px-8 py-8 transition-all duration-300">
+      <main className="flex-1 bg-white min-h-screen lg:ml-0">
+        <div className="sticky top-0 z-10 bg-[#FFFFFF] px-4 sm:px-6 lg:px-8 py-6 lg:py-8 transition-all duration-300">
           <HeaderManager />
         </div>
-        <div className="px-10 pb-10">
-          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
-            <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
+        <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
+          <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
+            <span className="text-lg sm:text-xl lg:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
               QUẢN LÝ BÀN
             </span>
           </div>
@@ -172,7 +172,7 @@ export default function TableDetailPage() {
               !isEditMode && (
                 <button
                   type="button"
-                  className="w-40 bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded-lg transition text-lg"
+                  className="w-full sm:w-32 lg:w-40 bg-red-500 hover:bg-red-600 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg"
                   onClick={handleDeleteClick}
                 >
                   Xóa
@@ -201,16 +201,16 @@ export default function TableDetailPage() {
             >
               <></>
             </ConfirmPopup>
-            <div className="w-full mb-6">
+            <div className="w-full mb-4 sm:mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Tên Bàn<span className="text-red-500">*</span></label>
               <Input value={name} onChange={e => setName(e.target.value)} required disabled={!isEditMode} />
               {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
             </div>
-            <div className="w-full mb-6">
+            <div className="w-full mb-4 sm:mb-6">
               <label className="block text-sm font-semibold mb-2 text-black">Loại Bàn<span className="text-red-500">*</span></label>
               <div className="relative">
                 <select
-                  className="flex w-full border border-gray-300 rounded-md bg-white px-4 py-3 text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all appearance-none"
+                  className="flex w-full border border-gray-300 rounded-md bg-white px-3 sm:px-4 py-2 sm:py-3 text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all appearance-none"
                   value={type}
                   onChange={e => setType(e.target.value)}
                   required
@@ -231,11 +231,11 @@ export default function TableDetailPage() {
                 )}
               </div>
             </div>
-            <div className="w-full mb-10">
+            <div className="w-full mb-8 sm:mb-10">
               <label className="block text-sm font-semibold mb-2 text-black">Trạng Thái<span className="text-red-500">*</span></label>
               <div className="relative">
                 <select
-                  className="flex w-full border border-gray-300 rounded-md bg-gray-100 px-4 py-3 text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all appearance-none cursor-not-allowed"
+                  className="flex w-full border border-gray-300 rounded-md bg-gray-100 px-3 sm:px-4 py-2 sm:py-3 text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all appearance-none cursor-not-allowed"
                   value={status}
                   onChange={e => setStatus(e.target.value)}
                   required
@@ -249,7 +249,7 @@ export default function TableDetailPage() {
             </div>
 
             {qrCodeData && (
-              <div className="w-full mb-6">
+              <div className="w-full mb-4 sm:mb-6">
                 <div className="flex flex-col items-center">
                   <div className="bg-white p-4 rounded-lg border-2 border-gray-200 shadow-sm">
                     <QRCode
@@ -261,7 +261,7 @@ export default function TableDetailPage() {
                   <button
                     type="button"
                     onClick={handleDownloadQR}
-                    className="mt-3 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm font-medium"
+                    className="mt-3 px-3 sm:px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm font-medium"
                   >
                     Tải mã QR
                   </button>

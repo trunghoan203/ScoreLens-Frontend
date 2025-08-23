@@ -46,9 +46,7 @@ export default function ManagerLoginPage() {
       title="Đăng nhập Quản lý"
       description="Vui lòng nhập email để tiếp tục"
     >
-
-
-      <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6 overflow-hidden">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 p-3 sm:p-4 md:p-6 overflow-hidden">
         <div>
           <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
             Email
@@ -58,7 +56,7 @@ export default function ManagerLoginPage() {
             name="email"
             value={email}
             onChange={(e) => setemail(e.target.value)}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${
+            className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all text-sm sm:text-base ${
               errors.email ? 'border-red-500' : 'border-gray-300'
             }`}
             placeholder="Nhập email của bạn"
@@ -75,11 +73,12 @@ export default function ManagerLoginPage() {
           variant="lime"
           fullWidth
           disabled={isLoading}
+          className="py-2 sm:py-3 text-sm sm:text-base"
         >
           {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
         </Button>
 
-        <div className="text-center mt-6">
+        <div className="text-center mt-4 sm:mt-6">
           <Link
             href="/"
             className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1"

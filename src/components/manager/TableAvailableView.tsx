@@ -111,18 +111,18 @@ export default function TableAvailableView({ table, onReady, loading = false, te
   };
 
   return (
-    <div className="border border-lime-200 rounded-lg p-8 bg-[#FFFFFF] mx-auto text-[#000000]">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-lg font-semibold">{isEditing ? 'Chỉnh sửa trận đấu' : 'Tạo trận đấu'}</h2>
+    <div className="border border-lime-200 rounded-lg p-4 sm:p-6 lg:p-8 bg-[#FFFFFF] mx-auto text-[#000000]">
+      <div className="flex justify-between items-center mb-4 sm:mb-6">
+        <h2 className="text-base sm:text-lg font-semibold">{isEditing ? 'Chỉnh sửa trận đấu' : 'Tạo trận đấu'}</h2>
         <TableStatusBadge status={isEditing ? "using" : "available"} />
       </div>
       <div className="text-center mb-6">
         <h3 className="text-2xl font-bold">{table.name}</h3>
         {table.category && <p className="text-lg text-gray-600 mt-2">{table.category}</p>}
       </div>
-      <div className="flex justify-center gap-8 mb-6">
+      <div className="flex flex-col lg:flex-row justify-center gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6">
         <div>
-          <div className="font-semibold mb-4 text-center">Đội A</div>
+          <div className="font-semibold mb-3 sm:mb-4 text-center text-sm sm:text-base">Đội A</div>
           {teamA.map((player, idx) => (
             <div key={idx} className="flex items-center gap-2 mb-2">
               <Input
@@ -130,22 +130,23 @@ export default function TableAvailableView({ table, onReady, loading = false, te
                 onChange={e => handleChange('A', idx, e.target.value)}
                 placeholder={`Người Chơi ${idx + 1}`}
                 disabled={loading}
+                className="text-sm sm:text-base"
               />
               {idx === 0 ? (
-                <Button size="icon" variant="ghost" onClick={() => handleAddPlayer('A')} disabled={loading} className="hover:bg-transparent">
-                  <Image src="/icon/plus-circle.svg" width={25} height={25} alt="Thêm người chơi" />
+                <Button size="icon" variant="ghost" onClick={() => handleAddPlayer('A')} disabled={loading} className="hover:bg-transparent p-1 sm:p-2">
+                  <Image src="/icon/plus-circle.svg" width={20} height={20} className="w-5 h-5 sm:w-6 sm:h-6" alt="Thêm người chơi" />
                 </Button>
               ) : (
-                <Button size="icon" variant="ghost" onClick={() => handleRemovePlayer('A', idx)} disabled={loading} className="hover:bg-transparent">
-                  <Image src="/icon/trash-2.svg" width={25} height={25} alt="Xóa người chơi" />
+                <Button size="icon" variant="ghost" onClick={() => handleRemovePlayer('A', idx)} disabled={loading} className="hover:bg-transparent p-1 sm:p-2">
+                  <Image src="/icon/trash-2.svg" width={20} height={20} className="w-5 h-5 sm:w-6 sm:h-6" alt="Xóa người chơi" />
                 </Button>
               )}
             </div>
           ))}
         </div>
-        <div className="flex flex-col justify-center font-bold text-xl">VS</div>
+        <div className="flex justify-center lg:flex-col lg:justify-center font-bold text-lg sm:text-xl lg:text-2xl my-2 lg:my-0">VS</div>
         <div>
-          <div className="font-semibold mb-4 text-center">Đội B</div>
+          <div className="font-semibold mb-3 sm:mb-4 text-center text-sm sm:text-base">Đội B</div>
           {teamB.map((player, idx) => (
             <div key={idx} className="flex items-center gap-2 mb-2">
               <Input
@@ -153,14 +154,15 @@ export default function TableAvailableView({ table, onReady, loading = false, te
                 onChange={e => handleChange('B', idx, e.target.value)}
                 placeholder={`Người Chơi ${idx + 1}`}
                 disabled={loading}
+                className="text-sm sm:text-base"
               />
               {idx === 0 ? (
-                <Button size="icon" variant="ghost" onClick={() => handleAddPlayer('B')} disabled={loading} className="hover:bg-transparent">
-                  <Image src="/icon/plus-circle.svg" width={25} height={25} alt="Thêm người chơi" />
+                <Button size="icon" variant="ghost" onClick={() => handleAddPlayer('B')} disabled={loading} className="hover:bg-transparent p-1 sm:p-2">
+                  <Image src="/icon/plus-circle.svg" width={20} height={20} className="w-5 h-5 sm:w-6 sm:h-6" alt="Thêm người chơi" />
                 </Button>
               ) : (
-                <Button size="icon" variant="ghost" onClick={() => handleRemovePlayer('B', idx)} disabled={loading} className="hover:bg-transparent">
-                  <Image src="/icon/trash-2.svg" width={25} height={25} alt="Xóa người chơi" />
+                <Button size="icon" variant="ghost" onClick={() => handleRemovePlayer('B', idx)} disabled={loading} className="hover:bg-transparent p-1 sm:p-2">
+                  <Image src="/icon/trash-2.svg" width={20} height={20} className="w-5 h-5 sm:w-6 sm:h-6" alt="Xóa người chơi" />
                 </Button>
               )}
             </div>
@@ -168,12 +170,12 @@ export default function TableAvailableView({ table, onReady, loading = false, te
         </div>
       </div>
       {isEditing && elapsedTime && (
-        <div className="text-center mb-6 text-lg font-mono">{elapsedTime}</div>
+        <div className="text-center mb-4 sm:mb-6 text-base sm:text-lg font-mono">{elapsedTime}</div>
       )}
-      <div className="flex justify-center gap-4">
+      <div className="flex flex-col sm:flex-row w-full justify-center gap-3 sm:gap-4">
         <button
           type="button"
-          className="w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 rounded-lg transition text-lg"
+          className="w-full sm:w-32 lg:w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-3 sm:order-1"
           onClick={isEditing && onBack ? onBack : () => router.push('/manager/dashboard')}
         >
           Quay lại
@@ -182,7 +184,7 @@ export default function TableAvailableView({ table, onReady, loading = false, te
           type="button"
           onClick={handleReady}
           disabled={loading}
-          className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
+          className="w-full sm:w-32 lg:w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-1 sm:order-2"
         >
           {loading ? 'Đang tạo...' : isEditing ? 'Lưu thay đổi' : 'Sẵn sàng'}
         </button>
