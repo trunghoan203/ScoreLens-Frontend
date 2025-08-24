@@ -11,7 +11,7 @@ interface Match {
     winningTeam: string;
     winningTeamMembers: string[];
     score: string;
-    vod: string;
+    videoUrl: string;
     status?: string;
     matchCode?: string;
     clubName?: string;

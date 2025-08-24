@@ -51,7 +51,6 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
             const newTeamAMembershipInfo = new Map();
             const newTeamBMembershipInfo = new Map();
 
-            // Process Team A
             if (matchInfoData.teams[0]?.members) {
               matchInfoData.teams[0].members.forEach((member: any) => {
                 if (member.membershipId && member.membershipName) {
@@ -59,7 +58,6 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
                     membershipId: member.membershipId,
                     membershipName: member.membershipName
                   });
-                  // Check if this is the creator
                   if (member.membershipId === actorMembershipId) {
                     setCreatorMembershipName(member.membershipName);
                   }
@@ -67,7 +65,6 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
               });
             }
 
-            // Process Team B
             if (matchInfoData.teams[1]?.members) {
               matchInfoData.teams[1].members.forEach((member: any) => {
                 if (member.membershipId && member.membershipName) {
@@ -75,7 +72,6 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
                     membershipId: member.membershipId,
                     membershipName: member.membershipName
                   });
-                  // Check if this is the creator
                   if (member.membershipId === actorMembershipId) {
                     setCreatorMembershipName(member.membershipName);
                   }
@@ -95,6 +91,10 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
   }, [initialTeamA, initialTeamB, matchId, actorMembershipId]);
 
   const handleChange = (team: 'A' | 'B', index: number, value: string) => {
+    if (index === 0) {
+      return;
+    }
+    
     const setter = team === 'A' ? setTeamA : setTeamB;
     const current = team === 'A' ? teamA : teamB;
     const updated = [...current];
@@ -263,18 +263,15 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
           if (isPhoneNumber) {
             return { phoneNumber: name.trim() };
           } else {
-            // Kiểm tra xem có phải là membership đã có không
             const playerKey = name.trim().toLowerCase();
             const existingMember = teamAMembershipInfo.get(playerKey);
 
             if (existingMember) {
-              // Giữ nguyên membership
               return {
                 membershipId: existingMember.membershipId,
                 membershipName: existingMember.membershipName
               };
             } else {
-              // Kiểm tra xem có phải là creator không
               const isCreatorName = creatorMembershipName && name.trim().toLowerCase() === creatorMembershipName.toLowerCase();
               if (isCreatorName) {
                 return { membershipId: actorMembershipId };
@@ -289,18 +286,15 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
           if (isPhoneNumber) {
             return { phoneNumber: name.trim() };
           } else {
-            // Kiểm tra xem có phải là membership đã có không
             const playerKey = name.trim().toLowerCase();
             const existingMember = teamBMembershipInfo.get(playerKey);
 
             if (existingMember) {
-              // Giữ nguyên membership
               return {
                 membershipId: existingMember.membershipId,
                 membershipName: existingMember.membershipName
               };
             } else {
-              // Kiểm tra xem có phải là creator không
               const isCreatorName = creatorMembershipName && name.trim().toLowerCase() === creatorMembershipName.toLowerCase();
               if (isCreatorName) {
                 return { membershipId: actorMembershipId };
@@ -349,7 +343,8 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
                   value={player}
                   onChange={e => handleChange('A', idx, e.target.value)}
                   placeholder={idx === 0 ? "Tên chủ phòng" : "Số điện thoại hoặc tên khách"}
-                  className="w-full"
+                  className={`w-full ${idx === 0 ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                  disabled={idx === 0}
                 />
                 {idx === 0 ? (
                   <Button

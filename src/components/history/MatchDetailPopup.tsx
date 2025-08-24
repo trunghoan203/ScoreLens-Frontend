@@ -2,6 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 
 interface MatchDetail {
+    matchId?: string;
     time?: string;
     startTime?: string;
     endTime?: string;
@@ -10,7 +11,7 @@ interface MatchDetail {
     winningTeam: string;
     winningTeamMembers: string[];
     score: string;
-    vod: string;
+    videoUrl: string;
     status?: string;
     clubName?: string;
     address?: string;
@@ -36,6 +37,17 @@ interface MatchDetailPopupProps {
 
 export function MatchDetailPopup({ match, isOpen, onClose }: MatchDetailPopupProps) {
     if (!isOpen || !match) return null;
+
+    const isValidVideoUrl = (url: string): boolean => {
+        return Boolean(url && url !== '#' && url.startsWith('http') && url.length > 10);
+    };
+
+    const canShowVOD = (match: MatchDetail): boolean => {
+        return Boolean(
+            match.isAIAssisted &&
+            isValidVideoUrl(match.videoUrl)
+        );
+    };
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -73,6 +85,10 @@ export function MatchDetailPopup({ match, isOpen, onClose }: MatchDetailPopupPro
                                 <div className="flex justify-between">
                                     <span className="text-[#000000]">Thời gian chơi:</span>
                                     <span className="font-medium font-mono text-base text-[#000000]">{match.playTime}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-[#000000]">Trận đấu AI:</span>
+                                    <span className="font-medium font-mono text-base text-[#000000]">{match.isAIAssisted ? 'Có' : 'Không'}</span>
                                 </div>
 
                             </div>
@@ -122,11 +138,11 @@ export function MatchDetailPopup({ match, isOpen, onClose }: MatchDetailPopupPro
                         )}
 
                         {/* VOD Button - Only show if isAIAssisted is true */}
-                        {match.isAIAssisted && (
+                        {canShowVOD(match) && (
                             <div className="bg-gray-100 p-4 rounded-lg text-center">
                                 <div className="text-sm text-[#000000] mb-2">Video trận đấu</div>
                                 <a
-                                    href={match.vod}
+                                    href={match.videoUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="inline-flex items-center gap-2 bg-[#8ADB10] hover:bg-lime-500 text-white font-bold px-6 py-3 rounded-lg transition"
