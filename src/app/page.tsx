@@ -11,16 +11,18 @@ import { useI18n } from '@/lib/i18n/provider';
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const { t } = useI18n();
 
   useEffect(() => {
+    setMounted(true);
     const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
   }, []);
 
   return (
     <>
-      {loading && <ScoreLensLoading text={t('common.loading')} />}
+      {loading && mounted && <ScoreLensLoading text={t('common.loading')} />}
       <HeaderHome />
       <div className="bg-black text-white min-h-screen">
         <HeroSection />

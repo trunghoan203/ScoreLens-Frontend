@@ -19,6 +19,7 @@ import { EditScoreModal } from '@/components/manager/EditScoreModal';
 import { AISelectionModal } from '@/components/manager/AISelectionModal';
 import { managerCameraService } from '@/lib/managerCameraService';
 import toast from 'react-hot-toast';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface TableData {
   id: string;
@@ -78,6 +79,7 @@ interface Camera {
 
 
 export default function TableDetailPage() {
+  const { t } = useI18n();
   const { isChecking } = useManagerAuthGuard();
   const params = useParams();
   const router = useRouter();
@@ -286,21 +288,7 @@ export default function TableDetailPage() {
           router.push('/manager/dashboard');
         }
 
-        const membersData = await managerMemberService.getAllMembers();
-        const members = Array.isArray(membersData) ? membersData : (membersData as MembersData)?.memberships || [];
-
-        const totalTables = tablesArray.length;
-        const inUse = tablesArray.filter((table: RawTableData) => table.status === 'inuse').length;
-        const available = tablesArray.filter((table: RawTableData) => table.status === 'empty').length;
-        const totalMembers = members.length;
-
-        const stats = {
-          totalTables,
-          inUse,
-          available,
-          members: totalMembers
-        };
-        setDashboardStats(stats);
+        await refreshDashboardStats();
         await fetchCamerasForTable();
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -344,6 +332,18 @@ export default function TableDetailPage() {
       requestStats();
     }
   }, [loading, isChecking, requestStats]);
+
+  useEffect(() => {
+    if (!loading && !isChecking) {
+      const statsInterval = setInterval(() => {
+        refreshDashboardStats();
+      }, 30000);
+
+      return () => {
+        clearInterval(statsInterval);
+      };
+    }
+  }, [loading, isChecking]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -433,7 +433,6 @@ export default function TableDetailPage() {
           setIsAiAssisted(responseData.isAiAssisted as boolean);
         }
 
-        // Cập nhật dashboard stats ngay lập tức
         await refreshDashboardStats();
 
       } else {
@@ -461,7 +460,6 @@ export default function TableDetailPage() {
         setMatchStatus('ongoing');
         setMatchStartTime(new Date());
 
-        // Cập nhật dashboard stats khi bắt đầu trận đấu
         await refreshDashboardStats();
       } else {
         toast.error((res?.message as string) || 'Bắt đầu trận đấu thất bại!');
@@ -573,7 +571,7 @@ export default function TableDetailPage() {
         toast.error(err.message || 'Bạn đã tham gia trận đấu này rồi.');
       } else {
         console.error('Error updating team members:', error);
-        toast.error(err.message || 'Cập nhật thành viên thất bại!');
+        toast.error(err.message || t('managerMatches.updateMembersFailed'));
       }
     }
   };
@@ -581,31 +579,30 @@ export default function TableDetailPage() {
   const handleCancelMatch = async () => {
     try {
       if (!activeMatchId) {
-        toast.error('Không xác định được trận đấu để hủy');
+        toast.error(t('managerMatches.cannotIdentifyMatch'));
         return;
       }
 
       const res = await managerMatchService.deleteMatch(activeMatchId) as Record<string, unknown>;
       if (res?.success) {
-        toast.success('Hủy trận đấu thành công!');
+        toast.success(t('managerMatches.cancelMatchSuccess'));
 
-        // Cập nhật dashboard stats ngay lập tức
         await refreshDashboardStats();
 
         router.push('/manager/dashboard');
       } else {
-        toast.error((res?.message as string) || 'Hủy trận đấu thất bại!');
+        toast.error((res?.message as string) || t('managerMatches.cancelMatchFailed'));
       }
     } catch (error) {
       console.error('Error canceling match:', error);
-      toast.error('Hủy trận đấu thất bại!');
+      toast.error(t('managerMatches.cancelMatchFailed'));
     }
   };
 
   const handleEndMatch = async () => {
     try {
       if (!activeMatchId) {
-        toast.error('Không xác định được trận đấu để kết thúc');
+        toast.error(t('managerMatches.cannotIdentifyMatchToEnd'));
         return;
       }
 
@@ -620,7 +617,7 @@ export default function TableDetailPage() {
         const teamsWithMaxScore = teams.filter((team: Record<string, unknown>) => team.score === maxScore);
 
         const teamsWithWinner = teams.map((team: Record<string, unknown>) => ({
-          teamName: team.teamName as string || 'Team',
+          teamName: team.teamName as string || t('managerMatches.team'),
           score: team.score as number || 0,
           isWinner: team.score === maxScore && maxScore > 0 && teamsWithMaxScore.length === 1,
           members: (team.members as Array<Record<string, unknown>>) || []
@@ -628,7 +625,7 @@ export default function TableDetailPage() {
 
         setMatchData({
           matchId: currentMatch?.matchId as string,
-          tableName: table?.name || 'Unknown',
+          tableName: table?.name || t('managerMatches.unknown'),
           gameType: currentMatch?.gameType as string,
           startTime: currentMatch?.startTime ? new Date(currentMatch.startTime as string) : undefined,
           endTime: new Date(),
@@ -636,34 +633,33 @@ export default function TableDetailPage() {
         });
         setShowSummaryModal(true);
       } else {
-        toast.error('Không thể lấy thông tin trận đấu');
+        toast.error(t('managerMatches.cannotGetMatchInfo'));
       }
     } catch (error) {
       console.error('Error getting match data:', error);
-      toast.error('Không thể lấy thông tin trận đấu');
+      toast.error(t('managerMatches.cannotGetMatchInfo'));
     }
   };
 
   const handleConfirmEndMatch = async () => {
     try {
       if (!activeMatchId) {
-        toast.error('Không xác định được trận đấu để kết thúc');
+        toast.error(t('managerMatches.cannotIdentifyMatchToEnd'));
         return;
       }
       const res = (await managerMatchService.endMatch(activeMatchId)) as Record<string, unknown>;
       if (res?.success) {
-        toast.success('Kết thúc trận đấu thành công!');
+        toast.success(t('managerMatches.endMatchSuccess'));
 
-        // Cập nhật dashboard stats ngay lập tức
         await refreshDashboardStats();
 
         router.push('/manager/dashboard');
       } else {
-        toast.error((res?.message as string) || 'Kết thúc trận đấu thất bại!');
+        toast.error((res?.message as string) || t('managerMatches.endMatchFailed'));
       }
     } catch (error) {
       console.error('Error ending match:', error);
-      toast.error('Kết thúc trận đấu thất bại!');
+      toast.error(t('managerMatches.endMatchFailed'));
     }
   };
 
@@ -706,7 +702,7 @@ export default function TableDetailPage() {
             <div className="w-full mx-auto">
               <div className="bg-white rounded-lg shadow p-4 sm:p-6">
                 <div className="py-8 text-center text-gray-400">
-                  <div>Không tìm thấy bàn</div>
+                  <div>{t('managerMatches.tableNotFound')}</div>
                 </div>
               </div>
             </div>

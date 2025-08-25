@@ -36,7 +36,7 @@ export default function FeedbackSearchBar({
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-        <div className="relative w-full">
+        <div className="relative w-full sm:w-45">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -54,7 +54,7 @@ export default function FeedbackSearchBar({
           />
         </div>
 
-        <div className="relative w-full">
+        <div className="relative w-full sm:w-55">
           <input
             type="date"
             value={dateFilter}

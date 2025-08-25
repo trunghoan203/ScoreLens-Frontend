@@ -1,14 +1,16 @@
 "use client";
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { useLanguage } from '@/lib/i18n/useLanguage';
 import { useI18n } from '@/lib/i18n/provider';
 
-export default function LanguageSelector() {
+interface LanguageSelectorProps {
+    variant?: 'dark' | 'light';
+}
+
+export default function LanguageSelector({ variant = 'dark' }: LanguageSelectorProps) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
-    const { currentLanguage, changeLanguage } = useLanguage();
-    const { t } = useI18n();
+    const { currentLanguage, changeLanguage, t } = useI18n();
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -26,15 +28,15 @@ export default function LanguageSelector() {
     const handleLanguageChange = (language: 'en' | 'vi') => {
         changeLanguage(language);
         setIsOpen(false);
-        // Reload the page to apply language changes
-        window.location.reload();
     };
+
+    const textColorClass = variant === 'dark' ? 'text-white hover:text-lime-400' : 'text-gray-700 hover:text-lime-600';
 
     return (
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 text-white hover:text-lime-400 transition-colors"
+                className={`flex items-center gap-2 transition-colors ${textColorClass}`}
             >
                 <Image
                     src={currentLanguage === 'vi' ? '/images/vietNam.png' : '/images/english.png'}

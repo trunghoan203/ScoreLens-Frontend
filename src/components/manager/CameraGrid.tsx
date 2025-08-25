@@ -1,4 +1,6 @@
+"use client";
 import React from 'react';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface Camera {
   id: string;
@@ -16,15 +18,17 @@ interface CameraGridProps {
 }
 
 export default function CameraGrid({ cameras, onCameraClick, onViewCamera }: CameraGridProps) {
+  const { t } = useI18n();
+
   return (
     <div className="w-full">
       <div className="hidden lg:block overflow-x-auto">
         <div className="space-y-2 rounded-lg min-w-[800px]">
           <div className="grid grid-cols-12 bg-black text-white font-semibold text-center">
-            <div className="col-span-4 py-3 text-sm xl:text-base">BÀN</div>
-            <div className="col-span-3 py-3 text-sm xl:text-base">IP</div>
-            <div className="col-span-2 py-3 text-sm xl:text-base">TRẠNG THÁI</div>
-            <div className="col-span-3 py-3 text-sm xl:text-base">HÀNH ĐỘNG</div>
+            <div className="col-span-4 py-3 text-sm xl:text-base">{t('cameras.tableHeader')}</div>
+            <div className="col-span-3 py-3 text-sm xl:text-base">{t('cameras.ipHeader')}</div>
+            <div className="col-span-2 py-3 text-sm xl:text-base">{t('cameras.statusHeader')}</div>
+            <div className="col-span-3 py-3 text-sm xl:text-base">{t('cameras.actionsHeader')}</div>
           </div>
           {cameras.map((camera) => (
             <div
@@ -38,7 +42,7 @@ export default function CameraGrid({ cameras, onCameraClick, onViewCamera }: Cam
                 <span className={`px-3 py-1 rounded-full text-white font-semibold text-xs xl:text-sm
                   ${camera.status === 'active' ? 'bg-green-500' : 'bg-red-500'}`}
                 >
-                  {camera.status === 'active' ? 'Đã kết nối' : 'Chưa kết nối'}
+                  {camera.status === 'active' ? t('cameras.connected') : t('cameras.notConnected')}
                 </span>
               </div>
               <div className="col-span-3 py-4 flex justify-center px-2">
@@ -48,13 +52,12 @@ export default function CameraGrid({ cameras, onCameraClick, onViewCamera }: Cam
                     onViewCamera && onViewCamera(camera.id);
                   }}
                   disabled={camera.status !== 'active'}
-                  className={`px-3 py-1 rounded-full text-white font-semibold text-xs xl:text-sm ${
-                    camera.status === 'active'
-                      ? 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
-                      : 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                  }`}
+                  className={`px-3 py-1 rounded-full text-white font-semibold text-xs xl:text-sm ${camera.status === 'active'
+                    ? 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
+                    : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                    }`}
                 >
-                  Xem Camera
+                  {t('cameras.viewCamera')}
                 </button>
               </div>
             </div>
@@ -78,34 +81,33 @@ export default function CameraGrid({ cameras, onCameraClick, onViewCamera }: Cam
                 <span className={`px-2 py-1 rounded-full text-white font-semibold text-xs
                   ${camera.status === 'active' ? 'bg-green-500' : 'bg-red-500'}`}
                 >
-                  {camera.status === 'active' ? 'Đã kết nối' : 'Chưa kết nối'}
+                  {camera.status === 'active' ? t('cameras.connected') : t('cameras.notConnected')}
                 </span>
               </div>
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-gray-500 text-xs font-medium">Trạng thái:</span>
+                <span className="text-gray-500 text-xs font-medium">{t('cameras.statusLabel')}</span>
                 <span className={`text-xs font-medium ${camera.status === 'active' ? 'text-green-600' : 'text-red-600'}`}>
-                  {camera.status === 'active' ? 'Hoạt động' : 'Không hoạt động'}
+                  {camera.status === 'active' ? t('cameras.status.active') : t('cameras.status.inactive')}
                 </span>
               </div>
             </div>
             <div className="mt-3 pt-3 border-t border-gray-100">
               <div className="flex justify-between items-center">
-                <span className="text-lime-600 text-xs font-medium">Nhấn để xem chi tiết →</span>
+                <span className="text-lime-600 text-xs font-medium">{t('cameras.clickToViewDetails')}</span>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     onViewCamera && onViewCamera(camera.id);
                   }}
                   disabled={camera.status !== 'active'}
-                  className={`px-3 py-1 rounded-full text-white font-semibold text-xs ${
-                    camera.status === 'active'
-                      ? 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
-                      : 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                  }`}
+                  className={`px-3 py-1 rounded-full text-white font-semibold text-xs ${camera.status === 'active'
+                    ? 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
+                    : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                    }`}
                 >
-                  Xem Camera
+                  {t('cameras.viewCamera')}
                 </button>
               </div>
             </div>

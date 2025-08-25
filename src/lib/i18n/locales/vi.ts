@@ -54,6 +54,11 @@ export default {
         all: 'Tất cả',
         clickToViewDetails: 'Nhấn để xem chi tiết',
         confirmInformation: 'Xác nhận thông tin',
+        toggleNavigationMenu: 'Chuyển đổi menu điều hướng',
+        confirmLogout: 'Bạn có chắc chắn muốn đăng xuất không?',
+        closeMenu: 'Đóng menu',
+        logoutSuccess: 'Đăng xuất thành công!',
+        logoutFailed: 'Đăng xuất thất bại.',
     },
 
     // Navigation
@@ -485,11 +490,27 @@ export default {
         saveSuccess: 'Đã lưu phản hồi thành công!',
         saveFailed: 'Lưu phản hồi thất bại.',
         // Feedback Listing Page
-        cannotLoadList: 'Không thể tải danh sách phản hồi',
         noSearchResults: 'Không tìm thấy phản hồi phù hợp',
         noFeedbacks: 'Chưa có phản hồi nào',
         tryDifferentFilters: 'Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy phản hồi phù hợp',
         showingResults: 'Hiển thị {start}-{end} trong tổng số {total} phản hồi',
+        // Manager Feedback Page
+        managementTitle: 'QUẢN LÝ PHẢN HỒI',
+        loading: 'Đang tải...',
+        cannotLoadFeedbacks: 'Không thể tải danh sách phản hồi',
+        viewAll: 'Xem tất cả',
+        filterOptions: {
+            all: 'Tất cả',
+            pending: 'Chưa xử lý',
+            resolved: 'Đã xử lý',
+        },
+        timeLabel: 'Thời gian:',
+        statusLabel: 'Trạng thái:',
+        clickToViewDetails: 'Nhấn để xem chi tiết →',
+        // Feedback Detail Page
+        save: 'Lưu',
+        edit: 'Chỉnh sửa',
+        back: 'Quay lại',
     },
 
     // Cameras
@@ -541,6 +562,38 @@ export default {
             pool8: 'Pool 8',
             carom: 'Carom',
         },
+        // Camera Add Page
+        addCameraTitle: 'THÊM CAMERA',
+        selectTable: 'Chọn bàn',
+        selectTablePlaceholder: 'Chọn bàn',
+        ipAddressPlaceholder: 'Nhập địa chỉ IP',
+        usernamePlaceholder: 'Nhập username',
+        passwordPlaceholder: 'Nhập mật khẩu',
+        checking: 'Đang kiểm tra...',
+        test: 'Kiểm tra',
+        cannotLoadTables: 'Không thể tải danh sách bàn',
+        cameraAddedSuccess: 'Camera đã được thêm thành công!',
+        cannotCreateCamera: 'Không thể tạo camera trong database',
+        cannotConnectCamera: 'Không thể kết nối camera',
+        errorCheckingCamera: 'Lỗi khi kiểm tra camera',
+        unknownError: 'Lỗi không xác định',
+        // Camera Management Page
+        managementTitle: 'QUẢN LÝ CAMERA',
+        searchPlaceholder: 'Nhập tên bàn để tìm kiếm',
+        loading: 'Đang tải...',
+        cannotLoadCameras: 'Không thể tải danh sách camera hoặc bàn',
+        noCamerasFound: 'Không tìm thấy camera phù hợp',
+        noCamerasYet: 'Chưa có camera nào',
+        noCamerasDescription: 'Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy camera phù hợp',
+        viewAll: 'Xem tất cả',
+        tableHeader: 'BÀN',
+        ipHeader: 'IP',
+        statusHeader: 'TRẠNG THÁI',
+        actionsHeader: 'HÀNH ĐỘNG',
+        viewCamera: 'Xem Camera',
+        statusLabel: 'Trạng thái:',
+        clickToViewDetails: 'Nhấn để xem chi tiết →',
+        cameraNotConnected: 'Camera chưa được kết nối. Vui lòng kiểm tra trạng thái kết nối.',
     },
 
     // Tables
@@ -607,6 +660,18 @@ export default {
         updateSuccess: 'Cập nhật thành viên thành công!',
         deleteSuccess: 'Xóa thành viên thành công!',
         deleteConfirm: 'Bạn có chắc chắn muốn xóa thành viên "{name}" không?',
+        // Member Detail Page
+        memberNotFound: 'Không tìm thấy hội viên',
+        cannotLoadMemberData: 'Không thể tải dữ liệu hội viên',
+        memberNameRequired: 'Tên hội viên là bắt buộc',
+        memberNameMinLength: 'Tên hội viên phải có ít nhất 2 ký tự',
+        phoneRequired: 'Số điện thoại là bắt buộc',
+        phoneInvalid: 'Số điện thoại không hợp lệ',
+        phoneAlreadyUsed: 'Số điện thoại đã được sử dụng bởi hội viên khác',
+        saveMemberFailed: 'Lưu hội viên thất bại.',
+        deleteMemberFailed: 'Xóa hội viên thất bại.',
+        memberManagement: 'QUẢN LÝ HỘI VIÊN',
+        memberCode: 'Mã hội viên',
     },
 
     // Dashboard
@@ -1295,5 +1360,20 @@ export default {
                 teamB: 'Đội B'
             }
         }
+    },
+
+    // Manager Matches
+    managerMatches: {
+        tableNotFound: 'Không tìm thấy bàn',
+        cannotIdentifyMatch: 'Không xác định được trận đấu để hủy',
+        cancelMatchSuccess: 'Hủy trận đấu thành công!',
+        cancelMatchFailed: 'Hủy trận đấu thất bại!',
+        cannotIdentifyMatchToEnd: 'Không xác định được trận đấu để kết thúc',
+        cannotGetMatchInfo: 'Không thể lấy thông tin trận đấu',
+        endMatchSuccess: 'Kết thúc trận đấu thành công!',
+        endMatchFailed: 'Kết thúc trận đấu thất bại!',
+        updateMembersFailed: 'Cập nhật thành viên thất bại!',
+        team: 'Đội',
+        unknown: 'Không xác định',
     },
 } as const;

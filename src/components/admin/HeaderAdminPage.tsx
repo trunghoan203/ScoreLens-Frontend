@@ -7,14 +7,15 @@ import { NotificationItem } from '@/components/shared/NotificationItem';
 import { Menu, X } from 'lucide-react';
 import { useMobileMenuStore } from '@/lib/mobileMenuState';
 import { useI18n } from '@/lib/i18n/provider';
+import LanguageSelector from '@/components/shared/LanguageSelector';
 
 
 export default function HeaderAdminPage() {
-  const { t } = useI18n();
-  const [adminName, setAdminName] = useState<string>(t('common.notLoggedIn'));
+  const { t, currentLanguage } = useI18n();
+  const [adminName, setAdminName] = useState<string>('Chưa đăng nhập');
   const [notificationOpen, setNotificationOpen] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
-  const [brandName, setBrandName] = useState<string>(t('common.notLoggedIn'));
+  const [brandName, setBrandName] = useState<string>('Chưa đăng nhập');
   const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenuStore();
 
   const {
@@ -25,6 +26,12 @@ export default function HeaderAdminPage() {
     markAllAsRead,
     deleteNotification
   } = useAdminNotifications();
+
+  // Initialize translated text after component mounts
+  useEffect(() => {
+    setAdminName(t('common.notLoggedIn'));
+    setBrandName(t('common.notLoggedIn'));
+  }, []);
 
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('adminAccessToken') : null;
@@ -60,6 +67,17 @@ export default function HeaderAdminPage() {
     }
   }, []);
 
+  // Only update text when language changes if we don't have actual data
+  useEffect(() => {
+    // Only reset to default values if we don't have actual user data
+    if (adminName === 'Chưa đăng nhập' || adminName === 'Not logged in') {
+      setAdminName(t('common.notLoggedIn'));
+    }
+    if (brandName === 'Chưa đăng nhập' || brandName === 'Not logged in') {
+      setBrandName(t('common.notLoggedIn'));
+    }
+  }, [currentLanguage, t, adminName, brandName]);
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
@@ -77,7 +95,7 @@ export default function HeaderAdminPage() {
           <button
             className="lg:hidden p-2 rounded-lg bg-[#181818] text-white shadow-lg"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle navigation menu"
+            aria-label={t('common.toggleNavigationMenu')}
           >
             {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -86,6 +104,8 @@ export default function HeaderAdminPage() {
           </h1>
         </div>
         <div className="flex items-center gap-3 sm:gap-6">
+          <LanguageSelector variant="light" />
+
           <div className="relative" ref={notificationRef}>
             <motion.button
               onClick={() => setNotificationOpen(prev => !prev)}
@@ -258,7 +278,7 @@ export default function HeaderAdminPage() {
           <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-100">
             <Image
               src="/images/Avatar.png"
-              alt="Manager Avatar"
+              alt={t('common.profile')}
               width={36}
               height={36}
               className="w-full h-full object-cover"

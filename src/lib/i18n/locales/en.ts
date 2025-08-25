@@ -54,6 +54,11 @@ export default {
         all: 'All',
         clickToViewDetails: 'Click to view details',
         confirmInformation: 'Confirm Information',
+        toggleNavigationMenu: 'Toggle navigation menu',
+        confirmLogout: 'Are you sure you want to logout?',
+        closeMenu: 'Close menu',
+        logoutSuccess: 'Logout successful!',
+        logoutFailed: 'Logout failed.',
     },
 
     // Navigation
@@ -485,11 +490,27 @@ export default {
         saveSuccess: 'Feedback saved successfully!',
         saveFailed: 'Failed to save feedback.',
         // Feedback Listing Page
-        cannotLoadList: 'Cannot load feedback list',
         noSearchResults: 'No matching feedbacks found',
         noFeedbacks: 'No feedbacks yet',
         tryDifferentFilters: 'Try changing search keywords or filters to find matching feedbacks',
         showingResults: 'Showing {start}-{end} of {total} feedbacks',
+        // Manager Feedback Page
+        managementTitle: 'FEEDBACK MANAGEMENT',
+        loading: 'Loading...',
+        cannotLoadFeedbacks: 'Cannot load feedback list',
+        viewAll: 'View All',
+        filterOptions: {
+            all: 'All',
+            pending: 'Pending',
+            resolved: 'Resolved',
+        },
+        timeLabel: 'Time:',
+        statusLabel: 'Status:',
+        clickToViewDetails: 'Click to view details →',
+        // Feedback Detail Page
+        save: 'Save',
+        edit: 'Edit',
+        back: 'Back',
     },
 
     // Cameras
@@ -541,6 +562,38 @@ export default {
             pool8: 'Pool 8',
             carom: 'Carom',
         },
+        // Camera Add Page
+        addCameraTitle: 'ADD CAMERA',
+        selectTable: 'Select Table',
+        selectTablePlaceholder: 'Select table',
+        ipAddressPlaceholder: 'Enter IP address',
+        usernamePlaceholder: 'Enter username',
+        passwordPlaceholder: 'Enter password',
+        checking: 'Checking...',
+        test: 'Test',
+        cannotLoadTables: 'Cannot load table list',
+        cameraAddedSuccess: 'Camera has been added successfully!',
+        cannotCreateCamera: 'Cannot create camera in database',
+        cannotConnectCamera: 'Cannot connect to camera',
+        errorCheckingCamera: 'Error checking camera',
+        unknownError: 'Unknown error',
+        // Camera Management Page
+        managementTitle: 'CAMERA MANAGEMENT',
+        searchPlaceholder: 'Enter table name to search',
+        loading: 'Loading...',
+        cannotLoadCameras: 'Cannot load camera or table list',
+        noCamerasFound: 'No cameras found',
+        noCamerasYet: 'No cameras yet',
+        noCamerasDescription: 'Try changing search keywords or filters to find suitable cameras',
+        viewAll: 'View All',
+        tableHeader: 'TABLE',
+        ipHeader: 'IP',
+        statusHeader: 'STATUS',
+        actionsHeader: 'ACTIONS',
+        viewCamera: 'View Camera',
+        statusLabel: 'Status:',
+        clickToViewDetails: 'Click to view details →',
+        cameraNotConnected: 'Camera is not connected. Please check connection status.',
     },
 
     // Tables
@@ -607,6 +660,18 @@ export default {
         updateSuccess: 'Member updated successfully!',
         deleteSuccess: 'Member deleted successfully!',
         deleteConfirm: 'Are you sure you want to delete member "{name}"?',
+        // Member Detail Page
+        memberNotFound: 'Member not found',
+        cannotLoadMemberData: 'Cannot load member data',
+        memberNameRequired: 'Member name is required',
+        memberNameMinLength: 'Member name must be at least 2 characters',
+        phoneRequired: 'Phone number is required',
+        phoneInvalid: 'Invalid phone number',
+        phoneAlreadyUsed: 'Phone number is already used by another member',
+        saveMemberFailed: 'Failed to save member.',
+        deleteMemberFailed: 'Failed to delete member.',
+        memberManagement: 'MEMBER MANAGEMENT',
+        memberCode: 'Member Code',
     },
 
     // Dashboard
@@ -1295,5 +1360,20 @@ export default {
                 teamB: 'Team B'
             }
         }
+    },
+
+    // Manager Matches
+    managerMatches: {
+        tableNotFound: 'Table not found',
+        cannotIdentifyMatch: 'Cannot identify match to cancel',
+        cancelMatchSuccess: 'Match cancelled successfully!',
+        cancelMatchFailed: 'Failed to cancel match!',
+        cannotIdentifyMatchToEnd: 'Cannot identify match to end',
+        cannotGetMatchInfo: 'Cannot get match information',
+        endMatchSuccess: 'Match ended successfully!',
+        endMatchFailed: 'Failed to end match!',
+        updateMembersFailed: 'Failed to update members!',
+        team: 'Team',
+        unknown: 'Unknown',
     },
 } as const;

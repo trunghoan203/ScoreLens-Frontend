@@ -27,17 +27,23 @@ const getNestedValue = (obj: any, path: string): any => {
 
 export const I18nProvider = ({ children }: { children: ReactNode }) => {
     const [currentLanguage, setCurrentLanguage] = useState<Locale>('vi');
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
-        const savedLanguage = localStorage.getItem('scorelens-language') as Locale;
-        if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'vi')) {
-            setCurrentLanguage(savedLanguage);
+        setIsClient(true);
+        if (typeof window !== 'undefined') {
+            const savedLanguage = localStorage.getItem('scorelens-language') as Locale;
+            if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'vi')) {
+                setCurrentLanguage(savedLanguage);
+            }
         }
     }, []);
 
     const changeLanguage = (language: Locale) => {
         setCurrentLanguage(language);
-        localStorage.setItem('scorelens-language', language);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('scorelens-language', language);
+        }
     };
 
     const t = (key: string): any => {

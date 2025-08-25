@@ -86,15 +86,20 @@ function ManagerVerificationPageInner() {
       toast.error(t('auth.managerVerification.otpRequired'));
       return;
     }
+
+    console.log('Submitting verification:', { email, otpString, otp });
+
     setIsLoading(true);
     try {
       const data = await managerService.verifyLogin(email, otpString);
+      console.log('Verification response:', data);
       if (data && typeof data === 'object' && 'accessToken' in data && typeof data.accessToken === 'string') {
         localStorage.setItem('managerAccessToken', data.accessToken);
       }
       toast.success(t('auth.managerVerification.verificationSuccess'));
       window.location.href = `/manager/dashboard`;
     } catch (error) {
+      console.error('Verification error:', error);
       const err = error as { message?: string };
       toast.error(err.message || t('auth.managerVerification.verificationFailed'));
     } finally {

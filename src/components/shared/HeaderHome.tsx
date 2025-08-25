@@ -36,7 +36,7 @@ export function HeaderHome() {
               </svg>
             </button>
 
-            <LanguageSelector />
+            <LanguageSelector variant="dark" />
             <Button
               onClick={() => setIsRolePopupOpen(true)}
               className="bg-lime-500 text-black font-bold hover:bg-lime-600 rounded-lg text-xs sm:text-sm lg:text-base px-3 sm:px-4 lg:px-6 py-2 sm:py-2.5 lg:py-3"

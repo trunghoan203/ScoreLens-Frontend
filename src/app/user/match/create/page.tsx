@@ -134,7 +134,7 @@ function StartSessionContent() {
 
     initializePageFromUrl();
 
-  }, [searchParams, tableCategory, tableName, t]);
+  }, [searchParams, tableCategory, tableName]);
 
   const handleJoin = () => {
     const safeName = fullName.trim() || 'Khách';
