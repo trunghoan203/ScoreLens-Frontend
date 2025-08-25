@@ -17,6 +17,7 @@ import { MatchSummaryModal } from '@/components/manager/MatchSummaryModal';
 import { EditMatchModal } from '@/components/manager/EditMatchModal';
 import { EditScoreModal } from '@/components/manager/EditScoreModal';
 import { AISelectionModal } from '@/components/manager/AISelectionModal';
+import { managerCameraService } from '@/lib/managerCameraService';
 import toast from 'react-hot-toast';
 
 interface TableData {
@@ -64,6 +65,16 @@ interface MembersData {
   memberships?: unknown[];
 }
 
+interface Camera {
+  cameraId: string;
+  tableId: string;
+  IPAddress: string;
+  username: string;
+  password: string;
+  isConnect: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 
 export default function TableDetailPage() {
@@ -95,6 +106,9 @@ export default function TableDetailPage() {
   const [matchData, setMatchData] = useState<MatchData | null>(null);
   const [elapsedTime, setElapsedTime] = useState<string>('00:00:00');
   const [matchStartTime, setMatchStartTime] = useState<Date | null>(null);
+
+  const [cameras, setCameras] = useState<Camera[]>([]);
+  const [cameraLoading, setCameraLoading] = useState(false);
 
   const [dashboardStats, setDashboardStats] = useState({
     totalTables: 0,
@@ -129,6 +143,40 @@ export default function TableDetailPage() {
       console.error('Error refreshing dashboard stats:', error);
     } finally {
       setLoadingStats(false);
+    }
+  };
+
+  const fetchCamerasForTable = async () => {
+    try {
+      setCameraLoading(true);
+      const cameraData = await managerCameraService.getAllCameras();
+
+      let camerasArr: unknown[] = [];
+      if (Array.isArray(cameraData)) camerasArr = cameraData;
+      else if (cameraData && typeof cameraData === 'object' && Array.isArray((cameraData as { cameras?: unknown[] }).cameras)) camerasArr = (cameraData as { cameras: unknown[] }).cameras;
+      else if (cameraData && typeof cameraData === 'object' && Array.isArray((cameraData as { data?: unknown[] }).data)) camerasArr = (cameraData as { data: unknown[] }).data;
+
+      const mappedCameras: Camera[] = camerasArr.map(c => {
+        const obj = c as Partial<Camera>;
+        return {
+          cameraId: obj.cameraId || '',
+          tableId: obj.tableId || '',
+          IPAddress: obj.IPAddress || '',
+          username: obj.username || '',
+          password: obj.password || '',
+          isConnect: obj.isConnect ?? false,
+          createdAt: obj.createdAt,
+          updatedAt: obj.updatedAt,
+        };
+      });
+
+      const tableCameras = mappedCameras.filter(camera => camera.tableId === tableId);
+      setCameras(tableCameras);
+    } catch (error) {
+      console.error('Error fetching cameras:', error);
+      toast.error('Không thể tải danh sách camera');
+    } finally {
+      setCameraLoading(false);
     }
   };
 
@@ -253,6 +301,7 @@ export default function TableDetailPage() {
           members: totalMembers
         };
         setDashboardStats(stats);
+        await fetchCamerasForTable();
       } catch (error) {
         console.error('Error fetching data:', error);
         toast.error('Không thể tải dữ liệu');
@@ -289,18 +338,6 @@ export default function TableDetailPage() {
     },
     enabled: !loading && !isChecking
   });
-
-  // useEffect(() => {
-  //   if (!loading && !isChecking) {
-  //     const statsInterval = setInterval(() => {
-  //       refreshDashboardStats();
-  //     }, 30000);
-
-  //     return () => {
-  //       clearInterval(statsInterval);
-  //     };
-  //   }
-  // }, [loading, isChecking]);
 
   useEffect(() => {
     if (!loading && !isChecking && requestStats) {
@@ -532,7 +569,7 @@ export default function TableDetailPage() {
       toast.success('Cập nhật thành viên thành công!');
     } catch (error) {
       const err = error as Error & { status?: number };
-      if ((err as any)?.status === 409) {
+      if (err?.status === 409) {
         toast.error(err.message || 'Bạn đã tham gia trận đấu này rồi.');
       } else {
         console.error('Error updating team members:', error);
@@ -739,6 +776,8 @@ export default function TableDetailPage() {
                     isAiAssisted={isAiAssisted}
                     matchId={activeMatchId || undefined}
                     onScoresUpdated={(a, b) => { setTeamAScore(a); setTeamBScore(b); }}
+                    cameras={cameras}
+                    cameraLoading={cameraLoading}
                   />
                 )}
               </div>

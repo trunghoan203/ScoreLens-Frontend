@@ -74,14 +74,21 @@ export class CameraStreamService {
       const managerToken = this.getManagerToken();
       const sessionToken = providedSessionToken || this.getSessionToken();
       
-
-      
       if (!managerToken && !sessionToken) {
         throw new Error('No authentication token found');
       }
 
-      const response = await this.connectCamera(cameraId, managerToken, sessionToken);
+      if (this.player) {
+        try {
+          this.player.destroy();
+          this.player = null;
+        } catch (error) {
+          console.warn('Error destroying existing player:', error);
+        }
+      }
 
+      const response = await this.connectCamera(cameraId, managerToken, sessionToken);
+      await new Promise(resolve => setTimeout(resolve, 200));
       this.createPlayer(canvasElement, cameraId, response.wsUrl);
 
       this.currentCameraId = cameraId;
@@ -149,8 +156,10 @@ export class CameraStreamService {
         },
         onError: (err: any) => {
           console.error('JSMpeg error:', err);
+          throw new Error('Failed to connect to camera stream: ' + (err.message || 'Unknown error'));
         },
         onClose: () => {
+          console.log('Camera stream closed');
         }
       });
 
