@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import toast from 'react-hot-toast';
 import { ArrowLeft } from 'lucide-react';
+import { useI18n } from '@/lib/i18n/provider';
 
 export default function AdminRegisterPage() {
   const [step, setStep] = useState(1);
@@ -30,6 +31,7 @@ export default function AdminRegisterPage() {
   }>({});
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { t } = useI18n();
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -60,20 +62,20 @@ export default function AdminRegisterPage() {
 
   const validateStep1 = () => {
     const newErrors: typeof errors = {};
-    if (!formData.fullName) newErrors.fullName = "Họ tên là bắt buộc";
-    if (!formData.email) newErrors.email = "Email là bắt buộc";
+    if (!formData.fullName) newErrors.fullName = t('auth.adminRegister.fullNameRequired');
+    if (!formData.email) newErrors.email = t('auth.adminRegister.emailRequired');
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
   const validateStep2 = () => {
     const newErrors: typeof errors = {};
-    if (!formData.password) newErrors.password = "Mật khẩu là bắt buộc";
-    else if (formData.password.length < 8) newErrors.password = "Mật khẩu phải có ít nhất 8 ký tự";
-    else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])/.test(formData.password)) newErrors.password = "Mật khẩu phải chứa chữ hoa, chữ thường, số và ký tự đặc biệt";
-    if (!formData.confirmPassword) newErrors.confirmPassword = "Xác nhận mật khẩu là bắt buộc";
-    else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Mật khẩu xác nhận không khớp";
+    if (!formData.password) newErrors.password = t('auth.adminRegister.passwordRequired');
+    else if (formData.password.length < 8) newErrors.password = t('auth.adminRegister.passwordMinLength');
+    else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])/.test(formData.password)) newErrors.password = t('auth.adminRegister.passwordComplexity');
+    if (!formData.confirmPassword) newErrors.confirmPassword = t('auth.adminRegister.confirmPasswordRequired');
+    else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = t('auth.adminRegister.confirmPasswordMismatch');
     if (!formData.agree) {
-      toast.error("Bạn phải đồng ý với điều khoản sử dụng");
+      toast.error(t('auth.adminRegister.agreeRequired'));
       return false;
     }
     setErrors(newErrors);
@@ -91,47 +93,47 @@ export default function AdminRegisterPage() {
     }
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  if (!validateStep2()) return;
+    if (!validateStep2()) return;
 
-  setIsLoading(true);
-  setErrors({});
+    setIsLoading(true);
+    setErrors({});
 
-  try {
-    await axios.post("/admin/register", {
-      fullName: formData.fullName,
-      email: formData.email,
-      password: formData.password,
-    });
+    try {
+      await axios.post("/admin/register", {
+        fullName: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+      });
 
-    toast.success("Đăng ký thành công! Vui lòng kiểm tra email để xác thực.");
-    setStep(3);
-  } catch (error: unknown) {
-    const err = error as {
-      response?: { data?: { message?: string; errors?: Record<string, string[]> } };
-    };
+      toast.success(t('auth.adminRegister.registerSuccess'));
+      setStep(3);
+    } catch (error: unknown) {
+      const err = error as {
+        response?: { data?: { message?: string; errors?: Record<string, string[]> } };
+      };
 
-    const message = err.response?.data?.message;
-    const errors = err.response?.data?.errors;
+      const message = err.response?.data?.message;
+      const errors = err.response?.data?.errors;
 
-    if (errors) {
-      const firstError = Object.values(errors)[0]?.[0];
-      if (firstError) {
-        toast.error(firstError);
-      } else if (message) {
-        toast.error(message);
+      if (errors) {
+        const firstError = Object.values(errors)[0]?.[0];
+        if (firstError) {
+          toast.error(firstError);
+        } else if (message) {
+          toast.error(message);
+        } else {
+          toast.error(t('auth.adminRegister.registerFailed'));
+        }
       } else {
-        toast.error("Đăng ký thất bại. Vui lòng thử lại.");
+        toast.error(message || t('auth.adminRegister.registerFailed'));
       }
-    } else {
-      toast.error(message || "Đăng ký thất bại. Vui lòng thử lại.");
+    } finally {
+      setIsLoading(false);
     }
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
 
   const handleOtpChange = (index: number, value: string) => {
@@ -174,11 +176,11 @@ const handleSubmit = async (e: React.FormEvent) => {
         email: formData.email,
         activationCode: otpString,
       });
-      toast.success("Xác minh thành công! Vui lòng đăng nhập để tiếp tục.");
+      toast.success(t('auth.adminRegister.registerSuccess'));
       router.push("/admin/login");
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      const errorMessage = err.response?.data?.message || "Xác minh thất bại. Vui lòng thử lại.";
+      const errorMessage = err.response?.data?.message || t('auth.adminRegister.registerFailed');
       toast.error(errorMessage);
     } finally {
       setIsVerifying(false);
@@ -196,7 +198,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       setCanResend(false);
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      const errorMessage = err.response?.data?.message || "Gửi lại mã thất bại. Vui lòng thử lại.";
+      const errorMessage = err.response?.data?.message || t('auth.adminRegister.registerFailed');
       toast.error(errorMessage);
     } finally {
       setIsVerifying(false);
@@ -207,14 +209,14 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   return (
     <AuthLayout
-      title="Đăng ký Chủ doanh nghiệp"
-      description="Vui lòng nhập thông tin để đăng ký tài khoản Chủ doanh nghiệp."
+      title={t('auth.adminRegister.title')}
+      description={t('auth.adminRegister.description')}
     >
       {step === 1 && (
         <form className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]" onSubmit={e => { e.preventDefault(); if (validateStep1()) setStep(2); }}>
           <div>
             <label htmlFor="fullName" className="block text-sm font-semibold text-gray-700 mb-2">
-              Họ tên
+              {t('auth.adminRegister.fullNameLabel')}
             </label>
             <Input
               type="text"
@@ -223,7 +225,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               value={formData.fullName}
               onChange={handleInputChange}
               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${errors.fullName ? "border-red-500" : "border-gray-300"}`}
-              placeholder="Nhập họ tên của bạn"
+              placeholder={t('auth.adminRegister.fullNamePlaceholder')}
               required
               disabled={isLoading}
             />
@@ -231,7 +233,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           </div>
           <div>
             <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-              Email
+              {t('auth.adminRegister.emailLabel')}
             </label>
             <Input
               type="email"
@@ -240,17 +242,17 @@ const handleSubmit = async (e: React.FormEvent) => {
               value={formData.email}
               onChange={handleInputChange}
               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${errors.email ? "border-red-500" : "border-gray-300"}`}
-              placeholder="Nhập email của bạn"
+              placeholder={t('auth.adminRegister.emailPlaceholder')}
               required
               disabled={isLoading}
             />
             {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
           </div>
-          <Button type="submit" variant="lime" fullWidth disabled={isLoading}>Tiếp tục</Button>
+          <Button type="submit" variant="lime" fullWidth disabled={isLoading}>{t('auth.adminRegister.continueButton')}</Button>
           <div className="text-center w-full mt-4">
-            <span className="text-gray-800 text-sm">Đã có tài khoản? </span>
+            <span className="text-gray-800 text-sm">{t('auth.adminRegister.hasAccount')} </span>
             <Link href="/admin/login" className="text-lime-600 font-semibold hover:underline text-sm transition-colors">
-              Đăng nhập
+              {t('auth.adminRegister.login')}
             </Link>
           </div>
           <div className="text-center mt-6">
@@ -259,7 +261,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1"
             >
               <ArrowLeft className="w-4 h-4" />
-              Quay lại trang chủ
+              {t('auth.adminRegister.backToHome')}
             </Link>
           </div>
         </form>
@@ -268,7 +270,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         <form className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]" onSubmit={handleSubmit}>
           <div>
             <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-              Mật khẩu
+              {t('auth.adminRegister.passwordLabel')}
             </label>
             <PasswordInput
               id="password"
@@ -276,18 +278,18 @@ const handleSubmit = async (e: React.FormEvent) => {
               value={formData.password}
               onChange={handleInputChange}
               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${errors.password ? "border-red-500" : "border-gray-300"}`}
-              placeholder="Nhập mật khẩu"
+              placeholder={t('auth.adminRegister.passwordPlaceholder')}
               required
               disabled={isLoading}
             />
             <p className="text-gray-500 text-xs mt-1">
-              Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và kí tự đặc biệt.
+              {t('auth.adminRegister.passwordHint')}
             </p>
             {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
           </div>
           <div>
             <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
-              Xác nhận mật khẩu
+              {t('auth.adminRegister.confirmPasswordLabel')}
             </label>
             <PasswordInput
               id="confirmPassword"
@@ -295,7 +297,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               value={formData.confirmPassword}
               onChange={handleInputChange}
               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${errors.confirmPassword ? "border-red-500" : "border-gray-300"}`}
-              placeholder="Nhập lại mật khẩu"
+              placeholder={t('auth.adminRegister.confirmPasswordPlaceholder')}
               required
               disabled={isLoading}
             />
@@ -312,12 +314,12 @@ const handleSubmit = async (e: React.FormEvent) => {
               disabled={isLoading}
             />
             <label htmlFor="agree" className="text-gray-700 text-sm">
-              Tôi đồng ý với <Link href="/terms" className="text-lime-600 font-semibold hover:underline">điều khoản sử dụng</Link>
+              {t('auth.adminRegister.agreeTerms')} <Link href="/terms" className="text-lime-600 font-semibold hover:underline">{t('auth.adminRegister.termsOfService')}</Link>
             </label>
           </div>
           <div className="flex gap-2">
             <Button type="submit" variant="lime" fullWidth disabled={isLoading}>
-              {isLoading ? "Đang đăng ký..." : "Đăng ký"}
+              {isLoading ? t('auth.adminRegister.registering') : t('auth.adminRegister.registerButton')}
             </Button>
           </div>
           <div className="text-center mt-6">
@@ -327,7 +329,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1 cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
-              Quay lại
+              {t('auth.adminRegister.backButton')}
             </Link>
           </div>
         </form>
@@ -336,10 +338,10 @@ const handleSubmit = async (e: React.FormEvent) => {
         <form className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]" onSubmit={handleVerifySubmit}>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-4">
-              Nhập mã xác minh 6 chữ số
+              {t('auth.adminRegister.verificationTitle')}
             </label>
             <p className="text-gray-600 text-sm mb-4">
-              Chúng tôi đã gửi mã xác thực đến {formData.email}
+              {t('auth.adminRegister.verificationDescription')} {formData.email}
             </p>
             <div className="flex gap-3 justify-center mb-4" onPaste={handlePaste}>
               {otp.map((digit, index) => (
@@ -385,7 +387,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             className="w-full bg-lime-400 text-gray-900 font-bold py-3 px-6 rounded-lg hover:bg-lime-500 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={!isOtpValid}
           >
-            {isVerifying ? 'Đang xác minh...' : 'Xác minh'}
+            {isVerifying ? t('auth.adminRegister.verifying') : t('auth.adminRegister.verificationButton')}
           </Button>
 
           <div className="text-center space-y-4">
@@ -398,11 +400,11 @@ const handleSubmit = async (e: React.FormEvent) => {
                   disabled={isVerifying}
                   className="text-lime-600 font-semibold hover:underline text-sm transition-colors disabled:opacity-50"
                 >
-                  Gửi lại mã
+                  {t('auth.adminRegister.resendCode')}
                 </button>
               ) : (
                 <span className="text-gray-500 text-sm">
-                  Gửi lại sau {resendTimer}s
+                  {t('auth.adminRegister.resendTimer')} {resendTimer}s
                 </span>
               )}
             </div>
@@ -413,7 +415,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1 cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Quay lại
+                {t('auth.adminRegister.backButton')}
               </Link>
             </div>
           </div>

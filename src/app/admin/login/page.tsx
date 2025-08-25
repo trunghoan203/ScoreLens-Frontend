@@ -12,6 +12,7 @@ import axios from '@/lib/axios';
 import { adminService } from '@/lib/adminService';
 import toast from 'react-hot-toast';
 import { Loader2, LogIn, ArrowLeft } from 'lucide-react';
+import { useI18n } from '@/lib/i18n/provider';
 
 export default function AdminLoginPage() {
   const [formData, setFormData] = useState({
@@ -26,6 +27,7 @@ export default function AdminLoginPage() {
   }>({});
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { t } = useI18n();
 
   useEffect(() => {
     const savedData = adminService.getRememberMeData();
@@ -42,18 +44,18 @@ export default function AdminLoginPage() {
     const newErrors: typeof errors = {};
 
     if (!formData.email) {
-      newErrors.email = 'Email là bắt buộc';
+      newErrors.email = t('auth.adminLogin.emailRequired');
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email không hợp lệ';
+      newErrors.email = t('auth.adminLogin.emailInvalid');
     }
 
     if (!formData.password) {
-      newErrors.password = 'Mật khẩu là bắt buộc';
-    } else if (formData.password.length < 8) newErrors.password = "Mật khẩu phải có ít nhất 8 ký tự";
-      else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])/.test(formData.password)) 
-      newErrors.password = "Mật khẩu phải chứa chữ hoa, chữ thường, số và ký tự đặc biệt"; 
-      setErrors(newErrors);
-      return Object.keys(newErrors).length === 0;
+      newErrors.password = t('auth.adminLogin.passwordRequired');
+    } else if (formData.password.length < 8) newErrors.password = t('auth.adminLogin.passwordMinLength');
+    else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])/.test(formData.password))
+      newErrors.password = t('auth.adminLogin.passwordComplexity');
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent, searchParams: URLSearchParams | null) => {
@@ -88,7 +90,7 @@ export default function AdminLoginPage() {
           rememberMe: rememberMe
         });
 
-        toast.success('Đăng nhập thành công!');
+        toast.success(t('auth.adminLogin.loginSuccess'));
         const redirectUrl = searchParams?.get('redirect');
         if (redirectUrl) {
           router.push(redirectUrl);
@@ -127,7 +129,7 @@ export default function AdminLoginPage() {
           router.push('/admin/confirm');
         }
       } else {
-        const errorMessage = (response.data as { message?: string })?.message || 'Đăng nhập thất bại. Vui lòng thử lại.';
+        const errorMessage = (response.data as { message?: string })?.message || t('auth.adminLogin.loginFailed');
         toast.error(errorMessage);
       }
     } catch (error: unknown) {
@@ -145,10 +147,10 @@ export default function AdminLoginPage() {
         } else if (message) {
           toast.error(message);
         } else {
-          toast.error("Đăng nhập thất bại. Vui lòng thử lại.");
+          toast.error(t('auth.adminLogin.loginFailed'));
         }
       } else {
-        toast.error(message || "Đăng nhập thất bại. Vui lòng thử lại.");
+        toast.error(message || t('auth.adminLogin.loginFailed'));
       }
     } finally {
       setIsLoading(false);
@@ -170,15 +172,15 @@ export default function AdminLoginPage() {
 
   return (
     <AuthLayout
-      title="Đăng nhập Chủ doanh nghiệp"
-      description="Vui lòng đăng nhập để tiếp tục"
+      title={t('auth.adminLogin.title')}
+      description={t('auth.adminLogin.description')}
     >
       <SearchParamsWrapper>
         {(searchParams) => (
           <form onSubmit={(e) => handleSubmit(e, searchParams)} className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]">
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                Email
+                {t('auth.adminLogin.emailLabel')}
               </label>
               <Input
                 type="email"
@@ -188,7 +190,7 @@ export default function AdminLoginPage() {
                 onChange={handleInputChange}
                 className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${errors.email ? 'border-red-500' : 'border-gray-300'
                   }`}
-                placeholder="Nhập email của bạn"
+                placeholder={t('auth.adminLogin.emailPlaceholder')}
                 required
                 disabled={isLoading}
               />
@@ -199,7 +201,7 @@ export default function AdminLoginPage() {
 
             <div>
               <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                Mật khẩu
+                {t('auth.adminLogin.passwordLabel')}
               </label>
               <PasswordInput
                 id="password"
@@ -208,7 +210,7 @@ export default function AdminLoginPage() {
                 onChange={handleInputChange}
                 className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${errors.password ? 'border-red-500' : 'border-gray-300'
                   }`}
-                placeholder="Nhập mật khẩu"
+                placeholder={t('auth.adminLogin.passwordPlaceholder')}
                 required
                 disabled={isLoading}
               />
@@ -227,14 +229,14 @@ export default function AdminLoginPage() {
                     className="h-4 w-4 text-lime-500 focus:ring-lime-400 border-gray-300 rounded"
                     disabled={isLoading}
                   />
-                  <span className="text-gray-700">Nhớ mật khẩu</span>
+                  <span className="text-gray-700">{t('auth.adminLogin.rememberMe')}</span>
                 </label>
               </div>
               <Link
                 href="/admin/forgotPassword"
                 className="font-medium text-gray-800 hover:text-lime-500 transition-colors"
               >
-                Quên mật khẩu?
+                {t('auth.adminLogin.forgotPassword')}
               </Link>
             </div>
 
@@ -247,23 +249,23 @@ export default function AdminLoginPage() {
               {isLoading ? (
                 <div className="flex items-center justify-center">
                   <Loader2 className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-900" />
-                  Đang đăng nhập...
+                  {t('auth.adminLogin.loggingIn')}
                 </div>
               ) : (
                 <div className="flex items-center justify-center">
                   <LogIn className="w-5 h-5 mr-2" />
-                  Đăng nhập
+                  {t('auth.adminLogin.loginButton')}
                 </div>
               )}
             </Button>
 
             <div className="text-center w-full mt-4">
-              <span className="text-gray-800 text-sm">Bạn chưa có tài khoản? </span>
+              <span className="text-gray-800 text-sm">{t('auth.adminLogin.noAccount')} </span>
               <Link
                 href="/admin/register"
                 className="text-lime-600 font-semibold hover:underline text-sm transition-colors"
               >
-                Đăng ký
+                {t('auth.adminLogin.register')}
               </Link>
             </div>
 
@@ -273,7 +275,7 @@ export default function AdminLoginPage() {
                 className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Quay lại trang chủ
+                {t('auth.adminLogin.backToHome')}
               </Link>
             </div>
           </form>

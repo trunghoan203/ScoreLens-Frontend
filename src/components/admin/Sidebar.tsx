@@ -8,8 +8,10 @@ import { X } from 'lucide-react';
 import axios from '@/lib/axios';
 import toast from 'react-hot-toast';
 import { useMobileMenuStore } from '@/lib/mobileMenuState';
+import { useI18n } from '@/lib/i18n/provider';
 
 export default function Sidebar() {
+  const { t } = useI18n();
   const pathname = usePathname();
   const router = useRouter();
   const [showLogout, setShowLogout] = useState(false);
@@ -25,10 +27,10 @@ export default function Sidebar() {
         });
         localStorage.removeItem('adminAccessToken');
       }
-      toast.success('Đăng xuất thành công!');
+      toast.success(t('auth.logoutSuccess'));
     } catch {
       localStorage.removeItem('adminAccessToken');
-      toast.error('Đăng xuất thất bại.');
+      toast.error(t('auth.logoutFailed'));
     }
     router.push('/');
   };
@@ -73,25 +75,25 @@ export default function Sidebar() {
             href="/admin/branches"
             className={`block px-4 py-3 rounded-lg font-semibold transition text-sm xl:text-base ${pathname?.startsWith('/admin/branches') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
           >
-            Chi nhánh
+            {t('nav.branches')}
           </Link>
           <Link
             href="/admin/managers"
             className={`block px-4 py-3 rounded-lg font-semibold transition text-sm xl:text-base ${pathname?.startsWith('/admin/managers') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
           >
-            Quản lý
+            {t('nav.managers')}
           </Link>
           <Link
             href="/admin/club"
             className={`block px-4 py-3 rounded-lg font-semibold transition text-sm xl:text-base ${pathname?.startsWith('/admin/club') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
           >
-            Thương hiệu
+            {t('nav.brand')}
           </Link>
           <Link
             href="/admin/feedbacks"
             className={`block px-4 py-3 rounded-lg font-semibold transition text-sm xl:text-base ${pathname?.startsWith('/admin/feedbacks') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
           >
-            Phản hồi
+            {t('nav.feedbacks')}
           </Link>
           <Button
             type="button"
@@ -99,15 +101,14 @@ export default function Sidebar() {
             className="w-full font-bold text-white px-6 py-3 rounded-xl text-sm xl:text-base mt-6"
             onClick={() => setShowLogout(true)}
           >
-            Đăng xuất
+            {t('common.logout')}
           </Button>
         </nav>
       </aside>
 
       <aside
-        className={`lg:hidden fixed top-0 left-0 w-80 max-w-[90vw] bg-[#181818] text-white flex flex-col py-6 px-4 h-full z-50 transform transition-transform duration-300 ease-in-out ${
-          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`lg:hidden fixed top-0 left-0 w-80 max-w-[90vw] bg-[#181818] text-white flex flex-col py-6 px-4 h-full z-50 transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         <div className="flex justify-between items-center mb-8">
           <div className="flex-1 flex justify-center">
@@ -127,28 +128,28 @@ export default function Sidebar() {
             onClick={handleLinkClick}
             className={`block px-4 py-4 rounded-lg font-semibold transition text-base touch-manipulation ${pathname?.startsWith('/admin/branches') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
           >
-            Chi nhánh
+            {t('nav.branches')}
           </Link>
           <Link
             href="/admin/managers"
             onClick={handleLinkClick}
             className={`block px-4 py-4 rounded-lg font-semibold transition text-base touch-manipulation ${pathname?.startsWith('/admin/managers') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
           >
-            Quản lý
+            {t('nav.managers')}
           </Link>
           <Link
             href="/admin/club"
             onClick={handleLinkClick}
             className={`block px-4 py-4 rounded-lg font-semibold transition text-base touch-manipulation ${pathname?.startsWith('/admin/club') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
           >
-            Thương hiệu
+            {t('nav.brand')}
           </Link>
           <Link
             href="/admin/feedbacks"
             onClick={handleLinkClick}
             className={`block px-4 py-4 rounded-lg font-semibold transition text-base touch-manipulation ${pathname?.startsWith('/admin/feedbacks') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
           >
-            Phản hồi
+            {t('nav.feedbacks')}
           </Link>
           <div className="pt-4">
             <Button
@@ -160,19 +161,19 @@ export default function Sidebar() {
                 setShowLogout(true);
               }}
             >
-              Đăng xuất
+              {t('common.logout')}
             </Button>
           </div>
         </nav>
       </aside>
-      
+
       <ConfirmPopup
         open={showLogout}
-        title="Bạn có chắc chắn muốn đăng xuất không?"
+        title={t('auth.logoutConfirm')}
         onCancel={() => setShowLogout(false)}
         onConfirm={handleLogout}
-        confirmText="Xác nhận"
-        cancelText="Hủy"
+        confirmText={t('common.confirm')}
+        cancelText={t('common.cancel')}
       >
         <div className="flex flex-col items-center justify-center">
           <svg className="w-16 h-16 text-black my-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">

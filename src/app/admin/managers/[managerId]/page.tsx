@@ -12,11 +12,12 @@ import clubsService, { ClubResponse } from '@/lib/clubsService';
 import adminService from '@/lib/adminService';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import Image from 'next/image';
+import { useI18n } from '@/lib/i18n/provider';
 
 
 function convertDateFormat(dateString: string, fromFormat: 'iso' | 'ddmmyyyy', toFormat: 'iso' | 'ddmmyyyy'): string {
   if (fromFormat === toFormat) return dateString;
-  
+
   if (fromFormat === 'iso' && toFormat === 'ddmmyyyy') {
     try {
       const date = new Date(dateString);
@@ -41,6 +42,7 @@ export default function ManagerDetailPage() {
   const router = useRouter();
   const params = useParams();
   const managerId = params?.managerId as string;
+  const { t } = useI18n();
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -72,7 +74,7 @@ export default function ManagerDetailPage() {
         setClubId(typeof dataObj.clubId === 'string' ? dataObj.clubId : '');
         setIsActive(typeof dataObj.isActive === 'boolean' ? dataObj.isActive : false);
       } catch {
-        toast.error('Không thể tải chi tiết quản lý');
+        toast.error(t('managers.cannotLoadData'));
       } finally {
         setLoading(false);
       }
@@ -106,28 +108,28 @@ export default function ManagerDetailPage() {
         clubId,
         isActive,
       });
-      toast.success('Lưu quản lý thành công!');
+      toast.success(t('managers.saveSuccess'));
       setIsEditMode(false);
     } catch (error: unknown) {
       const errMsg = (typeof error === 'object' && error && 'message' in error) ? (error as { message?: string }).message : undefined;
-      toast.error(errMsg || 'Cập nhật quản lý thất bại!');
+      toast.error(errMsg || t('managers.saveFailed'));
     }
   };
 
   const handleDelete = async () => {
     try {
       await managerService.deleteManager(managerId);
-      toast.success('Đã xóa quản lý thành công!');
+      toast.success(t('managers.deleteSuccess'));
       router.push('/admin/managers');
     } catch (error: unknown) {
       const errMsg = (typeof error === 'object' && error && 'message' in error) ? (error as { message?: string }).message : undefined;
-      toast.error(errMsg || 'Xóa quản lý thất bại!');
+      toast.error(errMsg || t('managers.deleteFailed'));
     }
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    
+
     if (value) {
       const [year, month, day] = value.split('-');
       const formattedDate = `${day}/${month}/${year}`;
@@ -148,7 +150,7 @@ export default function ManagerDetailPage() {
           <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
             <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
               <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
-                QUẢN LÝ
+                {t('managers.title')}
               </span>
             </div>
             <div className="py-8">
@@ -170,14 +172,14 @@ export default function ManagerDetailPage() {
         <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
           <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
             <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
-              QUẢN LÝ
+              {t('managers.title')}
             </span>
           </div>
           <AddFormLayout
-            title={isEditMode ? "CHỈNH SỬA QUẢN LÝ" : "CHI TIẾT QUẢN LÝ"}
+            title={isEditMode ? t('managers.editManager') : t('managers.managerDetails')}
             onBack={() => router.push('/admin/managers')}
-            backLabel="Quay lại"
-            submitLabel={isEditMode ? "Lưu" : "Chỉnh sửa"}
+            backLabel={t('common.back')}
+            submitLabel={isEditMode ? t('common.save') : t('common.edit')}
             extraActions={
               !isEditMode && (
                 <button
@@ -185,7 +187,7 @@ export default function ManagerDetailPage() {
                   className="w-full sm:w-40 bg-red-500 hover:bg-red-600 text-white font-bold py-2.5 sm:py-2 rounded-lg transition text-sm sm:text-lg touch-manipulation order-2 sm:order-3"
                   onClick={() => setShowConfirm(true)}
                 >
-                  Xóa
+                  {t('common.delete')}
                 </button>
               )
             }
@@ -193,16 +195,16 @@ export default function ManagerDetailPage() {
           >
             <ConfirmPopup
               open={showConfirm}
-              title="Bạn có chắc chắn muốn xóa không?"
+              title={t('managers.deleteConfirm')}
               onCancel={() => setShowConfirm(false)}
               onConfirm={async () => { setShowConfirm(false); await handleDelete(); }}
-              confirmText="Xác nhận"
-              cancelText="Hủy"
+              confirmText={t('common.confirm')}
+              cancelText={t('common.cancel')}
             >
               <></>
             </ConfirmPopup>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Chọn Chi Nhánh<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('managers.selectBranch')}<span className="text-red-500">*</span></label>
               <div className="relative w-full">
                 <select
                   value={clubId}
@@ -212,7 +214,7 @@ export default function ManagerDetailPage() {
                   name="clubId"
                   className="w-full border border-gray-300 bg-white rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none"
                 >
-                  <option value="">-- Chọn chi nhánh --</option>
+                  <option value="">{t('managers.selectBranchPlaceholder')}</option>
                   {clubs.map(club => (
                     <option key={club.clubId} value={club.clubId}>{club.clubName}</option>
                   ))}
@@ -229,15 +231,15 @@ export default function ManagerDetailPage() {
               </div>
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Tên Quản Lý<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('managers.managerName')}<span className="text-red-500">*</span></label>
               <Input value={name} onChange={e => setName(e.target.value)} required disabled={!isEditMode} className="py-2.5 sm:py-3" />
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Số Điện Thoại<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('common.phone')}<span className="text-red-500">*</span></label>
               <Input value={phone} onChange={e => setPhone(e.target.value)} required disabled={!isEditMode} className="py-2.5 sm:py-3" />
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Ngày Sinh<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('managers.dateOfBirth')}<span className="text-red-500">*</span></label>
               <input
                 type="date"
                 value={dob ? (() => {
@@ -251,7 +253,7 @@ export default function ManagerDetailPage() {
                   return '';
                 })() : ''}
                 onChange={handleDateChange}
-                placeholder="dd/mm/yyyy"
+                placeholder={t('managers.dateFormat')}
                 disabled={!isEditMode}
                 className={`w-full bg-white border rounded-md px-3 sm:px-4 py-2.5 sm:py-3 text-sm font-base text-black placeholder-gray-500 hover:border-lime-400 outline-none transition-all ${isEditMode
                   ? 'border-gray-300 focus:border-lime-500 hover:border-lime-400'
@@ -260,19 +262,19 @@ export default function ManagerDetailPage() {
               />
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Email<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('common.email')}<span className="text-red-500">*</span></label>
               <Input value={email} onChange={e => setEmail(e.target.value)} required disabled={!isEditMode} className="py-2.5 sm:py-3" />
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">CCCD<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('managers.citizenCode')}<span className="text-red-500">*</span></label>
               <Input value={citizenCode} onChange={e => setCitizenCode(e.target.value)} required disabled={!isEditMode} className="py-2.5 sm:py-3" />
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Địa Chỉ<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('common.address')}<span className="text-red-500">*</span></label>
               <Input value={address} onChange={e => setAddress(e.target.value)} required disabled={!isEditMode} className="py-2.5 sm:py-3" />
             </div>
             <div className="w-full mb-8 sm:mb-10">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Trạng Thái<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('common.status')}<span className="text-red-500">*</span></label>
               <div className="relative w-full">
                 <select
                   value={isActive ? 'active' : 'inactive'}
@@ -281,8 +283,8 @@ export default function ManagerDetailPage() {
                   disabled={!isEditMode}
                   name="isActive"
                   className="w-full border border-gray-300 bg-white rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none" >
-                  <option value="active">Hoạt động</option>
-                  <option value="inactive">Không hoạt động</option>
+                  <option value="active">{t('managers.status.active')}</option>
+                  <option value="inactive">{t('managers.status.inactive')}</option>
                 </select>
                 {isEditMode && (
                   <Image

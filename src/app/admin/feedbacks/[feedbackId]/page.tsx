@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { NoteWithToggle } from '@/components/shared/NoteWithToggle';
 import EmptyState from '@/components/ui/EmptyState';
+import { useI18n } from "@/lib/i18n/provider";
 
 interface Feedback {
   feedbackId: string;
@@ -47,6 +48,7 @@ interface Feedback {
 }
 
 export default function AdminFeedbackDetailPage() {
+  const { t } = useI18n();
   const router = useRouter();
   const params = useParams();
   const feedbackId = params?.feedbackId as string;
@@ -95,9 +97,9 @@ export default function AdminFeedbackDetailPage() {
             },
             tableInfo: {
               tableId: String(feedbackObj.tableId || ''),
-              tableName: String(tableInfo?.name || 'Không xác định'),
+              tableName: String(tableInfo?.name || t('common.unknown')),
               tableNumber: String(tableInfo?.tableNumber || ''),
-              category: String(tableInfo?.category || 'Không xác định')
+              category: String(tableInfo?.category || t('common.unknown'))
             },
             content: String(feedbackObj.content || ''),
             status: (feedbackObj.status as Feedback['status']) || 'adminP',
@@ -114,13 +116,13 @@ export default function AdminFeedbackDetailPage() {
           };
 
           const hasUndefinedInfo =
-            mappedFeedback.tableInfo?.tableName === 'Không xác định' ||
-            mappedFeedback.tableInfo?.category === 'Không xác định' ||
+            mappedFeedback.tableInfo?.tableName === t('common.unknown') ||
+            mappedFeedback.tableInfo?.category === t('common.unknown') ||
             !mappedFeedback.tableInfo?.tableName ||
             !mappedFeedback.tableInfo?.category;
 
           if (hasUndefinedInfo) {
-            setError('Không thể tải dữ liệu phản hồi');
+            setError(t('feedbacks.cannotLoadData'));
           } else {
             setFeedback(mappedFeedback);
             setStatus(mappedFeedback.status);
@@ -137,11 +139,11 @@ export default function AdminFeedbackDetailPage() {
             setError(null);
           }
         } else {
-          setError('Không tìm thấy phản hồi');
+          setError(t('feedbacks.notFound'));
         }
       } catch (error) {
         console.error('Error fetching feedback detail:', error);
-        setError('Không thể tải dữ liệu phản hồi');
+        setError(t('feedbacks.cannotLoadData'));
       } finally {
         setLoading(false);
       }
@@ -151,10 +153,10 @@ export default function AdminFeedbackDetailPage() {
   }, [feedbackId, isEditMode]);
 
   const statusOptions = [
-    { value: 'managerP', label: 'Quản lý xử lý' },
-    { value: 'adminP', label: 'Chủ doanh nghiệp xử lý' },
-    { value: 'superadminP', label: 'Quản trị viên xử lý' },
-    { value: 'resolved', label: 'Đã xử lý' },
+    { value: 'managerP', label: t('feedbacks.status.managerP') },
+    { value: 'adminP', label: t('feedbacks.status.adminP') },
+    { value: 'superadminP', label: t('feedbacks.status.superadminP') },
+    { value: 'resolved', label: t('feedbacks.status.resolved') },
   ];
 
   const getStatusColor = (status: string) => {
@@ -169,11 +171,11 @@ export default function AdminFeedbackDetailPage() {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'resolved': return 'Đã xử lý';
-      case 'managerP': return 'Quản lý xử lý';
-      case 'adminP': return 'Chủ doanh nghiệp xử lý';
-      case 'superadminP': return 'Quản trị viên xử lý';
-      default: return 'Không xác định';
+      case 'resolved': return t('feedbacks.status.resolved');
+      case 'managerP': return t('feedbacks.status.managerP');
+      case 'adminP': return t('feedbacks.status.adminP');
+      case 'superadminP': return t('feedbacks.status.superadminP');
+      default: return t('common.unknown');
     }
   };
 
@@ -183,12 +185,12 @@ export default function AdminFeedbackDetailPage() {
         note: notes,
         status,
       });
-      toast.success('Đã lưu phản hồi thành công!');
+      toast.success(t('feedbacks.saveSuccess'));
       setIsEditMode(false);
       setNotes('');
     } catch (error) {
       console.error(error);
-      toast.error('Lưu phản hồi thất bại.');
+      toast.error(t('feedbacks.saveFailed'));
     }
   };
 
@@ -207,7 +209,7 @@ export default function AdminFeedbackDetailPage() {
         <div className="px-10 pb-10">
           <div className="w-full rounded-xl bg-lime-400 shadow-lg py-6 flex items-center justify-center mb-8">
             <span className="text-2xl font-extrabold text-white tracking-widest flex items-center gap-3">
-              PHẢN HỒI
+              {t('feedbacks.title')}
             </span>
           </div>
 
@@ -223,9 +225,9 @@ export default function AdminFeedbackDetailPage() {
                 </svg>
               }
               title={error}
-              description="Đã xảy ra lỗi khi tải thông tin phản hồi. Vui lòng thử lại sau."
+              description={t('feedbacks.loadErrorDescription')}
               primaryAction={{
-                label: "Thử lại",
+                label: t('common.tryAgain'),
                 onClick: () => {
                   setError(null);
                   window.location.reload();
@@ -237,7 +239,7 @@ export default function AdminFeedbackDetailPage() {
                 )
               }}
               secondaryAction={{
-                label: "Quay lại danh sách",
+                label: t('feedbacks.backToList'),
                 onClick: () => router.push('/admin/feedbacks'),
                 icon: (
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -248,35 +250,35 @@ export default function AdminFeedbackDetailPage() {
               showAdditionalInfo={false}
             />
           ) : feedback ? (
-            <FeedbackDetailLayout title="QUẢN LÝ PHẢN HỒI">
+            <FeedbackDetailLayout title={t('feedbacks.manageFeedback')}>
               <div className="flex flex-col md:flex-row gap-8">
                 <div className="flex-1 space-y-6 order-1 md:order-none">
                   <div>
-                    <label className="block text-sm font-semibold mb-2 text-black">Chi nhánh</label>
+                    <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.table.branch')}</label>
                     <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.clubInfo?.clubName || feedback?.clubId || ''} disabled />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold mb-2 text-black">Bàn</label>
+                    <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.table.table')}</label>
                     <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.tableInfo?.tableName || feedback?.tableId || ''} disabled />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold mb-2 text-black">Loại bàn</label>
-                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.tableInfo?.category === 'pool-8' ? 'Pool 8' : feedback?.tableInfo?.category === 'carom' ? 'Carom' : feedback?.tableInfo?.category || 'Không xác định'} disabled />
+                    <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.tableType')}</label>
+                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.tableInfo?.category === 'pool-8' ? 'Pool 8' : feedback?.tableInfo?.category === 'carom' ? 'Carom' : feedback?.tableInfo?.category || t('common.unknown')} disabled />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold mb-2 text-black">Loại người tạo</label>
-                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.createdBy?.type === 'guest' ? 'Khách' : (feedback?.createdBy?.type === 'membership' ? 'Hội viên' : '')} disabled />
+                    <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.creatorTypeLabel')}</label>
+                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.createdBy?.type === 'guest' ? t('feedbacks.creatorType.guest') : (feedback?.createdBy?.type === 'membership' ? t('feedbacks.creatorType.membership') : '')} disabled />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold mb-2 text-black">Thời gian tạo</label>
+                    <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.createdAt')}</label>
                     <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.createdAt ? new Date(feedback.createdAt).toLocaleString('vi-VN') : ''} disabled />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold mb-2 text-black">Thời gian cập nhật</label>
+                    <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.updatedAt')}</label>
                     <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.updatedAt ? new Date(feedback.updatedAt).toLocaleString('vi-VN') : ''} disabled />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold mb-2 text-black">Trạng thái</label>
+                    <label className="block text-sm font-semibold mb-2 text-black">{t('common.status')}</label>
                     {isEditMode ? (
                       <div className="relative w-full">
                         <select
@@ -299,14 +301,14 @@ export default function AdminFeedbackDetailPage() {
                     ) : (
                       <Badge
                         variant={getStatusColor(status)}
-                        className="text-sm font-semibold flex-shrink-0 whitespace-nowrap"
+                        className="text-sm px-2 font-semibold flex-shrink-0 whitespace-nowrap"
                       >
                         {getStatusText(status)}
                       </Badge>
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold mb-2 text-black">Nội dung phản hồi</label>
+                    <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.feedbackContent')}</label>
                     <textarea
                       className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
                       value={feedback?.content || ''}
@@ -315,14 +317,14 @@ export default function AdminFeedbackDetailPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold mb-2 text-black">Ghi chú xử lý</label>
+                    <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.processingNote')}</label>
                     {isEditMode ? (
                       <textarea
                         className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
                         value={notes}
                         onChange={e => setNotes(e.target.value)}
                         rows={3}
-                        placeholder="Nhập ghi chú xử lý..."
+                        placeholder={t('feedbacks.processingNotePlaceholder')}
                       />
                     ) : (
                       <textarea
@@ -336,7 +338,7 @@ export default function AdminFeedbackDetailPage() {
                 </div>
                 <div className="flex-1 space-y-6 order-2 md:order-none">
                   <div>
-                    <label className="block text-sm font-semibold mb-2 text-black text-center">Lịch sử xử lý</label>
+                    <label className="block text-sm font-semibold mb-2 text-black text-center">{t('feedbacks.processingHistory')}</label>
                     <div className="bg-gray-50 rounded-lg p-4 max-h-[925px] overflow-y-auto">
                       {feedback?.history && feedback.history.length > 0 ? (
                         <div className="space-y-3">
@@ -368,8 +370,8 @@ export default function AdminFeedbackDetailPage() {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                           </div>
-                          <p className="text-gray-500 text-sm font-medium">Chưa có lịch sử xử lý</p>
-                          <p className="text-gray-400 text-xs mt-1">Lịch sử xử lý sẽ hiển thị khi có người cập nhật phản hồi</p>
+                          <p className="text-gray-500 text-sm font-medium">{t('feedbacks.noProcessingHistory')}</p>
+                          <p className="text-gray-400 text-xs mt-1">{t('feedbacks.processingHistoryDescription')}</p>
                         </div>
                       )}
                     </div>
@@ -384,14 +386,14 @@ export default function AdminFeedbackDetailPage() {
                       className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg order-1 md:order-2 touch-manipulation"
                       onClick={handleSave}
                     >
-                      Lưu
+                      {t('common.save')}
                     </button>
                     <button
                       type="button"
                       className="w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 rounded-lg transition text-lg order-2 md:order-1 touch-manipulation"
                       onClick={() => router.push('/admin/feedbacks')}
                     >
-                      Quay lại
+                      {t('common.back')}
                     </button>
                   </>
                 ) : (
@@ -401,14 +403,14 @@ export default function AdminFeedbackDetailPage() {
                       className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg order-1 md:order-2 touch-manipulation"
                       onClick={handleEditMode}
                     >
-                      Chỉnh sửa
+                      {t('common.edit')}
                     </button>
                     <button
                       type="button"
                       className="w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 rounded-lg transition text-lg order-2 md:order-1 touch-manipulation"
                       onClick={() => router.push('/admin/feedbacks')}
                     >
-                      Quay lại
+                      {t('common.back')}
                     </button>
                   </>
                 )}

@@ -2,12 +2,15 @@ import React from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface LoginRolePopupProps {
   onClose: () => void;
 }
 
 export const LoginRolePopup: React.FC<LoginRolePopupProps> = ({ onClose }) => {
+  const { t } = useI18n();
+
   return (
     <div
       className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
@@ -18,7 +21,7 @@ export const LoginRolePopup: React.FC<LoginRolePopupProps> = ({ onClose }) => {
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">
-          Bạn muốn đăng nhập với vai trò nào?
+          {t('auth.roleSelection.title')}
         </h2>
         <div className="my-4 sm:my-6">
           <Image
@@ -32,12 +35,12 @@ export const LoginRolePopup: React.FC<LoginRolePopupProps> = ({ onClose }) => {
         <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
           <Link href="/admin/login" onClick={onClose} className="w-full sm:flex-1">
             <Button className="bg-lime-500 text-gray-900 hover:bg-lime-600 rounded-lg sm:text-base lg:text-base py-2 sm:py-3 transition-transform hover:scale-105 w-full flex justify-center">
-              Chủ doanh nghiệp
+              {t('auth.roleSelection.businessOwner')}
             </Button>
           </Link>
           <Link href="/manager/login" onClick={onClose} className="w-full sm:flex-1">
             <Button className="bg-lime-500 text-gray-900 hover:bg-lime-600 rounded-lg sm:text-base lg:text-base py-2 sm:py-3 transition-transform hover:scale-105 w-full flex justify-center">
-              Quản lý
+              {t('auth.roleSelection.manager')}
             </Button>
           </Link>
         </div>

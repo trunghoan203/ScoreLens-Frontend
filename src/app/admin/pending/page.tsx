@@ -4,9 +4,11 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { HeaderAdmin } from '@/components/shared/HeaderAdmin';
 import { Hourglass } from 'lucide-react';
+import { useI18n } from '@/lib/i18n/provider';
 
 export default function AdminPendingPage() {
   const router = useRouter();
+  const { t } = useI18n();
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-gray-50 via-white to-[#f0ffe5] overflow-hidden">
@@ -36,13 +38,13 @@ export default function AdminPendingPage() {
             className="text-3xl font-extrabold mb-4 bg-gradient-to-r bg-clip-text text-transparent"
             style={{ backgroundImage: 'linear-gradient(to right, #8ADB10, #8ADB10)' }}
           >
-            Tài khoản đang chờ duyệt
+            {t('accountPending.title')}
           </h1>
 
           <p className="text-gray-700 mb-8 leading-relaxed text-[16px]">
-            Tài khoản của bạn đã được gửi lên hệ thống và đang chờ Quản trị viên xác nhận.
+            {t('accountPending.description')}
             <br /><br />
-            Vui lòng kiểm tra lại sau hoặc liên hệ với Quản trị viên để được hỗ trợ nhanh hơn.
+            {t('accountPending.checkLater')}
           </p>
 
           <button
@@ -52,7 +54,7 @@ export default function AdminPendingPage() {
             }}
             onClick={() => router.push('/admin/login')}
           >
-            Quay lại đăng nhập
+            {t('accountPending.backToLogin')}
           </button>
         </div>
       </div>

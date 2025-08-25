@@ -13,9 +13,11 @@ import toast from 'react-hot-toast';
 import { useAdminAuthGuard } from '@/lib/hooks/useAdminAuthGuard';
 import { Building2, Menu } from 'lucide-react';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
+import { useI18n } from '@/lib/i18n/provider';
 
 export default function BranchesPage() {
   const { isChecking } = useAdminAuthGuard();
+  const { t } = useI18n();
   const [search, setSearch] = useState("");
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
@@ -41,7 +43,7 @@ export default function BranchesPage() {
         }
       } catch (error) {
         console.error('Error loading clubs:', error);
-        toast.error('Không thể tải danh sách chi nhánh');
+        toast.error(t('branches.cannotLoadBranches'));
       } finally {
         setIsPageLoading(false);
       }
@@ -61,7 +63,7 @@ export default function BranchesPage() {
       setBranches(filtered);
     } catch (error) {
       console.error('Error searching:', error);
-      toast.error('Lỗi tìm kiếm');
+      toast.error(t('branches.searchError'));
     } finally {
       setIsSearching(false);
     }
@@ -83,7 +85,7 @@ export default function BranchesPage() {
 
   return (
     <>
-      {isPageLoading && <ScoreLensLoading text="Đang tải..." />}
+      {isPageLoading && <ScoreLensLoading text={t('common.loading')} />}
       <div className="min-h-screen flex bg-[#18191A]">
         <Sidebar />
         <main className="flex-1 bg-white min-h-screen lg:ml-0">
@@ -93,7 +95,7 @@ export default function BranchesPage() {
           <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
             <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
               <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
-                CHI NHÁNH
+                {t('branches.title')}
               </span>
             </div>
             <BranchSearchBar
@@ -114,10 +116,10 @@ export default function BranchesPage() {
                 icon={
                   <Building2 className="w-14 h-14 text-white" strokeWidth={1.5} />
                 }
-                title={search ? 'Không tìm thấy chi nhánh phù hợp' : 'Chưa có chi nhánh nào'}
-                description={search ? 'Thử thay đổi từ khóa tìm kiếm để tìm thấy chi nhánh phù hợp' : 'Sử dụng nút "Thêm chi nhánh" ở trên để tạo chi nhánh đầu tiên'}
+                title={search ? t('branches.noSearchResults') : t('branches.noBranches')}
+                description={search ? t('branches.tryDifferentKeywords') : t('branches.useAddButton')}
                 secondaryAction={search ? {
-                  label: 'Xem tất cả',
+                  label: t('branches.viewAll'),
                   onClick: () => setSearch(''),
                   icon: (
                     <Menu className="w-5 h-5" />

@@ -6,15 +6,17 @@ import { useAdminNotifications } from '@/lib/hooks/useAdminNotifications';
 import { NotificationItem } from '@/components/shared/NotificationItem';
 import { Menu, X } from 'lucide-react';
 import { useMobileMenuStore } from '@/lib/mobileMenuState';
+import { useI18n } from '@/lib/i18n/provider';
 
 
 export default function HeaderAdminPage() {
-  const [adminName, setAdminName] = useState<string>('Chưa đăng nhập');
+  const { t } = useI18n();
+  const [adminName, setAdminName] = useState<string>(t('common.notLoggedIn'));
   const [notificationOpen, setNotificationOpen] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
-  const [brandName, setBrandName] = useState<string>('Chưa đăng nhập');
+  const [brandName, setBrandName] = useState<string>(t('common.notLoggedIn'));
   const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenuStore();
-  
+
   const {
     notifications,
     unreadCount,
@@ -30,31 +32,31 @@ export default function HeaderAdminPage() {
       axios.get('/admin/profile', {
         headers: { Authorization: `Bearer ${token}` }
       })
-      .then(res => {
-        const data = res.data as { admin?: { fullName?: string, brandId?: string } };
-        if (data.admin && data.admin.fullName) {
-          setAdminName(data.admin.fullName);
-        }
+        .then(res => {
+          const data = res.data as { admin?: { fullName?: string, brandId?: string } };
+          if (data.admin && data.admin.fullName) {
+            setAdminName(data.admin.fullName);
+          }
 
-        if (data.admin && data.admin.brandId) {
-          axios.get(`/admin/brands/${data.admin.brandId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          })
-          .then(brandRes => {
-            const brandData = brandRes.data as { success?: boolean, brand?: { brandName?: string } };
-            if (brandData.success && brandData.brand && brandData.brand.brandName) {
-              setBrandName(brandData.brand.brandName);
-            }
-          })
-          .catch(() => {
-            setBrandName('Brand không xác định');
-          });
-        }
-      })
-      .catch(() => {
-        setAdminName('Admin');
-        setBrandName('Brand không xác định');
-      });
+          if (data.admin && data.admin.brandId) {
+            axios.get(`/admin/brands/${data.admin.brandId}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            })
+              .then(brandRes => {
+                const brandData = brandRes.data as { success?: boolean, brand?: { brandName?: string } };
+                if (brandData.success && brandData.brand && brandData.brand.brandName) {
+                  setBrandName(brandData.brand.brandName);
+                }
+              })
+              .catch(() => {
+                setBrandName(t('common.unknownBrand'));
+              });
+          }
+        })
+        .catch(() => {
+          setAdminName(t('common.admin'));
+          setBrandName(t('common.unknownBrand'));
+        });
     }
   }, []);
 
@@ -87,43 +89,41 @@ export default function HeaderAdminPage() {
           <div className="relative" ref={notificationRef}>
             <motion.button
               onClick={() => setNotificationOpen(prev => !prev)}
-              className={`relative focus:outline-none p-2 sm:p-3 rounded-full transition-all duration-300 touch-manipulation ${
-                notificationOpen 
-                  ? 'bg-lime-500/20 border-2 border-lime-400 shadow-lg shadow-lime-500/25' 
-                  : 'hover:bg-gray-100 hover:shadow-md hover:scale-105 active:scale-95'
-              }`}
+              className={`relative focus:outline-none p-2 sm:p-3 rounded-full transition-all duration-300 touch-manipulation ${notificationOpen
+                ? 'bg-lime-500/20 border-2 border-lime-400 shadow-lg shadow-lime-500/25'
+                : 'hover:bg-gray-100 hover:shadow-md hover:scale-105 active:scale-95'
+                }`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               <motion.div
-                animate={{ 
+                animate={{
                   rotate: notificationOpen ? 15 : 0,
-                  scale: unreadCount > 0 ? [1, 1.1, 1] : 1 
+                  scale: unreadCount > 0 ? [1, 1.1, 1] : 1
                 }}
-                transition={{ 
+                transition={{
                   duration: 0.3,
                   scale: { repeat: unreadCount > 0 ? Infinity : 0, repeatDelay: 2 }
                 }}
               >
-                <svg 
-                  className={`w-5 h-5 sm:w-6 sm:h-6 transition-all duration-300 ${
-                    notificationOpen 
-                      ? 'text-lime-600' 
-                      : 'text-gray-500 hover:text-lime-500'
-                  }`} 
-                  fill="none" 
-                  stroke="currentColor" 
+                <svg
+                  className={`w-5 h-5 sm:w-6 sm:h-6 transition-all duration-300 ${notificationOpen
+                    ? 'text-lime-600'
+                    : 'text-gray-500 hover:text-lime-500'
+                    }`}
+                  fill="none"
+                  stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" 
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                   />
                 </svg>
               </motion.div>
-              
+
               <AnimatePresence>
                 {unreadCount > 0 && (
                   <motion.span
@@ -152,27 +152,27 @@ export default function HeaderAdminPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 sm:gap-3">
                         <div className="p-1.5 sm:p-2 bg-lime-100 rounded-lg">
-                          <svg 
-                            className="w-4 h-4 sm:w-5 sm:h-5 text-lime-600" 
-                            fill="none" 
-                            stroke="currentColor" 
+                          <svg
+                            className="w-4 h-4 sm:w-5 sm:h-5 text-lime-600"
+                            fill="none"
+                            stroke="currentColor"
                             viewBox="0 0 24 24"
                           >
-                            <path 
-                              strokeLinecap="round" 
-                              strokeLinejoin="round" 
-                              strokeWidth={2} 
-                              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" 
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                             />
                           </svg>
                         </div>
                         <div>
                           <h3 className="text-base sm:text-lg font-bold text-gray-900">
-                            Thông báo
+                            {t('common.notifications')}
                           </h3>
                           {unreadCount > 0 && (
                             <p className="text-xs sm:text-sm text-gray-600">
-                              {unreadCount} thông báo mới
+                              {unreadCount} {t('common.newNotifications')}
                             </p>
                           )}
                         </div>
@@ -184,7 +184,7 @@ export default function HeaderAdminPage() {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >
-                          Đánh dấu tất cả
+                          {t('common.markAllAsRead')}
                         </motion.button>
                       )}
                     </div>
@@ -198,7 +198,7 @@ export default function HeaderAdminPage() {
                           animate={{ rotate: 360 }}
                           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                         />
-                        <p className="text-xs sm:text-sm text-gray-500 mt-3 sm:mt-4 font-medium">Đang tải thông báo...</p>
+                        <p className="text-xs sm:text-sm text-gray-500 mt-3 sm:mt-4 font-medium">{t('common.loadingNotifications')}</p>
                       </div>
                     ) : notifications.length > 0 ? (
                       <motion.div
@@ -224,29 +224,29 @@ export default function HeaderAdminPage() {
                         ))}
                       </motion.div>
                     ) : (
-                      <motion.div 
+                      <motion.div
                         className="p-8 sm:p-12 text-center"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
                       >
                         <div className="bg-gray-100 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                          <svg 
-                            className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" 
-                            fill="none" 
-                            stroke="currentColor" 
+                          <svg
+                            className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
                             viewBox="0 0 24 24"
                           >
-                            <path 
-                              strokeLinecap="round" 
-                              strokeLinejoin="round" 
-                              strokeWidth={2} 
-                              d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" 
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
                             />
                           </svg>
                         </div>
-                        <p className="text-sm sm:text-base font-medium text-gray-600 mb-1 sm:mb-2">Không có thông báo</p>
-                        <p className="text-xs sm:text-sm text-gray-400">Các thông báo mới sẽ xuất hiện tại đây</p>
+                        <p className="text-sm sm:text-base font-medium text-gray-600 mb-1 sm:mb-2">{t('common.noNotifications')}</p>
+                        <p className="text-xs sm:text-sm text-gray-400">{t('common.newNotificationsWillAppearHere')}</p>
                       </motion.div>
                     )}
                   </div>

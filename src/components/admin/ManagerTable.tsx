@@ -1,5 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface Manager {
   name: string;
@@ -12,15 +13,16 @@ interface Manager {
 
 export default function ManagerTable({ managers }: { managers: Manager[] }) {
   const router = useRouter();
+  const { t } = useI18n();
   return (
     <div className="w-full">
       <div className="hidden lg:block overflow-x-auto">
         <div className="space-y-2 rounded-lg min-w-[800px]">
           <div className="grid grid-cols-12 bg-black text-white font-semibold text-center">
-            <div className="col-span-3 py-3 text-sm xl:text-base">TÊN QUẢN LÝ</div>
-            <div className="col-span-3 py-3 text-sm xl:text-base">CHI NHÁNH</div>
-            <div className="col-span-3 py-3 text-sm xl:text-base">SỐ ĐIỆN THOẠI</div>
-            <div className="col-span-3 py-3 text-sm xl:text-base">TRẠNG THÁI</div>
+            <div className="col-span-3 py-3 text-sm xl:text-base">{t('managers.table.managerName')}</div>
+            <div className="col-span-3 py-3 text-sm xl:text-base">{t('managers.table.branch')}</div>
+            <div className="col-span-3 py-3 text-sm xl:text-base">{t('managers.table.phone')}</div>
+            <div className="col-span-3 py-3 text-sm xl:text-base">{t('managers.table.status')}</div>
           </div>
           {managers.map((m, idx) => (
             <div
@@ -29,7 +31,7 @@ export default function ManagerTable({ managers }: { managers: Manager[] }) {
               onClick={() => router.push(`/admin/managers/${m.managerId}`)}
             >
               <div className="col-span-3 py-4 font-semibold text-black text-sm xl:text-base px-2">{m.name}</div>
-              <div className="col-span-3 py-4 text-gray-700 text-sm xl:text-base px-2">{m.clubName || 'N/A'}</div>
+              <div className="col-span-3 py-4 text-gray-700 text-sm xl:text-base px-2">{m.clubName || t('common.notAvailable')}</div>
               <div className="col-span-3 py-4 text-gray-700 text-sm xl:text-base px-2">{m.phone}</div>
               <div className="col-span-3 py-4 flex justify-center px-2">
                 <span
@@ -38,7 +40,7 @@ export default function ManagerTable({ managers }: { managers: Manager[] }) {
                     : 'bg-red-500'
                     }`}
                 >
-                  {m.status === 'active' ? 'Hoạt động' : 'Tạm nghỉ'}
+                  {m.status === 'active' ? t('managers.status.active') : t('managers.status.inactive')}
                 </span>
               </div>
             </div>
@@ -56,7 +58,7 @@ export default function ManagerTable({ managers }: { managers: Manager[] }) {
             <div className="flex justify-between items-start mb-3">
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-900 text-base mb-1">{m.name}</h3>
-                <p className="text-gray-600 text-sm">{m.clubName || 'Chưa có chi nhánh'}</p>
+                <p className="text-gray-600 text-sm">{m.clubName || t('managers.noBranch')}</p>
               </div>
               <span
                 className={`ml-3 px-3 py-1 rounded-full text-white font-medium text-xs flex-shrink-0 ${m.status === 'active'
@@ -64,18 +66,18 @@ export default function ManagerTable({ managers }: { managers: Manager[] }) {
                   : 'bg-red-500'
                   }`}
               >
-                {m.status === 'active' ? 'Hoạt động' : 'Tạm nghỉ'}
+                {m.status === 'active' ? t('managers.status.active') : t('managers.status.inactive')}
               </span>
             </div>
             <div className="space-y-2">
               <div className="flex items-center">
-                <span className="text-gray-500 text-xs font-medium w-8">SĐT:</span>
+                <span className="text-gray-500 text-xs font-medium w-8">{t('common.phone')}:</span>
                 <span className="text-gray-800 text-sm font-medium">{m.phone}</span>
               </div>
             </div>
             <div className="mt-3 pt-3 border-t border-gray-100">
               <div className="flex justify-end">
-                <span className="text-lime-600 text-xs font-medium">Nhấn để xem chi tiết →</span>
+                <span className="text-lime-600 text-xs font-medium">{t('common.clickToViewDetails')} →</span>
               </div>
             </div>
           </div>

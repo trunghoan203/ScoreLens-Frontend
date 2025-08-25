@@ -9,10 +9,12 @@ import { SearchParamsWrapper } from '@/components/shared/SearchParamsWrapper';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { Check, ArrowLeft } from 'lucide-react';
+import { useI18n } from '@/lib/i18n/provider';
 
 function AdminResetPasswordPageInner({ searchParams }: { searchParams: URLSearchParams | null }) {
   const email = searchParams?.get('email');
   const router = useRouter();
+  const { t } = useI18n();
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -22,20 +24,20 @@ function AdminResetPasswordPageInner({ searchParams }: { searchParams: URLSearch
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.length < 6) {
-      toast.error('Mật khẩu phải có ít nhất 6 ký tự.');
+      toast.error(t('auth.adminResetPassword.passwordMinLength'));
       return;
     }
     if (password !== confirmPassword) {
-      toast.error('Mật khẩu xác nhận không khớp.');
+      toast.error(t('auth.adminResetPassword.passwordMismatch'));
       return;
     }
     setIsLoading(true);
     try {
       await new Promise(res => setTimeout(res, 1000));
-      toast.success('Đặt lại mật khẩu thành công!');
+      toast.success(t('auth.adminResetPassword.resetSuccess'));
       setIsSuccess(true);
     } catch {
-      toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
+      toast.error(t('auth.adminResetPassword.resetFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -49,9 +51,9 @@ function AdminResetPasswordPageInner({ searchParams }: { searchParams: URLSearch
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
               <Check className="w-8 h-8 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">Đặt lại mật khẩu thành công!</h2>
+            <h2 className="text-2xl font-bold text-gray-900">{t('auth.adminResetPassword.successTitle')}</h2>
             <p className="text-gray-600">
-              Bạn đã có thể đăng nhập với mật khẩu mới.
+              {t('auth.adminResetPassword.successDescription')}
             </p>
             <div className="pt-4">
               <Button
@@ -59,7 +61,7 @@ function AdminResetPasswordPageInner({ searchParams }: { searchParams: URLSearch
                 variant="lime"
                 fullWidth
               >
-                <ArrowLeft className="inline w-4 h-4 mr-1" /> Quay lại đăng nhập
+                <ArrowLeft className="inline w-4 h-4 mr-1" /> {t('auth.adminResetPassword.backToLogin')}
               </Button>
             </div>
           </div>
@@ -70,14 +72,14 @@ function AdminResetPasswordPageInner({ searchParams }: { searchParams: URLSearch
 
   return (
     <AuthLayout
-      title="Đặt lại mật khẩu"
-      description={email ? `Đặt lại mật khẩu cho ${email}` : 'Vui lòng nhập mật khẩu mới.'}
+      title={t('auth.adminResetPassword.title')}
+      description={email ? `${t('auth.adminResetPassword.descriptionWithEmail')} ${email}` : t('auth.adminResetPassword.description')}
     >
       <div className="flex-1 flex flex-col justify-center">
         <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6 overflow-hidden">
           <div>
             <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-              Mật khẩu mới
+              {t('auth.adminResetPassword.newPasswordLabel')}
             </label>
             <PasswordInput
               id="password"
@@ -85,14 +87,14 @@ function AdminResetPasswordPageInner({ searchParams }: { searchParams: URLSearch
               value={password}
               onChange={e => setPassword(e.target.value)}
               className="w-full px-4 py-3 border rounded-lg text-black focus:ring-2 focus:ring-lime-400 focus:border-transparent border-gray-300"
-              placeholder="Nhập mật khẩu mới"
+              placeholder={t('auth.adminResetPassword.newPasswordPlaceholder')}
               required
               disabled={isLoading}
             />
           </div>
           <div>
             <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
-              Xác nhận mật khẩu
+              {t('auth.adminResetPassword.confirmPasswordLabel')}
             </label>
             <PasswordInput
               id="confirmPassword"
@@ -100,7 +102,7 @@ function AdminResetPasswordPageInner({ searchParams }: { searchParams: URLSearch
               value={confirmPassword}
               onChange={e => setConfirmPassword(e.target.value)}
               className="w-full px-4 py-3 border rounded-lg text-black focus:ring-2 focus:ring-lime-400 focus:border-transparent border-gray-300"
-              placeholder="Nhập lại mật khẩu mới"
+              placeholder={t('auth.adminResetPassword.confirmPasswordPlaceholder')}
               required
               disabled={isLoading}
             />
@@ -112,14 +114,14 @@ function AdminResetPasswordPageInner({ searchParams }: { searchParams: URLSearch
             fullWidth
             disabled={isLoading || !password || !confirmPassword}
           >
-            {isLoading ? 'Đang đặt lại...' : 'Đặt lại mật khẩu'}
+            {isLoading ? t('auth.adminResetPassword.resetting') : t('auth.adminResetPassword.resetButton')}
           </Button>
           <div className="text-center">
             <Link
               href="/admin/login"
               className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors"
             >
-              ← Quay lại đăng nhập
+              ← {t('auth.adminResetPassword.backToLogin')}
             </Link>
           </div>
         </form>

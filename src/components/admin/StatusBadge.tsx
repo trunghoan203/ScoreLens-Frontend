@@ -1,4 +1,7 @@
+import { useI18n } from '@/lib/i18n/provider';
+
 export default function StatusBadge({ status }: { status: 'open' | 'closed' | 'maintenance' }) {
+  const { t } = useI18n();
   return (
     <span
       className={
@@ -6,7 +9,7 @@ export default function StatusBadge({ status }: { status: 'open' | 'closed' | 'm
         (status === "open" ? "bg-green-500" : status === "closed" ? "bg-red-500" : "bg-yellow-500")
       }
     >
-      {status === "open" ? "Mở cửa" : status === "closed" ? "Đóng cửa" : "Bảo trì"}
+      {status === "open" ? t('branches.status.open') : status === "closed" ? t('branches.status.closed') : t('branches.status.maintenance')}
     </span>
   );
 } 

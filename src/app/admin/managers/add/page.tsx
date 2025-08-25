@@ -11,9 +11,11 @@ import managerService from '@/lib/managerService';
 import clubsService, { ClubResponse } from '@/lib/clubsService';
 import adminService from '@/lib/adminService';
 import Image from 'next/image';
+import { useI18n } from '@/lib/i18n/provider';
 
 export default function AddManagerPage() {
   const router = useRouter();
+  const { t } = useI18n();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [dob, setDob] = useState('');
@@ -34,7 +36,7 @@ export default function AddManagerPage() {
           setClubs(clubsData);
         }
       } catch (error) {
-        toast.error('Không thể tải danh sách chi nhánh');
+        toast.error(t('managers.cannotLoadBranches'));
       }
     };
     fetchClubs();
@@ -43,7 +45,7 @@ export default function AddManagerPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
       await managerService.createManager({
         fullName: name,
@@ -54,12 +56,12 @@ export default function AddManagerPage() {
         address,
         clubId,
       });
-      
-      toast.success('Thêm quản lý thành công!');
+
+      toast.success(t('managers.addSuccess'));
       router.push('/admin/managers');
     } catch (error: unknown) {
       const errMsg = (typeof error === 'object' && error && 'message' in error) ? (error as { message?: string }).message : undefined;
-      toast.error(errMsg || 'Thêm quản lý thất bại!');
+      toast.error(errMsg || t('managers.addFailed'));
     } finally {
       setLoading(false);
     }
@@ -67,7 +69,7 @@ export default function AddManagerPage() {
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    
+
     if (value) {
       const [year, month, day] = value.split('-');
       const formattedDate = `${day}/${month}/${year}`;
@@ -87,18 +89,18 @@ export default function AddManagerPage() {
         <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
           <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
             <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
-              QUẢN LÝ
+              {t('managers.title')}
             </span>
           </div>
           <AddFormLayout
-            title="THÊM QUẢN LÝ"
+            title={t('managers.addManager')}
             onBack={() => router.push('/admin/managers')}
-            backLabel="Quay lại"
-            submitLabel="Thêm quản lý"
+            backLabel={t('common.back')}
+            submitLabel={t('managers.addManager')}
             onSubmit={handleSubmit}
           >
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Chọn Chi Nhánh<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('managers.selectBranch')}<span className="text-red-500">*</span></label>
               <div className="relative w-full">
                 <select
                   value={clubId}
@@ -107,7 +109,7 @@ export default function AddManagerPage() {
                   name="clubId"
                   className="w-full border border-gray-300 bg-white rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none"
                 >
-                  <option value="">-- Chọn chi nhánh --</option>
+                  <option value="">{t('managers.selectBranchPlaceholder')}</option>
                   {clubs.map(club => (
                     <option key={club.clubId} value={club.clubId}>{club.clubName}</option>
                   ))}
@@ -122,15 +124,15 @@ export default function AddManagerPage() {
               </div>
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Tên Quản Lý<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('managers.managerName')}<span className="text-red-500">*</span></label>
               <Input value={name} onChange={e => setName(e.target.value)} required className="py-2.5 sm:py-3" />
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Số Điện Thoại<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('common.phone')}<span className="text-red-500">*</span></label>
               <Input value={phone} onChange={e => setPhone(e.target.value)} required className="py-2.5 sm:py-3" />
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Ngày Sinh<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('managers.dateOfBirth')}<span className="text-red-500">*</span></label>
               <input
                 type="date"
                 value={dob ? (() => {
@@ -144,24 +146,24 @@ export default function AddManagerPage() {
                   return '';
                 })() : ''}
                 onChange={handleDateChange}
-                placeholder="dd/mm/yyyy"
+                placeholder={t('managers.dateFormat')}
                 className="w-full bg-white border border-gray-300 rounded-md px-3 sm:px-4 py-2.5 sm:py-3 text-sm font-base text-black placeholder-gray-500 hover:border-lime-400 outline-none transition-all focus:border-lime-500"
               />
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Email<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('common.email')}<span className="text-red-500">*</span></label>
               <Input value={email} onChange={e => setEmail(e.target.value)} required className="py-2.5 sm:py-3" />
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">CCCD<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('managers.citizenCode')}<span className="text-red-500">*</span></label>
               <Input value={citizenCode} onChange={e => setCitizenCode(e.target.value)} required className="py-2.5 sm:py-3" />
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Địa Chỉ<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('common.address')}<span className="text-red-500">*</span></label>
               <Input value={address} onChange={e => setAddress(e.target.value)} required className="py-2.5 sm:py-3" />
             </div>
             <div className="w-full mb-8 sm:mb-10">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Trạng Thái<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('common.status')}<span className="text-red-500">*</span></label>
               <div className="relative w-full">
                 <select
                   value={isActive ? 'active' : 'inactive'}
@@ -170,8 +172,8 @@ export default function AddManagerPage() {
                   name="isActive"
                   className="w-full border border-gray-300 bg-white rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none"
                 >
-                  <option value="active">Hoạt động</option>
-                  <option value="inactive">Không hoạt động</option>
+                  <option value="active">{t('managers.status.active')}</option>
+                  <option value="inactive">{t('managers.status.inactive')}</option>
                 </select>
                 <Image
                   src="/icon/chevron-down_Black.svg"

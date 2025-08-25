@@ -1,4 +1,5 @@
 import React from 'react';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface FeatureCardProps {
   title: string;
@@ -7,7 +8,7 @@ interface FeatureCardProps {
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ title, items, backgroundImage }) => (
-  <div 
+  <div
     className="relative rounded-2xl overflow-hidden p-6 sm:p-8 lg:p-10 flex flex-col justify-end min-h-[400px] sm:min-h-[500px] lg:min-h-[600px] bg-cover bg-center"
     style={{ backgroundImage: `url('${backgroundImage}')` }}
   >
@@ -23,30 +24,22 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ title, items, backgroundImage
   </div>
 );
 
-const features: FeatureCardProps[] = [
-  {
-    title: "HỆ THỐNG QUẢN LÝ CLB BIDA",
-    items: [
-      "Giúp ban tổ chức và vận hành CLB bida hiệu quả hơn",
-      "Quản lý lịch thi đấu, điểm số và lịch sử trận đấu",
-      "Hỗ trợ theo dõi hoạt động của từng bàn theo thời gian thực",
-      "Dễ sử dụng, phù hợp với mọi mô hình quản lý CLB",
-    ],
-    backgroundImage: "/images/clubManagement.jpg", 
-  },
-  {
-    title: "HỆ THỐNG HỘI VIÊN",
-    items: [
-      "Tạo cộng đồng người chơi trung thành ngay tại quán của bạn",
-      "Quản lý và lưu trữ thông tin hội viên",
-      "Tạo điều kiện tổ chức các sự kiện, xếp hạng hội viên",
-      "Chăm sóc khách hàng thông qua các ưu đãi",
-    ],
-    backgroundImage: "/images/memberSystem.png",
-  },
-];
-
 export const FeatureCardsSection = () => {
+  const { t } = useI18n();
+
+  const features: FeatureCardProps[] = [
+    {
+      title: t('home.features.clubManagement.title'),
+      items: t('home.features.clubManagement.items'),
+      backgroundImage: "/images/clubManagement.jpg",
+    },
+    {
+      title: t('home.features.memberSystem.title'),
+      items: t('home.features.memberSystem.items'),
+      backgroundImage: "/images/memberSystem.png",
+    },
+  ];
+
   return (
     <section className="py-12 sm:py-16 md:py-24 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-6 sm:gap-8">
