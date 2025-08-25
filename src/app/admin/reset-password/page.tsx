@@ -18,24 +18,65 @@ function AdminResetPasswordPageInner({ searchParams }: { searchParams: URLSearch
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!password) {
+      newErrors.password = 'Mật khẩu là bắt buộc';
+    } else if (password.length < 8) {
+      newErrors.password = 'Mật khẩu phải có ít nhất 8 ký tự';
+    } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])/.test(password)) {
+      newErrors.password = 'Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt';
+    }
+    if (!confirmPassword) {
+      newErrors.confirmPassword = 'Xác nhận mật khẩu là bắt buộc';
+    } else if (password !== confirmPassword) {
+      newErrors.confirmPassword = 'Mật khẩu xác nhận không khớp';
+    }
+    
+    setErrors(newErrors);
+    return newErrors;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.length < 6) {
-      toast.error('Mật khẩu phải có ít nhất 6 ký tự.');
+    
+    const formErrors = validateForm();
+    if (Object.keys(formErrors).length > 0) {
       return;
-    }
-    if (password !== confirmPassword) {
-      toast.error('Mật khẩu xác nhận không khớp.');
-      return;
-    }
+    } 
     setIsLoading(true);
     try {
       await new Promise(res => setTimeout(res, 1000));
       toast.success('Đặt lại mật khẩu thành công!');
       setIsSuccess(true);
-    } catch {
-      toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
+    } catch (error: unknown) {
+      console.error('Error resetting password:', error);
+      
+      if (typeof error === 'object' && error !== null && 'response' in error) {
+        const axiosError = error as { response?: { data?: unknown } };
+        if (axiosError.response?.data) {
+          const responseData = axiosError.response.data as { message?: string; errors?: Record<string, string[]> };
+          
+          if (responseData.errors) {
+            const newErrors: Record<string, string> = {};
+            Object.keys(responseData.errors).forEach(key => {
+              if (responseData.errors![key] && Array.isArray(responseData.errors![key])) {
+                newErrors[key] = responseData.errors![key][0];
+              }
+            });
+            setErrors(newErrors);
+            toast.error('Vui lòng kiểm tra lại thông tin');
+          } else {
+            toast.error(responseData.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
+          }
+        } else {
+          toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
+        }
+      } else {
+        toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -89,6 +130,7 @@ function AdminResetPasswordPageInner({ searchParams }: { searchParams: URLSearch
               required
               disabled={isLoading}
             />
+            {errors.password && <span className="text-red-500 text-xs sm:text-sm">{errors.password}</span>}
           </div>
           <div>
             <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -104,6 +146,7 @@ function AdminResetPasswordPageInner({ searchParams }: { searchParams: URLSearch
               required
               disabled={isLoading}
             />
+            {errors.confirmPassword && <span className="text-red-500 text-xs sm:text-sm">{errors.confirmPassword}</span>}
           </div>
 
           <Button

@@ -19,13 +19,29 @@ export default function AddBranchPage() {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!clubName) newErrors.clubName = 'Tên chi nhánh là bắt buộc';
-    else if (clubName.length < 2) newErrors.clubName = 'Tên chi nhánh phải có ít nhất 2 ký tự';
-    if (!address) newErrors.address = 'Địa chỉ là bắt buộc';
-    else if (address.length < 5) newErrors.address = 'Địa chỉ phải có ít nhất 5 ký tự';
-    if (!phoneNumber) newErrors.phoneNumber = 'Số điện thoại là bắt buộc';
-    else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phoneNumber)) newErrors.phoneNumber = 'Số điện thoại không hợp lệ';
-    if (tableNumber <= 0) newErrors.tableNumber = 'Số bàn phải lớn hơn 0';
+    if (!clubName) {
+      newErrors.clubName = 'Tên chi nhánh là bắt buộc';
+    } else if (clubName.length < 2) {
+      newErrors.clubName = 'Tên chi nhánh phải có ít nhất 2 ký tự';
+    } else if (clubName.length > 255) {
+      newErrors.clubName = 'Tên chi nhánh không được vượt quá 255 ký tự';
+    }
+    if (!address) {
+      newErrors.address = 'Địa chỉ là bắt buộc';
+    } else if (address.length < 5) {
+      newErrors.address = 'Địa chỉ phải có ít nhất 5 ký tự';
+    } else if (address.length > 255) {
+      newErrors.address = 'Địa chỉ không được vượt quá 255 ký tự';
+    }
+    if (!phoneNumber) {
+      newErrors.phoneNumber = 'Số điện thoại là bắt buộc';
+    } else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phoneNumber)) {
+      newErrors.phoneNumber = 'Số điện thoại không hợp lệ';
+    }
+    if (tableNumber <= 0) {
+      newErrors.tableNumber = 'Số bàn ít nhất là 1';
+    }
+    
     setErrors(newErrors);
     return newErrors;
   };
@@ -35,7 +51,6 @@ export default function AddBranchPage() {
 
     const formErrors = validateForm();
     if (Object.keys(formErrors).length > 0) {
-      toast.error('Vui lòng điền đầy đủ thông tin');
       return;
     }
 

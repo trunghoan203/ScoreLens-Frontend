@@ -24,6 +24,75 @@ export default function AddManagerPage() {
   const [clubs, setClubs] = useState<ClubResponse[]>([]);
   const [isActive, setIsActive] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!clubId) {
+      newErrors.clubId = 'Vui lòng chọn chi nhánh';
+    }
+    if (!name) {
+      newErrors.name = 'Tên quản lý là bắt buộc';
+    } else if (name.length < 2) {
+      newErrors.name = 'Tên quản lý phải có ít nhất 2 ký tự';
+    } else if (name.length > 255) {
+      newErrors.name = 'Tên quản lý không được vượt quá 255 ký tự';
+    }
+    if (!phone) {
+      newErrors.phone = 'Số điện thoại là bắt buộc';
+    } else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phone)) {
+      newErrors.phone = 'Số điện thoại không hợp lệ';
+    }
+    if (!dob) {
+      newErrors.dob = 'Ngày sinh là bắt buộc';
+    } else if (!/^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/.test(dob)) {
+      newErrors.dob = 'Ngày sinh không hợp lệ (định dạng phải là dd/mm/yyyy)';
+    } else {
+      const [day, month, year] = dob.split("/").map(Number);
+      const dobDate = new Date(year, month - 1, day);
+      const today = new Date();
+      
+      const isValidDate = dobDate.getFullYear() === year && 
+                         dobDate.getMonth() === month - 1 && 
+                         dobDate.getDate() === day;
+      
+      if (!isValidDate || dobDate > today) {
+        newErrors.dob = 'Ngày sinh không hợp lệ hoặc ở tương lai';
+      }
+    }
+    if (!email) {
+      newErrors.email = 'Email là bắt buộc';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = 'Email không hợp lệ';
+    }
+    if (!citizenCode) {
+      newErrors.citizenCode = 'CCCD là bắt buộc';
+    } else if (!/^\d{12}$/.test(citizenCode)) {
+      newErrors.citizenCode = 'CCCD phải có đúng 12 chữ số';
+    } else {
+      const provinceCode = parseInt(citizenCode.slice(0, 3), 10);
+      if (provinceCode < 1 || provinceCode > 96) {
+        newErrors.citizenCode = 'Mã tỉnh/thành phố không hợp lệ';
+      }
+      const genderCentury = parseInt(citizenCode[3], 10);
+      if (genderCentury < 0 || genderCentury > 9) {
+        newErrors.citizenCode = 'Mã giới tính/thế kỷ không hợp lệ';
+      }
+      const yearTwoDigits = parseInt(citizenCode.slice(4, 6), 10);
+      if (yearTwoDigits < 0 || yearTwoDigits > 99) {
+        newErrors.citizenCode = 'Năm sinh không hợp lệ';
+      }
+    }
+    if (!address) {
+      newErrors.address = 'Địa chỉ là bắt buộc';
+    } else if (address.length < 5) {
+      newErrors.address = 'Địa chỉ phải có ít nhất 5 ký tự';
+    } else if (address.length > 255) {
+      newErrors.address = 'Địa chỉ không được vượt quá 255 ký tự';
+    }
+    setErrors(newErrors);
+    return newErrors;
+  };
 
   useEffect(() => {
     const fetchClubs = async () => {
@@ -42,6 +111,12 @@ export default function AddManagerPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const formErrors = validateForm();
+    if (Object.keys(formErrors).length > 0) {
+      return;
+    }
+    
     setLoading(true);
     
     try {
@@ -58,8 +133,31 @@ export default function AddManagerPage() {
       toast.success('Thêm quản lý thành công!');
       router.push('/admin/managers');
     } catch (error: unknown) {
-      const errMsg = (typeof error === 'object' && error && 'message' in error) ? (error as { message?: string }).message : undefined;
-      toast.error(errMsg || 'Thêm quản lý thất bại!');
+      console.error('Error creating manager:', error);
+      
+      if (typeof error === 'object' && error !== null && 'response' in error) {
+        const axiosError = error as { response?: { data?: unknown } };
+        if (axiosError.response?.data) {
+          const responseData = axiosError.response.data as { message?: string; errors?: Record<string, string[]> };
+          
+          if (responseData.errors) {
+            const newErrors: Record<string, string> = {};
+            Object.keys(responseData.errors).forEach(key => {
+              if (responseData.errors![key] && Array.isArray(responseData.errors![key])) {
+                newErrors[key] = responseData.errors![key][0];
+              }
+            });
+            setErrors(newErrors);
+            toast.error('Vui lòng kiểm tra lại thông tin');
+          } else {
+            toast.error(responseData.message || 'Thêm quản lý thất bại!');
+          }
+        } else {
+          toast.error('Thêm quản lý thất bại!');
+        }
+      } else {
+        toast.error('Thêm quản lý thất bại!');
+      }
     } finally {
       setLoading(false);
     }
@@ -120,14 +218,17 @@ export default function AddManagerPage() {
                   className="sm:w-5 sm:h-5 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
                 />
               </div>
+              {errors.clubId && <span className="text-red-500 text-xs sm:text-sm">{errors.clubId}</span>}
             </div>
             <div className="w-full mb-4 sm:mb-6">
               <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Tên Quản Lý<span className="text-red-500">*</span></label>
               <Input value={name} onChange={e => setName(e.target.value)} required className="py-2.5 sm:py-3" />
+              {errors.name && <span className="text-red-500 text-xs sm:text-sm">{errors.name}</span>}
             </div>
             <div className="w-full mb-4 sm:mb-6">
               <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Số Điện Thoại<span className="text-red-500">*</span></label>
               <Input value={phone} onChange={e => setPhone(e.target.value)} required className="py-2.5 sm:py-3" />
+              {errors.phone && <span className="text-red-500 text-xs sm:text-sm">{errors.phone}</span>}
             </div>
             <div className="w-full mb-4 sm:mb-6">
               <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Ngày Sinh<span className="text-red-500">*</span></label>
@@ -147,18 +248,22 @@ export default function AddManagerPage() {
                 placeholder="dd/mm/yyyy"
                 className="w-full bg-white border border-gray-300 rounded-md px-3 sm:px-4 py-2.5 sm:py-3 text-sm font-base text-black placeholder-gray-500 hover:border-lime-400 outline-none transition-all focus:border-lime-500"
               />
+              {errors.dob && <span className="text-red-500 text-xs sm:text-sm">{errors.dob}</span>}
             </div>
             <div className="w-full mb-4 sm:mb-6">
               <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Email<span className="text-red-500">*</span></label>
               <Input value={email} onChange={e => setEmail(e.target.value)} required className="py-2.5 sm:py-3" />
+              {errors.email && <span className="text-red-500 text-xs sm:text-sm">{errors.email}</span>}
             </div>
             <div className="w-full mb-4 sm:mb-6">
               <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">CCCD<span className="text-red-500">*</span></label>
               <Input value={citizenCode} onChange={e => setCitizenCode(e.target.value)} required className="py-2.5 sm:py-3" />
+              {errors.citizenCode && <span className="text-red-500 text-xs sm:text-sm">{errors.citizenCode}</span>}
             </div>
             <div className="w-full mb-4 sm:mb-6">
               <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Địa Chỉ<span className="text-red-500">*</span></label>
               <Input value={address} onChange={e => setAddress(e.target.value)} required className="py-2.5 sm:py-3" />
+              {errors.address && <span className="text-red-500 text-xs sm:text-sm">{errors.address}</span>}
             </div>
             <div className="w-full mb-8 sm:mb-10">
               <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Trạng Thái<span className="text-red-500">*</span></label>
