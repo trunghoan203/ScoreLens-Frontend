@@ -34,6 +34,28 @@ export default function BranchDetailPage() {
   const [existingClubs, setExistingClubs] = useState<any[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (name && name.length < 2) {
+      newErrors.name = 'Tên chi nhánh phải có ít nhất 2 ký tự';
+    } else if (name && name.length > 255) {
+      newErrors.name = 'Tên chi nhánh không được vượt quá 255 ký tự';
+    }
+    if (address && address.length < 5) {
+      newErrors.address = 'Địa chỉ phải có ít nhất 5 ký tự';
+    } else if (address && address.length > 255) {
+      newErrors.address = 'Địa chỉ không được vượt quá 255 ký tự';
+    }
+    if (phoneNumber && !/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phoneNumber)) {
+      newErrors.phoneNumber = 'Số điện thoại không hợp lệ';
+    }
+    if (tableNumber <= 0) {
+      newErrors.tableNumber = 'Số bàn ít nhất là 1';
+    }
+    setErrors(newErrors);
+    return newErrors;
+  };
+
   useEffect(() => {
     const loadClub = async () => {
       if (!clubId) {
@@ -80,18 +102,8 @@ export default function BranchDetailPage() {
     e.preventDefault();
 
     if (isEditMode) {
-      if (tableNumber === 0) {
-        toast.error(t('branches.tableNumberCannotBeZero'));
-        return;
-      }
-
-      const isDuplicateAddress = existingClubs.some(club =>
-        club.clubId !== clubId &&
-        club.address.toLowerCase().trim() === address.toLowerCase().trim()
-      );
-      if (isDuplicateAddress) {
-        setErrors(prev => ({ ...prev, address: t('branches.addressExists') }));
-        toast.error(t('branches.addressExists'));
+      const formErrors = validateForm();
+      if (Object.keys(formErrors).length > 0) {
         return;
       }
 
@@ -109,8 +121,20 @@ export default function BranchDetailPage() {
         setErrors({});
       } catch (error: any) {
         console.error('Error updating club:', error);
-        const errorMessage = error.response?.data?.message || t('branches.detailPage.updateFailed');
-        toast.error(errorMessage);
+        
+        if (error.response?.data?.errors) {
+          const beErrors = error.response.data.errors;
+          const newErrors: Record<string, string> = {};
+          Object.keys(beErrors).forEach(key => {
+            if (beErrors[key] && Array.isArray(beErrors[key])) {
+              newErrors[key] = beErrors[key][0];
+            }
+          });
+          setErrors(newErrors);
+          toast.error('Vui lòng kiểm tra lại thông tin');
+        } else {
+          toast.error('Cập nhật chi nhánh thất bại');
+        }
       } finally {
         setIsSaving(false);
       }
@@ -233,8 +257,9 @@ export default function BranchDetailPage() {
                 required
                 disabled={!isEditMode}
                 className="py-2.5 sm:py-3"
-              />
-            </div>
+                              />
+                {errors.name && <span className="text-red-500 text-xs sm:text-sm">{errors.name}</span>}
+              </div>
 
             <div className="w-full mb-4 sm:mb-6">
               <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('branches.detailPage.address')}<span className="text-red-500">*</span></label>
@@ -273,6 +298,7 @@ export default function BranchDetailPage() {
                 disabled={!isEditMode}
                 className="py-2.5 sm:py-3"
               />
+              {errors.phoneNumber && <span className="text-red-500 text-xs sm:text-sm">{errors.phoneNumber}</span>}
             </div>
 
             <div className="w-full mb-4 sm:mb-6">
@@ -285,6 +311,7 @@ export default function BranchDetailPage() {
                 disabled={!isEditMode}
                 className="py-2.5 sm:py-3"
               />
+              {errors.tableNumber && <span className="text-red-500 text-xs sm:text-sm">{errors.tableNumber}</span>}
             </div>
 
             <div className="w-full mb-4 sm:mb-6">

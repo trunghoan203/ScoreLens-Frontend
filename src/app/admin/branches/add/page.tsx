@@ -34,21 +34,29 @@ export default function AddBranchPage() {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!clubName) newErrors.clubName = t('branches.branchName') + ' ' + t('validation.required').toLowerCase();
-    else if (clubName.length < 2) newErrors.clubName = t('branches.branchName') + ' ' + t('validation.minLength').replace('{min}', '2');
-    if (!address) newErrors.address = t('common.address') + ' ' + t('validation.required').toLowerCase();
-    else if (address.length < 5) newErrors.address = t('common.address') + ' ' + t('validation.minLength').replace('{min}', '5');
-    else {
-      const isDuplicateAddress = existingClubs.some(club =>
-        club.address.toLowerCase().trim() === address.toLowerCase().trim()
-      );
-      if (isDuplicateAddress) {
-        newErrors.address = t('branches.addressExists');
-      }
+    if (!clubName) {
+      newErrors.clubName = 'Tên chi nhánh là bắt buộc';
+    } else if (clubName.length < 2) {
+      newErrors.clubName = 'Tên chi nhánh phải có ít nhất 2 ký tự';
+    } else if (clubName.length > 255) {
+      newErrors.clubName = 'Tên chi nhánh không được vượt quá 255 ký tự';
     }
-    if (!phoneNumber) newErrors.phoneNumber = t('common.phone') + ' ' + t('validation.required').toLowerCase();
-    else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phoneNumber)) newErrors.phoneNumber = t('validation.phone');
-    if (tableNumber <= 0) newErrors.tableNumber = t('branches.tableNumberMin');
+    if (!address) {
+      newErrors.address = 'Địa chỉ là bắt buộc';
+    } else if (address.length < 5) {
+      newErrors.address = 'Địa chỉ phải có ít nhất 5 ký tự';
+    } else if (address.length > 255) {
+      newErrors.address = 'Địa chỉ không được vượt quá 255 ký tự';
+    }
+    if (!phoneNumber) {
+      newErrors.phoneNumber = 'Số điện thoại là bắt buộc';
+    } else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phoneNumber)) {
+      newErrors.phoneNumber = 'Số điện thoại không hợp lệ';
+    }
+    if (tableNumber <= 0) {
+      newErrors.tableNumber = 'Số bàn ít nhất là 1';
+    }
+    
     setErrors(newErrors);
     return newErrors;
   };
