@@ -116,7 +116,7 @@ export default {
         emailInvalid: 'Invalid email format',
         roleSelection: {
             title: 'What role would you like to login with?',
-            businessOwner: 'Business Owner',
+            businessOwner: 'Admin',
             manager: 'Manager',
         },
         managerLogin: {
@@ -132,7 +132,7 @@ export default {
             errorMessage: 'An error occurred. Please try again.',
         },
         adminLogin: {
-            title: 'Business Owner Login',
+            title: 'Admin Login',
             description: 'Please login to continue',
             emailLabel: 'Email',
             emailPlaceholder: 'Enter your email',
@@ -156,8 +156,8 @@ export default {
             backToHome: 'Back to home',
         },
         adminRegister: {
-            title: 'Business Owner Registration',
-            description: 'Please enter your information to register a Business Owner account.',
+            title: 'Admin Registration',
+            description: 'Please enter your information to register a Admin account.',
             fullNameLabel: 'Full Name',
             fullNamePlaceholder: 'Enter your full name',
             fullNameRequired: 'Full name is required',
@@ -240,6 +240,15 @@ export default {
             backToLogin: 'Back to login',
             successTitle: 'Password reset successful!',
             successDescription: 'You can now login with your new password.',
+            // Validation messages
+            passwordRequired: 'Password is required',
+            passwordMinLength8: 'Password must be at least 8 characters',
+            passwordComplexity: 'Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character',
+            confirmPasswordRequired: 'Confirm password is required',
+            confirmPasswordMismatch: 'Confirm password does not match',
+            // Toast messages
+            pleaseCheckInfo: 'Please check the information again',
+            generalError: 'An error occurred. Please try again.',
         },
         accountRejected: {
             title: 'Account Rejected',
@@ -380,6 +389,15 @@ export default {
             deleteSuccess: 'Club deleted successfully!',
             deleteFailed: 'Failed to delete club',
             branchNotFound: 'Club information not found',
+            // Validation messages
+            nameMinLength: 'Club name must be at least 2 characters',
+            nameMaxLength: 'Club name cannot exceed 255 characters',
+            addressMinLength: 'Address must be at least 5 characters',
+            addressMaxLength: 'Address cannot exceed 255 characters',
+            phoneInvalid: 'Invalid phone number',
+            tableNumberMin: 'Number of tables must be at least 1',
+            // Toast messages
+            pleaseCheckInfo: 'Please check the information again',
         },
     },
 
@@ -419,6 +437,27 @@ export default {
         useAddButton: 'Use the "Add Manager" button above to create the first manager',
         cannotLoadBranches: 'Cannot load club list',
         addFailed: 'Add manager failed!',
+        // Manager Detail Page Validation
+        managerNameRequired: 'Manager name is required',
+        managerNameMinLength: 'Manager name must be at least 2 characters',
+        managerNameMaxLength: 'Manager name cannot exceed 255 characters',
+        phoneInvalid: 'Invalid phone number',
+        dateOfBirthInvalid: 'Invalid date of birth (format must be dd/mm/yyyy)',
+        dateOfBirthInvalidOrFuture: 'Invalid date of birth or date is in the future',
+        emailInvalid: 'Invalid email',
+        citizenCodeLength: 'Citizen ID must be exactly 12 digits',
+        citizenCodeProvinceInvalid: 'Invalid province/city code',
+        citizenCodeGenderInvalid: 'Invalid gender/century code',
+        citizenCodeYearInvalid: 'Invalid birth year',
+        addressMinLength: 'Address must be at least 5 characters',
+        addressMaxLength: 'Address cannot exceed 255 characters',
+        // Toast messages
+        pleaseCheckInfo: 'Please check the information again',
+        updateFailed: 'Failed to update manager!',
+        // Add Manager Page Validation
+        clubIdRequired: 'Please select a club',
+        dateOfBirthRequired: 'Date of birth is required',
+        citizenCodeRequired: 'Citizen ID is required',
         table: {
             managerName: 'MANAGER NAME',
             branch: 'CLUB',
@@ -429,6 +468,100 @@ export default {
             active: 'Active',
             inactive: 'Inactive',
         },
+    },
+
+    // Brand Info Form
+    brandInfoForm: {
+        title: 'Brand Information',
+        editTitle: 'Edit Brand Information',
+        logoLabel: 'Brand Logo',
+        logoRequired: 'Logo is required',
+        logoNotSelected: 'No logo selected',
+        uploadSuccess: 'Logo uploaded successfully!',
+        uploadFailed: 'Upload failed',
+        imageFormatInfo: 'Allowed formats: PNG, JPG, JPEG, max 5MB',
+        uploading: 'Uploading...',
+        brandNameLabel: 'Brand Name',
+        brandNameRequired: 'Brand name is required',
+        brandNameMinLength: 'Brand name must be at least 2 characters',
+        brandNamePlaceholder: 'Enter brand name...',
+        phoneLabel: 'Phone Number',
+        phoneRequired: 'Phone number is required',
+        phoneInvalid: 'Invalid phone number format',
+        phonePlaceholder: 'Enter phone number...',
+        citizenCodeLabel: 'Citizen Code',
+        citizenCodeRequired: 'Citizen code is required',
+        citizenCodeLength: 'Citizen code must be exactly 12 digits',
+        citizenCodeProvinceInvalid: 'Invalid province code',
+        citizenCodeGenderInvalid: 'Invalid gender/century code',
+        citizenCodeYearInvalid: 'Invalid birth year',
+        citizenCodePlaceholder: 'Enter citizen code...',
+        websiteLabel: 'Website',
+        websiteInvalid: 'Invalid URL, must start with https://',
+        websitePlaceholder: 'https://example.com',
+        saveAndContinue: 'Save and Continue',
+        updateAndContinue: 'Update and Continue',
+        saving: 'Saving...',
+        updating: 'Updating...',
+        updateSuccess: 'Brand information updated successfully!',
+        saveSuccess: 'Brand information saved successfully!',
+        operationFailed: 'Operation failed. Please try again.',
+    },
+
+    // Branch Info Form
+    branchInfoForm: {
+        title: 'Branch Information',
+        backToPrevious: '← Back to previous step',
+        branch: 'Branch',
+        addBranch: 'Add Branch',
+        removeBranch: 'Remove Branch',
+        clubNameLabel: 'Club Name',
+        clubNameRequired: 'Club name is required',
+        clubNamePlaceholder: 'Enter club name...',
+        tableCountLabel: 'Number of Tables',
+        tableCountRequired: 'Number of tables is required',
+        tableCountPlaceholder: 'Enter number of tables...',
+        addressLabel: 'Address',
+        addressRequired: 'Address is required',
+        addressPlaceholder: 'Enter address',
+        phoneLabel: 'Phone Number',
+        phoneRequired: 'Phone number is required',
+        phoneInvalid: 'Invalid phone number format',
+        phonePlaceholder: 'Enter phone number...',
+        save: 'Save',
+        edit: 'Edit',
+        createNew: 'Create New',
+        saving: 'Saving...',
+        cancel: 'Cancel',
+        deleteSuccess: 'Branch deleted successfully!',
+        deleteFailed: 'Failed to delete branch!',
+        updateSuccess: 'Branch updated successfully!',
+        createSuccess: 'Branch created successfully!',
+        updateFailed: 'Failed to update branch!',
+        createFailed: 'Failed to create branch!',
+        confirmTitle: 'Confirm Registration Information',
+        confirmText: 'Confirm',
+        cancelText: 'Cancel',
+        creating: 'Creating...',
+        preparing: 'Preparing...',
+        updateAndContinue: 'Update and Continue',
+        confirmInfo: 'Confirm Information',
+        brandInfoTitle: 'Brand Information',
+        branchInfoTitle: 'Branch Information',
+        brandName: 'Brand Name',
+        phoneNumber: 'Phone Number',
+        website: 'Website',
+        citizenCode: 'Citizen ID',
+        address: 'Address',
+        tableCount: 'Number of Tables',
+        phone: 'Phone Number',
+        noWebsite: 'N/A',
+        createBrandAndClubSuccess: 'Brand and clubs created successfully!',
+        cannotUpdateStatus: 'Cannot update admin status to pending.',
+        operationFailed: 'Operation failed. Please try again.',
+        deleteConfirmTitle: 'Confirm Delete Branch',
+        deleteConfirmText: 'Delete',
+        deleteConfirmMessage: 'Are you sure you want to delete this branch?',
     },
 
     // Feedbacks
@@ -465,7 +598,7 @@ export default {
             resolved: 'Resolved',
             inProgress: 'In Progress',
             managerP: 'Manager Processing',
-            adminP: 'Business Owner Processing',
+            adminP: 'Admin Processing',
             superadminP: 'Super Admin Processing',
         },
         // Feedback Detail Page
@@ -615,7 +748,14 @@ export default {
             occupied: 'Occupied',
             maintenance: 'Maintenance',
             reserved: 'Reserved',
+            empty: 'Available',
+            inuse: 'In Use',
         },
+        types: {
+            pool: 'Pool Billiards',
+            carom: 'Carom Billiards'
+        },
+        ready: 'Ready',
         type: {
             standard: 'Standard',
             premium: 'Premium',
@@ -699,6 +839,12 @@ export default {
         hours: 'hours',
         hour: 'hour',
         minute: 'minute',
+        // Manager Dashboard
+        dashboardTitle: 'DASHBOARD',
+        availableTables: 'Available',
+        tablesInUse: 'In Use',
+        searchPlaceholder: 'Enter table name to search',
+        all: 'All',
     },
 
     // Match
@@ -905,26 +1051,26 @@ export default {
     guide: {
         loading: 'Loading...',
         roles: {
-            business: 'BUSINESS OWNER',
+            business: 'ADMIN',
             manager: 'MANAGER',
-            member: 'MEMBER',
+            member: 'MEMBERSHIP',
             user: 'USER',
         },
         business: {
-            title: 'ScoreLens System User Guide - BUSINESS OWNER Role',
+            title: 'ScoreLens System User Guide - ADMIN Role',
             part1: {
                 title: 'Part 1: Registration and Account Activation',
-                description: 'As a Business Owner, you will go through a registration and verification process to manage the ScoreLens system for your brand.',
+                description: 'As a Admin, you will go through a registration and verification process to manage the ScoreLens system for your brand.',
                 step1: {
                     title: 'Step 1: Account Registration',
                     items: [
-                        'Access the Business Owner registration page',
+                        'Access the Admin registration page',
                         'Enter email and create a strong password for your account',
                         'Verify email with OTP code sent to your inbox'
                     ]
                 },
                 step2: {
-                    title: 'Step 2: Complete Business Information',
+                    title: 'Step 2: Complete Admin Information',
                     items: [
                         'Enter brand information: brand name, website, citizen ID, phone number',
                         'Add club information: club name, address, phone number',
@@ -933,10 +1079,10 @@ export default {
                     ]
                 },
                 step3: {
-                    title: 'Step 3: Wait for Administrator Approval',
+                    title: 'Step 3: Wait for Super Admin Approval',
                     items: [
                         'After completion, account will be in "Pending" status',
-                        'Administrator will review information and approve account',
+                        'Super Admin will review information and approve account',
                         'You will receive email notification when account is approved'
                     ]
                 },
@@ -1006,11 +1152,11 @@ export default {
             title: 'ScoreLens System User Guide - MANAGER Role',
             part1: {
                 title: 'Part 1: Manager Account Activation',
-                description: 'Your account is created and authorized by the Business Owner. You will receive login information via email.',
+                description: 'Your account is created and authorized by the Admin. You will receive login information via email.',
                 receiveInfo: {
                     title: 'Receive Account Information',
                     items: [
-                        'Check email to receive login information from Business Owner',
+                        'Check email to receive login information from Admin',
                         'Email will contain login link and detailed instructions'
                     ]
                 },
@@ -1018,7 +1164,7 @@ export default {
                     title: 'Login by Email',
                     items: [
                         'Access the provided login link',
-                        'Enter email registered by Business Owner',
+                        'Enter email registered by Admin',
                         'System will send verification code to your email',
                         'Enter verification code to complete login'
                     ]
@@ -1096,15 +1242,15 @@ export default {
                     'Personal profile management: Change personal information and password',
                     'View activity reports: Statistics on matches, members, revenue',
                     'Send notifications: Send important notifications to members',
-                    'Send feedback: Send feedback about system to Business Owner'
+                    'Send feedback: Send feedback about system to Admin'
                 ]
             }
         },
         member: {
-            title: 'ScoreLens System User Guide - For MEMBERS',
+            title: 'ScoreLens System User Guide - For MEMBERSHIPS/GUESTS',
             part1: {
                 title: 'Part 1: Start Match - Scan QR Code',
-                description: 'As a member, you can create and join matches easily with just a few simple steps.',
+                description: 'As a membership/guest, you can create and join matches easily with just a few simple steps.',
                 step1: {
                     title: 'Step 1: Go to Table',
                     items: [
@@ -1375,5 +1521,102 @@ export default {
         updateMembersFailed: 'Failed to update members!',
         team: 'Team',
         unknown: 'Unknown',
+    },
+
+    // Team Members
+    teamMembers: {
+        title: 'EDIT MEMBERS',
+        description: 'You can enter member phone number or guest name',
+        teamA: 'Team A',
+        teamB: 'Team B',
+        roomOwnerPlaceholder: 'Room owner name',
+        memberOrGuestPlaceholder: 'Phone number or guest name',
+        addPlayer: 'Add player',
+        removePlayer: 'Remove player',
+        cancel: 'Cancel',
+        saveChanges: 'Save changes',
+        errors: {
+            tooManyPlayers: 'Cannot add more than 4 players!',
+            cannotRemoveOnlyOwner: 'Cannot remove the only room owner!',
+            matchNotFound: 'Match information not found',
+            noPermission: 'No permission to edit members',
+            invalidSessionToken: 'Invalid SessionToken',
+            cannotDetermineClub: 'Cannot determine club for membership validation',
+            updateSuccess: 'Members updated successfully!',
+            updateFailed: 'Failed to update members',
+            validationError: 'Validation error:',
+            invalidMemberCode: 'Invalid member code',
+            accountBanned: 'Account is banned'
+        }
+    },
+
+    // Admin Add Branch
+    adminAddBranch: {
+        branchNameRequired: 'Branch name is required',
+        branchNameMinLength: 'Branch name must be at least 2 characters',
+        branchNameMaxLength: 'Branch name cannot exceed 255 characters',
+        addressRequired: 'Address is required',
+        addressMinLength: 'Address must be at least 5 characters',
+        addressMaxLength: 'Address cannot exceed 255 characters',
+        phoneRequired: 'Phone number is required',
+        phoneInvalid: 'Invalid phone number',
+        tableNumberMin: 'Minimum number of tables is 1'
+    },
+
+    // Manager Add Member
+    managerAddMember: {
+        title: 'MEMBER MANAGEMENT',
+        addMemberTitle: 'ADD MEMBER',
+        memberNameLabel: 'Member Name',
+        memberNameRequired: 'Member name is required',
+        memberNameMinLength: 'Member name must be at least 2 characters',
+        memberNamePlaceholder: 'Enter member name',
+        phoneLabel: 'Phone Number',
+        phoneRequired: 'Phone number is required',
+        phoneInvalid: 'Invalid phone number',
+        phonePlaceholder: 'Enter phone number',
+        phoneAlreadyUsed: 'Phone number is already used by another member',
+        addSuccess: 'Member added successfully!',
+        addFailed: 'Failed to add member.',
+    },
+
+    // Manager Members Page
+    managerMembers: {
+        loadingText: 'Loading...',
+        loadMembersError: 'Cannot load member list',
+        noMembersFound: 'No members found',
+        noMembersFoundWithSearch: 'No matching members found',
+        noMembersDescription: 'Try changing search keywords or filters to find suitable members',
+        viewAll: 'View all',
+        showingMembers: 'Showing {start}-{end} of {total} members',
+        previous: 'Previous',
+        next: 'Next',
+    },
+
+    // Manager Table Management
+    managerTable: {
+        pageTitle: 'TABLE MANAGEMENT',
+        editTableTitle: 'EDIT TABLE',
+        tableDetailsTitle: 'TABLE DETAILS',
+        backLabel: 'Back',
+        saveLabel: 'Save',
+        editLabel: 'Edit',
+        deleteLabel: 'Delete',
+        deleteConfirmTitle: 'Are you sure you want to delete this table?',
+        confirmText: 'Confirm',
+        cancelText: 'Cancel',
+        tableNameLabel: 'Table Name',
+        tableNameRequired: 'Table name is required',
+        tableNameMinLength: 'Table name must be at least 2 characters',
+        tableTypeLabel: 'Table Type',
+        statusLabel: 'Status',
+        statusEmpty: 'Empty',
+        statusInUse: 'In Use',
+        statusMaintenance: 'Maintenance',
+        tableInMatchError: 'This table is currently in a match, editing is not allowed!',
+        saveSuccess: 'Table saved successfully!',
+        saveFailed: 'Failed to save table.',
+        deleteFailed: 'Failed to delete table.',
+        downloadQR: 'Download QR Code',
     },
 } as const;

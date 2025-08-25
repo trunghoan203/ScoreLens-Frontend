@@ -74,7 +74,7 @@ export default function SidebarManager() {
             href="/manager/dashboard"
             className={`block px-4 py-3 rounded-lg font-semibold transition text-sm xl:text-base ${isDashboardOrMatch ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
           >
-            {t('nav.home')}
+            {t('nav.dashboard')}
           </Link>
           <Link
             href="/manager/tables"
@@ -133,7 +133,7 @@ export default function SidebarManager() {
             onClick={handleLinkClick}
             className={`block px-4 py-4 rounded-lg font-semibold transition text-base touch-manipulation ${isDashboardOrMatch ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
           >
-            {t('nav.home')}
+            {t('nav.dashboard')}
           </Link>
           <Link
             href="/manager/tables"

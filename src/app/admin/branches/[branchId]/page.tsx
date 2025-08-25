@@ -37,20 +37,20 @@ export default function BranchDetailPage() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (name && name.length < 2) {
-      newErrors.name = 'Tên chi nhánh phải có ít nhất 2 ký tự';
+      newErrors.name = t('branches.detailPage.nameMinLength');
     } else if (name && name.length > 255) {
-      newErrors.name = 'Tên chi nhánh không được vượt quá 255 ký tự';
+      newErrors.name = t('branches.detailPage.nameMaxLength');
     }
     if (address && address.length < 5) {
-      newErrors.address = 'Địa chỉ phải có ít nhất 5 ký tự';
+      newErrors.address = t('branches.detailPage.addressMinLength');
     } else if (address && address.length > 255) {
-      newErrors.address = 'Địa chỉ không được vượt quá 255 ký tự';
+      newErrors.address = t('branches.detailPage.addressMaxLength');
     }
     if (phoneNumber && !/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phoneNumber)) {
-      newErrors.phoneNumber = 'Số điện thoại không hợp lệ';
+      newErrors.phoneNumber = t('branches.detailPage.phoneInvalid');
     }
     if (tableNumber <= 0) {
-      newErrors.tableNumber = 'Số bàn ít nhất là 1';
+      newErrors.tableNumber = t('branches.detailPage.tableNumberMin');
     }
     setErrors(newErrors);
     return newErrors;
@@ -121,7 +121,7 @@ export default function BranchDetailPage() {
         setErrors({});
       } catch (error: any) {
         console.error('Error updating club:', error);
-        
+
         if (error.response?.data?.errors) {
           const beErrors = error.response.data.errors;
           const newErrors: Record<string, string> = {};
@@ -131,9 +131,9 @@ export default function BranchDetailPage() {
             }
           });
           setErrors(newErrors);
-          toast.error('Vui lòng kiểm tra lại thông tin');
+          toast.error(t('branches.detailPage.pleaseCheckInfo'));
         } else {
-          toast.error('Cập nhật chi nhánh thất bại');
+          toast.error(t('branches.detailPage.updateFailed'));
         }
       } finally {
         setIsSaving(false);
@@ -257,9 +257,9 @@ export default function BranchDetailPage() {
                 required
                 disabled={!isEditMode}
                 className="py-2.5 sm:py-3"
-                              />
-                {errors.name && <span className="text-red-500 text-xs sm:text-sm">{errors.name}</span>}
-              </div>
+              />
+              {errors.name && <span className="text-red-500 text-xs sm:text-sm">{errors.name}</span>}
+            </div>
 
             <div className="w-full mb-4 sm:mb-6">
               <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('branches.detailPage.address')}<span className="text-red-500">*</span></label>

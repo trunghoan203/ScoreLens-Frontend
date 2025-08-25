@@ -31,66 +31,66 @@ export default function AddManagerPage() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (!clubId) {
-      newErrors.clubId = 'Vui lòng chọn chi nhánh';
+      newErrors.clubId = t('managers.clubIdRequired');
     }
     if (!name) {
-      newErrors.name = 'Tên quản lý là bắt buộc';
+      newErrors.name = t('managers.managerNameRequired');
     } else if (name.length < 2) {
-      newErrors.name = 'Tên quản lý phải có ít nhất 2 ký tự';
+      newErrors.name = t('managers.managerNameMinLength');
     } else if (name.length > 255) {
-      newErrors.name = 'Tên quản lý không được vượt quá 255 ký tự';
+      newErrors.name = t('managers.managerNameMaxLength');
     }
     if (!phone) {
-      newErrors.phone = 'Số điện thoại là bắt buộc';
+      newErrors.phone = t('managers.phoneRequired');
     } else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phone)) {
-      newErrors.phone = 'Số điện thoại không hợp lệ';
+      newErrors.phone = t('managers.phoneInvalid');
     }
     if (!dob) {
-      newErrors.dob = 'Ngày sinh là bắt buộc';
+      newErrors.dob = t('managers.dateOfBirthRequired');
     } else if (!/^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/.test(dob)) {
-      newErrors.dob = 'Ngày sinh không hợp lệ (định dạng phải là dd/mm/yyyy)';
+      newErrors.dob = t('managers.dateOfBirthInvalid');
     } else {
       const [day, month, year] = dob.split("/").map(Number);
       const dobDate = new Date(year, month - 1, day);
       const today = new Date();
-      
-      const isValidDate = dobDate.getFullYear() === year && 
-                         dobDate.getMonth() === month - 1 && 
-                         dobDate.getDate() === day;
-      
+
+      const isValidDate = dobDate.getFullYear() === year &&
+        dobDate.getMonth() === month - 1 &&
+        dobDate.getDate() === day;
+
       if (!isValidDate || dobDate > today) {
-        newErrors.dob = 'Ngày sinh không hợp lệ hoặc ở tương lai';
+        newErrors.dob = t('managers.dateOfBirthInvalidOrFuture');
       }
     }
     if (!email) {
-      newErrors.email = 'Email là bắt buộc';
+      newErrors.email = t('managers.emailRequired');
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = 'Email không hợp lệ';
+      newErrors.email = t('managers.emailInvalid');
     }
     if (!citizenCode) {
-      newErrors.citizenCode = 'CCCD là bắt buộc';
+      newErrors.citizenCode = t('managers.citizenCodeRequired');
     } else if (!/^\d{12}$/.test(citizenCode)) {
-      newErrors.citizenCode = 'CCCD phải có đúng 12 chữ số';
+      newErrors.citizenCode = t('managers.citizenCodeLength');
     } else {
       const provinceCode = parseInt(citizenCode.slice(0, 3), 10);
       if (provinceCode < 1 || provinceCode > 96) {
-        newErrors.citizenCode = 'Mã tỉnh/thành phố không hợp lệ';
+        newErrors.citizenCode = t('managers.citizenCodeProvinceInvalid');
       }
       const genderCentury = parseInt(citizenCode[3], 10);
       if (genderCentury < 0 || genderCentury > 9) {
-        newErrors.citizenCode = 'Mã giới tính/thế kỷ không hợp lệ';
+        newErrors.citizenCode = t('managers.citizenCodeGenderInvalid');
       }
       const yearTwoDigits = parseInt(citizenCode.slice(4, 6), 10);
       if (yearTwoDigits < 0 || yearTwoDigits > 99) {
-        newErrors.citizenCode = 'Năm sinh không hợp lệ';
+        newErrors.citizenCode = t('managers.citizenCodeYearInvalid');
       }
     }
     if (!address) {
-      newErrors.address = 'Địa chỉ là bắt buộc';
+      newErrors.address = t('managers.addressRequired');
     } else if (address.length < 5) {
-      newErrors.address = 'Địa chỉ phải có ít nhất 5 ký tự';
+      newErrors.address = t('managers.addressMinLength');
     } else if (address.length > 255) {
-      newErrors.address = 'Địa chỉ không được vượt quá 255 ký tự';
+      newErrors.address = t('managers.addressMaxLength');
     }
     setErrors(newErrors);
     return newErrors;
@@ -113,12 +113,12 @@ export default function AddManagerPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const formErrors = validateForm();
     if (Object.keys(formErrors).length > 0) {
       return;
     }
-    
+
     setLoading(true);
 
     try {
@@ -136,12 +136,12 @@ export default function AddManagerPage() {
       router.push('/admin/managers');
     } catch (error: unknown) {
       console.error('Error creating manager:', error);
-      
+
       if (typeof error === 'object' && error !== null && 'response' in error) {
         const axiosError = error as { response?: { data?: unknown } };
         if (axiosError.response?.data) {
           const responseData = axiosError.response.data as { message?: string; errors?: Record<string, string[]> };
-          
+
           if (responseData.errors) {
             const newErrors: Record<string, string> = {};
             Object.keys(responseData.errors).forEach(key => {
@@ -150,15 +150,15 @@ export default function AddManagerPage() {
               }
             });
             setErrors(newErrors);
-            toast.error('Vui lòng kiểm tra lại thông tin');
+            toast.error(t('managers.pleaseCheckInfo'));
           } else {
-            toast.error(responseData.message || 'Thêm quản lý thất bại!');
+            toast.error(responseData.message || t('managers.addFailed'));
           }
         } else {
-          toast.error('Thêm quản lý thất bại!');
+          toast.error(t('managers.addFailed'));
         }
       } else {
-        toast.error('Thêm quản lý thất bại!');
+        toast.error(t('managers.addFailed'));
       }
     } finally {
       setLoading(false);

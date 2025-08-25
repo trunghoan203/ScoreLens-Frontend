@@ -25,29 +25,29 @@ function AdminResetPasswordPageInner({ searchParams }: { searchParams: URLSearch
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (!password) {
-      newErrors.password = 'Mật khẩu là bắt buộc';
+      newErrors.password = t('auth.adminResetPassword.passwordRequired');
     } else if (password.length < 8) {
-      newErrors.password = 'Mật khẩu phải có ít nhất 8 ký tự';
+      newErrors.password = t('auth.adminResetPassword.passwordMinLength8');
     } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])/.test(password)) {
-      newErrors.password = 'Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt';
+      newErrors.password = t('auth.adminResetPassword.passwordComplexity');
     }
     if (!confirmPassword) {
-      newErrors.confirmPassword = 'Xác nhận mật khẩu là bắt buộc';
+      newErrors.confirmPassword = t('auth.adminResetPassword.confirmPasswordRequired');
     } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = 'Mật khẩu xác nhận không khớp';
+      newErrors.confirmPassword = t('auth.adminResetPassword.confirmPasswordMismatch');
     }
-    
+
     setErrors(newErrors);
     return newErrors;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const formErrors = validateForm();
     if (Object.keys(formErrors).length > 0) {
       return;
-    } 
+    }
     setIsLoading(true);
     try {
       await new Promise(res => setTimeout(res, 1000));
@@ -55,12 +55,12 @@ function AdminResetPasswordPageInner({ searchParams }: { searchParams: URLSearch
       setIsSuccess(true);
     } catch (error: unknown) {
       console.error('Error resetting password:', error);
-      
+
       if (typeof error === 'object' && error !== null && 'response' in error) {
         const axiosError = error as { response?: { data?: unknown } };
         if (axiosError.response?.data) {
           const responseData = axiosError.response.data as { message?: string; errors?: Record<string, string[]> };
-          
+
           if (responseData.errors) {
             const newErrors: Record<string, string> = {};
             Object.keys(responseData.errors).forEach(key => {
@@ -69,15 +69,15 @@ function AdminResetPasswordPageInner({ searchParams }: { searchParams: URLSearch
               }
             });
             setErrors(newErrors);
-            toast.error('Vui lòng kiểm tra lại thông tin');
+            toast.error(t('auth.adminResetPassword.pleaseCheckInfo'));
           } else {
-            toast.error(responseData.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
+            toast.error(responseData.message || t('auth.adminResetPassword.generalError'));
           }
         } else {
-          toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
+          toast.error(t('auth.adminResetPassword.generalError'));
         }
       } else {
-        toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
+        toast.error(t('auth.adminResetPassword.generalError'));
       }
     } finally {
       setIsLoading(false);

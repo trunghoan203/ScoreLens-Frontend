@@ -35,28 +35,28 @@ export default function AddBranchPage() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (!clubName) {
-      newErrors.clubName = 'Tên chi nhánh là bắt buộc';
+      newErrors.clubName = t('adminAddBranch.branchNameRequired');
     } else if (clubName.length < 2) {
-      newErrors.clubName = 'Tên chi nhánh phải có ít nhất 2 ký tự';
+      newErrors.clubName = t('adminAddBranch.branchNameMinLength');
     } else if (clubName.length > 255) {
-      newErrors.clubName = 'Tên chi nhánh không được vượt quá 255 ký tự';
+      newErrors.clubName = t('adminAddBranch.branchNameMaxLength');
     }
     if (!address) {
-      newErrors.address = 'Địa chỉ là bắt buộc';
+      newErrors.address = t('adminAddBranch.addressRequired');
     } else if (address.length < 5) {
-      newErrors.address = 'Địa chỉ phải có ít nhất 5 ký tự';
+      newErrors.address = t('adminAddBranch.addressMinLength');
     } else if (address.length > 255) {
-      newErrors.address = 'Địa chỉ không được vượt quá 255 ký tự';
+      newErrors.address = t('adminAddBranch.addressMaxLength');
     }
     if (!phoneNumber) {
-      newErrors.phoneNumber = 'Số điện thoại là bắt buộc';
+      newErrors.phoneNumber = t('adminAddBranch.phoneRequired');
     } else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phoneNumber)) {
-      newErrors.phoneNumber = 'Số điện thoại không hợp lệ';
+      newErrors.phoneNumber = t('adminAddBranch.phoneInvalid');
     }
     if (tableNumber <= 0) {
-      newErrors.tableNumber = 'Số bàn ít nhất là 1';
+      newErrors.tableNumber = t('adminAddBranch.tableNumberMin');
     }
-    
+
     setErrors(newErrors);
     return newErrors;
   };
