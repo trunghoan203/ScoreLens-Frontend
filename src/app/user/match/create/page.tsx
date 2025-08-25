@@ -9,6 +9,7 @@ import AiSelection from '@/components/user/AiSelection';
 import toast from 'react-hot-toast';
 import { userMatchService } from '@/lib/userMatchService';
 import { setIdentity, setSession } from '@/lib/session';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface CameraInfo {
   cameraId?: string;
@@ -49,6 +50,7 @@ function StartSessionContent() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useI18n();
 
   const formatTableCategory = (category: string): string => {
     switch (category) {
@@ -84,7 +86,7 @@ function StartSessionContent() {
 
       if (!idFromUrl) {
         console.error('Không tìm thấy tableId trên URL.');
-        toast.error('URL không hợp lệ, vui lòng quét lại mã QR.');
+        toast.error(t('userMatch.create.error.invalidUrl'));
         setLoading(false);
         return;
       }
@@ -103,10 +105,10 @@ function StartSessionContent() {
         setSessionToken(sessionToken);
       }
 
-             try {
-         const result = await userMatchService.verifyTable({ tableId: idFromUrl });
-         const responseData = (result as { data?: TableData })?.data || result;
-         const tableData = responseData as TableData;
+      try {
+        const result = await userMatchService.verifyTable({ tableId: idFromUrl });
+        const responseData = (result as { data?: TableData })?.data || result;
+        const tableData = responseData as TableData;
 
         if (tableData && tableData.name) {
           setTableName(tableData.name);
@@ -116,7 +118,7 @@ function StartSessionContent() {
 
         } else {
           if (!tableName) {
-            setTableName('Bàn chơi');
+            setTableName(t('userMatch.create.tableInfo'));
           }
           if (!tableCategory) {
             setTableCategory('pool-8');
@@ -124,7 +126,7 @@ function StartSessionContent() {
         }
       } catch (e) {
         console.error('Error verifying table:', e);
-        toast.error('Không thể xác thực bàn. Vui lòng thử lại.');
+        toast.error(t('userMatch.create.error.cannotVerifyTable'));
       } finally {
         setLoading(false);
       }
@@ -132,12 +134,12 @@ function StartSessionContent() {
 
     initializePageFromUrl();
 
-  }, [searchParams, tableCategory, tableName]);
+  }, [searchParams, tableCategory, tableName, t]);
 
   const handleJoin = () => {
     const safeName = fullName.trim() || 'Khách';
     const params = new URLSearchParams({
-      table: tableName || 'Bàn chơi',
+      table: tableName || t('userMatch.create.tableInfo'),
       tableId: tableId || '',
       name: encodeURIComponent(safeName)
     });
@@ -151,7 +153,7 @@ function StartSessionContent() {
 
   const handleCreateMatchClick = () => {
     if (!fullName.trim()) {
-      toast.error('Vui lòng nhập họ và tên.');
+      toast.error(t('userMatch.create.error.noFullName'));
       return;
     }
     setShowAiPopup(true);
@@ -162,11 +164,11 @@ function StartSessionContent() {
       setVerifying(true);
 
       if (!tableId) {
-        toast.error('Không tìm thấy thông tin bàn. Vui lòng quét lại mã QR.');
+        toast.error(t('userMatch.create.error.noTableInfo'));
         return;
       }
 
-      const displayTableName = tableName || 'Bàn chơi';
+      const displayTableName = tableName || t('userMatch.create.tableInfo');
       const gameType = (tableCategory === 'carom' ? 'carom' : 'pool-8') as 'carom' | 'pool-8';
 
       const payload = {
@@ -176,10 +178,10 @@ function StartSessionContent() {
         isAiAssisted: aiAssisted,
         teams: [
           {
-            teamName: 'Đội A',
+            teamName: t('userMatch.create.teamNames.teamA'),
             members: verifiedMembershipId ? [] : [{ guestName: fullName.trim() }],
           },
-          { teamName: 'Đội B', members: [] },
+          { teamName: t('userMatch.create.teamNames.teamB'), members: [] },
         ],
       };
 
@@ -226,7 +228,7 @@ function StartSessionContent() {
         } catch { }
       }
 
-      toast.success('Tạo trận đấu thành công');
+      toast.success(t('userMatch.create.success.matchCreated'));
 
       const params = new URLSearchParams({
         table: displayTableName,
@@ -245,7 +247,7 @@ function StartSessionContent() {
       router.push(`/user/match/lobby?${params.toString()}`);
     } catch (e) {
       console.error(e);
-      toast.error('Bàn đang được sử dụng, không thể tạo trận đấu');
+      toast.error(t('userMatch.create.error.tableInUse'));
     } finally {
       setVerifying(false);
       setShowAiPopup(false);
@@ -264,7 +266,7 @@ function StartSessionContent() {
       setVerifyMemberMessage('');
 
       if (!tableInfo?.clubId) {
-        throw new Error('Không tìm thấy thông tin club');
+        throw new Error(t('userMatch.create.error.noClubInfo'));
       }
 
       const res = await userMatchService.verifyMembership({
@@ -273,20 +275,20 @@ function StartSessionContent() {
       });
 
       if (!res || typeof res !== 'object') {
-        throw new Error('Response không hợp lệ');
+        throw new Error(t('userMatch.create.error.invalidResponse'));
       }
 
       if (res.success === false) {
-        throw new Error(res.message || 'Xác thực thất bại');
+        throw new Error(res.message || t('userMatch.create.error.verificationFailed'));
       }
 
       if (res.isMember === false) {
-        toast.error('Bạn chưa đăng ký hội viên');
+        toast.error(t('userMatch.create.error.notMember'));
         return;
       }
 
       if (!res.isBrandCompatible) {
-        toast.error(res.message || 'Bạn chưa đăng ký hội viên.');
+        toast.error(res.message || t('userMatch.create.error.notBrandCompatible'));
         return;
       }
 
@@ -298,7 +300,7 @@ function StartSessionContent() {
       } ?? {};
 
       if (info?.status === 'inactive') {
-        toast.error('Tài khoản của bạn đang bị cấm');
+        toast.error(t('userMatch.create.error.accountBanned'));
         return;
       }
 
@@ -314,26 +316,26 @@ function StartSessionContent() {
 
       setIsMember(true);
 
-      const display = returnedFullName ? `Chào mừng ${returnedFullName}` : 'Chào mừng bạn';
+      const display = returnedFullName ? t('userMatch.create.success.welcomeWithName').replace('{name}', returnedFullName) : t('userMatch.create.success.welcome');
 
       toast.success(display);
 
     } catch (e) {
       console.error('Error verifying membership:', e);
-      const errorMessage = (e as { message?: string })?.message || 'Bạn chưa đăng ký hội viên';
+      const errorMessage = (e as { message?: string })?.message || t('userMatch.create.error.notMember');
       toast.error(errorMessage);
     } finally {
       setVerifyingMember(false);
     }
   };
 
-  if (loading || verifying) return <ScoreLensLoading text={verifying ? 'Đang kiểm tra bàn...' : 'Đang tải...'} />;
+  if (loading || verifying) return <ScoreLensLoading text={verifying ? t('userMatch.create.checkingTable') : t('common.loading')} />;
 
   if (!tableId) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
-        <h1 className="text-xl font-bold text-red-600">Lỗi: Không tìm thấy thông tin bàn</h1>
-        <p>Vui lòng quét lại mã QR trên bàn để bắt đầu.</p>
+        <h1 className="text-xl font-bold text-red-600">{t('userMatch.create.error.noTableId')}</h1>
+        <p>{t('userMatch.create.error.noTableIdDescription')}</p>
       </div>
     );
   }
@@ -344,19 +346,19 @@ function StartSessionContent() {
 
       <main className="flex-1 flex flex-col px-4 py-8">
         <div className="text-center">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#000000]">Chào mừng bạn đến với ScoreLens</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#000000]">{t('userMatch.create.title')}</h1>
           <p className="text-sm sm:text-base text-[#000000] font-medium">
-            {tableName ? `${tableName}` : 'Bàn chơi'} - {tableCategory ? formatTableCategory(tableCategory) : 'Pool 8 Ball'}
+            {tableName ? `${tableName}` : t('userMatch.create.tableInfo')} - {tableCategory ? formatTableCategory(tableCategory) : t('userMatch.create.pool8Ball')}
           </p>
         </div>
 
         <div className="flex-1 flex justify-center mt-25">
           <div className="w-full max-w-sm space-y-4 text-left">
             <div>
-              <label className="block text-sm font-semibold text-[#000000] mb-1 text-center">Họ và Tên</label>
+              <label className="block text-sm font-semibold text-[#000000] mb-1 text-center">{t('userMatch.create.fullNameLabel')}</label>
               <input
                 type="text"
-                placeholder="Nhập họ và tên ..."
+                placeholder={t('userMatch.create.fullNamePlaceholder')}
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 className="border border-[#000000] rounded-xl px-5 py-3 text-base w-full text-[#000000] text-center font-medium placeholder-[#000000]/60 focus:outline-none focus:border-[#8ADB10] hover:border-lime-400 transition-all duration-200"
@@ -364,11 +366,11 @@ function StartSessionContent() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-[#000000] mb-1 text-center">Mã Hội Viên</label>
+              <label className="block text-sm font-semibold text-[#000000] mb-1 text-center">{t('userMatch.create.memberIdLabel')}</label>
               <div className="space-y-2">
                 <input
                   type="text"
-                  placeholder="Nhập mã hội viên ..."
+                  placeholder={t('userMatch.create.memberIdPlaceholder')}
                   value={memberId}
                   onChange={(e) => setMemberId(e.target.value)}
                   className="border border-[#000000] rounded-xl px-5 py-3 text-base w-full text-[#000000] text-center font-medium placeholder-[#000000]/60 focus:outline-none focus:border-[#8ADB10] hover:border-lime-400 transition-all duration-200"
@@ -379,7 +381,7 @@ function StartSessionContent() {
                   disabled={verifyingMember}
                   className="w-full py-3 px-4 rounded-xl bg-[#8ADB10] hover:bg-lime-600 disabled:bg-gray-300 text-[#FFFFFF] font-semibold text-sm"
                 >
-                  {verifyingMember ? 'Đang xác thực...' : 'Xác thực'}
+                  {verifyingMember ? t('userMatch.create.verifying') : t('userMatch.create.verifyButton')}
                 </button>
               </div>
               {verifyMemberStatus !== 'idle' && (
@@ -389,7 +391,7 @@ function StartSessionContent() {
               )}
             </div>
 
-            <p className="text-sm text-[#FF0000] font-medium text-center">* Nếu chưa có mã hội viên, hãy liên hệ nhân viên để đăng ký!</p>
+            <p className="text-sm text-[#FF0000] font-medium text-center">{t('userMatch.create.memberNote')}</p>
           </div>
         </div>
       </main>
@@ -400,13 +402,13 @@ function StartSessionContent() {
             onClick={handleJoin}
             className="w-full flex items-center justify-center bg-[#8ADB10] hover:bg-lime-600 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base transition"
           >
-            Tham gia
+            {t('userMatch.create.joinButton')}
           </button>
           <button
             onClick={handleCreateMatchClick}
             className="w-full flex items-center justify-center bg-[#8ADB10] hover:bg-[#8ADB10] text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base transition"
           >
-            Tạo trận đấu
+            {t('userMatch.create.createMatchButton')}
           </button>
         </div>
       </FooterButton>

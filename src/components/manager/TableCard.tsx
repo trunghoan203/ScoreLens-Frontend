@@ -17,7 +17,7 @@ interface TableCardProps {
   onDetail?: () => void;
 }
 
-export default function TableCard({ name, type, status, teamA, teamB, time, matchStatus, elapsedTime, isAiAssisted = false, scoreA = 0, scoreB = 0, creatorType = null, onDetail }: TableCardProps) {
+export default function TableCard({ name, type, status, time, matchStatus, elapsedTime, isAiAssisted = false, scoreA = 0, scoreB = 0, creatorType = null, onDetail }: TableCardProps) {
   const getDisplayStatus = (status: string) => {
     switch (status) {
       case 'inuse':

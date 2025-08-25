@@ -11,8 +11,10 @@ import { userMatchService } from '@/lib/userMatchService';
 import toast from 'react-hot-toast';
 import EmptyState from '@/components/ui/EmptyState';
 import { Search, RotateCcw } from 'lucide-react';
+import { useI18n } from '@/lib/i18n/provider';
 
 export default function MemberHistoryPage() {
+    const { t } = useI18n();
     const params = useParams();
     const router = useRouter();
     const phoneNumber = params?.memberId as string;
@@ -82,7 +84,7 @@ export default function MemberHistoryPage() {
     useEffect(() => {
         const fetchMatchHistory = async () => {
             if (!phoneNumber) {
-                setError('Không tìm thấy số điện thoại');
+                setError(t('history.detailPage.phoneNotFound'));
                 return;
             }
 
@@ -103,12 +105,12 @@ export default function MemberHistoryPage() {
                         setTotalMatches(pagination.total || 0);
                     }
                 } else {
-                    setError('Không thể tải lịch sử trận đấu');
-                    toast.error('Không thể tải lịch sử trận đấu');
+                    setError(t('history.detailPage.cannotLoadHistory'));
+                    toast.error(t('history.detailPage.cannotLoadHistory'));
                 }
             } catch (error: any) {
                 console.error('Error fetching match history:', error);
-                setError('Không thể tải lịch sử trận đấu');
+                setError(t('history.detailPage.cannotLoadHistory'));
             }
         };
 
@@ -118,33 +120,33 @@ export default function MemberHistoryPage() {
     const transformMatches = (apiMatches: MatchData[]) => {
         return apiMatches.map(match => {
             const teamAMembers = match.teams[0]?.members.map(m =>
-                m.membershipName || m.guestName || 'Unknown'
+                m.membershipName || m.guestName || t('history.detailPage.unknown')
             ) || [];
             const teamBMembers = match.teams[1]?.members.map(m =>
-                m.membershipName || m.guestName || 'Unknown'
+                m.membershipName || m.guestName || t('history.detailPage.unknown')
             ) || [];
 
             const score = `${match.teams[0]?.score || 0}-${match.teams[1]?.score || 0}`;
-            const gameType = match.gameType === 'pool-8' ? 'Pool' : 'Carom';
+            const gameType = match.gameType === 'pool-8' ? t('history.detailPage.pool') : t('history.detailPage.carom');
 
-            let winningTeam = 'Hòa';
+            let winningTeam = t('history.detailPage.draw');
             let winningTeamMembers: string[] = [];
 
             if (match.teams[0]?.isWinner) {
-                winningTeam = 'ĐỘI A';
+                winningTeam = t('history.detailPage.teamA');
                 winningTeamMembers = teamAMembers;
             } else if (match.teams[1]?.isWinner) {
-                winningTeam = 'ĐỘI B';
+                winningTeam = t('history.detailPage.teamB');
                 winningTeamMembers = teamBMembers;
             }
 
             return {
                 id: match.matchId,
-                time: match.endTime ? new Date(match.endTime).toLocaleString('vi-VN') : 'N/A',
-                startTime: match.startTime ? new Date(match.startTime).toLocaleString('vi-VN') : 'N/A',
-                endTime: match.endTime ? new Date(match.endTime).toLocaleString('vi-VN') : 'N/A',
+                time: match.endTime ? new Date(match.endTime).toLocaleString('vi-VN') : t('history.detailPage.notAvailable'),
+                startTime: match.startTime ? new Date(match.startTime).toLocaleString('vi-VN') : t('history.detailPage.notAvailable'),
+                endTime: match.endTime ? new Date(match.endTime).toLocaleString('vi-VN') : t('history.detailPage.notAvailable'),
                 playTime: match.startTime && match.endTime ?
-                    formatPlayTime(new Date(match.endTime).getTime() - new Date(match.startTime).getTime()) : 'N/A',
+                    formatPlayTime(new Date(match.endTime).getTime() - new Date(match.startTime).getTime()) : t('history.detailPage.notAvailable'),
                 type: gameType,
                 winningTeam: winningTeam,
                 winningTeamMembers: winningTeamMembers,
@@ -152,8 +154,8 @@ export default function MemberHistoryPage() {
                 videoUrl: match.videoUrl && match.videoUrl.trim() !== '' && match.matchId ? match.videoUrl : '#',
                 status: match.status,
                 matchCode: match.matchCode,
-                clubName: match.clubInfo?.clubName || 'Không xác định',
-                address: match.clubInfo?.address || 'Không xác định',
+                clubName: match.clubInfo?.clubName || t('history.detailPage.notDetermined'),
+                address: match.clubInfo?.address || t('history.detailPage.notDetermined'),
                 isAIAssisted: match.isAIAssisted,
                 teams: match.teams
             };
@@ -194,22 +196,22 @@ export default function MemberHistoryPage() {
 
     return (
         <>
-            {loading && <ScoreLensLoading text="Đang tải..." />}
+            {loading && <ScoreLensLoading text={t('history.loading')} />}
             <HeaderHome />
             <HeroSection />
             <div id="main-content" className="bg-white min-h-screen pt-16 sm:pt-12 md:pt-16 flex flex-col items-center justify-start">
                 <div className="w-full max-w-7xl mx-auto sm:mt-6 md:mt-8 px-4 sm:px-6 lg:px-8">
                     <div className="mb-4 sm:mb-6 text-center">
                         <h1 className="text-3xl sm:text-2xl lg:text-6xl font-bold text-black mb-10">
-                            LỊCH SỬ ĐẤU
+                            {t('history.detailPage.title')}
                         </h1>
                         <p className="text-sm sm:text-base text-black">
                             {membershipInfo && (
                                 <span className="block mb-2">
-                                    Mã Hội viên: <span className="text-xl font-bold">{membershipInfo.phoneNumber}</span>
+                                    {t('history.detailPage.memberIdLabel')} <span className="text-xl font-bold">{membershipInfo.phoneNumber}</span>
                                 </span>
                             )}
-                            Tổng cộng <span className="text-xl font-bold">{totalMatches}</span> trận đấu
+                            {t('history.detailPage.totalMatches')} <span className="text-xl font-bold">{totalMatches}</span> {t('history.detailPage.matches')}
                         </p>
                     </div>
                     {error ? (
@@ -219,7 +221,7 @@ export default function MemberHistoryPage() {
                                 onClick={() => router.push('/history')}
                                 className="bg-lime-400 hover:bg-lime-500 text-white font-semibold px-6 py-2 rounded-lg transition"
                             >
-                                Quay lại trang tìm kiếm
+                                {t('history.detailPage.backToSearch')}
                             </button>
                         </div>
                     ) : (
@@ -241,21 +243,21 @@ export default function MemberHistoryPage() {
                                     }
                                     title={
                                         search || dateFilter
-                                            ? 'Không tìm thấy trận đấu phù hợp'
-                                            : 'Chưa có trận đấu nào'
+                                            ? t('history.detailPage.noMatchesFound')
+                                            : t('history.detailPage.noMatchesYet')
                                     }
                                     description={
                                         search && dateFilter
-                                            ? 'Thử thay đổi từ khóa tìm kiếm hoặc ngày tháng để tìm thấy trận đấu phù hợp'
+                                            ? t('history.detailPage.tryDifferentKeywords')
                                             : search
-                                                ? 'Thử thay đổi từ khóa tìm kiếm để tìm thấy trận đấu phù hợp'
+                                                ? t('history.detailPage.tryDifferentSearch')
                                                 : dateFilter
-                                                    ? 'Thử thay đổi ngày tháng để tìm thấy trận đấu phù hợp'
-                                                    : 'Hội viên này chưa có trận đấu nào trong hệ thống'
+                                                    ? t('history.detailPage.tryDifferentDate')
+                                                    : t('history.detailPage.noMatchesInSystem')
                                     }
                                     secondaryAction={
                                         search || dateFilter ? {
-                                            label: 'Xem tất cả',
+                                            label: t('history.detailPage.viewAll'),
                                             onClick: () => {
                                                 setSearch('');
                                                 setDateFilter('');
@@ -313,7 +315,10 @@ export default function MemberHistoryPage() {
 
                             {totalPages > 1 && (
                                 <div className="mt-4 text-center text-gray-400 italic text-xs">
-                                    Hiển thị {((currentPage - 1) * itemPage) + 1}-{Math.min(currentPage * itemPage, totalMatches)} trong tổng số {totalMatches} trận đấu
+                                    {t('history.detailPage.showingResults')
+                                        .replace('{start}', String(((currentPage - 1) * itemPage) + 1))
+                                        .replace('{end}', String(Math.min(currentPage * itemPage, totalMatches)))
+                                        .replace('{total}', String(totalMatches))}
                                 </div>
                             )}
                         </>

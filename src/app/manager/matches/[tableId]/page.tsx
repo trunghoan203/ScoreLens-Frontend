@@ -9,6 +9,7 @@ import TableUsingView from '@/components/manager/TableUsingView';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { useManagerAuthGuard } from '@/lib/hooks/useManagerAuthGuard';
 import { useWebSocket } from '@/lib/hooks/useWebSocket';
+import { useDashboardWebSocket } from '@/lib/hooks/useDashboardWebSocket';
 import { managerTableService } from '@/lib/managerTableService';
 import { managerMemberService } from '@/lib/managerMemberService';
 import { managerMatchService } from '@/lib/managerMatchService';
@@ -240,7 +241,18 @@ export default function TableDetailPage() {
         const membersData = await managerMemberService.getAllMembers();
         const members = Array.isArray(membersData) ? membersData : (membersData as MembersData)?.memberships || [];
 
-        await refreshDashboardStats();
+        const totalTables = tablesArray.length;
+        const inUse = tablesArray.filter((table: RawTableData) => table.status === 'inuse').length;
+        const available = tablesArray.filter((table: RawTableData) => table.status === 'empty').length;
+        const totalMembers = members.length;
+
+        const stats = {
+          totalTables,
+          inUse,
+          available,
+          members: totalMembers
+        };
+        setDashboardStats(stats);
       } catch (error) {
         console.error('Error fetching data:', error);
         toast.error('Không thể tải dữ liệu');
@@ -266,10 +278,35 @@ export default function TableDetailPage() {
       setMatchStatus(match.status as 'pending' | 'ongoing' | 'completed');
       if (match.status === 'completed') {
         setElapsedTime('00:00:00');
-        refreshDashboardStats();
       }
     }
   });
+
+  const { requestStats } = useDashboardWebSocket({
+    onStatsUpdate: (stats) => {
+      setDashboardStats(stats);
+      setLoadingStats(false);
+    },
+    enabled: !loading && !isChecking
+  });
+
+  // useEffect(() => {
+  //   if (!loading && !isChecking) {
+  //     const statsInterval = setInterval(() => {
+  //       refreshDashboardStats();
+  //     }, 30000);
+
+  //     return () => {
+  //       clearInterval(statsInterval);
+  //     };
+  //   }
+  // }, [loading, isChecking]);
+
+  useEffect(() => {
+    if (!loading && !isChecking && requestStats) {
+      requestStats();
+    }
+  }, [loading, isChecking, requestStats]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -292,20 +329,6 @@ export default function TableDetailPage() {
       }
     };
   }, [matchStatus, matchStartTime]);
-
-  useEffect(() => {
-    const statsInterval = setInterval(() => {
-      if (!loading && !isChecking) {
-        refreshDashboardStats();
-      }
-    }, 30000);
-
-    return () => {
-      if (statsInterval) {
-        clearInterval(statsInterval);
-      }
-    };
-  }, [loading, isChecking]);
 
 
   const handleCreateMatch = async (teamA: Array<{ guestName?: string; phoneNumber?: string; membershipId?: string; membershipName?: string }>, teamB: Array<{ guestName?: string; phoneNumber?: string; membershipId?: string; membershipName?: string }>) => {
@@ -373,6 +396,7 @@ export default function TableDetailPage() {
           setIsAiAssisted(responseData.isAiAssisted as boolean);
         }
 
+        // Cập nhật dashboard stats ngay lập tức
         await refreshDashboardStats();
 
       } else {
@@ -399,6 +423,9 @@ export default function TableDetailPage() {
         toast.success('Bắt đầu trận đấu thành công!');
         setMatchStatus('ongoing');
         setMatchStartTime(new Date());
+
+        // Cập nhật dashboard stats khi bắt đầu trận đấu
+        await refreshDashboardStats();
       } else {
         toast.error((res?.message as string) || 'Bắt đầu trận đấu thất bại!');
       }
@@ -525,6 +552,7 @@ export default function TableDetailPage() {
       if (res?.success) {
         toast.success('Hủy trận đấu thành công!');
 
+        // Cập nhật dashboard stats ngay lập tức
         await refreshDashboardStats();
 
         router.push('/manager/dashboard');
@@ -589,6 +617,7 @@ export default function TableDetailPage() {
       if (res?.success) {
         toast.success('Kết thúc trận đấu thành công!');
 
+        // Cập nhật dashboard stats ngay lập tức
         await refreshDashboardStats();
 
         router.push('/manager/dashboard');

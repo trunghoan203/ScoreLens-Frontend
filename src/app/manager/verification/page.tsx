@@ -8,6 +8,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import { managerService } from '@/lib/managerService';
+import { useI18n } from '@/lib/i18n/provider';
 
 export default function ManagerVerificationPage() {
   return (
@@ -18,6 +19,7 @@ export default function ManagerVerificationPage() {
 }
 
 function ManagerVerificationPageInner() {
+  const { t } = useI18n();
   const searchParams = useSearchParams();
   const email = searchParams?.get('email') || '';
 
@@ -50,7 +52,7 @@ function ManagerVerificationPageInner() {
   }, [resendTimer]);
 
   const handleOtpChange = (index: number, value: string) => {
-    if (value.length > 1) return; 
+    if (value.length > 1) return;
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
@@ -81,7 +83,7 @@ function ManagerVerificationPageInner() {
     e.preventDefault();
     const otpString = otp.join('');
     if (otpString.length !== 6) {
-      toast.error('Vui lòng nhập đầy đủ 6 chữ số');
+      toast.error(t('auth.managerVerification.otpRequired'));
       return;
     }
     setIsLoading(true);
@@ -90,11 +92,11 @@ function ManagerVerificationPageInner() {
       if (data && typeof data === 'object' && 'accessToken' in data && typeof data.accessToken === 'string') {
         localStorage.setItem('managerAccessToken', data.accessToken);
       }
-      toast.success('Xác thực thành công!');
+      toast.success(t('auth.managerVerification.verificationSuccess'));
       window.location.href = `/manager/dashboard`;
     } catch (error) {
       const err = error as { message?: string };
-      toast.error(err.message || 'Xác thực thất bại. Vui lòng thử lại.');
+      toast.error(err.message || t('auth.managerVerification.verificationFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -105,12 +107,12 @@ function ManagerVerificationPageInner() {
     setIsLoading(true);
     try {
       await managerService.resendLoginCode(email);
-      toast.success('Mã xác thực đã được gửi lại!');
+      toast.success(t('auth.managerVerification.codeResent'));
       setResendTimer(60);
       setCanResend(false);
     } catch (error) {
       const err = error as { message?: string };
-      toast.error(err.message || 'Gửi lại mã thất bại.');
+      toast.error(err.message || t('auth.managerVerification.resendFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -120,13 +122,13 @@ function ManagerVerificationPageInner() {
 
   return (
     <AuthLayout
-      title="Xác minh mã quản lý"
-      description={`Chúng tôi đã gửi mã xác minh đến ${email}`}
+      title={t('auth.managerVerification.title')}
+      description={`${t('auth.managerVerification.description')} ${email}`}
     >
       <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-3 sm:mb-4">
-            Nhập mã xác minh 6 chữ số
+            {t('auth.managerVerification.verificationTitle')}
           </label>
           <div className="flex gap-2 sm:gap-3 justify-center mb-3 sm:mb-4" onPaste={handlePaste}>
             {otp.map((digit, index) => (
@@ -153,7 +155,7 @@ function ManagerVerificationPageInner() {
                 />
                 {digit ? (
                   <Image
-                    src={numberImages[Number(digit)-1]}
+                    src={numberImages[Number(digit) - 1]}
                     alt={`Số ${digit}`}
                     width={36}
                     height={36}
@@ -174,12 +176,12 @@ function ManagerVerificationPageInner() {
           disabled={!isFormValid}
           className="py-2 sm:py-3 text-sm sm:text-base"
         >
-          {isLoading ? 'Đang xác minh...' : 'Xác minh'}
+          {isLoading ? t('auth.managerVerification.verifying') : t('auth.managerVerification.verificationButton')}
         </Button>
 
         <div className="text-center space-y-3 sm:space-y-4">
           <div>
-            <span className="text-gray-600 text-sm">Không nhận được mã? </span>
+            <span className="text-gray-600 text-sm">{t('auth.managerVerification.notReceivedCode')} </span>
             {canResend ? (
               <button
                 type="button"
@@ -187,11 +189,11 @@ function ManagerVerificationPageInner() {
                 disabled={isLoading}
                 className="text-lime-600 font-semibold hover:underline text-sm transition-colors disabled:opacity-50"
               >
-                Gửi lại mã
+                {t('auth.managerVerification.resendCode')}
               </button>
             ) : (
               <span className="text-gray-500 text-sm">
-                Gửi lại sau {resendTimer}s
+                {t('auth.managerVerification.resendTimer')} {resendTimer}s
               </span>
             )}
           </div>
@@ -203,7 +205,7 @@ function ManagerVerificationPageInner() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
-              Quay lại đăng nhập
+              {t('auth.managerVerification.backToLogin')}
             </Link>
           </div>
         </div>

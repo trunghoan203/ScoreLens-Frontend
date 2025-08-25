@@ -11,6 +11,7 @@ import toast from 'react-hot-toast';
 import { managerCameraService } from '@/lib/managerCameraService';
 import { managerTableService } from '@/lib/managerTableService';
 import Image from 'next/image';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface Table {
   tableId: string;
@@ -30,6 +31,7 @@ interface Camera {
 }
 
 export default function CameraDetailPage() {
+  const { t } = useI18n();
   const router = useRouter();
   const params = useParams();
   const cameraId = params?.cameraId as string;
@@ -47,9 +49,9 @@ export default function CameraDetailPage() {
   const formatCategory = (category: string) => {
     switch (category) {
       case 'pool-8':
-        return 'Pool 8';
+        return t('cameras.formatCategory.pool8');
       case 'carom':
-        return 'Carom';
+        return t('cameras.formatCategory.carom');
       default:
         return category;
     }
@@ -77,7 +79,7 @@ export default function CameraDetailPage() {
           setPassword(cameraObj.password || '');
           setIsConnect(!!cameraObj.isConnect);
         } else {
-          toast.error('Không tìm thấy camera');
+          toast.error(t('cameras.cameraNotFound'));
         }
         let tablesArr: unknown[] = [];
         if (Array.isArray(tableData)) tablesArr = tableData;
@@ -95,17 +97,17 @@ export default function CameraDetailPage() {
         setTables(mappedTables);
       })
       .catch(() => {
-        toast.error('Không thể tải dữ liệu camera hoặc bàn');
+        toast.error(t('cameras.cannotLoadData'));
       });
   }, [cameraId]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!ip) newErrors.ip = 'Địa chỉ IP là bắt buộc';
-    else if (!/^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/.test(ip)) newErrors.ip = 'Địa chỉ IP không hợp lệ';
-    if (!username) newErrors.username = 'Tên đăng nhập là bắt buộc';
-    else if (username.length < 2) newErrors.username = 'Tên đăng nhập phải có ít nhất 2 ký tự';
-    if (!password) newErrors.password = 'Mật khẩu là bắt buộc';
+    if (!ip) newErrors.ip = t('cameras.ipAddressRequired');
+    else if (!/^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/.test(ip)) newErrors.ip = t('cameras.ipAddressInvalid');
+    if (!username) newErrors.username = t('cameras.usernameRequired');
+    else if (username.length < 2) newErrors.username = t('cameras.usernameMinLength');
+    if (!password) newErrors.password = t('cameras.passwordRequired');
     setErrors(newErrors);
     return newErrors;
   };
@@ -125,22 +127,22 @@ export default function CameraDetailPage() {
         password,
         isConnect
       });
-      toast.success('Đã lưu camera thành công!');
+      toast.success(t('cameras.saveSuccess'));
       setIsEditMode(false);
     } catch (error) {
       console.error(error);
-      toast.error('Lưu camera thất bại.');
+      toast.error(t('cameras.saveFailed'));
     }
   };
 
   const handleDelete = async () => {
     try {
       await managerCameraService.deleteCamera(cameraId);
-      toast.success('Đã xóa camera thành công!');
+      toast.success(t('cameras.deleteSuccess'));
       router.push('/manager/camera');
     } catch (error) {
       console.error(error);
-      toast.error('Xóa camera thất bại.');
+      toast.error(t('cameras.deleteFailed'));
     }
   };
 
@@ -154,14 +156,14 @@ export default function CameraDetailPage() {
         <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
           <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6">
             <span className="text-lg sm:text-xl lg:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
-              QUẢN LÝ CAMERA
+              {t('cameras.manageCamera')}
             </span>
           </div>
           <AddFormLayout
-            title={isEditMode ? "CHỈNH SỬA CAMERA" : "CHI TIẾT CAMERA"}
+            title={isEditMode ? t('cameras.editCameraTitle') : t('cameras.cameraDetailsTitle')}
             onBack={() => router.push('/manager/camera')}
-            backLabel="Quay lại"
-            submitLabel={isEditMode ? "Lưu" : "Chỉnh sửa"}
+            backLabel={t('common.back')}
+            submitLabel={isEditMode ? t('common.save') : t('common.edit')}
             extraActions={
               !isEditMode && (
                 <button
@@ -169,7 +171,7 @@ export default function CameraDetailPage() {
                   className="w-full sm:w-32 lg:w-40 bg-red-500 hover:bg-red-600 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg"
                   onClick={() => setShowConfirm(true)}
                 >
-                  Xóa
+                  {t('common.delete')}
                 </button>
               )
             }
@@ -184,19 +186,19 @@ export default function CameraDetailPage() {
           >
             <ConfirmPopup
               open={showConfirm}
-              title="Bạn có chắc chắn muốn xóa camera này không?"
+              title={t('cameras.deleteConfirm').replace('{name}', '')}
               onCancel={() => setShowConfirm(false)}
               onConfirm={async () => {
                 setShowConfirm(false);
                 await handleDelete();
               }}
-              confirmText="Xác nhận"
-              cancelText="Hủy"
+              confirmText={t('common.confirm')}
+              cancelText={t('common.cancel')}
             >
               <></>
             </ConfirmPopup>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Bàn<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-2 text-black">{t('cameras.table')}<span className="text-red-500">*</span></label>
               <div className="relative w-full">
                 <select
                   value={tableId}
@@ -223,22 +225,22 @@ export default function CameraDetailPage() {
               </div>
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">IP<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-2 text-black">{t('cameras.ipAddress')}<span className="text-red-500">*</span></label>
               <Input value={ip} onChange={e => setIp(e.target.value)} required disabled={!isEditMode} />
               {errors.ip && <p className="text-red-500 text-sm mt-1">{errors.ip}</p>}
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Username<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-2 text-black">{t('cameras.username')}<span className="text-red-500">*</span></label>
               <Input value={username} onChange={e => setUsername(e.target.value)} required disabled={!isEditMode} />
               {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Mật khẩu<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-2 text-black">{t('cameras.password')}<span className="text-red-500">*</span></label>
               <PasswordInput value={password} onChange={e => setPassword(e.target.value)} required disabled={!isEditMode} />
               {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
             </div>
             <div className="w-full mb-8 sm:mb-10">
-              <label className="block text-sm font-semibold mb-2 text-black">Trạng thái kết nối<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-2 text-black">{t('cameras.connectionStatus')}<span className="text-red-500">*</span></label>
               <div className="relative w-full">
                 <select
                   value={isConnect ? 'true' : 'false'}
@@ -247,8 +249,8 @@ export default function CameraDetailPage() {
                   disabled={!isEditMode}
                   className="w-full border border-gray-300 bg-white rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none"
                 >
-                  <option className="text-black" value="true">Đã kết nối</option>
-                  <option className="text-black" value="false">Chưa kết nối</option>
+                  <option className="text-black" value="true">{t('cameras.connected')}</option>
+                  <option className="text-black" value="false">{t('cameras.notConnected')}</option>
                 </select>
                 {isEditMode && (
                   <Image

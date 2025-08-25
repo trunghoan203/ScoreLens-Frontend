@@ -95,6 +95,7 @@ export default {
             backToLogin: 'Trở về Đăng nhập',
             rememberPassword: 'Đã nhớ mật khẩu?',
         },
+        logoutConfirm: 'Bạn có chắc chắn muốn đăng xuất không?',
         resetPassword: 'Đặt lại mật khẩu',
         emailPlaceholder: 'Nhập email của bạn',
         passwordPlaceholder: 'Nhập mật khẩu của bạn',
@@ -145,7 +146,6 @@ export default {
             loginFailed: 'Đăng nhập thất bại. Vui lòng thử lại.',
             logoutSuccess: 'Đăng xuất thành công!',
             logoutFailed: 'Đăng xuất thất bại.',
-            logoutConfirm: 'Bạn có chắc chắn muốn đăng xuất không?',
             noAccount: 'Bạn chưa có tài khoản?',
             register: 'Đăng ký',
             backToHome: 'Quay lại trang chủ',
@@ -201,6 +201,22 @@ export default {
             resendTimer: 'Gửi lại sau',
             backToLogin: 'Quay lại đăng nhập',
             notReceivedCode: 'Không nhận được mã?',
+        },
+        managerVerification: {
+            title: 'Xác minh mã quản lý',
+            description: 'Chúng tôi đã gửi mã xác minh đến',
+            verificationTitle: 'Nhập mã xác minh 6 chữ số',
+            verificationButton: 'Xác minh',
+            verifying: 'Đang xác minh...',
+            verificationSuccess: 'Xác thực thành công!',
+            verificationFailed: 'Xác thực thất bại. Vui lòng thử lại.',
+            otpRequired: 'Vui lòng nhập đầy đủ 6 chữ số',
+            resendCode: 'Gửi lại mã',
+            resendTimer: 'Gửi lại sau',
+            backToLogin: 'Quay lại đăng nhập',
+            notReceivedCode: 'Không nhận được mã?',
+            codeResent: 'Mã xác thực đã được gửi lại!',
+            resendFailed: 'Gửi lại mã thất bại.',
         },
         adminResetPassword: {
             title: 'Đặt lại mật khẩu',
@@ -498,6 +514,33 @@ export default {
         updateSuccess: 'Cập nhật camera thành công!',
         deleteSuccess: 'Xóa camera thành công!',
         deleteConfirm: 'Bạn có chắc chắn muốn xóa camera "{name}" không?',
+        // Camera Detail Page
+        manageCamera: 'QUẢN LÝ CAMERA',
+        editCameraTitle: 'CHỈNH SỬA CAMERA',
+        cameraDetailsTitle: 'CHI TIẾT CAMERA',
+        table: 'Bàn',
+        tableRequired: 'Bàn là bắt buộc',
+        ipAddress: 'Địa chỉ IP',
+        ipAddressRequired: 'Địa chỉ IP là bắt buộc',
+        ipAddressInvalid: 'Địa chỉ IP không hợp lệ',
+        username: 'Tên đăng nhập',
+        usernameRequired: 'Tên đăng nhập là bắt buộc',
+        usernameMinLength: 'Tên đăng nhập phải có ít nhất 2 ký tự',
+        password: 'Mật khẩu',
+        passwordRequired: 'Mật khẩu là bắt buộc',
+        connectionStatus: 'Trạng thái kết nối',
+        connectionStatusRequired: 'Trạng thái kết nối là bắt buộc',
+        connected: 'Đã kết nối',
+        notConnected: 'Chưa kết nối',
+        cannotLoadData: 'Không thể tải dữ liệu camera hoặc bàn',
+        cameraNotFound: 'Không tìm thấy camera',
+        saveSuccess: 'Đã lưu camera thành công!',
+        saveFailed: 'Lưu camera thất bại.',
+        deleteFailed: 'Xóa camera thất bại.',
+        formatCategory: {
+            pool8: 'Pool 8',
+            carom: 'Carom',
+        },
     },
 
     // Tables
@@ -580,6 +623,17 @@ export default {
         pendingFeedbacks: 'Phản hồi chờ xử lý',
         revenue: 'Doanh thu',
         visitors: 'Khách hàng',
+        loading: 'Đang tải...',
+        cannotLoadStats: 'Không thể tải dữ liệu thống kê',
+        noTablesFound: 'Chưa có bàn nào',
+        noTablesFoundWithSearch: 'Không tìm thấy bàn phù hợp',
+        tryChangingSearch: 'Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy bàn phù hợp',
+        viewAll: 'Xem tất cả',
+        viewMore: 'Xem thêm',
+        minutes: 'phút',
+        hours: 'giờ',
+        hour: 'giờ',
+        minute: 'phút',
     },
 
     // Match
@@ -757,7 +811,7 @@ export default {
             brandNameMinLength: 'Tên thương hiệu phải có ít nhất 2 ký tự',
             invalidUrl: 'URL không hợp lệ, phải bắt đầu bằng https://',
             citizenCodeRequired: 'CCCD là bắt buộc',
-            citizenCodeLength: 'CCCD phải có đúng 12 chữ số',
+            citizenCodeLength: 'Căn cước công dân (CCCD) phải có đúng 12 chữ số',
             invalidProvinceCode: 'Mã tỉnh/thành phố không hợp lệ',
             invalidGenderCode: 'Mã giới tính/thế kỷ không hợp lệ',
             invalidYear: 'Năm sinh không hợp lệ',
@@ -780,5 +834,466 @@ export default {
         description: 'Tài khoản của bạn đã được gửi lên hệ thống và đang chờ Quản trị viên xác nhận.',
         checkLater: 'Vui lòng kiểm tra lại sau hoặc liên hệ với Quản trị viên để được hỗ trợ nhanh hơn.',
         backToLogin: 'Quay lại đăng nhập',
+    },
+
+    // Guide
+    guide: {
+        loading: 'Đang tải...',
+        roles: {
+            business: 'CHỦ DOANH NGHIỆP',
+            manager: 'QUẢN LÝ',
+            member: 'HỘI VIÊN',
+            user: 'NGƯỜI DÙNG',
+        },
+        business: {
+            title: 'Hướng Dẫn Sử Dụng Hệ Thống Scorelens - Vai Trò CHỦ DOANH NGHIỆP',
+            part1: {
+                title: 'Phần 1: Đăng Ký và Kích Hoạt Tài Khoản',
+                description: 'Là một Chủ Doanh Nghiệp, bạn sẽ trải qua quy trình đăng ký và xác thực để có thể quản lý hệ thống ScoreLens cho thương hiệu của mình.',
+                step1: {
+                    title: 'Bước 1: Đăng Ký Tài Khoản',
+                    items: [
+                        'Truy cập trang đăng ký dành cho Chủ Doanh Nghiệp',
+                        'Nhập email và tạo mật khẩu mạnh cho tài khoản',
+                        'Xác thực email bằng mã OTP được gửi đến hộp thư'
+                    ]
+                },
+                step2: {
+                    title: 'Bước 2: Bổ Sung Thông Tin Doanh Nghiệp',
+                    items: [
+                        'Nhập thông tin thương hiệu: Tên thương hiệu, Đường dẫn trình duyệt (Website), Căn cước công dân (CCCD), Số điện thoại',
+                        'Thêm thông tin chi nhánh: Tên chi nhánh, Địa chỉ, Số điện thoại',
+                        'Khai báo số lượng bàn chơi tại mỗi chi nhánh',
+                        'Upload logo thương hiệu (tùy chọn)'
+                    ]
+                },
+                step3: {
+                    title: 'Bước 3: Chờ Duyệt Từ Quản Trị Viên',
+                    items: [
+                        'Sau khi hoàn tất, tài khoản sẽ ở trạng thái "Chờ duyệt"',
+                        'Quản trị viên sẽ xem xét thông tin và phê duyệt tài khoản',
+                        'Bạn sẽ nhận được email thông báo khi tài khoản được duyệt'
+                    ]
+                },
+                step4: {
+                    title: 'Bước 4: Truy Cập Hệ Thống',
+                    items: [
+                        'Sau khi được duyệt, đăng nhập bằng email và mật khẩu đã đăng ký',
+                        'Bắt đầu quản lý hệ thống ScoreLens cho thương hiệu của bạn'
+                    ]
+                }
+            },
+            part2: {
+                title: 'Phần 2: Bảng Điều Khiển và Quản Lý Tổng Quan',
+                description: 'Sau khi đăng nhập thành công, bạn sẽ được đưa đến Bảng điều khiển (Admin Dashboard) - trung tâm điều hành của bạn.',
+                quickStats: {
+                    title: 'Thống Kê Nhanh:',
+                    items: [
+                        'Tổng số chi nhánh đang hoạt động',
+                        'Số lượng quản lý đang làm việc',
+                        'Phản hồi mới cần xử lý'
+                    ]
+                }
+            },
+            part3: {
+                title: 'Phần 3: Các Chức Năng Quản Lý Chính',
+                brandManagement: {
+                    title: 'Quản Lý Thông Tin Thương Hiệu',
+                    items: [
+                        'Xem và chỉnh sửa thông tin thương hiệu: tên, website, Căn cước công dân (CCCD), số điện thoại',
+                        'Quản lý logo thương hiệu',
+                        'Xem danh sách tất cả chi nhánh thuộc thương hiệu',
+                        'Thêm chi nhánh mới khi cần mở rộng'
+                    ]
+                },
+                managerManagement: {
+                    title: 'Quản Lý Tài Khoản Quản Lý (Manager)',
+                    items: [
+                        'Xem danh sách tất cả quản lý đang làm việc',
+                        'Thêm quản lý mới: Nhập thông tin cá nhân, email, số điện thoại',
+                        'Gán quản lý cho chi nhánh cụ thể',
+                        'Kích hoạt/vô hiệu hóa tài khoản quản lý',
+                        'Tìm kiếm và lọc quản lý theo chi nhánh, trạng thái'
+                    ]
+                },
+                feedbackManagement: {
+                    title: 'Quản Lý Phản Hồi và Hỗ Trợ',
+                    items: [
+                        'Xem tất cả phản hồi từ người dùng và quản lý',
+                        'Lọc phản hồi theo trạng thái: Chờ xử lý, đang xử lý, đã hoàn thành',
+                        'Lọc theo chi nhánh và khoảng thời gian',
+                        'Tìm kiếm phản hồi theo từ khóa',
+                        'Cập nhật trạng thái và phản hồi cho người gửi'
+                    ]
+                }
+            },
+            part4: {
+                title: 'Phần 4: Các Chức Năng Bổ Sung',
+                items: [
+                    'Quản lý hồ sơ cá nhân: Thay đổi thông tin cá nhân và mật khẩu',
+                    'Xem báo cáo tổng quan: Thống kê hoạt động của tất cả chi nhánh',
+                    'Theo dõi hiệu suất: Đánh giá hiệu quả hoạt động của các quản lý',
+                    'Gửi thông báo: Gửi thông báo quan trọng đến tất cả quản lý'
+                ]
+            }
+        },
+        manager: {
+            title: 'Hướng Dẫn Sử Dụng Hệ Thống ScoreLens - Vai Trò QUẢN LÝ',
+            part1: {
+                title: 'Phần 1: Kích Hoạt Tài Khoản Quản Lý',
+                description: 'Tài khoản của bạn được tạo và cấp quyền bởi Chủ Doanh Nghiệp. Bạn sẽ nhận được thông tin đăng nhập qua email.',
+                receiveInfo: {
+                    title: 'Nhận Thông Tin Tài Khoản',
+                    items: [
+                        'Kiểm tra email để nhận thông tin đăng nhập từ Chủ Doanh Nghiệp',
+                        'Email sẽ chứa đường link đăng nhập và hướng dẫn chi tiết'
+                    ]
+                },
+                loginByEmail: {
+                    title: 'Đăng Nhập Bằng Email',
+                    items: [
+                        'Truy cập đường link đăng nhập được cung cấp',
+                        'Nhập email đã được Chủ Doanh Nghiệp đăng ký',
+                        'Hệ thống sẽ gửi mã xác thực đến email của bạn',
+                        'Nhập mã xác thực để hoàn tất đăng nhập'
+                    ]
+                },
+                subsequentLogin: {
+                    title: 'Đăng Nhập Lần Sau',
+                    items: [
+                        'Chỉ cần nhập email đã đăng ký',
+                        'Hệ thống tự động gửi mã xác thực mới',
+                        'Nhập mã xác thực để truy cập hệ thống'
+                    ]
+                }
+            },
+            part2: {
+                title: 'Phần 2: Bảng Điều Khiển Quản Lý',
+                description: 'Sau khi đăng nhập, bạn sẽ thấy Bảng điều khiển - trung tâm điều hành của bạn tại câu lạc bộ.',
+                overview: {
+                    title: '📊 Thống Kê Tổng Quan:',
+                    items: [
+                        'Tổng số bàn: Số lượng bàn chơi trong câu lạc bộ',
+                        'Bàn đang sử dụng: Số bàn hiện tại đang có trận đấu',
+                        'Bàn trống: Số bàn có thể sử dụng ngay',
+                        'Tổng thành viên: Số lượng hội viên đã đăng ký'
+                    ]
+                }
+            },
+            part3: {
+                title: 'Phần 3: Quản Lý Vận Hành Hàng Ngày',
+                equipmentManagement: {
+                    title: 'Quản Lý Thiết Bị (Bàn chơi & Camera)',
+                    items: [
+                        'Xem danh sách tất cả bàn chơi trong câu lạc bộ',
+                        'Thêm bàn mới: Nhập tên bàn, loại bàn (Pool 8, Pool 9, Snooker...)',
+                        'Quản lý camera: Gán camera cho từng bàn để theo dõi trận đấu',
+                        'Chỉnh sửa thông tin bàn: Cập nhật tên, loại, trạng thái bàn',
+                        'Lọc và tìm kiếm bàn: Theo loại, trạng thái, tên bàn'
+                    ]
+                },
+                matchManagement: {
+                    title: 'Quản Lý Trận Đấu',
+                    items: [
+                        'Theo dõi các trận đấu đang diễn ra trong thời gian thực',
+                        'Xem danh sách trận đấu theo bàn, thời gian, trạng thái',
+                        'Chỉnh sửa thông tin trận đấu khi cần thiết:',
+                        'Sửa lại điểm số bị Camera AI nhận diện sai',
+                        'Cập nhật thông tin người chơi nếu bị nhầm lẫn',
+                        'Kết thúc trận đấu thủ công nếu cần thiết',
+                        'Xem lịch sử trận đấu đã kết thúc'
+                    ]
+                },
+                memberManagement: {
+                    title: 'Quản Lý Hội Viên',
+                    items: [
+                        'Xem danh sách tất cả hội viên đã đăng ký',
+                        'Thêm hội viên mới: Nhập thông tin cá nhân, số điện thoại, email',
+                        'Chỉnh sửa thông tin hội viên khi cần thiết',
+                        'Kích hoạt/vô hiệu hóa tài khoản hội viên',
+                        'Tìm kiếm hội viên theo tên, số điện thoại',
+                        'Xem lịch sử trận đấu của từng hội viên'
+                    ]
+                },
+                feedbackManagement: {
+                    title: 'Quản Lý Phản Hồi',
+                    items: [
+                        'Xem tất cả phản hồi từ người dùng trong câu lạc bộ',
+                        'Phản hồi và giải quyết các vấn đề được báo cáo',
+                        'Cập nhật trạng thái phản hồi để người gửi biết tiến trình',
+                        'Lọc phản hồi theo mức độ ưu tiên và trạng thái'
+                    ]
+                }
+            },
+            part4: {
+                title: 'Phần 4: Các Chức Năng Bổ Sung',
+                items: [
+                    'Quản lý hồ sơ cá nhân: Thay đổi thông tin cá nhân và mật khẩu',
+                    'Xem báo cáo hoạt động: Thống kê về trận đấu, hội viên, doanh thu',
+                    'Gửi thông báo: Gửi thông báo quan trọng đến hội viên',
+                    'Gửi phản hồi: Gửi phản hồi về hệ thống cho Chủ Doanh Nghiệp'
+                ]
+            }
+        },
+        member: {
+            title: 'Hướng Dẫn Sử Dụng Hệ Thống ScoreLens - Dành Cho HỘI VIÊN',
+            part1: {
+                title: 'Phần 1: Bắt Đầu Trận Đấu - Quét Mã QR',
+                description: 'Là hội viên, bạn có thể tạo và tham gia trận đấu một cách dễ dàng chỉ với vài thao tác đơn giản.',
+                step1: {
+                    title: 'Bước 1: Đến Bàn Chơi',
+                    items: [
+                        'Chọn bàn chơi bạn muốn sử dụng',
+                        'Đảm bảo bàn đang trống và sẵn sàng cho trận đấu'
+                    ]
+                },
+                step2: {
+                    title: 'Bước 2: Quét Mã QR',
+                    items: [
+                        'Mở ứng dụng Camera trên điện thoại',
+                        'Quét mã QR được đặt trên bàn chơi',
+                        'Trình duyệt sẽ tự động mở trang web ScoreLens'
+                    ]
+                },
+                step3: {
+                    title: 'Bước 3: Tạo Trận Đấu',
+                    items: [
+                        'Nhập tên cho đội A và đội B',
+                        'Chọn loại bàn (Pool 8, Pool 9, Snooker...)',
+                        'Nhấn "Tạo trận đấu" để bắt đầu'
+                    ]
+                }
+            },
+            part2: {
+                title: 'Phần 2: Quản Lý Trận Đấu - Quyền Chủ Phòng',
+                importantNote: '🎯 Lưu Ý Quan Trọng: Chỉ Chủ phòng (người tạo trận đấu) mới có quyền thực hiện các thao tác quản lý.',
+                realTimeScoring: {
+                    title: 'Theo Dõi Điểm Số Trực Tiếp',
+                    items: [
+                        'Điểm số được cập nhật tự động thông qua AI Camera',
+                        'Xem tỷ số thời gian thực trên màn hình',
+                        'Không cần nhập điểm thủ công'
+                    ]
+                },
+                editScores: {
+                    title: 'Chỉnh Sửa Điểm Số (Chủ phòng)',
+                    items: [
+                        'Nếu AI nhận diện sai, chủ phòng có thể chỉnh sửa điểm',
+                        'Nhấn nút "Chỉnh sửa" để điều chỉnh điểm cho từng đội',
+                        'Lưu lại để cập nhật tỷ số chính xác'
+                    ]
+                },
+                memberManagement: {
+                    title: 'Quản Lý Thành Viên (Chủ phòng)',
+                    items: [
+                        'Thêm thành viên mới vào đội',
+                        'Xóa thành viên khỏi đội nếu cần',
+                        'Chỉnh sửa tên thành viên',
+                        'Phân chia thành viên giữa đội A và đội B'
+                    ]
+                },
+                joinMatch: {
+                    title: 'Tham Gia Trận Đấu (Thành viên khác)',
+                    items: [
+                        'Quét mã QR trên bàn để tham gia trận đấu đang diễn ra',
+                        'Nhập mã phòng được chủ phòng cung cấp',
+                        'Xem điểm số trực tiếp nhưng không thể chỉnh sửa'
+                    ]
+                }
+            },
+            part3: {
+                title: 'Phần 3: Kết Thúc và Đánh Giá',
+                endMatch: {
+                    title: 'Kết Thúc Trận Đấu (Chủ phòng)',
+                    items: [
+                        'Nhấn nút "Kết thúc" khi trận đấu hoàn thành',
+                        'Xem kết quả cuối cùng và người chiến thắng',
+                        'Trận đấu sẽ được lưu vào lịch sử'
+                    ]
+                },
+                evaluateMatch: {
+                    title: 'Đánh Giá Trận Đấu',
+                    items: [
+                        'Tất cả người chơi có thể đánh giá trận đấu',
+                        'Viết nhận xét về trải nghiệm chơi',
+                        'Gửi phản hồi để cải thiện dịch vụ'
+                    ]
+                }
+            },
+            part4: {
+                title: 'Phần 4: Lợi Ích Dành Cho Hội Viên',
+                memberPrivileges: '✨ Đặc Quyền Hội Viên:',
+                items: [
+                    'Lưu trữ vĩnh viễn tất cả trận đấu đã tham gia',
+                    'Xem lịch sử trận đấu chi tiết',
+                    'Theo dõi thống kê cá nhân và tiến độ',
+                    'Tạo trận đấu riêng mà không cần hỗ trợ',
+                    'Nhận thông báo về các sự kiện đặc biệt'
+                ]
+            }
+        },
+        user: {
+            title: 'Hướng Dẫn Sử Dụng Hệ Thống ScoreLens - Dành Cho NGƯỜI DÙNG',
+            part1: {
+                title: 'Phần 1: Bắt Đầu Nhanh Chóng - Chỉ 3 Bước',
+                description: 'Bạn có thể sử dụng hệ thống ScoreLens ngay lập tức mà không cần đăng ký tài khoản. Chỉ cần làm theo 3 bước đơn giản sau:',
+                step1: {
+                    title: 'Bước 1: Mở Camera Điện Thoại',
+                    items: [
+                        'Sử dụng ứng dụng Camera gốc trên điện thoại',
+                        'Hoạt động trên cả iPhone và Android'
+                    ]
+                },
+                step2: {
+                    title: 'Bước 2: Quét Mã QR',
+                    items: [
+                        'Đưa camera về phía mã QR trên bàn chơi',
+                        'Mã QR được đặt ngay trên bàn để dễ dàng quét'
+                    ]
+                },
+                step3: {
+                    title: 'Bước 3: Tự Động Mở Trang Web',
+                    items: [
+                        'Trình duyệt sẽ tự động mở trang web ScoreLens',
+                        'Hiển thị thông tin bàn chơi và sẵn sàng sử dụng'
+                    ]
+                }
+            },
+            part2: {
+                title: 'Phần 2: Sử Dụng Trang Web Trong Trận Đấu',
+                initialInfo: {
+                    title: 'Nhập Thông Tin Ban Đầu',
+                    items: [
+                        'Nhập tên hoặc biệt danh cho đội A và đội B',
+                        'Chọn loại bàn chơi (Pool 8, Pool 9, Snooker...)',
+                        'Nhấn "Bắt đầu" để khởi tạo trận đấu'
+                    ]
+                },
+                realTimeScoring: {
+                    title: 'Theo Dõi Điểm Số Trực Tiếp',
+                    items: [
+                        'Điểm số được cập nhật tự động trong thời gian thực',
+                        'Không cần nhập điểm thủ công',
+                        'Có thể liếc nhìn điện thoại bất cứ lúc nào để xem tỷ số'
+                    ]
+                },
+                editScores: {
+                    title: 'Chỉnh Sửa Điểm (Nếu Cần)',
+                    items: [
+                        'Nếu AI nhận diện sai điểm, có thể chỉnh sửa',
+                        'Nhấn nút "Chỉnh sửa" để điều chỉnh điểm số',
+                        'Lưu lại để cập nhật tỷ số chính xác'
+                    ]
+                },
+                endMatch: {
+                    title: 'Kết Thúc Trận Đấu',
+                    items: [
+                        'Nhấn nút "Kết thúc" khi trận đấu hoàn thành',
+                        'Xem kết quả cuối cùng và người chiến thắng',
+                        'Đánh giá trận đấu (tùy chọn)'
+                    ]
+                }
+            },
+            part3: {
+                title: 'Phần 3: Lưu Ý Quan Trọng',
+                criticalNote: '⚠️ Lưu Ý Cực Kỳ Quan Trọng: Vì bạn đang sử dụng web app với tư cách khách, dữ liệu trận đấu này chỉ là tạm thời. Nếu bạn đóng tab trình duyệt hoặc thoát ra, thông tin về trận đấu này sẽ mất vĩnh viễn và bạn sẽ không thể xem lại được.',
+            },
+            part4: {
+                title: 'Phần 4: Nâng Cấp Lên Hội Viên',
+                description: 'Bạn có muốn lưu lại mọi trận đấu để xem lại thành tích và sự tiến bộ của mình không? Hãy đăng ký làm Hội viên của câu lạc bộ!',
+                memberBenefits: '🎁 Lợi Ích Khi Trở Thành Hội Viên:',
+                items: [
+                    'Lưu trữ vĩnh viễn tất cả trận đấu đã tham gia',
+                    'Xem lịch sử trận đấu chi tiết',
+                    'Theo dõi thống kê cá nhân và tiến độ',
+                    'Tạo trận đấu riêng mà không cần hỗ trợ',
+                    'Nhận thông báo về các sự kiện đặc biệt',
+                    'Liên hệ Quản lý câu lạc bộ để đăng ký làm hội viên'
+                ]
+            }
+        }
+    },
+
+    // History
+    history: {
+        title: 'TRA CỨU LỊCH SỬ ĐẤU',
+        totalMembers: 'Tổng số hội viên',
+        totalMatches: 'Tổng số trận đấu',
+        todayMatches: 'Trận đấu hôm nay',
+        memberIdLabel: 'Mã Hội Viên',
+        memberIdPlaceholder: 'Nhập mã hội viên của bạn',
+        memberIdNote: '* Nếu chưa có mã Hội viên, hãy liên hệ với nhân viên để đăng ký!',
+        viewHistoryButton: 'Xem lịch sử đấu',
+        loading: 'Đang tải...',
+        memberNotFound: 'Không tìm thấy Hội viên với số điện thoại này',
+        errorMessage: 'Không tìm thấy Hội viên với số điện thoại này',
+        detailPage: {
+            title: 'LỊCH SỬ ĐẤU',
+            memberIdLabel: 'Mã Hội viên:',
+            totalMatches: 'Tổng cộng',
+            matches: 'trận đấu',
+            phoneNotFound: 'Không tìm thấy số điện thoại',
+            cannotLoadHistory: 'Không thể tải lịch sử trận đấu',
+            backToSearch: 'Quay lại trang tìm kiếm',
+            noMatchesFound: 'Không tìm thấy trận đấu phù hợp',
+            noMatchesYet: 'Chưa có trận đấu nào',
+            tryDifferentKeywords: 'Thử thay đổi từ khóa tìm kiếm hoặc ngày tháng để tìm thấy trận đấu phù hợp',
+            tryDifferentSearch: 'Thử thay đổi từ khóa tìm kiếm để tìm thấy trận đấu phù hợp',
+            tryDifferentDate: 'Thử thay đổi ngày tháng để tìm thấy trận đấu phù hợp',
+            noMatchesInSystem: 'Hội viên này chưa có trận đấu nào trong hệ thống',
+            viewAll: 'Xem tất cả',
+            showingResults: 'Hiển thị {start}-{end} trong tổng số {total} trận đấu',
+            teamA: 'ĐỘI A',
+            teamB: 'ĐỘI B',
+            draw: 'Hòa',
+            pool: 'Pool',
+            carom: 'Carom',
+            unknown: 'Không xác định',
+            notAvailable: 'N/A',
+            notDetermined: 'Không xác định'
+        }
+    },
+
+    // User Match
+    userMatch: {
+        create: {
+            title: 'Chào mừng bạn đến với ScoreLens',
+            tableInfo: 'Bàn chơi',
+            pool8Ball: 'Pool 8 Ball',
+            fullNameLabel: 'Họ và Tên',
+            fullNamePlaceholder: 'Nhập họ và tên ...',
+            memberIdLabel: 'Mã Hội Viên',
+            memberIdPlaceholder: 'Nhập mã hội viên ...',
+            verifyButton: 'Xác thực',
+            verifying: 'Đang xác thực...',
+            memberNote: '* Nếu chưa có mã hội viên, hãy liên hệ nhân viên để đăng ký!',
+            joinButton: 'Tham gia',
+            createMatchButton: 'Tạo trận đấu',
+            checkingTable: 'Đang kiểm tra bàn...',
+            error: {
+                noTableId: 'Lỗi: Không tìm thấy thông tin bàn',
+                noTableIdDescription: 'Vui lòng quét lại mã QR trên bàn để bắt đầu.',
+                invalidUrl: 'URL không hợp lệ, vui lòng quét lại mã QR.',
+                cannotVerifyTable: 'Không thể xác thực bàn. Vui lòng thử lại.',
+                tableInUse: 'Bàn đang được sử dụng, không thể tạo trận đấu',
+                noFullName: 'Vui lòng nhập họ và tên.',
+                noTableInfo: 'Không tìm thấy thông tin bàn. Vui lòng quét lại mã QR.',
+                noClubInfo: 'Không tìm thấy thông tin club',
+                invalidResponse: 'Response không hợp lệ',
+                verificationFailed: 'Xác thực thất bại',
+                notMember: 'Bạn chưa đăng ký hội viên',
+                accountBanned: 'Tài khoản của bạn đang bị cấm',
+                notBrandCompatible: 'Bạn chưa đăng ký hội viên.'
+            },
+            success: {
+                matchCreated: 'Tạo trận đấu thành công',
+                welcome: 'Chào mừng bạn',
+                welcomeWithName: 'Chào mừng {name}'
+            },
+            teamNames: {
+                teamA: 'Đội A',
+                teamB: 'Đội B'
+            }
+        }
     },
 } as const;

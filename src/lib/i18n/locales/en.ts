@@ -61,7 +61,7 @@ export default {
         home: 'Home',
         matchHistory: 'Match History',
         guide: 'Guide',
-        branches: 'Branches',
+        branches: 'Clubs',
         managers: 'Managers',
         feedbacks: 'Feedbacks',
         cameras: 'Cameras',
@@ -95,6 +95,7 @@ export default {
             backToLogin: 'Back to Login',
             rememberPassword: 'Remember your password?',
         },
+        logoutConfirm: 'Are you sure you want to logout?',
         resetPassword: 'Reset Password',
         emailPlaceholder: 'Enter your email',
         passwordPlaceholder: 'Enter your password',
@@ -145,7 +146,6 @@ export default {
             loginFailed: 'Login failed. Please try again.',
             logoutSuccess: 'Logout successful!',
             logoutFailed: 'Logout failed.',
-            logoutConfirm: 'Are you sure you want to logout?',
             noAccount: "Don't have an account?",
             register: 'Register',
             backToHome: 'Back to home',
@@ -202,6 +202,22 @@ export default {
             backToLogin: 'Back to login',
             notReceivedCode: 'Did not receive the code?',
         },
+        managerVerification: {
+            title: 'Manager Verification',
+            description: 'We have sent a verification code to',
+            verificationTitle: 'Enter 6-digit verification code',
+            verificationButton: 'Verify',
+            verifying: 'Verifying...',
+            verificationSuccess: 'Verification successful!',
+            verificationFailed: 'Verification failed. Please try again.',
+            otpRequired: 'Please enter all 6 digits',
+            resendCode: 'Resend code',
+            resendTimer: 'Resend in',
+            backToLogin: 'Back to login',
+            notReceivedCode: 'Did not receive the code?',
+            codeResent: 'Verification code has been resent!',
+            resendFailed: 'Failed to resend code.',
+        },
         adminResetPassword: {
             title: 'Reset Password',
             description: 'Please enter your new password.',
@@ -237,7 +253,7 @@ export default {
             steps: {
                 details: 'Detailed Information',
                 brand: 'Brand Information',
-                branch: 'Branch Information',
+                branch: 'Club Information',
                 confirm: 'Confirm',
             },
             successTitle: 'YOU HAVE SUCCESSFULLY REGISTERED',
@@ -257,33 +273,33 @@ export default {
             website: 'Website',
             citizenCode: 'Citizen ID',
             noBrandInfo: 'No brand information available.',
-            branchList: 'Branch List',
+            branchList: 'Clubs List',
             address: 'Address',
             tableNumber: 'Number of Tables',
-            noBranches: 'No branches available.',
+            noBranches: 'No clubs available.',
             editRegistrationInfo: 'Edit Registration Information',
             deleteAccount: 'Delete Account',
             confirmRegistrationInfo: 'Confirm Registration Information',
             brandInfoTitle: 'Brand Information',
-            branchInfoTitle: 'Branch Information',
-            branch: 'Branch',
+            branchInfoTitle: 'Club Information',
+            branch: 'Club',
             confirmInfo: 'Confirm Information',
             deleteAccountConfirm: 'Confirm Account Deletion',
-            deleteAccountConfirmText: 'Deleting account will permanently delete the account and all related data including brand and branch information.',
+            deleteAccountConfirmText: 'Deleting account will permanently delete the account and all related data including brand and club information.',
             deleteAccountConfirmQuestion: 'Are you sure you want to delete this account?',
             deleteAccountConfirmWarning: 'This action cannot be undone.',
             deleting: 'Deleting...',
         },
     },
 
-    // Branches
+    // Clubs
     branches: {
-        title: 'BRANCHES',
-        addBranch: 'Add Branch',
-        editBranch: 'Edit Branch',
-        branchDetails: 'Branch Details',
-        branchName: 'Branch Name',
-        branchNamePlaceholder: 'Enter branch name',
+        title: 'CLUBS',
+        addBranch: 'Add Club',
+        editBranch: 'Edit Club',
+        branchDetails: 'Club Details',
+        branchName: 'Club Name',
+        branchNamePlaceholder: 'Enter club name',
         addressPlaceholder: 'Enter address',
         phonePlaceholder: 'Enter phone number',
         tableNumber: 'Number of Tables',
@@ -296,10 +312,10 @@ export default {
             closed: 'Closed',
             maintenance: 'Maintenance',
         },
-        addSuccess: 'Branch added successfully!',
-        updateSuccess: 'Branch updated successfully!',
-        deleteSuccess: 'Branch deleted successfully!',
-        deleteConfirm: 'Are you sure you want to delete branch "{name}"?',
+        addSuccess: 'Club added successfully!',
+        updateSuccess: 'Club updated successfully!',
+        deleteSuccess: 'Club deleted successfully!',
+        deleteConfirm: 'Are you sure you want to delete club "{name}"?',
         addressExists: 'This address already exists in the system',
         addressRequired: 'Address is required',
         addressMinLength: 'Address must be at least 5 characters',
@@ -308,37 +324,37 @@ export default {
         tableNumberRequired: 'Number of tables is required',
         tableNumberMin: 'Number of tables must be greater than 0',
         tableNumberCannotBeZero: 'Number of tables cannot be 0',
-        cannotLoadBranches: 'Cannot load branches list',
+        cannotLoadBranches: 'Cannot load clubs list',
         searchError: 'Search error',
-        noSearchResults: 'No matching branches found',
-        noBranches: 'No branches yet',
-        tryDifferentKeywords: 'Try changing search keywords to find matching branches',
-        useAddButton: 'Use the "Add Branch" button above to create your first branch',
+        noSearchResults: 'No matching clubs found',
+        noBranches: 'No clubs yet',
+        tryDifferentKeywords: 'Try changing search keywords to find matching clubs',
+        useAddButton: 'Use the "Add Club" button above to create your first club',
         viewAll: 'View all',
         searchPlaceholder: 'Enter name or address to search',
         table: {
-            branchName: 'BRANCH NAME',
+            branchName: 'CLUB NAME',
             address: 'ADDRESS',
-            tableCount: 'TABLE COUNT',
+            tableCount: 'TABLE',
             status: 'STATUS',
             clickToViewDetails: 'Click to view details',
         },
         detailPage: {
-            title: 'BRANCH',
-            editBranch: 'EDIT BRANCH',
-            branchDetails: 'BRANCH DETAILS',
-            backToBranches: 'Back to branches',
+            title: 'CLUB',
+            editBranch: 'EDIT CLUB',
+            branchDetails: 'CLUB DETAILS',
+            backToBranches: 'Back',
             edit: 'Edit',
             saving: 'Saving...',
             save: 'Save',
             delete: 'Delete',
             deleting: 'Deleting...',
             deleteConfirm: 'Are you sure you want to delete?',
-            deleteConfirmMessage: 'Are you sure you want to delete branch "{name}"?',
+            deleteConfirmMessage: 'Are you sure you want to delete club "{name}"?',
             cancel: 'Cancel',
             confirm: 'Confirm',
-            branchName: 'Branch Name',
-            branchNameRequired: 'Branch name is required',
+            branchName: 'Club Name',
+            branchNameRequired: 'Club name is required',
             address: 'Address',
             addressRequired: 'Address is required',
             phoneNumber: 'Phone Number',
@@ -353,12 +369,12 @@ export default {
             statusMaintenance: 'Maintenance',
             tableMismatchWarning: '⚠️ Number of tables on system does not match registered tables',
             invalidClubId: 'Invalid Club ID',
-            cannotLoadBranch: 'Cannot load branch information',
-            updateSuccess: 'Branch updated successfully!',
-            updateFailed: 'Failed to update branch',
-            deleteSuccess: 'Branch deleted successfully!',
-            deleteFailed: 'Failed to delete branch',
-            branchNotFound: 'Branch information not found',
+            cannotLoadBranch: 'Cannot load club information',
+            updateSuccess: 'Club updated successfully!',
+            updateFailed: 'Failed to update club',
+            deleteSuccess: 'Club deleted successfully!',
+            deleteFailed: 'Failed to delete club',
+            branchNotFound: 'Club information not found',
         },
     },
 
@@ -374,14 +390,14 @@ export default {
         managerEmailPlaceholder: 'Enter manager email',
         managerPhone: 'Manager Phone',
         managerPhonePlaceholder: 'Enter manager phone',
-        branch: 'Branch',
-        selectBranch: 'Select Branch',
-        selectBranchPlaceholder: '-- Select branch --',
+        branch: 'Club',
+        selectBranch: 'Select Club',
+        selectBranchPlaceholder: '-- Select club --',
         addSuccess: 'Manager added successfully!',
         updateSuccess: 'Manager updated successfully!',
         deleteSuccess: 'Manager deleted successfully!',
         deleteConfirm: 'Are you sure you want to delete?',
-        noBranch: 'No branch assigned',
+        noBranch: 'No club assigned',
         searchPlaceholder: 'Enter name or phone number to search',
         cannotLoadData: 'Cannot load manager details',
         saveSuccess: 'Manager saved successfully!',
@@ -396,11 +412,11 @@ export default {
         noManagers: 'No managers yet',
         tryDifferentKeywords: 'Try changing search keywords to find matching managers',
         useAddButton: 'Use the "Add Manager" button above to create the first manager',
-        cannotLoadBranches: 'Cannot load branch list',
+        cannotLoadBranches: 'Cannot load club list',
         addFailed: 'Add manager failed!',
         table: {
             managerName: 'MANAGER NAME',
-            branch: 'BRANCH',
+            branch: 'CLUB',
             phone: 'PHONE',
             status: 'STATUS',
         },
@@ -432,9 +448,9 @@ export default {
             suggestion: 'Suggestion',
             bug: 'Bug Report',
         },
-        searchPlaceholder: 'Enter branch or table to search',
+        searchPlaceholder: 'Enter club or table to search',
         table: {
-            branch: 'BRANCH',
+            branch: 'CLUB',
             table: 'TABLE',
             time: 'TIME',
             status: 'STATUS',
@@ -498,6 +514,33 @@ export default {
         updateSuccess: 'Camera updated successfully!',
         deleteSuccess: 'Camera deleted successfully!',
         deleteConfirm: 'Are you sure you want to delete camera "{name}"?',
+        // Camera Detail Page
+        manageCamera: 'MANAGE CAMERA',
+        editCameraTitle: 'EDIT CAMERA',
+        cameraDetailsTitle: 'CAMERA DETAILS',
+        table: 'Table',
+        tableRequired: 'Table is required',
+        ipAddress: 'IP Address',
+        ipAddressRequired: 'IP address is required',
+        ipAddressInvalid: 'Invalid IP address',
+        username: 'Username',
+        usernameRequired: 'Username is required',
+        usernameMinLength: 'Username must be at least 2 characters',
+        password: 'Password',
+        passwordRequired: 'Password is required',
+        connectionStatus: 'Connection Status',
+        connectionStatusRequired: 'Connection status is required',
+        connected: 'Connected',
+        notConnected: 'Not Connected',
+        cannotLoadData: 'Cannot load camera or table data',
+        cameraNotFound: 'Camera not found',
+        saveSuccess: 'Camera saved successfully!',
+        saveFailed: 'Failed to save camera.',
+        deleteFailed: 'Failed to delete camera.',
+        formatCategory: {
+            pool8: 'Pool 8',
+            carom: 'Carom',
+        },
     },
 
     // Tables
@@ -572,7 +615,7 @@ export default {
         overview: 'Overview',
         statistics: 'Statistics',
         recentActivity: 'Recent Activity',
-        totalBranches: 'Total Branches',
+        totalBranches: 'Total Clubs',
         totalManagers: 'Total Managers',
         totalMembers: 'Total Members',
         totalTables: 'Total Tables',
@@ -580,6 +623,17 @@ export default {
         pendingFeedbacks: 'Pending Feedbacks',
         revenue: 'Revenue',
         visitors: 'Visitors',
+        loading: 'Loading...',
+        cannotLoadStats: 'Cannot load statistics data',
+        noTablesFound: 'No tables found',
+        noTablesFoundWithSearch: 'No matching tables found',
+        tryChangingSearch: 'Try changing search keywords or filters to find suitable tables',
+        viewAll: 'View all',
+        viewMore: 'View more',
+        minutes: 'minutes',
+        hours: 'hours',
+        hour: 'hour',
+        minute: 'minute',
     },
 
     // Match
@@ -736,8 +790,8 @@ export default {
         citizenCodePlaceholder: 'Enter citizen ID...',
         phone: 'Phone Number',
         phonePlaceholder: 'Enter phone number...',
-        branch: 'Branch',
-        branchName: 'Branch Name',
+        branch: 'Club',
+        branchName: 'Club Name',
         address: 'Address',
         currentTables: 'Current Tables',
         edit: 'Edit',
@@ -746,7 +800,7 @@ export default {
         confirmUpdate: 'Confirm Update',
         update: 'Update',
         confirmUpdateMessage: 'Are you sure you want to update the brand information?',
-        cannotLoadInfo: 'Cannot load brand or branch information',
+        cannotLoadInfo: 'Cannot load brand or club information',
         uploadSuccess: 'Logo uploaded successfully!',
         uploadFailed: 'Upload failed',
         updateSuccess: 'Brand information updated successfully!',
@@ -780,5 +834,466 @@ export default {
         description: 'Your account has been submitted to the system and is waiting for Administrator confirmation.',
         checkLater: 'Please check back later or contact the Administrator for faster support.',
         backToLogin: 'Back to Login',
+    },
+
+    // Guide
+    guide: {
+        loading: 'Loading...',
+        roles: {
+            business: 'BUSINESS OWNER',
+            manager: 'MANAGER',
+            member: 'MEMBER',
+            user: 'USER',
+        },
+        business: {
+            title: 'ScoreLens System User Guide - BUSINESS OWNER Role',
+            part1: {
+                title: 'Part 1: Registration and Account Activation',
+                description: 'As a Business Owner, you will go through a registration and verification process to manage the ScoreLens system for your brand.',
+                step1: {
+                    title: 'Step 1: Account Registration',
+                    items: [
+                        'Access the Business Owner registration page',
+                        'Enter email and create a strong password for your account',
+                        'Verify email with OTP code sent to your inbox'
+                    ]
+                },
+                step2: {
+                    title: 'Step 2: Complete Business Information',
+                    items: [
+                        'Enter brand information: brand name, website, citizen ID, phone number',
+                        'Add club information: club name, address, phone number',
+                        'Declare number of tables at each club',
+                        'Upload brand logo (optional)'
+                    ]
+                },
+                step3: {
+                    title: 'Step 3: Wait for Administrator Approval',
+                    items: [
+                        'After completion, account will be in "Pending" status',
+                        'Administrator will review information and approve account',
+                        'You will receive email notification when account is approved'
+                    ]
+                },
+                step4: {
+                    title: 'Step 4: Access System',
+                    items: [
+                        'After approval, login with registered email and password',
+                        'Start managing ScoreLens system for your brand'
+                    ]
+                }
+            },
+            part2: {
+                title: 'Part 2: Dashboard and Overview Management',
+                description: 'After successful login, you will be taken to the Admin Dashboard - your command center.',
+                quickStats: {
+                    title: 'Quick Statistics:',
+                    items: [
+                        'Total active clubs',
+                        'Number of working managers',
+                        'New feedback requiring attention'
+                    ]
+                }
+            },
+            part3: {
+                title: 'Part 3: Main Management Functions',
+                brandManagement: {
+                    title: 'Brand Information Management',
+                    items: [
+                        'View and edit brand information: name, website, citizen ID, phone number',
+                        'Manage brand logo',
+                        'View list of all clubs under the brand',
+                        'Add new clubs when expanding'
+                    ]
+                },
+                managerManagement: {
+                    title: 'Manager Account Management',
+                    items: [
+                        'View list of all working managers',
+                        'Add new manager: Enter personal information, email, phone number',
+                        'Assign manager to specific club',
+                        'Activate/deactivate manager account',
+                        'Search and filter managers by club, status'
+                    ]
+                },
+                feedbackManagement: {
+                    title: 'Feedback and Support Management',
+                    items: [
+                        'View all feedback from users and managers',
+                        'Filter feedback by status: Pending, In Progress, Completed',
+                        'Filter by club and time range',
+                        'Search feedback by keywords',
+                        'Update status and respond to sender'
+                    ]
+                }
+            },
+            part4: {
+                title: 'Part 4: Additional Functions',
+                items: [
+                    'Personal profile management: Change personal information and password',
+                    'View overview reports: Statistics of all club activities',
+                    'Performance tracking: Evaluate manager performance effectiveness',
+                    'Send notifications: Send important notifications to all managers'
+                ]
+            }
+        },
+        manager: {
+            title: 'ScoreLens System User Guide - MANAGER Role',
+            part1: {
+                title: 'Part 1: Manager Account Activation',
+                description: 'Your account is created and authorized by the Business Owner. You will receive login information via email.',
+                receiveInfo: {
+                    title: 'Receive Account Information',
+                    items: [
+                        'Check email to receive login information from Business Owner',
+                        'Email will contain login link and detailed instructions'
+                    ]
+                },
+                loginByEmail: {
+                    title: 'Login by Email',
+                    items: [
+                        'Access the provided login link',
+                        'Enter email registered by Business Owner',
+                        'System will send verification code to your email',
+                        'Enter verification code to complete login'
+                    ]
+                },
+                subsequentLogin: {
+                    title: 'Subsequent Logins',
+                    items: [
+                        'Just enter registered email',
+                        'System automatically sends new verification code',
+                        'Enter verification code to access system'
+                    ]
+                }
+            },
+            part2: {
+                title: 'Part 2: Manager Dashboard',
+                description: 'After login, you will see the Dashboard - your command center at the club.',
+                overview: {
+                    title: '📊 Overview Statistics:',
+                    items: [
+                        'Total tables: Number of tables in the club',
+                        'Tables in use: Tables currently having matches',
+                        'Available tables: Tables ready for immediate use',
+                        'Total members: Number of registered members'
+                    ]
+                }
+            },
+            part3: {
+                title: 'Part 3: Daily Operations Management',
+                equipmentManagement: {
+                    title: 'Equipment Management (Tables & Cameras)',
+                    items: [
+                        'View list of all tables in the club',
+                        'Add new table: Enter table name, table type (Pool 8, Pool 9, Snooker...)',
+                        'Camera management: Assign cameras to each table for match monitoring',
+                        'Edit table information: Update name, type, table status',
+                        'Filter and search tables: By type, status, table name'
+                    ]
+                },
+                matchManagement: {
+                    title: 'Match Management',
+                    items: [
+                        'Monitor ongoing matches in real-time',
+                        'View match list by table, time, status',
+                        'Edit match information when needed:',
+                        'Correct scores misrecognized by AI Camera',
+                        'Update player information if mistaken',
+                        'Manually end match if necessary',
+                        'View history of completed matches'
+                    ]
+                },
+                memberManagement: {
+                    title: 'Member Management',
+                    items: [
+                        'View list of all registered members',
+                        'Add new member: Enter personal information, phone number, email',
+                        'Edit member information when needed',
+                        'Activate/deactivate member account',
+                        'Search members by name, phone number',
+                        'View match history of each member'
+                    ]
+                },
+                feedbackManagement: {
+                    title: 'Feedback Management',
+                    items: [
+                        'View all feedback from users in the club',
+                        'Respond and resolve reported issues',
+                        'Update feedback status to inform sender of progress',
+                        'Filter feedback by priority and status'
+                    ]
+                }
+            },
+            part4: {
+                title: 'Part 4: Additional Functions',
+                items: [
+                    'Personal profile management: Change personal information and password',
+                    'View activity reports: Statistics on matches, members, revenue',
+                    'Send notifications: Send important notifications to members',
+                    'Send feedback: Send feedback about system to Business Owner'
+                ]
+            }
+        },
+        member: {
+            title: 'ScoreLens System User Guide - For MEMBERS',
+            part1: {
+                title: 'Part 1: Start Match - Scan QR Code',
+                description: 'As a member, you can create and join matches easily with just a few simple steps.',
+                step1: {
+                    title: 'Step 1: Go to Table',
+                    items: [
+                        'Choose the table you want to use',
+                        'Ensure table is available and ready for match'
+                    ]
+                },
+                step2: {
+                    title: 'Step 2: Scan QR Code',
+                    items: [
+                        'Open Camera app on phone',
+                        'Scan QR code placed on the table',
+                        'Browser will automatically open ScoreLens website'
+                    ]
+                },
+                step3: {
+                    title: 'Step 3: Create Match',
+                    items: [
+                        'Enter names for Team A and Team B',
+                        'Select table type (Pool 8, Pool 9, Snooker...)',
+                        'Press "Create match" to start'
+                    ]
+                }
+            },
+            part2: {
+                title: 'Part 2: Match Management - Room Owner Rights',
+                importantNote: '🎯 Important Note: Only the Room Owner (person who created the match) has the right to perform management operations.',
+                realTimeScoring: {
+                    title: 'Real-Time Score Tracking',
+                    items: [
+                        'Scores are updated automatically through AI Camera',
+                        'View real-time score ratio on screen',
+                        'No need to manually enter scores'
+                    ]
+                },
+                editScores: {
+                    title: 'Edit Scores (Room Owner)',
+                    items: [
+                        'If AI misrecognizes, room owner can edit scores',
+                        'Press "Edit" button to adjust scores for each team',
+                        'Save to update accurate score ratio'
+                    ]
+                },
+                memberManagement: {
+                    title: 'Member Management (Room Owner)',
+                    items: [
+                        'Add new members to team',
+                        'Remove members from team if needed',
+                        'Edit member names',
+                        'Distribute members between Team A and Team B'
+                    ]
+                },
+                joinMatch: {
+                    title: 'Join Match (Other Members)',
+                    items: [
+                        'Scan QR code on table to join ongoing match',
+                        'Enter room code provided by room owner',
+                        'View real-time scores but cannot edit'
+                    ]
+                }
+            },
+            part3: {
+                title: 'Part 3: End and Evaluate',
+                endMatch: {
+                    title: 'End Match (Room Owner)',
+                    items: [
+                        'Press "End" button when match is complete',
+                        'View final results and winner',
+                        'Match will be saved to history'
+                    ]
+                },
+                evaluateMatch: {
+                    title: 'Evaluate Match',
+                    items: [
+                        'All players can evaluate the match',
+                        'Write comments about gaming experience',
+                        'Send feedback to improve service'
+                    ]
+                }
+            },
+            part4: {
+                title: 'Part 4: Member Benefits',
+                memberPrivileges: '✨ Member Privileges:',
+                items: [
+                    'Permanently store all participated matches',
+                    'View detailed match history',
+                    'Track personal statistics and progress',
+                    'Create private matches without assistance',
+                    'Receive notifications about special events'
+                ]
+            }
+        },
+        user: {
+            title: 'ScoreLens System User Guide - For USERS',
+            part1: {
+                title: 'Part 1: Quick Start - Just 3 Steps',
+                description: 'You can use the ScoreLens system immediately without registering an account. Just follow these 3 simple steps:',
+                step1: {
+                    title: 'Step 1: Open Phone Camera',
+                    items: [
+                        'Use the native Camera app on your phone',
+                        'Works on both iPhone and Android'
+                    ]
+                },
+                step2: {
+                    title: 'Step 2: Scan QR Code',
+                    items: [
+                        'Point camera at QR code on the table',
+                        'QR code is placed right on the table for easy scanning'
+                    ]
+                },
+                step3: {
+                    title: 'Step 3: Automatically Open Website',
+                    items: [
+                        'Browser will automatically open ScoreLens website',
+                        'Display table information and ready to use'
+                    ]
+                }
+            },
+            part2: {
+                title: 'Part 2: Using Website During Match',
+                initialInfo: {
+                    title: 'Enter Initial Information',
+                    items: [
+                        'Enter name or nickname for Team A and Team B',
+                        'Select table type (Pool 8, Pool 9, Snooker...)',
+                        'Press "Start" to initialize match'
+                    ]
+                },
+                realTimeScoring: {
+                    title: 'Real-Time Score Tracking',
+                    items: [
+                        'Scores are updated automatically in real-time',
+                        'No need to manually enter scores',
+                        'Can glance at phone anytime to see score ratio'
+                    ]
+                },
+                editScores: {
+                    title: 'Edit Scores (If Needed)',
+                    items: [
+                        'If AI misrecognizes scores, can edit',
+                        'Press "Edit" button to adjust scores',
+                        'Save to update accurate score ratio'
+                    ]
+                },
+                endMatch: {
+                    title: 'End Match',
+                    items: [
+                        'Press "End" button when match is complete',
+                        'View final results and winner',
+                        'Evaluate match (optional)'
+                    ]
+                }
+            },
+            part3: {
+                title: 'Part 3: Important Notes',
+                criticalNote: '⚠️ Extremely Important Note: Since you are using the web app as a guest, this match data is only temporary. If you close the browser tab or exit, information about this match will be permanently lost and you will not be able to view it again.',
+            },
+            part4: {
+                title: 'Part 4: Upgrade to Member',
+                description: 'Do you want to save all matches to review your achievements and progress? Register as a Member of the club!',
+                memberBenefits: '🎁 Benefits When Becoming a Member:',
+                items: [
+                    'Permanently store all participated matches',
+                    'View detailed match history',
+                    'Track personal statistics and progress',
+                    'Create private matches without assistance',
+                    'Receive notifications about special events',
+                    'Contact Club Manager to register as a member'
+                ]
+            }
+        }
+    },
+
+    // History
+    history: {
+        title: 'MATCH HISTORY LOOKUP',
+        totalMembers: 'Total Members',
+        totalMatches: 'Total Matches',
+        todayMatches: 'Today\'s Matches',
+        memberIdLabel: 'Member ID',
+        memberIdPlaceholder: 'Enter your member ID',
+        memberIdNote: '* If you don\'t have a Member ID, please contact staff to register!',
+        viewHistoryButton: 'View Match History',
+        loading: 'Loading...',
+        memberNotFound: 'Member not found with this phone number',
+        errorMessage: 'Member not found with this phone number',
+        detailPage: {
+            title: 'MATCH HISTORY',
+            memberIdLabel: 'Member ID:',
+            totalMatches: 'Total matches',
+            matches: 'matches',
+            phoneNotFound: 'Phone number not found',
+            cannotLoadHistory: 'Cannot load match history',
+            backToSearch: 'Back to search page',
+            noMatchesFound: 'No matches found',
+            noMatchesYet: 'No matches yet',
+            tryDifferentKeywords: 'Try changing search keywords or date to find suitable matches',
+            tryDifferentSearch: 'Try changing search keywords to find suitable matches',
+            tryDifferentDate: 'Try changing date to find suitable matches',
+            noMatchesInSystem: 'This member has no matches in the system',
+            viewAll: 'View all',
+            showingResults: 'Showing {start}-{end} of {total} matches',
+            teamA: 'TEAM A',
+            teamB: 'TEAM B',
+            draw: 'Draw',
+            pool: 'Pool',
+            carom: 'Carom',
+            unknown: 'Unknown',
+            notAvailable: 'N/A',
+            notDetermined: 'Not determined'
+        }
+    },
+
+    // User Match
+    userMatch: {
+        create: {
+            title: 'Welcome to ScoreLens',
+            tableInfo: 'Table',
+            pool8Ball: 'Pool 8 Ball',
+            fullNameLabel: 'Full Name',
+            fullNamePlaceholder: 'Enter your full name...',
+            memberIdLabel: 'Member ID',
+            memberIdPlaceholder: 'Enter member ID...',
+            verifyButton: 'Verify',
+            verifying: 'Verifying...',
+            memberNote: '* If you don\'t have a Member ID, please contact staff to register!',
+            joinButton: 'Join',
+            createMatchButton: 'Create Match',
+            checkingTable: 'Checking table...',
+            error: {
+                noTableId: 'Error: Table information not found',
+                noTableIdDescription: 'Please scan the QR code on the table to start.',
+                invalidUrl: 'Invalid URL, please scan the QR code again.',
+                cannotVerifyTable: 'Cannot verify table. Please try again.',
+                tableInUse: 'Table is currently in use, cannot create match',
+                noFullName: 'Please enter your full name.',
+                noTableInfo: 'Table information not found. Please scan the QR code again.',
+                noClubInfo: 'Club information not found',
+                invalidResponse: 'Invalid response',
+                verificationFailed: 'Verification failed',
+                notMember: 'You are not registered as a member',
+                accountBanned: 'Your account is banned',
+                notBrandCompatible: 'You are not registered as a member.'
+            },
+            success: {
+                matchCreated: 'Match created successfully',
+                welcome: 'Welcome',
+                welcomeWithName: 'Welcome {name}'
+            },
+            teamNames: {
+                teamA: 'Team A',
+                teamB: 'Team B'
+            }
+        }
     },
 } as const;
