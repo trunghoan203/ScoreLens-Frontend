@@ -3,6 +3,7 @@ import TableStatusBadge from './TableStatusBadge';
 import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
 import VideoAI from '@/components/shared/videoAI';
 import { managerMatchService } from '@/lib/managerMatchService';
+import { CameraVideoModal } from '@/components/manager/CameraVideoModal';
 import toast from 'react-hot-toast';
 
 interface TableUsingViewProps {
@@ -27,12 +28,23 @@ interface TableUsingViewProps {
   matchId?: string;
   onScoresUpdated?: (teamAScore: number, teamBScore: number) => void;
   onVideoUrlUpdate?: (videoUrl: string) => void;
+  cameras?: Array<{
+    cameraId: string;
+    tableId: string;
+    IPAddress: string;
+    username: string;
+    password: string;
+    isConnect: boolean;
+  }>;
+  cameraLoading?: boolean;
 }
 
-export default function TableUsingView({ table, onBack, onEndMatch, onCancelMatch, onEdit, onStartMatch, matchStatus = 'pending', elapsedTime, isAiAssisted = false, matchId, onScoresUpdated, onVideoUrlUpdate }: TableUsingViewProps) {
+export default function TableUsingView({ table, onBack, onEndMatch, onCancelMatch, onEdit, onStartMatch, matchStatus = 'pending', elapsedTime, isAiAssisted = false, matchId, onScoresUpdated, onVideoUrlUpdate, cameras = [], cameraLoading = false }: TableUsingViewProps) {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [showVideoAIModal, setShowVideoAIModal] = useState(false);
+  const [showCameraModal, setShowCameraModal] = useState(false);
+  const [selectedCameraId, setSelectedCameraId] = useState<string | null>(null);
 
   const handleCancelClick = () => {
     setShowCancelConfirm(true);
@@ -50,6 +62,21 @@ export default function TableUsingView({ table, onBack, onEndMatch, onCancelMatc
   const handleConfirmEnd = () => {
     setShowEndConfirm(false);
     onEndMatch();
+  };
+
+  const handleViewCameraClick = (cameraId: string) => {
+    if (showCameraModal) {
+      toast.error('Đang có camera stream đang chạy. Vui lòng đóng trước khi mở camera khác.');
+      return;
+    }
+    
+    setSelectedCameraId(cameraId);
+    setShowCameraModal(true);
+  };
+
+  const handleCloseCameraModal = () => {
+    setShowCameraModal(false);
+    setSelectedCameraId(null);
   };
 
   const normalizeCategory = (value?: string) => (value ? value.toLowerCase().replace(/[^a-z0-9]/g, '') : '');
@@ -157,7 +184,7 @@ export default function TableUsingView({ table, onBack, onEndMatch, onCancelMatc
             {isAiAssisted && matchStatus === 'ongoing' && (
               <button
                 type="button"
-                className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
+                className="inline-block px-6 py-2 rounded-xl bg-blue-600 text-[#FFFFFF] font-semibold text-base shadow whitespace-nowrap"
                 onClick={() => setShowVideoAIModal(true)}
               >
                 Video AI
@@ -293,6 +320,23 @@ export default function TableUsingView({ table, onBack, onEndMatch, onCancelMatc
               Chỉnh sửa
             </button>
           )}
+          {matchStatus === 'ongoing' && isAiAssisted && cameras && cameras.length > 0 && (
+            <button
+              type="button"
+              className="w-full sm:w-32 lg:w-40 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-1 sm:order-2"
+              onClick={() => {
+                const connectedCamera = cameras.find(c => c.isConnect);
+                if (connectedCamera) {
+                  handleViewCameraClick(connectedCamera.cameraId);
+                } else {
+                  toast.error('Không có camera nào đang kết nối cho bàn này');
+                }
+              }}
+              disabled={cameraLoading || !cameras.some(c => c.isConnect)}
+            >
+              {cameraLoading ? 'Đang tải...' : 'Xem Camera'}
+            </button>
+          )}
           <button
             type="button"
             className="w-full sm:w-32 lg:w-40 bg-red-500 hover:bg-red-600 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-2 sm:order-3"
@@ -312,7 +356,7 @@ export default function TableUsingView({ table, onBack, onEndMatch, onCancelMatc
           <div className="absolute inset-0 flex items-center justify-center p-4">
             <div className="w-full max-w-5xl bg-white rounded-xl shadow-lg relative">
               <div className="flex items-center justify-between px-4 py-3 border-b">
-                <div className="font-semibold">Phân tích video AI</div>
+                <div className="font-semibold text-[#000000]">Phân tích video AI</div>
                 <button
                   type="button"
                   className="px-2 py-1 text-sm text-gray-500 hover:text-gray-700"
@@ -357,6 +401,14 @@ export default function TableUsingView({ table, onBack, onEndMatch, onCancelMatc
           <p className="text-gray-700 mb-4">Bạn có chắc chắn muốn kết thúc trận đấu này?</p>
         </div>
       </ConfirmPopup>
+
+      <CameraVideoModal
+        isOpen={showCameraModal}
+        cameraId={selectedCameraId}
+        onClose={handleCloseCameraModal}
+        onConfirm={handleCloseCameraModal}
+        isDetailView={true}
+      />
     </>
   );
 } 

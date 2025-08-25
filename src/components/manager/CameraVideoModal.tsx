@@ -30,6 +30,8 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
           setError(null);
           setIsStreaming(false);
           
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
           const result = await cameraStreamService.startVideoStream(cameraId, videoRef.current!);
           
           if (result.success) {
@@ -54,10 +56,14 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
 
     return () => {
       if (cameraId && isStreaming) {
-        cameraStreamService.stopVideoStream(cameraId);
+        try {
+          cameraStreamService.stopVideoStream(cameraId);
+        } catch (error) {
+          console.error('Error stopping stream:', error);
+        }
       }
     };
-  }, [isOpen, cameraId, onClose]);
+  }, [isOpen, cameraId]);
 
   const handleClose = () => {
     if (cameraId && isStreaming) {
