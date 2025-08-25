@@ -7,7 +7,7 @@ interface PageBannerProps {
 export function PageBanner({ title }: PageBannerProps) {
   return (
     <div
-      className="relative flex h-40 sm:h-50 md:h-60 lg:h-70 items-center justify-center bg-cover bg-center mt-16 sm:mt-20 md:mt-24 lg:mt-24"
+      className="relative flex h-40 sm:h-50 md:h-60 lg:h-70 items-center justify-center bg-cover bg-center mt-15 sm:mt-15 md:mt-15 lg:mt-15"
       style={{ backgroundImage: "url('/images/banner.png')" }}
     >
       <div className="absolute inset-0 bg-black/25" />

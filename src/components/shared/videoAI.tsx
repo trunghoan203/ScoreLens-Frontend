@@ -24,7 +24,7 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
   const [processing, setProcessing] = useState(false);
   const [processResult, setProcessResult] = useState<Partial<ProcessVideoResponse>>({});
   const [isDragOver, setIsDragOver] = useState(false);
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
 
@@ -32,17 +32,11 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
 
   const validateFile = (file: File): boolean => {
     if (!file.type.startsWith('video/')) {
-      toast.error('Vui lòng chọn đúng định dạng video!', {
-        icon: '📹',
-        style: { borderRadius: '10px', background: '#fee2e2', color: '#dc2626' }
-      });
+      toast.error('Vui lòng chọn đúng định dạng video!');
       return false;
     }
     if (file.size > MAX_VIDEO_SIZE_GB * 1024 * 1024 * 1024) {
-      toast.error(`Video không được vượt quá ${MAX_VIDEO_SIZE_GB}GB!`, {
-        icon: '⚠️',
-        style: { borderRadius: '10px', background: '#fef3c7', color: '#d97706' }
-      });
+      toast.error(`Video không được vượt quá ${MAX_VIDEO_SIZE_GB}GB!`);
       return false;
     }
     return true;
@@ -50,7 +44,7 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
 
   const handleVideoSelect = (file: File) => {
     if (!validateFile(file)) return;
-    
+
     setVideoFile(file);
     const localUrl = URL.createObjectURL(file);
     setVideoUrl(localUrl);
@@ -58,13 +52,10 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
 
   const processVideo = async () => {
     if (!videoFile) {
-      toast.error('Vui lòng chọn video trước!', {
-        icon: '📹',
-        style: { borderRadius: '10px', background: '#fef3c7', color: '#d97706' }
-      });
+      toast.error('Vui lòng chọn video trước!');
       return;
     }
-    
+
     try {
       setProcessing(true);
       const formData = new FormData();
@@ -75,41 +66,32 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
         method: 'POST',
         body: formData
       });
-      
+
       if (!res.ok) {
         throw new Error('Lỗi khi gửi video để phân tích');
       }
-      
+
       const data = await res.json();
       setProcessResult(data);
-      
-      try {
-        if (onVideoProcessed) {
-          onVideoProcessed(data as ProcessVideoResponse);
-          toast.success('Đã gửi kết quả AI đến xử lý điểm!');
-        }
-      } catch (cbErr) {
-        console.error('[VideoAI] onVideoProcessed error:', cbErr);
+
+      if (onVideoProcessed) {
+        onVideoProcessed(data as ProcessVideoResponse);
+        toast.success('Đã gửi kết quả AI đến xử lý điểm!');
       }
-      
+
       if (data?.success) {
-        toast.success('Thành công! Đang xử lý điểm...', {
-          style: { borderRadius: '10px', background: '#dcfce7', color: '#16a34a' }
-        });
+        toast.success('Thành công! Đang xử lý điểm...');
       } else {
-        toast('Lỗi phân tích video!');
+        toast.error('Lỗi phân tích video!');
       }
     } catch (error) {
       console.error('[VideoAI] processVideo error:', error);
-      toast.error('Lỗi phân tích video!', {
-        style: { borderRadius: '10px', background: '#fee2e2', color: '#dc2626' }
-      });
+      toast.error('Lỗi phân tích video!');
     } finally {
       setProcessing(false);
     }
   };
 
-  // Drag and drop handlers
   const handleDragEnter = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -133,17 +115,14 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
     e.preventDefault();
     e.stopPropagation();
     setIsDragOver(false);
-    
+
     const files = Array.from(e.dataTransfer.files);
     const videoFile = files.find(file => file.type.startsWith('video/'));
-    
+
     if (videoFile) {
       handleVideoSelect(videoFile);
     } else {
-      toast.error('Vui lòng thả file video!', {
-        icon: '📹',
-        style: { borderRadius: '10px', background: '#fef3c7', color: '#d97706' }
-      });
+      toast.error('Vui lòng thả file video!');
     }
   };
 
@@ -183,42 +162,36 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
 
   const downloadVideo = async () => {
     try {
-      toast.success(`Đang tải ${processResult.filename || 'video.mp4'}...`, {
-        style: { borderRadius: '10px', background: '#dcfce7', color: '#16a34a' }
-      });
-      
+      toast.success(`Đang tải ${processResult.filename || 'video.mp4'}...`);
+
       const response = await fetch(processResult.cloudinary_url!);
       const blob = await response.blob();
-      
+
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
       a.download = processResult.filename || 'video.mp4';
-      
+
       document.body.appendChild(a);
       a.click();
-      
+
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      
-      toast.success(`Đã tải thành công ${processResult.filename || 'video.mp4'}! 🎉`, {
-        style: { borderRadius: '10px', background: '#dcfce7', color: '#16a34a' }
-      });
+
+      toast.success(`Đã tải thành công ${processResult.filename || 'video.mp4'}!`);
     } catch (error) {
       console.error('Lỗi khi tải video:', error);
-      toast.error('Lỗi khi tải video! ❌', {
-        style: { borderRadius: '10px', background: '#fee2e2', color: '#dc2626' }
-      });
+      toast.error('Lỗi khi tải video!');
     }
   };
 
   const displayCSVData = (csvContent: string) => {
     if (!csvContent) return [];
-    
+
     const lines = csvContent.trim().split('\n');
     const data = [];
-    
+
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i];
       const parts = line.match(/("[^"]*"|[^,]+)/g) || [];
@@ -233,19 +206,19 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
         data.push(row);
       }
     }
-    
+
     return data;
   };
 
   const csvData = displayCSVData(processResult.events_csv || '');
 
   return (
-    <div className={`bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-100 ${className}`}>
-      <h4 className="text-xl font-semibold mb-4 text-center text-blue-800">
-        📹 Video AI Billiards
+    <div className={`bg-white rounded-lg shadow p-4 sm:p-6 ${className}`}>
+      <h4 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6 text-center text-gray-800">
+        Video AI Billiards
       </h4>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <div>
           {!videoUrl ? (
             <div
@@ -255,32 +228,29 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
               onDragOver={handleDragOver}
               onDrop={handleDrop}
               onClick={handleFileSelect}
-              className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300 ${
-                isDragOver 
-                  ? 'border-blue-500 bg-blue-100 scale-105' 
-                  : videoFile 
-                    ? 'border-green-400 bg-green-50' 
-                    : 'border-blue-300 bg-white hover:border-blue-400 hover:bg-blue-25'
-              }`}
+              className={`border-2 border-dashed rounded-lg p-6 sm:p-8 text-center cursor-pointer transition-all duration-300 ${isDragOver
+                ? 'border-lime-500 bg-lime-50 scale-105'
+                : videoFile
+                  ? 'border-green-400 bg-green-50'
+                  : 'border-gray-300 bg-gray-50 hover:border-lime-400 hover:bg-lime-25'
+                }`}
             >
               {videoFile ? (
-                <div className="space-y-4">
-                  <div className="text-6xl">📹</div>
+                <div className="space-y-3 sm:space-y-4">
                   <div>
-                    <p className="text-lg font-medium text-green-700 mb-2">
+                    <p className="text-base sm:text-lg font-medium text-green-700 mb-2">
                       Video đã chọn: {videoFile.name}
                     </p>
                     <p className="text-sm text-gray-500">
-                      Hãy nhấn &ldquo;🔍 Phân tích Video&rdquo; để bắt đầu phân tích.
+                      Hãy nhấn "Phân tích Video" để bắt đầu phân tích.
                     </p>
                   </div>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  <div className="text-6xl">📹</div>
+                <div className="space-y-3 sm:space-y-4">
                   <div>
-                    <p className="text-lg font-medium text-blue-700 mb-2">
-                      Thả video vào đây hoặc click để chọn
+                    <p className="text-base sm:text-lg font-medium text-gray-700 mb-2">
+                      Thêm video tại đây
                     </p>
                     <p className="text-sm text-gray-500">
                       Hỗ trợ: MP4, MOV, AVI • Tối đa: {MAX_VIDEO_SIZE_GB}GB
@@ -290,14 +260,14 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
               )}
             </div>
           ) : (
-            <div className="bg-white rounded-xl p-4 border-2 border-green-200">
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
               <div className="flex justify-between items-center mb-3">
-                <p className="font-medium text-green-700">✅ Video đã tải lên</p>
+                <p className="font-medium text-green-700">Video đã tải lên</p>
                 <button
                   onClick={clearVideo}
                   className="text-red-500 hover:text-red-700 text-sm font-medium"
                 >
-                  ❌ Xóa
+                  Xóa
                 </button>
               </div>
               <video src={videoUrl} controls className="w-full rounded-lg border">
@@ -305,10 +275,9 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
               </video>
               {videoFile && (
                 <p className="text-sm text-gray-600 mt-2">
-                  📁 {videoFile.name} ({(videoFile.size / (1024 * 1024 * 1024)).toFixed(1)}GB)
+                  {videoFile.name} ({(videoFile.size / (1024 * 1024 * 1024)).toFixed(1)}GB)
                 </p>
               )}
-              <div className="mt-3 text-xs text-gray-500">analysis_type gửi: {analysisType}</div>
             </div>
           )}
 
@@ -316,21 +285,20 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
             <Button
               onClick={processVideo}
               disabled={processing || !videoFile}
-              className={`w-full py-3 rounded-xl font-bold text-lg transition-all ${
-                !videoFile 
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : processing
-                    ? 'bg-orange-500 text-white'
-                    : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg hover:shadow-xl'
-              }`}
+              className={`w-full py-2 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-all ${!videoFile
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : processing
+                  ? 'bg-orange-500 text-white'
+                  : 'bg-lime-400 hover:bg-lime-500 text-white'
+                }`}
             >
               {processing ? (
                 <div className="flex items-center justify-center gap-2">
-                  <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
                   Đang phân tích...
                 </div>
               ) : (
-                '🔍 Phân tích Video'
+                'Phân tích Video'
               )}
             </Button>
           </div>
@@ -338,31 +306,31 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
 
         <div>
           {processResult.success ? (
-            <div className="bg-white rounded-xl p-4 border-2 border-emerald-200">
-              <h5 className="font-semibold text-emerald-700 mb-3 text-center">
-                🎯 Kết quả phân tích
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <h5 className="font-semibold text-gray-800 mb-3 text-center">
+                Kết quả phân tích
               </h5>
-              
-              <div className="bg-emerald-50 rounded-lg p-3 mb-4 border-l-4 border-emerald-400">
+
+              <div className="bg-white rounded-lg p-3 mb-4 border border-gray-200">
                 <div className="space-y-2 text-sm">
-                  <p><strong>Loại phân tích:</strong> {analysisType === 'pool8' ? '🎱 Pool 8-Ball' : '🔴 Carom'}</p>
+                  <p><strong>Loại phân tích:</strong> {analysisType === 'pool8' ? 'Pool 8-Ball' : 'Carom'}</p>
                   <p><strong>Tên file:</strong> {processResult.filename || 'N/A'}</p>
                 </div>
               </div>
 
               {processResult.cloudinary_url && (
                 <div className="mb-4">
-                  <h6 className="font-medium text-emerald-700 mb-2">🎬 Video đã xử lý</h6>
-                  <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-200">
-                    <a 
-                      href={processResult.player_url} 
-                      target="_blank" 
+                  <h6 className="font-medium text-gray-700 mb-2">Video đã xử lý</h6>
+                  <div className="bg-white rounded-lg p-3 border border-gray-200">
+                    <a
+                      href={processResult.player_url}
+                      target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                      className="inline-block bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg font-medium transition-colors text-sm"
                     >
-                      🎥 Xem video đã xử lý
+                      Xem video đã xử lý
                     </a>
-                    <p className="text-xs text-emerald-600 mt-2">
+                    <p className="text-xs text-gray-500 mt-2">
                       Mở trong tab mới với Cloudinary video player
                     </p>
                   </div>
@@ -371,25 +339,25 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
 
               {csvData.length > 0 && (
                 <div className="mb-4">
-                  <h6 className="font-medium text-emerald-700 mb-2">📊 Sự kiện trận đấu</h6>
-                  <div className="bg-gray-50 rounded-lg border border-gray-200 max-h-64 overflow-auto">
+                  <h6 className="font-medium text-gray-700 mb-2">Sự kiện trận đấu</h6>
+                  <div className="bg-white rounded-lg border border-gray-200 max-h-48 overflow-auto">
                     <div className="min-w-full">
                       <table className="w-full text-xs">
                         <thead className="bg-gray-100 sticky top-0">
                           <tr>
-                            <th className="px-2 py-2 text-left font-medium text-gray-700 w-24">Loại sự kiện</th>
-                            <th className="px-2 py-2 text-left font-medium text-gray-700 w-16">Lượt đánh</th>
-                            <th className="px-2 py-2 text-left font-medium text-gray-700 w-20">Thời gian</th>
-                            <th className="px-2 py-2 text-left font-medium text-gray-700 min-w-48">Chi tiết</th>
+                            <th className="px-2 py-2 text-left font-medium text-gray-700 w-20">Loại sự kiện</th>
+                            <th className="px-2 py-2 text-left font-medium text-gray-700 w-12">Lượt đánh</th>
+                            <th className="px-2 py-2 text-left font-medium text-gray-700 w-16">Thời gian</th>
+                            <th className="px-2 py-2 text-left font-medium text-gray-700">Chi tiết</th>
                           </tr>
                         </thead>
                         <tbody>
                           {csvData.map((row, index) => (
-                            <tr key={index} className="border-b border-gray-200 hover:bg-gray-100">
+                            <tr key={index} className="border-b border-gray-200 hover:bg-gray-50">
                               <td className="px-2 py-2 text-gray-800">{row.eventType}</td>
                               <td className="px-2 py-2 text-gray-800">{row.turn}</td>
                               <td className="px-2 py-2 text-gray-800">{row.timestamp}</td>
-                              <td className="px-2 py-2 text-gray-800 break-words whitespace-normal text-left" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                              <td className="px-2 py-2 text-gray-800 break-words text-left">
                                 {row.details}
                               </td>
                             </tr>
@@ -404,23 +372,22 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
               <div className="flex gap-2">
                 {processResult.filename && (
                   <Button
-                    onClick={() => downloadVideo()}
+                    onClick={downloadVideo}
                     className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium text-sm"
                   >
-                    📥 Tải video
+                    Tải video
                   </Button>
                 )}
                 <Button
                   onClick={downloadCsv}
-                  className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded-lg font-medium text-sm"
+                  className="flex-1 bg-lime-400 hover:bg-lime-500 text-white py-2 rounded-lg font-medium text-sm"
                 >
-                  📊 Tải CSV
+                  Tải CSV
                 </Button>
               </div>
             </div>
           ) : (
-            <div className="bg-gray-50 rounded-xl p-8 text-center border-2 border-gray-200">
-              <div className="text-4xl mb-3">⏳</div>
+            <div className="bg-gray-50 rounded-lg p-6 text-center border border-gray-200">
               <p className="text-gray-500">Kết quả phân tích sẽ hiển thị ở đây</p>
             </div>
           )}
