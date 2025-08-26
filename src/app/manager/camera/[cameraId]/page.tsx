@@ -10,7 +10,6 @@ import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
 import toast from 'react-hot-toast';
 import { managerCameraService } from '@/lib/managerCameraService';
 import { managerTableService } from '@/lib/managerTableService';
-import { CameraRecordButton } from '@/components/manager/CameraRecordButton';
 
 import Image from 'next/image';
 import { useI18n } from '@/lib/i18n/provider';
@@ -266,25 +265,6 @@ export default function CameraDetailPage() {
               </div>
             </div>
           </AddFormLayout>
-
-          <div className="mt-8 bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">Camera Recording & AI Analysis</h2>
-            
-
-
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">Record Camera</h3>
-              <CameraRecordButton
-                cameraId={cameraId}
-                duration={20}
-                onSuccess={(result) => {
-                }}
-                onError={(error) => {
-                }}
-              />
-            </div>
-
-          </div>
         </div>
       </main>
     </div>
