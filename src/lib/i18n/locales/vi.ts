@@ -59,6 +59,7 @@ export default {
         closeMenu: 'Đóng menu',
         logoutSuccess: 'Đăng xuất thành công!',
         logoutFailed: 'Đăng xuất thất bại.',
+        guest: 'Khách',
     },
 
     // Navigation
@@ -1506,7 +1507,135 @@ export default {
                 teamA: 'Đội A',
                 teamB: 'Đội B'
             }
-        }
+        },
+        entry: {
+            title: 'BÀN',
+            pool8Ball: 'Pool 8 Ball',
+            loading: 'Đang tải...',
+            description: 'Hãy nhập mã phòng để tiếp tục',
+            continue: 'Tiếp tục',
+            error: {
+                incompleteCode: 'Vui lòng nhập đủ 6 chữ số!',
+                invalidCode: 'Mã phòng không hợp lệ!',
+                codeNotFound: 'Mã phòng không tồn tại hoặc đã bị hủy!'
+            },
+            success: {
+                welcome: 'Chào mừng bạn đến với ScoreLens',
+                validCode: 'Mã phòng hợp lệ!'
+            }
+        },
+        join: {
+            title: 'BÀN',
+            pool8Ball: 'Pool 8 Ball',
+            loading: 'Đang tải...',
+            description: 'Nhập tên để tham gia phòng',
+            fullNameLabel: 'Họ và Tên',
+            fullNamePlaceholder: 'Nhập họ và tên ...',
+            phoneLabel: 'Số Điện Thoại',
+            phonePlaceholder: 'Nhập số điện thoại ...',
+            verifyButton: 'Xác thực',
+            verifying: 'Đang xác thực...',
+            memberNote: '* Nếu chưa có mã hội viên, hãy liên hệ nhân viên để đăng ký!',
+            continue: 'Tiếp tục',
+            teamSelection: {
+                title: 'Chọn đội để tham gia',
+                teamA: 'Đội A',
+                teamB: 'Đội B',
+                cancel: 'Hủy',
+                confirm: 'Xác nhận',
+                processing: 'Đang xử lý...'
+            },
+            error: {
+                noPhone: 'Vui lòng nhập số điện thoại.',
+                cannotDetermineClub: 'Không thể xác định club. Vui lòng thử lại.',
+                verificationFailed: 'Xác thực thất bại',
+                notMember: 'Bạn chưa đăng ký hội viên',
+                notBrandCompatible: 'Bạn không phải là hội viên của thương hiệu này.',
+                accountBanned: 'Tài khoản của bạn đang bị cấm',
+                noFullName: 'Vui lòng nhập họ và tên.',
+                alreadyJoined: 'Bạn đã tham gia trận đấu này rồi.'
+            },
+            success: {
+                verificationSuccess: 'Xác thực thành công!',
+                welcomeWithName: 'Chào mừng {name}!',
+                joinRoomSuccess: 'Tham gia phòng thành công!',
+                createRoomSuccess: 'Tạo phòng thành công!'
+            }
+        },
+        lobby: {
+            title: 'BÀN',
+            pool8: 'POOL 8',
+            loading: 'ĐANG TẢI...',
+            description: 'Nhập mã bên dưới để tham gia phòng',
+            joinCode: 'Mã Tham Gia',
+            shareCodeNote: 'Chia sẻ mã này cho người chơi để tham gia phòng',
+            teamALabel: 'Đội A',
+            teamBLabel: 'Đội B',
+            roomOwnerPlaceholder: 'Tên chủ phòng',
+            mainPlayerPlaceholder: 'Tên người chơi chính',
+            playerPlaceholder: 'Tên người chơi {index}',
+            startButton: 'Bắt đầu',
+            loadingText: 'Đang tải...',
+            notReady: 'Chưa sẵn sàng',
+            connecting: 'Đang kết nối...',
+            noPermission: 'Không có quyền',
+            error: {
+                noMatchId: 'Không có matchId. Vui lòng kiểm tra lại.',
+                noWebSocketConnection: 'Chưa kết nối WebSocket. Vui lòng đợi kết nối hoàn tất.',
+                authLoading: 'Đang xác thực quyền. Vui lòng đợi...',
+                authError: 'Lỗi xác thực: {error}',
+                hostOnly: 'Chỉ chủ phòng mới có thể bắt đầu trận đấu.',
+                cannotAuthenticateStart: 'Không thể xác thực quyền bắt đầu trận đấu. Vui lòng liên hệ admin.',
+                cannotStartMatch: 'Không thể bắt đầu trận đấu. Vui lòng thử lại.',
+                errorStartingMatch: 'Đã xảy ra lỗi khi bắt đầu trận đấu.',
+                cannotLoadTableInfo: 'Không thể tải thông tin bàn. Đang sử dụng thông tin mặc định.',
+                cannotLoadMatchInfo: 'Không thể tải thông tin trận đấu',
+                cannotLoadMatchByCode: 'Không thể tải thông tin trận đấu theo mã phòng',
+                errorLoadingData: 'Đã xảy ra lỗi khi tải dữ liệu',
+                cannotRestoreSession: 'Không thể khôi phục phiên làm việc',
+                sessionRestoreError: 'Lỗi khôi phục phiên làm việc',
+                cannotAuthenticateJoin: 'Không thể xác thực tham gia trận đấu',
+                missingAuthInfo: 'Thiếu thông tin để xác thực tham gia trận đấu',
+                newPlayerJoined: 'Người chơi mới đã tham gia phòng!',
+                playerLeft: 'Người chơi đã rời khỏi phòng'
+            },
+            success: {
+                matchStarted: 'Trận đấu đã bắt đầu!'
+            }
+        },
+
+        // Lounge Page
+        lounge: {
+            title: 'BÀN',
+            pool8: 'POOL 8',
+            loading: 'ĐANG TẢI...',
+            description: 'Bạn đã tham gia phòng với tên: {name}',
+            joinCode: 'Mã Tham Gia',
+            shareCodeNote: 'Chia sẻ mã này cho người chơi để tham gia phòng',
+            teamALabel: 'Đội A',
+            teamBLabel: 'Đội B',
+            playerPlaceholder: 'Người Chơi {index}',
+            leaveButton: 'Rời phòng',
+            leaving: 'Đang rời phòng...',
+            loadingText: 'Đang tham gia phòng...',
+            confirmLeaveTitle: 'Xác nhận rời phòng',
+            confirmLeaveMessage: 'Bạn có chắc chắn muốn rời khỏi phòng này không?',
+            cancel: 'Hủy',
+            confirm: 'Xác nhận',
+            error: {
+                cannotLoadTableInfo: 'Không thể tải thông tin bàn',
+                cannotLoadMatchInfo: 'Không thể tải thông tin trận đấu',
+                cannotLoadMatchByCode: 'Không thể tải thông tin trận đấu theo mã phòng',
+                errorLoadingData: 'Có lỗi xảy ra khi tải dữ liệu',
+                cannotLeaveRoom: 'Không thể rời phòng',
+                errorLeavingRoom: 'Có lỗi xảy ra khi rời phòng'
+            },
+            success: {
+                newPlayerJoined: 'Người chơi mới đã tham gia phòng!',
+                playerLeft: 'Người chơi đã rời khỏi phòng',
+                leftRoom: 'Đã rời khỏi phòng'
+            }
+        },
     },
 
     // Manager Matches
@@ -1703,8 +1832,8 @@ export default {
         statusAdminP: 'Chủ doanh nghiệp xử lý',
         statusSuperadminP: 'Quản trị viên xử lý',
         statusUnknown: 'Không xác định',
-        businessOwnerProcessing: 'Chủ doanh nghiệp xử lý',
-        administratorProcessing: 'Quản trị viên xử lý',
+        adminProcessing: 'Chủ doanh nghiệp xử lý',
+        superAdminProcessing: 'Quản trị viên xử lý',
         resolved: 'Đã xử lý',
         editPlaceholder: 'Nhập ghi chú xử lý...',
         cancel: 'Hủy',
@@ -1714,4 +1843,382 @@ export default {
         updateSuccess: 'Cập nhật thành công',
         updateFailed: 'Cập nhật thất bại',
     },
+
+    // Super Admin Home Page
+    superAdminHome: {
+        pageTitle: 'BẢNG ĐIỀU KHIỂN QUẢN TRỊ VIÊN',
+        adminListTitle: 'DANH SÁCH ADMIN',
+        feedbackListTitle: 'DANH SÁCH PHẢN HỒI',
+        approvalTab: 'Đơn duyệt',
+        feedbackTab: 'Phản hồi',
+        loading: 'Đang tải...',
+        cannotLoadAdminList: 'Không lấy được danh sách admin',
+        searchPlaceholder: 'Nhập tên hoặc email...',
+        allStatus: 'Tất cả',
+        approvedStatus: 'Đã duyệt',
+        pendingStatus: 'Chưa duyệt',
+        rejectedStatus: 'Bị từ chối',
+        statusApproved: 'Đã duyệt',
+        statusPending: 'Chưa duyệt',
+        statusRejected: 'Bị từ chối',
+        noAdminsFound: 'Chưa có admin nào',
+        noAdminsFoundWithSearch: 'Không tìm thấy admin phù hợp',
+        tryDifferentKeywords: 'Thử thay đổi từ khóa tìm kiếm để tìm thấy admin phù hợp',
+        useAddButton: 'Sử dụng nút "Thêm Admin" ở trên để tạo admin đầu tiên',
+        viewAll: 'Xem tất cả',
+        showingResults: 'Hiển thị {start}-{end} trong tổng số {total} admin',
+        previous: 'Trước',
+        next: 'Tiếp',
+        loadMore: 'Tải thêm',
+        noMoreAdmins: 'Không còn admin nào để tải',
+        table: {
+            name: 'TÊN',
+            email: 'EMAIL',
+            location: 'ĐỊA CHỈ',
+            status: 'TRẠNG THÁI',
+            createdAt: 'NGÀY TẠO',
+            clickToViewDetails: 'Nhấn để xem chi tiết',
+        },
+        // Feedback table translations
+        feedbackSearchPlaceholder: 'Nhập thương hiệu hoặc chi nhánh...',
+        feedbackAllStatus: 'Tất cả',
+        feedbackPendingStatus: 'Chưa xử lý',
+        feedbackResolvedStatus: 'Đã xử lý',
+        feedbackBrandColumn: 'THƯƠNG HIỆU',
+        feedbackBranchColumn: 'CHI NHÁNH',
+        feedbackDateColumn: 'NGÀY',
+        feedbackStatusColumn: 'TRẠNG THÁI',
+        feedbackDateLabel: 'Ngày:',
+        feedbackNoBranch: 'Chưa có chi nhánh',
+        feedbackNoFeedbacksFound: 'Không tìm thấy phản hồi nào.',
+        feedbackClickToViewDetails: 'Nhấn để xem chi tiết →',
+        feedbackShowingResults: 'Hiển thị {start}-{end} trong tổng số {total} phản hồi',
+        feedbackStatusResolved: 'Đã xử lý',
+        feedbackStatusManagerP: 'Quản lý xử lý',
+        feedbackStatusAdminP: 'Chủ doanh nghiệp xử lý',
+        feedbackStatusSuperadminP: 'Quản trị viên xử lý',
+        feedbackStatusUnknown: 'Không xác định',
+    },
+
+    // Super Admin Login Page
+    superAdminLogin: {
+        pageTitle: 'Truy cập vào ScoreLens dành cho Super Admin',
+        description: '',
+        emailLabel: 'Nhập email Super Admin',
+        emailPlaceholder: 'ScoreLens',
+        submitButton: 'Gửi',
+        sending: 'Đang gửi...',
+        emailSentSuccess: 'Email đã được gửi thành công!',
+        emailRequired: 'Email là bắt buộc',
+        emailInvalid: 'Định dạng email không hợp lệ',
+        generalError: 'Có lỗi xảy ra. Vui lòng thử lại.',
+    },
+
+    // Super Admin Verification Page
+    superAdminVerification: {
+        pageTitle: 'Xác thực đăng nhập',
+        description: 'Nhập mã OTP đã được gửi đến email của bạn',
+        otpRequired: 'Vui lòng nhập đầy đủ 6 chữ số',
+        verificationSuccess: 'Xác thực thành công!',
+        verificationFailed: 'Có lỗi xảy ra. Vui lòng thử lại.',
+        notReceivedCode: 'Không nhận được mã?',
+        resendCode: 'Gửi lại mã',
+        resendTimer: 'Gửi lại sau',
+        seconds: 's',
+        resendSuccess: 'Mã xác thực đã được gửi lại!',
+        resendFailed: 'Gửi lại mã thất bại.',
+        submitButton: 'Gửi',
+        sending: 'Đang gửi...',
+        backToHome: 'Quay lại trang chủ',
+    },
+
+    // Terms Page
+    terms: {
+        loading: 'Đang tải...',
+        pageTitle: 'ĐIỀU KHOẢN SỬ DỤNG',
+        sections: {
+            general: 'ĐIỀU KHOẢN CHUNG',
+            account: 'TÀI KHOẢN & BẢO MẬT',
+            usage: 'SỬ DỤNG DỊCH VỤ',
+            privacy: 'BẢO MẬT & RIÊNG TƯ',
+            liability: 'TRÁCH NHIỆM & GIỚI HẠN',
+            termination: 'CHẤM DỨT & THAY ĐỔI',
+        },
+        general: {
+            title: 'Điều Khoản Sử Dụng - Điều Khoản Chung',
+            acceptance: {
+                title: '1. Chấp Nhận Điều Khoản',
+                content: 'Bằng việc truy cập và sử dụng hệ thống ScoreLens, bạn đồng ý tuân thủ và bị ràng buộc bởi những điều khoản và điều kiện này. Nếu bạn không đồng ý với bất kỳ phần nào của các điều khoản này, vui lòng không sử dụng dịch vụ của chúng tôi.',
+            },
+            serviceDescription: {
+                title: '2. Mô Tả Dịch Vụ',
+                content: 'ScoreLens là một hệ thống quản lý điểm số tự động cho các trò chơi thể thao, đặc biệt là bida. Hệ thống sử dụng công nghệ AI và camera để theo dõi và ghi điểm tự động, cung cấp trải nghiệm chơi game chính xác và tiện lợi.',
+                features: [
+                    'Ghi điểm tự động thông qua camera AI',
+                    'Quản lý trận đấu và thành viên',
+                    'Theo dõi lịch sử và thống kê trận đấu',
+                    'Hệ thống thông báo và hỗ trợ',
+                ],
+            },
+            ageAndCapacity: {
+                title: '3. Độ Tuổi và Năng Lực',
+                content: 'Bạn phải đủ 18 tuổi hoặc có sự đồng ý của cha mẹ/người giám hộ hợp pháp để sử dụng dịch vụ. Bạn cũng phải có đủ năng lực pháp lý để tham gia vào các thỏa thuận này.',
+            },
+            termsChanges: {
+                title: '4. Thay Đổi Điều Khoản',
+                content: 'Chúng tôi có quyền thay đổi các điều khoản này vào bất kỳ lúc nào. Những thay đổi sẽ có hiệu lực ngay khi được đăng tải. Việc tiếp tục sử dụng dịch vụ sau khi thay đổi được coi là chấp nhận các điều khoản mới.',
+            },
+        },
+        account: {
+            title: 'Điều Khoản Sử Dụng - Tài Khoản & Bảo Mật',
+            registration: {
+                title: '1. Đăng Ký Tài Khoản',
+                content: 'Để sử dụng đầy đủ các tính năng của hệ thống, bạn cần tạo tài khoản với thông tin chính xác và cập nhật. Bạn chịu trách nhiệm duy trì tính bảo mật của thông tin đăng nhập.',
+                requirements: [
+                    'Cung cấp thông tin chính xác và đầy đủ',
+                    'Bảo vệ mật khẩu và thông tin đăng nhập',
+                    'Không chia sẻ tài khoản với người khác',
+                    'Thông báo ngay khi phát hiện vi phạm bảo mật',
+                ],
+            },
+            verification: {
+                title: '2. Xác Thực và Bảo Mật',
+                content: 'Hệ thống có thể yêu cầu xác thực qua email hoặc số điện thoại. Bạn đồng ý nhận các thông báo xác thực và bảo mật qua các kênh này.',
+            },
+            accountOwnership: {
+                title: '3. Quyền Sở Hữu Tài Khoản',
+                content: 'Tài khoản được tạo ra là tài sản cá nhân của bạn. Tuy nhiên, chúng tôi có quyền đình chỉ hoặc chấm dứt tài khoản nếu vi phạm điều khoản sử dụng.',
+            },
+            informationSecurity: {
+                title: '4. Bảo Mật Thông Tin',
+                content: 'Chúng tôi cam kết bảo vệ thông tin cá nhân của bạn theo các tiêu chuẩn bảo mật cao nhất. Tuy nhiên, không có hệ thống nào là hoàn toàn an toàn, và bạn cũng cần thực hiện các biện pháp bảo mật cơ bản.',
+            },
+        },
+        usage: {
+            title: 'Điều Khoản Sử Dụng - Sử Dụng Dịch Vụ',
+            legalUse: {
+                title: '1. Sử Dụng Hợp Pháp',
+                content: 'Bạn chỉ được sử dụng dịch vụ cho các mục đích hợp pháp và phù hợp với các điều khoản này. Việc sử dụng dịch vụ để thực hiện các hoạt động bất hợp pháp hoặc có hại là nghiêm cấm.',
+            },
+            prohibitedBehavior: {
+                title: '2. Hành Vi Bị Cấm',
+                content: 'Các hành vi sau đây bị nghiêm cấm khi sử dụng dịch vụ:',
+                items: [
+                    'Gian lận hoặc cố ý làm sai lệch kết quả trận đấu',
+                    'Quấy rối hoặc đe dọa người chơi khác',
+                    'Sử dụng phần mềm hoặc công cụ bên ngoài để can thiệp vào hệ thống',
+                    'Phát tán nội dung không phù hợp hoặc có hại',
+                    'Vi phạm quyền sở hữu trí tuệ',
+                ],
+            },
+            cameraSystem: {
+                title: '3. Sử Dụng Hệ Thống Camera',
+                content: 'Hệ thống sử dụng camera AI để ghi điểm tự động. Bạn đồng ý:',
+                items: [
+                    'Cho phép camera ghi hình trong khu vực chơi game',
+                    'Không cố ý che khuất hoặc làm nhiễu camera',
+                    'Chấp nhận rằng việc ghi điểm có thể có sai số nhỏ',
+                    'Báo cáo sự cố nếu phát hiện lỗi nghiêm trọng',
+                ],
+            },
+            userContent: {
+                title: '4. Nội Dung Người Dùng',
+                content: 'Bạn chịu trách nhiệm về tất cả nội dung mà bạn tạo ra, đăng tải hoặc chia sẻ thông qua dịch vụ. Chúng tôi có quyền xóa bỏ nội dung vi phạm mà không cần thông báo trước.',
+            },
+        },
+        privacy: {
+            title: 'Điều Khoản Sử Dụng - Bảo Mật & Riêng Tư',
+            informationCollection: {
+                title: '1. Thu Thập Thông Tin',
+                content: 'Chúng tôi thu thập các loại thông tin sau để cung cấp và cải thiện dịch vụ:',
+                items: [
+                    'Thông tin cá nhân: tên, email, số điện thoại',
+                    'Thông tin tài khoản: tên đăng nhập, mật khẩu',
+                    'Dữ liệu sử dụng: lịch sử trận đấu, thống kê',
+                    'Dữ liệu kỹ thuật: địa chỉ IP, thiết bị, trình duyệt',
+                ],
+            },
+            informationUse: {
+                title: '2. Sử Dụng Thông Tin',
+                content: 'Thông tin thu thập được sử dụng để:',
+                items: [
+                    'Cung cấp và duy trì dịch vụ',
+                    'Cải thiện trải nghiệm người dùng',
+                    'Gửi thông báo và cập nhật',
+                    'Xử lý yêu cầu hỗ trợ',
+                    'Phân tích và nghiên cứu',
+                ],
+            },
+            informationSharing: {
+                title: '3. Chia Sẻ Thông Tin',
+                content: 'Chúng tôi không bán, trao đổi hoặc chuyển giao thông tin cá nhân của bạn cho bên thứ ba, trừ khi:',
+                items: [
+                    'Có sự đồng ý rõ ràng của bạn',
+                    'Để tuân thủ yêu cầu pháp lý',
+                    'Bảo vệ quyền và tài sản của chúng tôi',
+                    'Với các đối tác tin cậy để cung cấp dịch vụ',
+                ],
+            },
+            informationProtection: {
+                title: '4. Bảo Vệ Thông Tin',
+                content: 'Chúng tôi thực hiện các biện pháp bảo mật phù hợp để bảo vệ thông tin cá nhân của bạn khỏi truy cập trái phép, thay đổi, tiết lộ hoặc phá hủy.',
+            },
+        },
+        liability: {
+            title: 'Điều Khoản Sử Dụng - Trách Nhiệm & Giới Hạn',
+            liabilityLimitation: {
+                title: '1. Giới Hạn Trách Nhiệm',
+                content: 'Trong phạm vi tối đa được phép theo luật pháp, ScoreLens và các đối tác của chúng tôi sẽ không chịu trách nhiệm về:',
+                items: [
+                    'Thiệt hại gián tiếp, ngẫu nhiên hoặc hậu quả',
+                    'Mất mát dữ liệu hoặc thông tin',
+                    'Gián đoạn dịch vụ không mong muốn',
+                    'Thiệt hại do sử dụng sai mục đích',
+                ],
+            },
+            serviceAccuracy: {
+                title: '2. Độ Chính Xác của Dịch Vụ',
+                content: 'Mặc dù chúng tôi nỗ lực cung cấp dịch vụ chính xác và đáng tin cậy, nhưng không thể đảm bảo rằng dịch vụ sẽ hoàn toàn không có lỗi hoặc gián đoạn. Bạn chấp nhận rủi ro khi sử dụng dịch vụ.',
+            },
+            userResponsibility: {
+                title: '3. Trách Nhiệm của Người Dùng',
+                content: 'Bạn chịu trách nhiệm:',
+                items: [
+                    'Sử dụng dịch vụ một cách an toàn và hợp pháp',
+                    'Bảo vệ thông tin tài khoản của mình',
+                    'Không sử dụng dịch vụ để gây hại cho người khác',
+                    'Tuân thủ tất cả các quy định và luật pháp hiện hành',
+                ],
+            },
+            indemnification: {
+                title: '4. Bồi Thường',
+                content: 'Bạn đồng ý bồi thường và giữ cho ScoreLens không bị thiệt hại từ bất kỳ khiếu nại, thiệt hại hoặc chi phí nào phát sinh từ việc vi phạm các điều khoản này.',
+            },
+        },
+        termination: {
+            title: 'Điều Khoản Sử Dụng - Chấm Dứt & Thay Đổi',
+            serviceTermination: {
+                title: '1. Chấm Dứt Dịch Vụ',
+                content: 'Chúng tôi có quyền chấm dứt hoặc đình chỉ quyền truy cập vào dịch vụ của bạn vào bất kỳ lúc nào, vì bất kỳ lý do gì, bao gồm nhưng không giới hạn ở việc vi phạm các điều khoản này.',
+            },
+            terminationConsequences: {
+                title: '2. Hậu Quả của Việc Chấm Dứt',
+                content: 'Khi dịch vụ bị chấm dứt:',
+                items: [
+                    'Quyền truy cập vào tài khoản sẽ bị thu hồi ngay lập tức',
+                    'Tất cả dữ liệu và nội dung có thể bị xóa vĩnh viễn',
+                    'Không có khoản hoàn tiền nào được cung cấp',
+                    'Các điều khoản này vẫn có hiệu lực sau khi chấm dứt',
+                ],
+            },
+            serviceChanges: {
+                title: '3. Thay Đổi Dịch Vụ',
+                content: 'Chúng tôi có quyền thay đổi, đình chỉ hoặc chấm dứt dịch vụ vào bất kỳ lúc nào. Chúng tôi sẽ thông báo trước về những thay đổi quan trọng khi có thể.',
+            },
+            applicableLaw: {
+                title: '4. Luật Áp Dụng',
+                content: 'Các điều khoản này được điều chỉnh và giải thích theo luật pháp Việt Nam. Bất kỳ tranh chấp nào phát sinh từ việc sử dụng dịch vụ sẽ được giải quyết tại tòa án có thẩm quyền tại Việt Nam.',
+            },
+            contact: {
+                title: '5. Liên Hệ',
+                content: 'Nếu bạn có bất kỳ câu hỏi nào về các điều khoản này, vui lòng liên hệ với chúng tôi qua:',
+                items: [
+                    'Email: scorelensbillards@gmail.com',
+                    'Điện thoại: +84 357 859 348',
+                    'Địa chỉ: Đại học FPT Quy Nhơn',
+                ],
+            },
+        },
+    },
+
+    // Table Card Component
+    tableCard: {
+        status: {
+            using: 'Đang sử dụng',
+            usingWithAi: 'Đang sử dụng - AI',
+            available: 'Bàn trống',
+            maintenance: 'Bảo trì'
+        },
+        type: {
+            pool8: 'Bida Pool',
+            carom: 'Bida Carom'
+        },
+        creator: {
+            label: 'Người tạo:',
+            manager: 'Quản lý',
+            member: 'Hội viên',
+            guest: 'Khách'
+        },
+        team: {
+            teamA: 'Đội A',
+            teamB: 'Đội B',
+            vs: 'VS'
+        },
+        button: {
+            viewDetails: 'Xem chi tiết',
+            ready: 'Sẵn sàng',
+            maintenance: 'Bảo trì'
+        }
+    },
+
+    // Scoreboard Page
+    scoreboard: {
+        title: 'BÀN',
+        pool8: 'POOL 8',
+        loading: 'ĐANG TẢI...',
+        scoreboard: 'BẢNG ĐIỂM',
+        joinCode: 'Mã Tham Gia',
+        teamA: 'Đội A',
+        teamB: 'Đội B',
+        vs: 'VS',
+        noMembers: 'Chưa có thành viên',
+        playerPlaceholder: 'Người Chơi {index}',
+        host: 'Chủ phòng',
+        member: 'Thành viên',
+        quickActions: 'Thao tác nhanh',
+        plus1TeamA: '+1 Đội A',
+        plus1TeamB: '+1 Đội B',
+        minus1TeamA: '-1 Đội A',
+        minus1TeamB: '-1 Đội B',
+        edit: 'Chỉnh sửa',
+        end: 'Kết thúc',
+        hideCamera: 'Ẩn Camera',
+        showCamera: 'Xem Camera',
+        aiResults: 'Kết Quả AI',
+        cameraRestoring: 'Đang khôi phục thông tin camera...',
+        connectingCamera: 'Đang kết nối camera...',
+        cameraError: 'Lỗi kết nối camera',
+        viewers: 'người xem',
+        peopleWatching: 'người đang xem',
+        error: {
+            noCameraInfo: 'Không có thông tin camera',
+            cameraNotConnected: 'Camera không kết nối',
+            cannotStartStream: 'Không thể bắt đầu video stream',
+            streamError: 'Lỗi khi bắt đầu video stream',
+            unknownError: 'Lỗi không xác định',
+            cannotLoadMatch: 'Không thể tải thông tin trận đấu',
+            cannotLoadTable: 'Không thể tải thông tin bàn',
+            noMatchInfo: 'Không tìm thấy thông tin trận đấu',
+            noEditPermission: 'Bạn không có quyền chỉnh sửa',
+            noValidSessionToken: 'Vui lòng cung cấp sessionToken hợp lệ',
+            updateScoreFailed: 'Cập nhật điểm thất bại',
+            updateTeamAFailed: 'Cập nhật điểm Đội A thất bại',
+            updateTeamBFailed: 'Cập nhật điểm Đội B thất bại',
+            cannotSyncSession: 'Không thể đồng bộ phiên làm việc',
+            cannotGetNewSession: 'Không thể lấy phiên làm việc mới',
+            cannotDetermineUser: 'Không thể xác định người dùng để lấy phiên làm việc',
+            noMatchIdToSync: 'Không có matchId để sync',
+            cannotEndMatch: 'Không thể kết thúc trận đấu. Vui lòng thử lại.',
+            cannotAuthenticateEndMatch: 'Không thể xác thực người dùng để kết thúc trận đấu',
+            noEditPermissionForMembers: 'Bạn không có quyền chỉnh sửa',
+            cannotDetermineClub: 'Không thể xác định club để chỉnh sửa thành viên'
+        },
+        success: {
+            streamStarted: 'Đã bắt đầu video stream',
+            joinedStream: 'Đã tham gia stream hiện tại',
+            sessionSynced: 'Phiên làm việc đã đồng bộ',
+            scoreUpdated: 'Cập nhật điểm thành công'
+        }
+    },
+
 } as const;

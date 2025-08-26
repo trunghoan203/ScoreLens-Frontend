@@ -71,7 +71,7 @@ export default {
         feedbacks: 'Feedbacks',
         cameras: 'Cameras',
         tables: 'Tables',
-        members: 'Members',
+        members: 'Memberships',
         dashboard: 'Dashboard',
         admin: 'Admin',
         superAdmin: 'Super Admin',
@@ -1505,7 +1505,135 @@ export default {
                 teamA: 'Team A',
                 teamB: 'Team B'
             }
-        }
+        },
+        entry: {
+            title: 'TABLE',
+            pool8Ball: 'Pool 8 Ball',
+            loading: 'Loading...',
+            description: 'Please enter the room code to continue',
+            continue: 'Continue',
+            error: {
+                incompleteCode: 'Please enter all 6 digits!',
+                invalidCode: 'Invalid room code!',
+                codeNotFound: 'Room code does not exist or has been cancelled!'
+            },
+            success: {
+                welcome: 'Welcome to ScoreLens',
+                validCode: 'Valid room code!'
+            }
+        },
+        join: {
+            title: 'TABLE',
+            pool8Ball: 'Pool 8 Ball',
+            loading: 'Loading...',
+            description: 'Enter name to join room',
+            fullNameLabel: 'Full Name',
+            fullNamePlaceholder: 'Enter your full name...',
+            phoneLabel: 'Phone Number',
+            phonePlaceholder: 'Enter phone number...',
+            verifyButton: 'Verify',
+            verifying: 'Verifying...',
+            memberNote: '* If you don\'t have a Member ID, please contact staff to register!',
+            continue: 'Continue',
+            teamSelection: {
+                title: 'Choose team to join',
+                teamA: 'Team A',
+                teamB: 'Team B',
+                cancel: 'Cancel',
+                confirm: 'Confirm',
+                processing: 'Processing...'
+            },
+            error: {
+                noPhone: 'Please enter phone number.',
+                cannotDetermineClub: 'Cannot determine club. Please try again.',
+                verificationFailed: 'Verification failed',
+                notMember: 'You are not registered as a member',
+                notBrandCompatible: 'You are not a member of this brand.',
+                accountBanned: 'Your account is banned',
+                noFullName: 'Please enter your full name.',
+                alreadyJoined: 'You have already joined this match.'
+            },
+            success: {
+                verificationSuccess: 'Verification successful!',
+                welcomeWithName: 'Welcome {name}!',
+                joinRoomSuccess: 'Successfully joined room!',
+                createRoomSuccess: 'Room created successfully!'
+            }
+        },
+        lobby: {
+            title: 'TABLE',
+            pool8: 'POOL 8',
+            loading: 'LOADING...',
+            description: 'Enter the code below to join the room',
+            joinCode: 'Join Code',
+            shareCodeNote: 'Share this code with players to join the room',
+            teamALabel: 'Team A',
+            teamBLabel: 'Team B',
+            roomOwnerPlaceholder: 'Room owner name',
+            mainPlayerPlaceholder: 'Main player name',
+            playerPlaceholder: 'Player {index} name',
+            startButton: 'Start',
+            loadingText: 'Loading...',
+            notReady: 'Not ready',
+            connecting: 'Connecting...',
+            noPermission: 'No permission',
+            error: {
+                noMatchId: 'No matchId. Please check again.',
+                noWebSocketConnection: 'WebSocket not connected. Please wait for connection to complete.',
+                authLoading: 'Authenticating permissions. Please wait...',
+                authError: 'Authentication error: {error}',
+                hostOnly: 'Only host can start the match.',
+                cannotAuthenticateStart: 'Cannot authenticate start match permission. Please contact admin.',
+                cannotStartMatch: 'Cannot start match. Please try again.',
+                errorStartingMatch: 'An error occurred while starting the match.',
+                cannotLoadTableInfo: 'Cannot load table information. Using default information.',
+                cannotLoadMatchInfo: 'Cannot load match information',
+                cannotLoadMatchByCode: 'Cannot load match information by room code',
+                errorLoadingData: 'An error occurred while loading data',
+                cannotRestoreSession: 'Cannot restore session',
+                sessionRestoreError: 'Session restore error',
+                cannotAuthenticateJoin: 'Cannot authenticate join match',
+                missingAuthInfo: 'Missing information to authenticate join match',
+                newPlayerJoined: 'New player has joined the room!',
+                playerLeft: 'Player has left the room'
+            },
+            success: {
+                matchStarted: 'Match has started!'
+            }
+        },
+
+        // Lounge Page
+        lounge: {
+            title: 'TABLE',
+            pool8: 'POOL 8',
+            loading: 'LOADING...',
+            description: 'You have joined the room with name: {name}',
+            joinCode: 'Join Code',
+            shareCodeNote: 'Share this code with players to join the room',
+            teamALabel: 'Team A',
+            teamBLabel: 'Team B',
+            playerPlaceholder: 'Player {index}',
+            leaveButton: 'Leave Room',
+            leaving: 'Leaving room...',
+            loadingText: 'Joining room...',
+            confirmLeaveTitle: 'Confirm Leave Room',
+            confirmLeaveMessage: 'Are you sure you want to leave this room?',
+            cancel: 'Cancel',
+            confirm: 'Confirm',
+            error: {
+                cannotLoadTableInfo: 'Cannot load table information',
+                cannotLoadMatchInfo: 'Cannot load match information',
+                cannotLoadMatchByCode: 'Cannot load match information by room code',
+                errorLoadingData: 'An error occurred while loading data',
+                cannotLeaveRoom: 'Cannot leave room',
+                errorLeavingRoom: 'An error occurred while leaving room'
+            },
+            success: {
+                newPlayerJoined: 'New player has joined the room!',
+                playerLeft: 'Player has left the room',
+                leftRoom: 'Left the room'
+            }
+        },
     },
 
     // Manager Matches
@@ -1699,11 +1827,11 @@ export default {
         carom: 'Carom',
         statusResolved: 'Resolved',
         statusManagerP: 'Manager Processing',
-        statusAdminP: 'Business Owner Processing',
-        statusSuperadminP: 'Administrator Processing',
+        statusAdminP: 'Admin Processing',
+        statusSuperadminP: 'Super Admin Processing',
         statusUnknown: 'Unknown',
-        businessOwnerProcessing: 'Business Owner Processing',
-        administratorProcessing: 'Administrator Processing',
+        adminProcessing: 'Admin Processing',
+        superAdminProcessing: 'Super Admin Processing',
         resolved: 'Resolved',
         editPlaceholder: 'Enter processing note...',
         cancel: 'Cancel',
@@ -1713,4 +1841,399 @@ export default {
         updateSuccess: 'Updated successfully',
         updateFailed: 'Update failed',
     },
+
+    // Super Admin Home Page
+    superAdminHome: {
+        pageTitle: 'SUPER ADMIN DASHBOARD',
+        adminListTitle: 'ADMIN LIST',
+        feedbackListTitle: 'FEEDBACK LIST',
+        approvalTab: 'Approval Requests',
+        feedbackTab: 'Feedbacks',
+        loading: 'Loading...',
+        cannotLoadAdminList: 'Cannot load admin list',
+        searchPlaceholder: 'Enter name or email...',
+        allStatus: 'All',
+        approvedStatus: 'Approved',
+        pendingStatus: 'Pending',
+        rejectedStatus: 'Rejected',
+        statusApproved: 'Approved',
+        statusPending: 'Pending',
+        statusRejected: 'Rejected',
+        noAdminsFound: 'No admins found',
+        noAdminsFoundWithSearch: 'No matching admins found',
+        tryDifferentKeywords: 'Try changing search keywords to find matching admins',
+        useAddButton: 'Use the "Add Admin" button above to create the first admin',
+        viewAll: 'View all',
+        showingResults: 'Showing {start}-{end} of {total} admins',
+        previous: 'Previous',
+        next: 'Next',
+        loadMore: 'Load more',
+        noMoreAdmins: 'No more admins to load',
+        table: {
+            name: 'NAME',
+            email: 'EMAIL',
+            location: 'LOCATION',
+            status: 'STATUS',
+            createdAt: 'CREATED AT',
+            clickToViewDetails: 'Click to view details',
+        },
+        // Feedback table translations
+        feedbackSearchPlaceholder: 'Enter brand or branch...',
+        feedbackAllStatus: 'All',
+        feedbackPendingStatus: 'Pending',
+        feedbackResolvedStatus: 'Resolved',
+        feedbackBrandColumn: 'BRAND',
+        feedbackBranchColumn: 'BRANCH',
+        feedbackDateColumn: 'DATE',
+        feedbackStatusColumn: 'STATUS',
+        feedbackDateLabel: 'Date:',
+        feedbackNoBranch: 'No branch yet',
+        feedbackNoFeedbacksFound: 'No feedbacks found',
+        feedbackClickToViewDetails: 'Click to view details →',
+        feedbackShowingResults: 'Showing {start}-{end} of {total} feedbacks',
+        feedbackStatusResolved: 'Resolved',
+        feedbackStatusManagerP: 'Manager Processing',
+        feedbackStatusAdminP: 'Admin Processing',
+        feedbackStatusSuperadminP: 'Super Admin Processing',
+        feedbackStatusUnknown: 'Unknown',
+    },
+
+    // Super Admin Login Page
+    superAdminLogin: {
+        pageTitle: 'Access ScoreLens for Super Admin',
+        description: '',
+        emailLabel: 'Enter Super Admin email',
+        emailPlaceholder: 'ScoreLens',
+        submitButton: 'Send',
+        sending: 'Sending...',
+        emailSentSuccess: 'Email sent successfully!',
+        emailRequired: 'Email is required',
+        emailInvalid: 'Invalid email format',
+        generalError: 'An error occurred. Please try again.',
+    },
+
+    // Super Admin Verification Page
+    superAdminVerification: {
+        pageTitle: 'Login Verification',
+        description: 'Enter the OTP code sent to your email',
+        otpRequired: 'Please enter all 6 digits',
+        verificationSuccess: 'Verification successful!',
+        verificationFailed: 'An error occurred. Please try again.',
+        notReceivedCode: 'Did not receive the code?',
+        resendCode: 'Resend code',
+        resendTimer: 'Resend in',
+        seconds: 's',
+        resendSuccess: 'Verification code has been resent!',
+        resendFailed: 'Failed to resend code.',
+        submitButton: 'Send',
+        sending: 'Sending...',
+        backToHome: 'Back to home',
+    },
+
+    // Terms Page
+    terms: {
+        loading: 'Loading...',
+        pageTitle: 'TERMS OF SERVICE',
+        sections: {
+            general: 'GENERAL TERMS',
+            account: 'ACCOUNT & SECURITY',
+            usage: 'SERVICE USAGE',
+            privacy: 'PRIVACY & SECURITY',
+            liability: 'LIABILITY & LIMITATIONS',
+            termination: 'TERMINATION & CHANGES',
+        },
+        general: {
+            title: 'Terms of Service - General Terms',
+            acceptance: {
+                title: '1. Acceptance of Terms',
+                content: 'By accessing and using the ScoreLens system, you agree to comply with and be bound by these terms and conditions. If you do not agree with any part of these terms, please do not use our service.',
+            },
+            serviceDescription: {
+                title: '2. Service Description',
+                content: 'ScoreLens is an automatic scoring management system for sports games, particularly billiards. The system uses AI technology and cameras to automatically track and record scores, providing accurate and convenient gaming experience.',
+                features: [
+                    'Automatic scoring through AI camera',
+                    'Match and member management',
+                    'Match history and statistics tracking',
+                    'Notification and support system',
+                ],
+            },
+            ageAndCapacity: {
+                title: '3. Age and Capacity',
+                content: 'You must be at least 18 years old or have parental/legal guardian consent to use the service. You must also have the legal capacity to enter into these agreements.',
+            },
+            termsChanges: {
+                title: '4. Changes to Terms',
+                content: 'We reserve the right to change these terms at any time. Changes will take effect immediately upon posting. Continued use of the service after changes constitutes acceptance of the new terms.',
+            },
+        },
+        account: {
+            title: 'Terms of Service - Account & Security',
+            registration: {
+                title: '1. Account Registration',
+                content: 'To use the full features of the system, you need to create an account with accurate and updated information. You are responsible for maintaining the security of your login information.',
+                requirements: [
+                    'Provide accurate and complete information',
+                    'Protect passwords and login information',
+                    'Do not share account with others',
+                    'Notify immediately when security breaches are detected',
+                ],
+            },
+            verification: {
+                title: '2. Verification and Security',
+                content: 'The system may require verification via email or phone number. You agree to receive verification and security notifications through these channels.',
+            },
+            accountOwnership: {
+                title: '3. Account Ownership',
+                content: 'The created account is your personal property. However, we reserve the right to suspend or terminate the account if terms of service are violated.',
+            },
+            informationSecurity: {
+                title: '4. Information Security',
+                content: 'We are committed to protecting your personal information according to the highest security standards. However, no system is completely secure, and you also need to implement basic security measures.',
+            },
+        },
+        usage: {
+            title: 'Terms of Service - Service Usage',
+            legalUse: {
+                title: '1. Legal Use',
+                content: 'You may only use the service for lawful purposes and in accordance with these terms. Using the service to conduct illegal or harmful activities is strictly prohibited.',
+            },
+            prohibitedBehavior: {
+                title: '2. Prohibited Behavior',
+                content: 'The following behaviors are strictly prohibited when using the service:',
+                items: [
+                    'Cheating or intentionally distorting match results',
+                    'Harassing or threatening other players',
+                    'Using external software or tools to interfere with the system',
+                    'Distributing inappropriate or harmful content',
+                    'Violating intellectual property rights',
+                ],
+            },
+            cameraSystem: {
+                title: '3. Camera System Usage',
+                content: 'The system uses AI cameras for automatic scoring. You agree to:',
+                items: [
+                    'Allow cameras to record in the gaming area',
+                    'Not intentionally obstruct or interfere with cameras',
+                    'Accept that scoring may have minor errors',
+                    'Report issues if serious errors are detected',
+                ],
+            },
+            userContent: {
+                title: '4. User Content',
+                content: 'You are responsible for all content you create, upload, or share through the service. We reserve the right to remove violating content without prior notice.',
+            },
+        },
+        privacy: {
+            title: 'Terms of Service - Privacy & Security',
+            informationCollection: {
+                title: '1. Information Collection',
+                content: 'We collect the following types of information to provide and improve our service:',
+                items: [
+                    'Personal information: name, email, phone number',
+                    'Account information: username, password',
+                    'Usage data: match history, statistics',
+                    'Technical data: IP address, device, browser',
+                ],
+            },
+            informationUse: {
+                title: '2. Information Use',
+                content: 'Collected information is used to:',
+                items: [
+                    'Provide and maintain service',
+                    'Improve user experience',
+                    'Send notifications and updates',
+                    'Process support requests',
+                    'Analyze and research',
+                ],
+            },
+            informationSharing: {
+                title: '3. Information Sharing',
+                content: 'We do not sell, exchange, or transfer your personal information to third parties, except when:',
+                items: [
+                    'We have your explicit consent',
+                    'To comply with legal requirements',
+                    'To protect our rights and property',
+                    'With trusted partners to provide service',
+                ],
+            },
+            informationProtection: {
+                title: '4. Information Protection',
+                content: 'We implement appropriate security measures to protect your personal information from unauthorized access, alteration, disclosure, or destruction.',
+            },
+        },
+        liability: {
+            title: 'Terms of Service - Liability & Limitations',
+            liabilityLimitation: {
+                title: '1. Liability Limitation',
+                content: 'To the maximum extent permitted by law, ScoreLens and our partners will not be liable for:',
+                items: [
+                    'Indirect, incidental, or consequential damages',
+                    'Loss of data or information',
+                    'Unintended service interruptions',
+                    'Damages from misuse',
+                ],
+            },
+            serviceAccuracy: {
+                title: '2. Service Accuracy',
+                content: 'Although we strive to provide accurate and reliable service, we cannot guarantee that the service will be completely error-free or uninterrupted. You accept the risk when using the service.',
+            },
+            userResponsibility: {
+                title: '3. User Responsibility',
+                content: 'You are responsible for:',
+                items: [
+                    'Using the service safely and legally',
+                    'Protecting your account information',
+                    'Not using the service to harm others',
+                    'Complying with all applicable regulations and laws',
+                ],
+            },
+            indemnification: {
+                title: '4. Indemnification',
+                content: 'You agree to indemnify and hold ScoreLens harmless from any claims, damages, or costs arising from violation of these terms.',
+            },
+        },
+        termination: {
+            title: 'Terms of Service - Termination & Changes',
+            serviceTermination: {
+                title: '1. Service Termination',
+                content: 'We reserve the right to terminate or suspend your access to the service at any time, for any reason, including but not limited to violation of these terms.',
+            },
+            terminationConsequences: {
+                title: '2. Consequences of Termination',
+                content: 'When service is terminated:',
+                items: [
+                    'Account access will be revoked immediately',
+                    'All data and content may be permanently deleted',
+                    'No refunds will be provided',
+                    'These terms remain effective after termination',
+                ],
+            },
+            serviceChanges: {
+                title: '3. Service Changes',
+                content: 'We reserve the right to change, suspend, or terminate the service at any time. We will provide advance notice of important changes when possible.',
+            },
+            applicableLaw: {
+                title: '4. Applicable Law',
+                content: 'These terms are governed by and construed in accordance with Vietnamese law. Any disputes arising from the use of the service will be resolved in courts with jurisdiction in Vietnam.',
+            },
+            contact: {
+                title: '5. Contact',
+                content: 'If you have any questions about these terms, please contact us via:',
+                items: [
+                    'Email: scorelensbillards@gmail.com',
+                    'Phone: +84 357 859 348',
+                    'Address: FPT University Quy Nhơn',
+                ],
+            },
+        },
+    },
+
+    // AI Selection Component
+    aiSelection: {
+        title: 'Choose AI Feature',
+        description: 'Do you want to use AI in the match?',
+        withAi: {
+            title: 'Use AI',
+            description: 'AI will help calculate match scores'
+        },
+        withoutAi: {
+            title: 'Don\'t use AI',
+            description: 'Only use basic match features'
+        },
+        cancel: 'Cancel',
+        createMatch: 'Create Match',
+        creating: 'Creating...'
+    },
+
+    // Table Card Component
+    tableCard: {
+        status: {
+            using: 'In Use',
+            usingWithAi: 'In Use - AI',
+            available: 'Available',
+            maintenance: 'Maintenance'
+        },
+        type: {
+            pool8: 'Pool Billiards',
+            carom: 'Carom Billiards'
+        },
+        creator: {
+            label: 'Creator:',
+            manager: 'Manager',
+            member: 'Member',
+            guest: 'Guest'
+        },
+        team: {
+            teamA: 'Team A',
+            teamB: 'Team B',
+            vs: 'VS'
+        },
+        button: {
+            viewDetails: 'View Details',
+            ready: 'Ready',
+            maintenance: 'Maintenance'
+        }
+    },
+
+    // Scoreboard Page
+    scoreboard: {
+        title: 'TABLE',
+        pool8: 'POOL 8',
+        loading: 'LOADING...',
+        scoreboard: 'SCOREBOARD',
+        joinCode: 'Join Code',
+        teamA: 'Team A',
+        teamB: 'Team B',
+        vs: 'VS',
+        noMembers: 'No members yet',
+        playerPlaceholder: 'Player {index}',
+        host: 'Host',
+        member: 'Member',
+        quickActions: 'Quick Actions',
+        plus1TeamA: '+1 Team A',
+        plus1TeamB: '+1 Team B',
+        minus1TeamA: '-1 Team A',
+        minus1TeamB: '-1 Team B',
+        edit: 'Edit',
+        end: 'End',
+        hideCamera: 'Hide Camera',
+        showCamera: 'Show Camera',
+        aiResults: 'AI Results',
+        cameraRestoring: 'Restoring camera information...',
+        connectingCamera: 'Connecting camera...',
+        cameraError: 'Camera connection error',
+        viewers: 'viewers',
+        peopleWatching: 'people watching',
+        error: {
+            noCameraInfo: 'No camera information',
+            cameraNotConnected: 'Camera not connected',
+            cannotStartStream: 'Cannot start video stream',
+            streamError: 'Error starting video stream',
+            unknownError: 'Unknown error',
+            cannotLoadMatch: 'Cannot load match information',
+            cannotLoadTable: 'Cannot load table information',
+            noMatchInfo: 'No match information found',
+            noEditPermission: 'You do not have edit permission',
+            noValidSessionToken: 'Please provide a valid sessionToken',
+            updateScoreFailed: 'Score update failed',
+            updateTeamAFailed: 'Failed to update Team A score',
+            updateTeamBFailed: 'Failed to update Team B score',
+            cannotSyncSession: 'Cannot sync session',
+            cannotGetNewSession: 'Cannot get new session',
+            cannotDetermineUser: 'Cannot determine user to get session',
+            noMatchIdToSync: 'No matchId to sync',
+            cannotEndMatch: 'Cannot end match. Please try again.',
+            cannotAuthenticateEndMatch: 'Cannot authenticate user to end match',
+            noEditPermissionForMembers: 'You do not have permission to edit',
+            cannotDetermineClub: 'Cannot determine club to edit members'
+        },
+        success: {
+            streamStarted: 'Video stream started',
+            joinedStream: 'Joined current stream',
+            sessionSynced: 'Session synchronized',
+            scoreUpdated: 'Score updated successfully'
+        }
+    },
+
 } as const;

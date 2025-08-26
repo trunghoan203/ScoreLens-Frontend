@@ -1,5 +1,4 @@
 "use client";
-import React from 'react';
 import Image from 'next/image';
 import { useI18n } from '@/lib/i18n/provider';
 
@@ -19,58 +18,72 @@ interface TableCardProps {
   onDetail?: () => void;
 }
 
-export default function TableCard({
-  name,
-  status,
-  type,
-  onDetail,
-  scoreA = 0,
-  scoreB = 0,
-  time,
-  elapsedTime,
-  matchStatus,
-  creatorType,
-  isAiAssisted = false
-}: TableCardProps) {
+export default function TableCard({ name, type, status, teamA, teamB, time, matchStatus, elapsedTime, isAiAssisted = false, scoreA = 0, scoreB = 0, creatorType = null, onDetail }: TableCardProps) {
   const { t } = useI18n();
 
-  const displayStatus = status === 'empty' ? 'available' : status;
-  const displayType = type === 'pool8' ? 'pool-8' : 'carom';
+  const getDisplayStatus = (status: string) => {
+    switch (status) {
+      case 'inuse':
+      case 'using':
+        return 'using';
+      case 'empty':
+      case 'available':
+        return 'available';
+      case 'maintenance':
+        return 'maintenance';
+      default:
+        return 'available';
+    }
+  };
+
+  const getDisplayType = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'pool-8':
+        return 'pool-8';
+      case 'carom':
+        return 'carom';
+      default:
+        return 'pool';
+    }
+  };
+
+  const displayStatus = getDisplayStatus(status);
+  const displayType = getDisplayType(type);
 
   const getStatusStyle = (status: string) => {
     switch (status) {
       case 'using':
-        return 'bg-red-500 text-white';
+        return 'bg-[#8ADB10] text-[#FFFFFF]';
       case 'available':
-        return 'bg-blue-500 text-white';
+        return 'bg-[#3D96FF] text-[#FFFFFF]';
       case 'maintenance':
-        return 'bg-yellow-500 text-white';
+        return 'bg-[#e36a23] text-[#FFFFFF]';
       default:
-        return 'bg-blue-500 text-white';
+        return 'bg-[#3D96FF] text-[#FFFFFF]';
     }
   };
 
   const getStatusText = (status: string, isAiAssisted: boolean) => {
     switch (status) {
       case 'using':
-        return isAiAssisted ? t('dashboard.tablesInUse') + ' - AI' : t('dashboard.tablesInUse');
+        return isAiAssisted ? t('tableCard.status.usingWithAi') : t('tableCard.status.using');
       case 'available':
-        return t('dashboard.availableTables');
+        return t('tableCard.status.available');
       case 'maintenance':
-        return t('tables.status.maintenance');
+        return t('tableCard.status.maintenance');
       default:
-        return t('dashboard.availableTables');
+        return t('tableCard.status.available');
     }
   };
 
   const getCreatorText = (creatorType: 'manager' | 'member' | 'guest' | null) => {
     switch (creatorType) {
       case 'manager':
-        return t('nav.managers');
+        return t('tableCard.creator.manager');
       case 'member':
-        return t('nav.members');
+        return t('tableCard.creator.member');
       case 'guest':
-        return t('feedbacks.creatorType.guest');
+        return t('tableCard.creator.guest');
       default:
         return null;
     }
@@ -82,7 +95,7 @@ export default function TableCard({
         <span className={`text-xs font-bold px-3 py-1 rounded-full ${getStatusStyle(displayStatus)} uppercase tracking-wide text-center whitespace-nowrap`}>
           {getStatusText(displayStatus, isAiAssisted)}
         </span>
-        <span className="text-xs text-[#000000] font-semibold">{displayType === 'pool-8' ? t('tables.types.pool') : t('tables.types.carom')}</span>
+        <span className="text-xs text-[#000000] font-semibold">{displayType === 'pool-8' ? t('tableCard.type.pool8') : t('tableCard.type.carom')}</span>
       </div>
 
       <div className="font-bold text-base mb-2 text-center text-gray-700">
@@ -91,7 +104,7 @@ export default function TableCard({
 
       {displayStatus === 'using' && creatorType && (
         <div className="text-xs text-gray-600 text-center mb-4">
-          {t('common.name')}: {getCreatorText(creatorType)}
+          {t('tableCard.creator.label')} {getCreatorText(creatorType)}
         </div>
       )}
 
@@ -100,12 +113,12 @@ export default function TableCard({
           <div className="flex flex-col items-center justify-center w-full">
             <div className="flex w-full justify-between items-center mb-3">
               <div className="flex flex-col items-center ml-10">
-                <span className="text-xs text-[#000000] font-medium mb-1">{t('managerMatches.team')} A</span>
+                <span className="text-xs text-[#000000] font-medium mb-1">{t('tableCard.team.teamA')}</span>
                 <span className="text-4xl font-bold text-[#000000]">{scoreA}</span>
               </div>
-              <span className="mx-2 text-[#000000] font-bold">VS</span>
+              <span className="mx-2 text-[#000000] font-bold">{t('tableCard.team.vs')}</span>
               <div className="flex flex-col items-center mr-10">
-                <span className="text-xs text-[#000000] font-medium mb-1">{t('managerMatches.team')} B</span>
+                <span className="text-xs text-[#000000] font-medium mb-1">{t('tableCard.team.teamB')}</span>
                 <span className="text-4xl font-bold text-[#000000]">{scoreB}</span>
               </div>
             </div>
@@ -125,7 +138,7 @@ export default function TableCard({
           <div className="flex flex-col items-center justify-center w-full">
             <div className="text-center">
               <div className="text-[#e36a23] text-2xl font-bold mb-3">⚠️</div>
-              <div className="text-[#e36a23] text-sm font-semibold mb-2">{t('tables.status.maintenance')}</div>
+              <div className="text-[#e36a23] text-sm font-semibold mb-2">{t('tableCard.status.maintenance')}</div>
             </div>
           </div>
         )}
@@ -142,7 +155,7 @@ export default function TableCard({
           onClick={displayStatus === 'maintenance' ? undefined : onDetail}
           disabled={displayStatus === 'maintenance'}
         >
-          {displayStatus === 'using' ? t('common.details') : displayStatus === 'available' ? t('tables.ready') : t('tables.status.maintenance')}
+          {displayStatus === 'using' ? t('tableCard.button.viewDetails') : displayStatus === 'available' ? t('tableCard.button.ready') : t('tableCard.button.maintenance')}
         </button>
       </div>
     </div>

@@ -85,7 +85,7 @@ function StartSessionContent() {
       const sessionToken = searchParams.get('sessionToken');
 
       if (!idFromUrl) {
-        console.error('Không tìm thấy tableId trên URL.');
+        console.error(t('userMatch.create.error.noTableId'));
         toast.error(t('userMatch.create.error.invalidUrl'));
         setLoading(false);
         return;
@@ -137,7 +137,7 @@ function StartSessionContent() {
   }, [searchParams, tableCategory, tableName]);
 
   const handleJoin = () => {
-    const safeName = fullName.trim() || 'Khách';
+    const safeName = fullName.trim() || t('common.guest');
     const params = new URLSearchParams({
       table: tableName || t('userMatch.create.tableInfo'),
       tableId: tableId || '',

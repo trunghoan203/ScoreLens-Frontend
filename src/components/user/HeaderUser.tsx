@@ -4,6 +4,7 @@ import { ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { BackButton } from '@/components/ui/BackButton';
 import { ScoreLensLogo } from '@/components/icons/LogoBlack';
+import LanguageSelector from '@/components/shared/LanguageSelector';
 
 interface HeaderUserProps {
   children?: ReactNode;
@@ -26,6 +27,9 @@ export default function HeaderUser({ children, showBack = true }: HeaderUserProp
             <div className="h-10 sm:h-14 flex items-center">
               <ScoreLensLogo />
             </div>
+          </div>
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 z-20">
+            <LanguageSelector variant="light" />
           </div>
         </div>
       </div>

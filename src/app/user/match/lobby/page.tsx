@@ -7,6 +7,7 @@ import HeaderUser from '@/components/user/HeaderUser';
 import FooterButton from '@/components/user/FooterButton';
 import toast from 'react-hot-toast';
 import { userMatchService } from '@/lib/userMatchService';
+import { useI18n } from '@/lib/i18n/provider';
 
 import { getIdentity, getSession, setSession } from '@/lib/session';
 import { io, Socket } from 'socket.io-client';
@@ -14,6 +15,7 @@ import { useMatchRole } from '@/lib/hooks/useMatchRole';
 import { config } from '@/lib/config';
 
 function HomeRandomContent() {
+  const { t } = useI18n();
   const searchParams = useSearchParams();
   const router = useRouter();
   const tableNumber = searchParams!.get('table') || '??';
@@ -68,7 +70,7 @@ function HomeRandomContent() {
               } else {
                 tableInfoData = {
                   name: tableNumber,
-                  category: 'pool-8' 
+                  category: 'pool-8'
                 };
               }
             } else {
@@ -83,7 +85,7 @@ function HomeRandomContent() {
             if (error instanceof Error) {
               toast.error(`Lỗi tải thông tin bàn: ${error.message}`);
             } else {
-              toast.error('Không thể tải thông tin bàn. Sử dụng thông tin mặc định.');
+              toast.error(t('userMatch.lobby.error.cannotLoadTableInfo'));
             }
 
             setTableInfo({
@@ -116,7 +118,7 @@ function HomeRandomContent() {
               }
             }
           } catch (error) {
-            toast.error('Không thể tải thông tin trận đấu');
+            toast.error(t('userMatch.lobby.error.cannotLoadMatchInfo'));
           }
         }
 
@@ -148,7 +150,7 @@ function HomeRandomContent() {
               }
             }
           } catch (error) {
-            toast.error('Không thể tải thông tin match theo mã phòng');
+            toast.error(t('userMatch.lobby.error.cannotLoadMatchByCode'));
           }
         }
 
@@ -156,15 +158,15 @@ function HomeRandomContent() {
           setTeamA([creatorName]);
         }
 
-             } catch (error) {
-         toast.error('Có lỗi xảy ra khi tải dữ liệu');
-       } finally {
+      } catch (error) {
+        toast.error(t('userMatch.lobby.error.errorLoadingData'));
+      } finally {
         setLoading(false);
       }
     };
 
     loadMatchData();
-  }, [tableId, matchId, existingCode, creatorName]);
+  }, [tableId, matchId, existingCode, creatorName, t]);
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -207,18 +209,18 @@ function HomeRandomContent() {
               role: 'participant'
             });
             await authenticateMatch(matchId, userSessionToken);
-                   } else {
-           toast.error('Không thể khôi phục phiên làm việc');
-         }
-       } else {
-       }
-     } catch (error) {
-       toast.error('Lỗi khôi phục phiên làm việc');
-     }
+          } else {
+            toast.error(t('userMatch.lobby.error.cannotRestoreSession'));
+          }
+        } else {
+        }
+      } catch (error) {
+        toast.error(t('userMatch.lobby.error.sessionRestoreError'));
+      }
     };
 
     bootstrapAuth();
-  }, [matchId]);
+  }, [matchId, t]);
 
   useEffect(() => {
     const performAuth = async () => {
@@ -248,26 +250,26 @@ function HomeRandomContent() {
               const participantSessionToken = responseData.data.sessionToken;
 
               await authenticateMatch(matchId, participantSessionToken);
-                         } else {
-               toast.error('Không thể xác thực tham gia trận đấu');
-             }
-           } else {
-             toast.error('Thiếu thông tin để xác thực tham gia trận đấu');
-           }
-         } catch (error) {
-         }
+            } else {
+              toast.error(t('userMatch.lobby.error.cannotAuthenticateJoin'));
+            }
+          } else {
+            toast.error(t('userMatch.lobby.error.missingAuthInfo'));
+          }
+        } catch (error) {
+        }
       }
     };
 
     performAuth();
-  }, [matchId, sessionToken]);
+  }, [matchId, sessionToken, t]);
 
   useEffect(() => {
     if (authError) {
 
-      toast.error(`Lỗi xác thực: ${authError}`);
+      toast.error(t('userMatch.lobby.error.authError').replace('{error}', authError));
     }
-  }, [authError]);
+  }, [authError, t]);
 
 
 
@@ -309,11 +311,11 @@ function HomeRandomContent() {
         });
 
         socket.on('guest_joined', (data) => {
-          toast.success('Người chơi mới đã tham gia phòng!');
+          toast.success(t('userMatch.lobby.success.newPlayerJoined'));
         });
 
         socket.on('guest_left', (data) => {
-          toast('Người chơi đã rời khỏi phòng');
+          toast(t('userMatch.lobby.error.playerLeft'));
         });
 
         socket.on('match_updated', (data) => {
@@ -324,7 +326,7 @@ function HomeRandomContent() {
               const teamAMembers: string[] = [];
               data.teams[0].members.forEach((member: { guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }, index: number) => {
                 const memberName =
-                  member.guestName || member.membershipName || member.fullName || member.name || member.userName || member.displayName || `Người chơi ${index + 1}`;
+                  member.guestName || member.membershipName || member.fullName || member.name || member.userName || member.displayName || t('userMatch.lobby.playerPlaceholder').replace('{index}', (index + 1).toString());
                 teamAMembers.push(memberName);
                 guests.push({
                   id: `teamA-${index}`,
@@ -340,7 +342,7 @@ function HomeRandomContent() {
               const teamBMembers: string[] = [];
               data.teams[1].members.forEach((member: { guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }, index: number) => {
                 const memberName =
-                  member.guestName || member.membershipName || member.fullName || member.name || member.userName || member.displayName || `Người chơi ${index + 1}`;
+                  member.guestName || member.membershipName || member.fullName || member.name || member.userName || member.displayName || t('userMatch.lobby.playerPlaceholder').replace('{index}', (index + 1).toString());
                 teamBMembers.push(memberName);
                 guests.push({
                   id: `teamB-${index}`,
@@ -357,9 +359,9 @@ function HomeRandomContent() {
         });
 
         socket.connect();
-             } catch (error) {
-         setIsWebSocketConnected(false);
-       }
+      } catch (error) {
+        setIsWebSocketConnected(false);
+      }
     };
 
     connectSocket();
@@ -369,32 +371,32 @@ function HomeRandomContent() {
         socketRef.current.disconnect();
       }
     };
-  }, [matchId]);
+  }, [matchId, t]);
 
   const handleStart = async () => {
     try {
       if (!matchId) {
-        toast.error('Không có matchId. Vui lòng kiểm tra lại.');
+        toast.error(t('userMatch.lobby.error.noMatchId'));
         return;
       }
 
       if (!isWebSocketConnected) {
-        toast.error('Chưa kết nối WebSocket. Vui lòng đợi kết nối hoàn tất.');
+        toast.error(t('userMatch.lobby.error.noWebSocketConnection'));
         return;
       }
 
       if (authLoading) {
-        toast.error('Đang xác thực quyền. Vui lòng đợi...');
+        toast.error(t('userMatch.lobby.error.authLoading'));
         return;
       }
 
       if (authError) {
-        toast.error(`Lỗi xác thực: ${authError}`);
+        toast.error(t('userMatch.lobby.error.authError').replace('{error}', authError));
         return;
       }
 
       if (!isHost) {
-        toast.error('Chỉ host mới có quyền bắt đầu trận đấu.');
+        toast.error(t('userMatch.lobby.error.hostOnly'));
         return;
       }
 
@@ -445,7 +447,7 @@ function HomeRandomContent() {
         }
 
         if (!hostSessionToken) {
-          toast.error('Không thể xác thực quyền start match. Vui lòng liên hệ admin.');
+          toast.error(t('userMatch.lobby.error.cannotAuthenticateStart'));
           return;
         }
 
@@ -456,18 +458,18 @@ function HomeRandomContent() {
         } else if (matchInfo?.createdByMembershipId) {
           startMatchPayload.actorMembershipId = matchInfo.createdByMembershipId;
         } else {
-          toast.error('Không thể xác thực quyền start match. Vui lòng liên hệ admin.');
+          toast.error(t('userMatch.lobby.error.cannotAuthenticateStart'));
           return;
         }
       } catch (matchError) {
-        toast.error('Không thể xác thực quyền start match. Vui lòng thử lại.');
+        toast.error(t('userMatch.lobby.error.cannotStartMatch'));
         return;
       }
 
       const response = await userMatchService.startMatch(matchId, startMatchPayload);
 
       if (response && typeof response === 'object' && 'success' in response && response.success) {
-        toast.success('Trận đấu đã bắt đầu!');
+        toast.success(t('userMatch.lobby.success.matchStarted'));
 
         const params = new URLSearchParams({
           table: tableNumber,
@@ -482,16 +484,16 @@ function HomeRandomContent() {
 
         router.push(`/user/match/scoreboard?${params.toString()}`);
       } else {
-        toast.error('Không thể bắt đầu trận đấu. Vui lòng thử lại.');
+        toast.error(t('userMatch.lobby.error.cannotStartMatch'));
       }
     } catch (error) {
-      toast.error('Có lỗi xảy ra khi bắt đầu trận đấu.');
+      toast.error(t('userMatch.lobby.error.errorStartingMatch'));
     }
   };
 
 
 
-  if (loading || authLoading) return <ScoreLensLoading text="Đang tải..." />;
+  if (loading || authLoading) return <ScoreLensLoading text={t('userMatch.lobby.loadingText')} />;
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 pt-20 overflow-hidden">
@@ -499,15 +501,15 @@ function HomeRandomContent() {
       <main className="flex-1 flex flex-col px-4 py-8 overflow-y-auto scroll-smooth">
         <div className="text-center mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-[#000000]">
-            {tableNumber.toUpperCase()} - {tableInfo?.category ? (tableInfo.category === 'pool-8' ? 'POOL 8' : ` ${tableInfo.category.toUpperCase()}`) : (tableId ? 'ĐANG TẢI...' : 'POOL 8')}
+            {tableNumber.toUpperCase()} - {tableInfo?.category ? (tableInfo.category === 'pool-8' ? t('userMatch.lobby.pool8') : ` ${tableInfo.category.toUpperCase()}`) : (tableId ? t('userMatch.lobby.loading') : t('userMatch.lobby.pool8'))}
           </h2>
-          <p className="text-sm sm:text-base text-[#000000] font-medium">Nhập mã bên dưới để tham gia phòng</p>
+          <p className="text-sm sm:text-base text-[#000000] font-medium">{t('userMatch.lobby.description')}</p>
         </div>
 
         <div className="flex-1 flex justify-center overflow-y-auto scroll-smooth">
           <div className="w-full max-w-sm space-y-6 pb-8">
             <div className="space-y-3 flex flex-col items-center justify-center w-full">
-              <p className="text-base font-medium text-[#000000]">Mã Tham Gia</p>
+              <p className="text-base font-medium text-[#000000]">{t('userMatch.lobby.joinCode')}</p>
               <div className="px-6 py-4 rounded-2xl bg-white border border-[#000000]/80 shadow-sm mx-auto">
                 <div className="flex items-center justify-center gap-3 select-all">
                   {roomCode.split('').map((ch, idx) => (
@@ -520,17 +522,17 @@ function HomeRandomContent() {
                   ))}
                 </div>
               </div>
-              <p className="text-xs text-[#000000]/70">Chia sẻ mã này cho người chơi để tham gia phòng</p>
+              <p className="text-xs text-[#000000]/70">{t('userMatch.lobby.shareCodeNote')}</p>
             </div>
             <div className="space-y-4 w-full">
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-                <h3 className="font-bold text-[#000000] mb-3">Đội A</h3>
+                <h3 className="font-bold text-[#000000] mb-3">{t('userMatch.lobby.teamALabel')}</h3>
                 <div className="space-y-3 max-h-64 overflow-y-auto scroll-smooth">
                   {teamA.map((player, index) => (
                     <div key={index} className="flex items-center gap-2">
                       <input
                         type="text"
-                        placeholder={index === 0 ? "Tên chủ phòng" : `Tên người chơi ${index + 1}`}
+                        placeholder={index === 0 ? t('userMatch.lobby.roomOwnerPlaceholder') : t('userMatch.lobby.playerPlaceholder').replace('{index}', (index + 1).toString())}
                         value={player}
 
                         disabled={true}
@@ -542,13 +544,13 @@ function HomeRandomContent() {
               </div>
 
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-                <h3 className="font-bold text-[#000000] mb-3">Đội B</h3>
+                <h3 className="font-bold text-[#000000] mb-3">{t('userMatch.lobby.teamBLabel')}</h3>
                 <div className="space-y-3 max-h-64 overflow-y-auto scroll-smooth">
                   {teamB.map((player, index) => (
                     <div key={index} className="flex items-center gap-2">
                       <input
                         type="text"
-                        placeholder={index === 0 ? "Tên người chơi chính" : `Tên người chơi ${index + 1}`}
+                        placeholder={index === 0 ? t('userMatch.lobby.mainPlayerPlaceholder') : t('userMatch.lobby.playerPlaceholder').replace('{index}', (index + 1).toString())}
                         value={player}
 
                         disabled={true}
@@ -573,23 +575,28 @@ function HomeRandomContent() {
           }}
           disabled={!matchId || loading || authLoading || !isWebSocketConnected || !isHost}
           className={`w-full font-semibold py-3 rounded-xl text-base sm:text-base transition ${!matchId || loading || authLoading || !isWebSocketConnected || !isHost
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-[#8ADB10] hover:bg-lime-600 text-[#FFFFFF]'
+            ? 'bg-gray-400 cursor-not-allowed'
+            : 'bg-[#8ADB10] hover:bg-lime-600 text-[#FFFFFF]'
             }`}
         >
-          {loading || authLoading ? 'Đang tải...' :
-            !matchId ? 'Chưa sẵn sàng' :
-              !isWebSocketConnected ? 'Đang kết nối...' :
-                !isHost ? 'Không có quyền' : 'Bắt đầu'}
+          {loading || authLoading ? t('userMatch.lobby.loadingText') :
+            !matchId ? t('userMatch.lobby.notReady') :
+              !isWebSocketConnected ? t('userMatch.lobby.connecting') :
+                !isHost ? t('userMatch.lobby.noPermission') : t('userMatch.lobby.startButton')}
         </button>
       </FooterButton>
     </div>
   );
 }
 
+function LoadingFallback() {
+  const { t } = useI18n();
+  return <ScoreLensLoading text={t('userMatch.lobby.loadingText')} />;
+}
+
 export default function HomeRandomPage() {
   return (
-    <Suspense fallback={<ScoreLensLoading text="Đang tải..." />}>
+    <Suspense fallback={<LoadingFallback />}>
       <HomeRandomContent />
     </Suspense>
   );

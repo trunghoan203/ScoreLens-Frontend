@@ -10,7 +10,6 @@ import { userMatchService } from '@/lib/userMatchService';
 import { useWebSocket } from '@/lib/hooks/useWebSocket';
 import toast from 'react-hot-toast';
 import Feedback from '@/components/user/Feedback';
-import Image from 'next/image';
 
 function EndMatchPageContent() {
   const router = useRouter();

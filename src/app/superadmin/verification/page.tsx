@@ -4,6 +4,7 @@ import React, { useState, useRef, Suspense, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { AuthLayout } from '@/components/shared/AuthLayout';
+import { useI18n } from '@/lib/i18n/provider';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import { verifySuperAdminLogin, resendLoginCode } from '@/lib/saService';
@@ -19,6 +20,7 @@ export default function SuperAdminVerificationPage() {
 function SuperAdminVerificationPageInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { t } = useI18n();
   const email = searchParams?.get('email') || '';
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -81,7 +83,7 @@ function SuperAdminVerificationPageInner() {
     e.preventDefault();
     const otpString = otp.join('');
     if (otpString.length !== 6) {
-      toast.error('Vui lòng nhập đầy đủ 6 chữ số');
+      toast.error(t('superAdminVerification.otpRequired'));
       return;
     }
 
@@ -93,10 +95,10 @@ function SuperAdminVerificationPageInner() {
       if (data.accessToken) {
         localStorage.setItem('superAdminAccessToken', data.accessToken);
       }
-      toast.success('Xác thực thành công!');
+      toast.success(t('superAdminVerification.verificationSuccess'));
       router.push(`/superadmin/home`);
     } catch {
-      toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
+      toast.error(t('superAdminVerification.verificationFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -107,22 +109,21 @@ function SuperAdminVerificationPageInner() {
     setIsLoading(true);
     try {
       await resendLoginCode(email);
-      toast.success('Mã xác thực đã được gửi lại!');
+      toast.success(t('superAdminVerification.resendSuccess'));
       setResendTimer(60);
       setCanResend(false);
     } catch (error) {
       const err = error as { message?: string };
-      toast.error(err.message || 'Gửi lại mã thất bại.');
+      toast.error(err.message || t('superAdminVerification.resendFailed'));
     } finally {
       setIsLoading(false);
     }
   };
 
-
   return (
     <AuthLayout
-      title="Xác thực đăng nhập"
-      description="Nhập mã OTP đã được gửi đến email của bạn"
+      title={t('superAdminVerification.pageTitle')}
+      description={t('superAdminVerification.description')}
     >
       <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6" onPaste={handlePaste}>
         <div className="flex gap-3 justify-center mb-4">
@@ -163,24 +164,24 @@ function SuperAdminVerificationPageInner() {
             </div>
           ))}
         </div>
-          
+
         <div className='text-center space-y-4'>
-            <span className="text-gray-600 text-sm">Không nhận được mã? </span>
-            {canResend ? (
-              <button
-                type="button"
-                onClick={handleResendCode}
-                disabled={isLoading}
-                className="text-lime-600 font-semibold hover:underline text-sm transition-colors disabled:opacity-50"
-              >
-                Gửi lại mã
-              </button>
-            ) : (
-              <span className="text-gray-500 text-sm">
-                Gửi lại sau {resendTimer}s
-              </span>
-            )}
-          </div>
+          <span className="text-gray-600 text-sm">{t('superAdminVerification.notReceivedCode')} </span>
+          {canResend ? (
+            <button
+              type="button"
+              onClick={handleResendCode}
+              disabled={isLoading}
+              className="text-lime-600 font-semibold hover:underline text-sm transition-colors disabled:opacity-50"
+            >
+              {t('superAdminVerification.resendCode')}
+            </button>
+          ) : (
+            <span className="text-gray-500 text-sm">
+              {t('superAdminVerification.resendTimer')} {resendTimer}{t('superAdminVerification.seconds')}
+            </span>
+          )}
+        </div>
 
         <Button
           type="submit"
@@ -189,7 +190,7 @@ function SuperAdminVerificationPageInner() {
           disabled={isLoading || otp.some(d => !d)}
           className="mt-2"
         >
-          {isLoading ? 'Đang gửi...' : 'Gửi'}
+          {isLoading ? t('superAdminVerification.sending') : t('superAdminVerification.submitButton')}
         </Button>
 
         <div className="flex justify-center">
@@ -198,7 +199,7 @@ function SuperAdminVerificationPageInner() {
             className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-gray-700 hover:text-lime-600 cursor-pointer transition-colors"
           >
             <span className="text-base">←</span>
-            <span>Quay lại trang chủ</span>
+            <span>{t('superAdminVerification.backToHome')}</span>
           </div>
         </div>
       </form>

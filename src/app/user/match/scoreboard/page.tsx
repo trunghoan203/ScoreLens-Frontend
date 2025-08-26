@@ -15,8 +15,8 @@ import { useWebSocket } from '@/lib/hooks/useWebSocket';
 import socketService from '@/lib/socketService';
 import { useMatchRole } from '@/lib/hooks/useMatchRole';
 import { cameraStreamService } from '@/lib/cameraStreamService';
-
 import { getIdentity, getSession, setSession } from '@/lib/session';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface CameraInfo {
   cameraId?: string;
@@ -49,6 +49,7 @@ interface MatchData {
 }
 
 function ScoreboardPage() {
+  const { t } = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [scoreA, setScoreA] = useState(0);
@@ -104,7 +105,7 @@ function ScoreboardPage() {
 
   const handleStartCamera = async () => {
     if (!matchInfo?.camera?.cameraId) {
-      toast.error('Không có thông tin camera');
+      toast.error(t('scoreboard.error.noCameraInfo'));
       return;
     }
 
@@ -121,7 +122,7 @@ function ScoreboardPage() {
       setIsStreaming(false);
 
       if (!matchInfo.camera?.isConnect) {
-        setCameraError('Camera không kết nối');
+        setCameraError(t('scoreboard.error.cameraNotConnected'));
         setIsCameraLoading(false);
         return;
       }
@@ -134,12 +135,12 @@ function ScoreboardPage() {
         setStreamInfo(result.streamInfo);
 
         const message = result.streamInfo?.isNewStream
-          ? 'Đã bắt đầu video stream'
-          : `Đã tham gia stream hiện tại (${result.streamInfo?.viewerCount || 0} người đang xem)`;
+          ? t('scoreboard.success.streamStarted')
+          : `${t('scoreboard.success.joinedStream')} (${result.streamInfo?.viewerCount || 0} ${t('scoreboard.peopleWatching')})`;
         toast.success(message);
       } else {
         setCameraError(result.message);
-        toast.error('Không thể bắt đầu video stream: ' + result.message);
+        toast.error(t('scoreboard.error.cannotStartStream') + ': ' + result.message);
 
         if (showCamera) {
           setTimeout(() => {
@@ -150,9 +151,9 @@ function ScoreboardPage() {
         }
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Lỗi không xác định';
+      const errorMessage = error instanceof Error ? error.message : t('scoreboard.error.unknownError');
       setCameraError(errorMessage);
-      toast.error('Lỗi khi bắt đầu video stream: ' + errorMessage);
+      toast.error(t('scoreboard.error.streamError') + ': ' + errorMessage);
 
       if (showCamera) {
         setTimeout(() => {
@@ -351,10 +352,10 @@ function ScoreboardPage() {
               } catch (error) {
               }
             } else {
-              toast.error('Không thể xác thực tham gia trận đấu');
+              toast.error(t('scoreboard.error.cannotAuthenticateJoin'));
             }
           } else {
-            toast.error('Thiếu thông tin để xác thực tham gia trận đấu');
+            toast.error(t('scoreboard.error.missingAuthInfo'));
           }
         } else {
         }
@@ -363,7 +364,7 @@ function ScoreboardPage() {
     };
 
     performAuth();
-  }, [matchId, sessionToken]);
+  }, [matchId, sessionToken, t]);
 
   useEffect(() => {
     if (authError) {
@@ -571,7 +572,7 @@ function ScoreboardPage() {
           setScoreB(sB);
         }
       } catch (error) {
-        toast.error('Không thể tải thông tin trận đấu');
+        toast.error(t('scoreboard.error.cannotLoadMatch'));
       } finally {
         timer = setTimeout(() => setLoading(false), 800);
       }
@@ -594,7 +595,7 @@ function ScoreboardPage() {
           const tableInfoData = tableResponseData as { name?: string; category?: string; clubId?: string };
           setTableInfo(tableInfoData);
         } catch {
-          toast.error('Không thể tải thông tin bàn');
+          toast.error(t('scoreboard.error.cannotLoadTable'));
         }
       }
     };
@@ -665,17 +666,17 @@ function ScoreboardPage() {
 
   const validatePermissions = () => {
     if (!matchId || matchId.trim() === '') {
-      toast.error('Không tìm thấy thông tin trận đấu');
+      toast.error(t('scoreboard.error.noMatchInfo'));
       return false;
     }
 
     if (!actorGuestToken && !matchInfo?.createdByMembershipId) {
-      toast.error('Bạn không có quyền chỉnh sửa');
+      toast.error(t('scoreboard.error.noEditPermission'));
       return false;
     }
 
     if (!sessionToken || sessionToken.trim() === '') {
-      toast.error('Vui lòng cung cấp sessionToken hợp lệ');
+      toast.error(t('scoreboard.error.noValidSessionToken'));
       return false;
     }
 
@@ -717,8 +718,8 @@ function ScoreboardPage() {
         }
       }
 
-      toast.error('Cập nhật điểm thất bại.');
-      throw new Error('Cập nhật điểm thất bại');
+      toast.error(t('scoreboard.error.updateScoreFailed'));
+      throw new Error(t('scoreboard.error.updateScoreFailed'));
     } finally {
       setUpdating(false);
     }
@@ -762,20 +763,20 @@ function ScoreboardPage() {
             if (newSessionToken !== sessionToken) {
               setSessionToken(newSessionToken);
             } else {
-              toast.success('Phiên làm việc đã đồng bộ');
+              toast.success(t('scoreboard.success.sessionSynced'));
             }
           } else {
-            toast.error('Không thể lấy phiên làm việc mới');
+            toast.error(t('scoreboard.error.cannotGetNewSession'));
           }
         } else {
-          toast.error('Không thể xác định người dùng để lấy phiên làm việc');
+          toast.error(t('scoreboard.error.cannotDetermineUser'));
         }
 
       } catch (error) {
-        toast.error('Không thể đồng bộ phiên làm việc');
+        toast.error(t('scoreboard.error.cannotSyncSession'));
       }
     } else {
-      toast.error('Không có matchId để sync');
+      toast.error(t('scoreboard.error.noMatchIdToSync'));
     }
   };
 
@@ -790,7 +791,7 @@ function ScoreboardPage() {
 
   return (
     <>
-      {loading && <ScoreLensLoading text="Đang tải..." />}
+      {loading && <ScoreLensLoading text={t('scoreboard.loading')} />}
       {!loading && (
         <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-100 px-4">
           <HeaderUser showBack={true} />
@@ -798,23 +799,23 @@ function ScoreboardPage() {
           <main className="flex-1 flex flex-col px-4 py-2 overflow-y-auto scroll-smooth">
             <div className="space-y-1">
               <h1 className="text-2xl sm:text-3xl font-bold text-[#000000] text-center">
-                {(tableInfo?.name || 'BÀN').toUpperCase()} - {tableInfo?.category ? (tableInfo.category === 'pool-8' ? 'POOL 8' : ` ${tableInfo.category.toUpperCase()}`) : (tableId ? 'Đang tải...' : 'Pool 8 Ball')}
+                {(tableInfo?.name || t('scoreboard.title')).toUpperCase()} - {tableInfo?.category ? (tableInfo.category === 'pool-8' ? t('scoreboard.pool8') : ` ${tableInfo.category.toUpperCase()}`) : (tableId ? t('scoreboard.loading') : 'Pool 8 Ball')}
               </h1>
               <div className="flex items-center justify-center mb-2">
                 {matchRole && (
                   <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium border border-green-300">
-                    {matchRole.role === 'host' ? 'Chủ phòng' : 'Thành viên'}
+                    {matchRole.role === 'host' ? t('scoreboard.host') : t('scoreboard.member')}
                   </div>
                 )}
               </div>
               <div className="flex items-center justify-center gap-3">
-                <p className="text-sm sm:text-base text-[#000000] font-medium">BẢNG ĐIỂM</p>
+                <p className="text-sm sm:text-base text-[#000000] font-medium">{t('scoreboard.scoreboard')}</p>
               </div>
             </div>
 
-            <div className="bg-lime-400 text-white rounded-2xl px-8 py-8 space-y-2 shadow-md w-full mt-2">
+            <div className="bg-lime-400 text-white rounded-2xl px-2 py-8 space-y-2 shadow-md w-full mt-2">
               <div className="text-center mb-4">
-                <p className="text-sm font-medium text-white mb-2">Mã Tham Gia</p>
+                <p className="text-sm font-medium text-white mb-2">{t('scoreboard.joinCode')}</p>
                 <div className="px-4 py-2 rounded-xl bg-white/20 border border-white/30 mx-auto inline-block">
                   <div className="flex items-center justify-center gap-2 select-all">
                     {(matchCode || '000000').split('').map((ch, idx) => (
@@ -828,52 +829,52 @@ function ScoreboardPage() {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center justify-between gap-4">
-                <div className="text-center flex flex-col items-center w-20 flex-shrink-0">
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-center flex flex-col items-center w-30 flex-shrink-0">
                   <div className="text-4xl font-bold mb-2">{updating ? '...' : scoreA}</div>
-                  <p className="text-sm font-semibold">Đội A</p>
+                  <p className="text-sm font-semibold">{t('scoreboard.teamA')}</p>
                   <div className="min-h-[60px] mt-1 text-center space-y-1">
                     {teamA.length > 0 ? (
                       teamA.map((member, index) => (
                         <p key={index} className="text-xs">
                           {member && member.length > 12
-                            ? `${member.substring(0, 8)}...`
-                            : (member || `Người Chơi ${index + 1}`)
+                            ? `${member.substring(0, 12)}...`
+                            : (member || t('scoreboard.playerPlaceholder').replace('{index}', (index + 1).toString()))
                           }
                         </p>
                       ))
                     ) : (
-                      <p className="text-xs text-gray-400">Chưa có thành viên</p>
+                      <p className="text-xs text-gray-400">{t('scoreboard.noMembers')}</p>
                     )}
                   </div>
                 </div>
 
                 <div className="text-center flex flex-col items-center flex-shrink-0">
-                  <div className="text-2xl font-bold mb-2">VS</div>
+                  <div className="text-2xl font-bold mb-2">{t('scoreboard.vs')}</div>
                   <div className="min-h-[30px] flex items-center justify-center">
                     {matchStartTime ? (
                       <div className="text-[#FFFFFF] font-bold text-[#8ADB10]">{elapsedTime}</div>
                     ) : (
-                      <div className="text-[#FFFFFF] font-bold text-[#8ADB10]">Đang tải...</div>
+                      <div className="text-[#FFFFFF] font-bold text-[#8ADB10]">{t('scoreboard.loading')}</div>
                     )}
                   </div>
                 </div>
 
-                <div className="text-center flex flex-col items-center w-20 flex-shrink-0">
+                <div className="text-center flex flex-col items-center w-30 flex-shrink-0">
                   <div className="text-4xl font-bold mb-2">{updating ? '...' : scoreB}</div>
-                  <p className="text-sm font-semibold">Đội B</p>
+                  <p className="text-sm font-semibold">{t('scoreboard.teamB')}</p>
                   <div className="min-h-[60px] mt-1 text-center space-y-1">
                     {teamB.length > 0 ? (
                       teamB.map((member, index) => (
                         <p key={index} className="text-xs">
                           {member && member.length > 12
-                            ? `${member.substring(0, 8)}...`
-                            : (member || `Người Chơi ${index + 1}`)
+                            ? `${member.substring(0, 12)}...`
+                            : (member || t('scoreboard.playerPlaceholder').replace('{index}', (index + 1).toString()))
                           }
                         </p>
                       ))
                     ) : (
-                      <p className="text-xs text-gray-400">Chưa có thành viên</p>
+                      <p className="text-xs text-gray-400">{t('scoreboard.noMembers')}</p>
                     )}
                   </div>
                 </div>
@@ -900,7 +901,7 @@ function ScoreboardPage() {
                     <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg">
                       <div className="text-center">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
-                        <p className="text-white text-sm">Đang kết nối camera...</p>
+                        <p className="text-white text-sm">{t('scoreboard.connectingCamera')}</p>
                         {matchInfo.camera?.IPAddress && (
                           <p className="text-white text-xs mt-1">IP: {matchInfo.camera.IPAddress}</p>
                         )}
@@ -914,7 +915,7 @@ function ScoreboardPage() {
                         <svg className="w-12 h-12 text-white mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                         </svg>
-                        <p className="text-white font-medium">Lỗi kết nối camera</p>
+                        <p className="text-white font-medium">{t('scoreboard.cameraError')}</p>
                         <p className="text-white text-sm">{cameraError}</p>
                         {matchInfo.camera?.IPAddress && (
                           <p className="text-white text-xs mt-1">IP: {matchInfo.camera.IPAddress}</p>
@@ -925,11 +926,6 @@ function ScoreboardPage() {
 
                   {isStreaming && !isCameraLoading && !cameraError && (
                     <div className="absolute top-2 right-2 bg-green-500 w-3 h-3 rounded-full animate-pulse"></div>
-                  )}
-                  {viewerCount > 0 && (
-                    <div className="absolute bottom-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
-                      👥 {viewerCount} người xem
-                    </div>
                   )}
                 </div>
               )}
@@ -955,7 +951,7 @@ function ScoreboardPage() {
 
               {(!matchInfo?.isAiAssisted || !matchInfo?.camera?.hasCamera) && (
                 <div className="space-y-2">
-                  <p className="text-sm font-semibold text-[#000000] mb-2">Thao tác nhanh</p>
+                  <p className="text-sm font-semibold text-[#000000] mb-2">{t('scoreboard.quickActions')}</p>
                   <div className="grid grid-cols-2 gap-3">
                     <Button
                       variant="outline"
@@ -1005,7 +1001,7 @@ function ScoreboardPage() {
                       }}
                       className="text-[#000000]"
                     >
-                      +1 Đội A
+                      {t('scoreboard.plus1TeamA')}
                     </Button>
                     <Button
                       variant="outline"
@@ -1035,7 +1031,7 @@ function ScoreboardPage() {
                       }}
                       className="text-[#000000]"
                     >
-                      +1 Đội B
+                      {t('scoreboard.plus1TeamB')}
                     </Button>
                     <Button
                       variant="outline"
@@ -1065,7 +1061,7 @@ function ScoreboardPage() {
                       }}
                       className="text-[#000000]"
                     >
-                      -1 Đội A
+                      {t('scoreboard.minus1TeamA')}
                     </Button>
                     <Button
                       variant="outline"
@@ -1095,7 +1091,7 @@ function ScoreboardPage() {
                       }}
                       className="text-[#000000]"
                     >
-                      -1 Đội B
+                      {t('scoreboard.minus1TeamB')}
                     </Button>
                   </div>
                 </div>
@@ -1111,7 +1107,7 @@ function ScoreboardPage() {
                   style={{ backgroundColor: showCamera ? '#FF6B6B' : '#055EC8' }}
                   className="w-1/3 hover:bg-blue-700 hover:bg-red-600 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center"
                 >
-                  {showCamera ? 'Ẩn Camera' : 'Xem Camera'}
+                  {showCamera ? t('scoreboard.hideCamera') : t('scoreboard.showCamera')}
                 </Button>
               )}
 
@@ -1126,7 +1122,7 @@ function ScoreboardPage() {
                 style={{ backgroundColor: '#8ADB10' }}
                 className={`${matchInfo?.isAiAssisted && matchInfo?.camera?.hasCamera ? 'w-1/3' : 'w-1/2'} hover:bg-lime-600 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center`}
               >
-                Chỉnh sửa
+                {t('scoreboard.edit')}
               </Button>
 
               <Button
@@ -1140,7 +1136,7 @@ function ScoreboardPage() {
                 style={{ backgroundColor: '#FF0000' }}
                 className={`${matchInfo?.isAiAssisted && matchInfo?.camera?.hasCamera ? 'w-1/3' : 'w-1/2'} hover:bg-red-700 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center`}
               >
-                Kết thúc
+                {t('scoreboard.end')}
               </Button>
             </div>
           </div>
@@ -1154,7 +1150,7 @@ function ScoreboardPage() {
                 try {
                   await persistScores(newScoreA, newScoreB);
                 } catch {
-                  toast.error('Cập nhật điểm thất bại');
+                  toast.error(t('scoreboard.error.updateScoreFailed'));
                 }
                 setShowEditPopup(false);
               }}
@@ -1184,7 +1180,7 @@ function ScoreboardPage() {
                   return;
                 }
                 if (!tableInfo?.clubId) {
-                  toast.error('Không thể xác định club để chỉnh sửa thành viên');
+                  toast.error(t('scoreboard.error.cannotDetermineClub'));
                   return;
                 }
                 setShowEditChoicePopup(false);
@@ -1239,26 +1235,25 @@ function ScoreboardPage() {
               onClose={() => setShowEndPopup(false)}
               onConfirm={async () => {
                 if (!matchId || matchId.trim() === '') {
-                  toast.error('Không tìm thấy thông tin trận đấu');
+                  toast.error(t('scoreboard.error.noMatchInfo'));
                   setShowEndPopup(false);
                   return;
                 }
 
                 if (!actorGuestToken && !matchInfo?.createdByMembershipId) {
-                  toast.error('Không thể xác thực người dùng để kết thúc trận đấu');
+                  toast.error(t('scoreboard.error.cannotAuthenticateEndMatch'));
                   setShowEndPopup(false);
                   return;
                 }
 
                 try {
                   const endMatchPayload: { actorGuestToken?: string; actorMembershipId?: string; sessionToken: string } = { sessionToken: sessionToken || '' };
-
                   if (actorGuestToken) {
                     endMatchPayload.actorGuestToken = actorGuestToken;
                   } else if (matchInfo?.createdByMembershipId) {
                     endMatchPayload.actorMembershipId = matchInfo.createdByMembershipId;
                   } else {
-                    toast.error('Không thể xác thực người dùng để kết thúc trận đấu');
+                    toast.error(t('scoreboard.error.cannotAuthenticateEndMatch'));
                     setShowEndPopup(false);
                     return;
                   }
@@ -1277,7 +1272,7 @@ function ScoreboardPage() {
 
                   router.push(`/user/match/end?${params.toString()}`);
                 } catch (error) {
-                  toast.error('Không thể kết thúc trận đấu. Vui lòng thử lại.');
+                  toast.error(t('scoreboard.error.cannotEndMatch'));
                 }
               }}
             />
@@ -1288,9 +1283,14 @@ function ScoreboardPage() {
   );
 }
 
+function LoadingFallback() {
+  const { t } = useI18n();
+  return <ScoreLensLoading text={t('scoreboard.loading')} />;
+}
+
 export default function ScoreboardPageWrapper() {
   return (
-    <Suspense fallback={<ScoreLensLoading text="Đang tải..." />}>
+    <Suspense fallback={<LoadingFallback />}>
       <ScoreboardPage />
     </Suspense>
   );

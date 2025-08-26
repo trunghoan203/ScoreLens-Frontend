@@ -158,8 +158,8 @@ export default function FeedbackDetailPage() {
   }, [id, isEditMode, t]);
 
   const statusOptions = [
-    { value: 'adminP', label: t('superAdminFeedbackDetail.businessOwnerProcessing') },
-    { value: 'superadminP', label: t('superAdminFeedbackDetail.administratorProcessing') },
+    { value: 'adminP', label: t('superAdminFeedbackDetail.adminProcessing') },
+    { value: 'superadminP', label: t('superAdminFeedbackDetail.superAdminProcessing') },
     { value: 'resolved', label: t('superAdminFeedbackDetail.resolved') },
   ];
 
