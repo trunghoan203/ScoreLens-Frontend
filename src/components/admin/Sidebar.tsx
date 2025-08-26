@@ -70,6 +70,12 @@ export default function Sidebar() {
         </div>
         <nav className="flex-1 space-y-2">
           <Link
+            href="/admin/dashboard"
+            className={`block px-4 py-3 rounded-lg font-semibold transition text-sm xl:text-base ${pathname?.startsWith('/admin/dashboard') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
+          >
+            Trang chủ
+          </Link>
+          <Link
             href="/admin/branches"
             className={`block px-4 py-3 rounded-lg font-semibold transition text-sm xl:text-base ${pathname?.startsWith('/admin/branches') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
           >
@@ -122,6 +128,13 @@ export default function Sidebar() {
           </button>
         </div>
         <nav className="flex-1 space-y-3">
+          <Link
+            href="/admin/dashboard"
+            onClick={handleLinkClick}
+            className={`block px-4 py-4 rounded-lg font-semibold transition text-base touch-manipulation ${pathname?.startsWith('/admin/dashboard') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
+          >
+            Trang chủ
+          </Link>
           <Link
             href="/admin/branches"
             onClick={handleLinkClick}

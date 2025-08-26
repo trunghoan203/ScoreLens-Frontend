@@ -599,16 +599,24 @@ export default function TableDetailPage() {
 
         const teams = (currentMatch?.teams as Array<Record<string, unknown>>) || [];
 
-        const scores = teams.map((team: Record<string, unknown>) => team.score as number);
-        const maxScore = Math.max(...scores);
-        const teamsWithMaxScore = teams.filter((team: Record<string, unknown>) => team.score === maxScore);
+        const aScore = typeof teamAScore === 'number' ? teamAScore : ((teams[0]?.score as number) || 0);
+        const bScore = typeof teamBScore === 'number' ? teamBScore : ((teams[1]?.score as number) || 0);
+        const hasUniqueWinner = aScore !== bScore && (aScore > 0 || bScore > 0);
 
-        const teamsWithWinner = teams.map((team: Record<string, unknown>) => ({
-          teamName: team.teamName as string || 'Team',
-          score: team.score as number || 0,
-          isWinner: team.score === maxScore && maxScore > 0 && teamsWithMaxScore.length === 1,
-          members: (team.members as Array<Record<string, unknown>>) || []
-        }));
+        const teamsWithWinner = [
+          {
+            teamName: (teams[0]?.teamName as string) || 'Đội A',
+            score: aScore,
+            isWinner: hasUniqueWinner && aScore > bScore,
+            members: (teams[0]?.members as Array<Record<string, unknown>>) || [],
+          },
+          {
+            teamName: (teams[1]?.teamName as string) || 'Đội B',
+            score: bScore,
+            isWinner: hasUniqueWinner && bScore > aScore,
+            members: (teams[1]?.members as Array<Record<string, unknown>>) || [],
+          },
+        ];
 
         setMatchData({
           matchId: currentMatch?.matchId as string,
