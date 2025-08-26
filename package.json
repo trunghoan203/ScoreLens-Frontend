@@ -12,6 +12,7 @@
     "@cycjimmy/jsmpeg-player": "^6.1.2",
     "@headlessui/react": "^2.2.4",
     "@radix-ui/react-tooltip": "^1.2.7",
+    "@types/recharts": "^1.8.29",
     "axios": "^1.10.0",
     "class-variance-authority": "^0.7.1",
     "framer-motion": "^12.23.0",
@@ -23,6 +24,7 @@
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.2",
     "react-qr-code": "^2.0.18",
+    "recharts": "^3.1.2",
     "socket.io-client": "^4.8.1",
     "sonner": "^2.0.5",
     "zustand": "^5.0.8"
