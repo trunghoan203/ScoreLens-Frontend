@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { cameraStreamService } from '@/lib/cameraStreamService';
+import { CameraRecordButton } from './CameraRecordButton';
 import toast from 'react-hot-toast';
 
 interface CameraVideoModalProps {
@@ -135,7 +136,17 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
           )}
         </div>
 
-        <div className="flex justify-end items-center">
+        <div className="flex justify-between items-center">
+          {isStreaming && !isLoading && !error && cameraId && (
+            <CameraRecordButton
+              cameraId={cameraId}
+              duration={20}
+              onSuccess={(result) => {
+                // Record completed
+              }}
+            />
+          )}
+          
           <button
             onClick={handleConfirm}
             disabled={!isStreaming || isLoading}
