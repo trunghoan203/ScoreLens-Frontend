@@ -1,4 +1,5 @@
 import React from 'react';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface ValueCardProps {
   num: string;
@@ -14,18 +15,19 @@ const ValueCard: React.FC<ValueCardProps> = ({ num, title, description }) => (
   </div>
 );
 
-const values: ValueCardProps[] = [
-  { num: "01", title: "Giao diện trực quan", description: "" },
-  { num: "02", title: "Báo cáo điểm số chi tiết", description: "" },
-  { num: "03", title: "Hỗ trợ bảo mật tài khoản", description: "" },
-  { num: "04", title: "Hỗ trợ tận tâm", description: "" },
-];
-
 export const ValuesSection = () => {
+  const { t } = useI18n();
+
+  const values: ValueCardProps[] = t('home.values.items').map((item: any, index: number) => ({
+    num: `0${index + 1}`,
+    title: item.title,
+    description: item.description,
+  }));
+
   return (
     <section className="py-12 sm:py-16 md:py-24 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-left mb-8 sm:mb-12 text-black">GIÁ TRỊ CỦA CHÚNG TÔI</h2>
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-left mb-8 sm:mb-12 text-black">{t('home.values.title')}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {values.map((value) => (
             <ValueCard key={value.num} {...value} />

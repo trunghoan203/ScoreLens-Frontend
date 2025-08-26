@@ -8,9 +8,11 @@ import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { MemberIdForm } from '@/components/history/MemberIdForm';
 import { userMatchService } from '@/lib/userMatchService';
 import toast from 'react-hot-toast';
+import { useI18n } from "@/lib/i18n/provider";
 
 
 export default function HistoryPage() {
+    const { t } = useI18n();
     const router = useRouter();
     const [memberId, setMemberId] = useState('');
     const [loading, setLoading] = useState(true);
@@ -36,7 +38,7 @@ export default function HistoryPage() {
                 } else {
                     const errorMessage = response && typeof response === 'object' && 'message' in response
                         ? (response.message as string)
-                        : 'Không tìm thấy Hội viên với số điện thoại này';
+                        : t('history.memberNotFound');
                     toast.error(errorMessage);
                     setLoading(false);
                 }
@@ -45,7 +47,7 @@ export default function HistoryPage() {
                 if (error.message) {
                     toast.error(error.message);
                 } else {
-                    toast.error('Không tìm thấy Hội viên với số điện thoại này');
+                    toast.error(t('history.errorMessage'));
                 }
                 setLoading(false);
             }
@@ -54,7 +56,7 @@ export default function HistoryPage() {
 
     return (
         <>
-            {loading && <ScoreLensLoading text="Đang tải..." />}
+            {loading && <ScoreLensLoading text={t('history.loading')} />}
             <HeaderHome />
             <HeroSection />
             <div id="main-content" className="bg-white min-h-screen pt-16 sm:pt-24 flex flex-col items-center justify-start">
@@ -63,6 +65,7 @@ export default function HistoryPage() {
                         memberId={memberId}
                         setMemberId={setMemberId}
                         onSubmit={handleSubmit}
+                        t={t}
                     />
                 </div>
             </div>

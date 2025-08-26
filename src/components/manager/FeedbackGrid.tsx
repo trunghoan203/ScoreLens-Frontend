@@ -1,5 +1,7 @@
+"use client";
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface Feedback {
   id: string;
@@ -21,6 +23,7 @@ export default function FeedbackGrid({
   feedbacks,
   onFeedbackClick
 }: FeedbackGridProps) {
+  const { t } = useI18n();
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'resolved': return 'success';
@@ -33,10 +36,10 @@ export default function FeedbackGrid({
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'resolved': return 'Đã xử lý';
-      case 'managerP': return 'Quản lý xử lý';
-      case 'adminP': return 'Chủ doanh nghiệp xử lý';
-      case 'superadminP': return 'Quản trị viên xử lý';
+      case 'resolved': return t('feedbacks.status.resolved');
+      case 'managerP': return t('feedbacks.status.managerP');
+      case 'adminP': return t('feedbacks.status.adminP');
+      case 'superadminP': return t('feedbacks.status.superadminP');
       default: return 'Không xác định';
     }
   };
@@ -46,10 +49,10 @@ export default function FeedbackGrid({
       <div className="hidden lg:block overflow-x-auto">
         <div className="space-y-2 rounded-lg min-w-[800px]">
           <div className="grid grid-cols-4 bg-black text-white font-semibold text-center">
-            <div className="py-3 text-sm xl:text-base">CHI NHÁNH</div>
-            <div className="py-3 text-sm xl:text-base">BÀN</div>
-            <div className="py-3 text-sm xl:text-base">THỜI GIAN</div>
-            <div className="py-3 text-sm xl:text-base">TRẠNG THÁI</div>
+            <div className="py-3 text-sm xl:text-base">{t('feedbacks.table.branch')}</div>
+            <div className="py-3 text-sm xl:text-base">{t('feedbacks.table.table')}</div>
+            <div className="py-3 text-sm xl:text-base">{t('feedbacks.table.time')}</div>
+            <div className="py-3 text-sm xl:text-base">{t('feedbacks.table.status')}</div>
           </div>
           {feedbacks.map((feedback) => (
             <div
@@ -96,21 +99,20 @@ export default function FeedbackGrid({
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-gray-500 text-xs font-medium">Thời gian:</span>
+                <span className="text-gray-500 text-xs font-medium">{t('feedbacks.timeLabel')}</span>
                 <span className="text-gray-800 text-xs font-medium">{feedback.time}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-500 text-xs font-medium">Trạng thái:</span>
-                <span className={`text-xs font-medium ${
-                  feedback.status === 'resolved' ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <span className="text-gray-500 text-xs font-medium">{t('feedbacks.statusLabel')}</span>
+                <span className={`text-xs font-medium ${feedback.status === 'resolved' ? 'text-green-600' : 'text-red-600'
+                  }`}>
                   {getStatusText(feedback.status)}
                 </span>
               </div>
             </div>
             <div className="mt-3 pt-3 border-t border-gray-100">
               <div className="flex justify-end">
-                <span className="text-lime-600 text-xs font-medium">Nhấn để xem chi tiết →</span>
+                <span className="text-lime-600 text-xs font-medium">{t('feedbacks.clickToViewDetails')}</span>
               </div>
             </div>
           </div>

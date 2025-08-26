@@ -9,6 +9,7 @@ import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
 import toast from 'react-hot-toast';
 import { managerMemberService } from '@/lib/managerMemberService';
 import Image from 'next/image';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface Member {
   membershipId: string;
@@ -22,6 +23,7 @@ export default function MemberDetailPage() {
   const router = useRouter();
   const params = useParams();
   const memberId = params?.memberId as string;
+  const { t } = useI18n();
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -48,21 +50,21 @@ export default function MemberDetailPage() {
           setPhone(memberObj.phoneNumber || '');
           setStatus(memberObj.status || 'active');
         } else {
-          toast.error('Không tìm thấy hội viên');
+          toast.error(t('members.memberNotFound'));
         }
       })
       .catch(() => {
-        toast.error('Không thể tải dữ liệu hội viên');
+        toast.error(t('members.cannotLoadMemberData'));
       });
   }, [memberId]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     const trimmedName = name.trim();
-    if (!trimmedName) newErrors.name = 'Tên hội viên là bắt buộc';
-    else if (trimmedName.length < 2) newErrors.name = 'Tên hội viên phải có ít nhất 2 ký tự';
-    if (!phone) newErrors.phone = 'Số điện thoại là bắt buộc';
-    else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phone)) newErrors.phone = 'Số điện thoại không hợp lệ';
+    if (!trimmedName) newErrors.name = t('members.memberNameRequired');
+    else if (trimmedName.length < 2) newErrors.name = t('members.memberNameMinLength');
+    if (!phone) newErrors.phone = t('members.phoneRequired');
+    else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phone)) newErrors.phone = t('members.phoneInvalid');
     setErrors(newErrors);
     return newErrors;
   };
@@ -78,16 +80,16 @@ export default function MemberDetailPage() {
     try {
       const trimmedName = name.trim();
       await managerMemberService.updateMember(memberId, { fullName: trimmedName, phoneNumber: phone, status });
-      toast.success('Đã lưu hội viên thành công!');
+      toast.success(t('members.updateSuccess'));
       setIsEditMode(false);
       setErrors({});
       setName(trimmedName);
     } catch (error: unknown) {
       console.error(error);
       if (error instanceof Error && error.message === 'Số điện thoại đã được sử dụng bởi hội viên khác') {
-        setErrors({ phone: 'Số điện thoại đã được sử dụng bởi hội viên khác' });
+        setErrors({ phone: t('members.phoneAlreadyUsed') });
       } else {
-        toast.error('Lưu hội viên thất bại.');
+        toast.error(t('members.saveMemberFailed'));
       }
     } finally {
       setIsSubmitting(false);
@@ -97,11 +99,11 @@ export default function MemberDetailPage() {
   const handleDelete = async () => {
     try {
       await managerMemberService.deleteMember(memberId);
-      toast.success('Đã xóa hội viên thành công!');
+      toast.success(t('members.deleteSuccess'));
       router.push('/manager/members');
     } catch (error) {
       console.error(error);
-      toast.error('Xóa hội viên thất bại.');
+      toast.error(t('members.deleteMemberFailed'));
     }
   };
 
@@ -116,14 +118,14 @@ export default function MemberDetailPage() {
         <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
           <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
             <span className="text-lg sm:text-xl lg:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
-              QUẢN LÝ HỘI VIÊN
+              {t('members.memberManagement')}
             </span>
           </div>
           <AddFormLayout
-            title={isEditMode ? "CHỈNH SỬA HỘI VIÊN" : "CHI TIẾT HỘI VIÊN"}
+            title={isEditMode ? t('members.editMember') : t('members.memberDetails')}
             onBack={() => router.push('/manager/members')}
-            backLabel="Quay lại"
-            submitLabel={isEditMode ? "Lưu" : "Chỉnh sửa"}
+            backLabel={t('common.back')}
+            submitLabel={isEditMode ? t('common.save') : t('common.edit')}
             submitButtonDisabled={isSubmitting}
             extraActions={
               !isEditMode && (
@@ -132,7 +134,7 @@ export default function MemberDetailPage() {
                   className="w-full sm:w-32 lg:w-40 bg-red-500 hover:bg-red-600 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg"
                   onClick={() => setShowConfirm(true)}
                 >
-                  Xóa
+                  {t('common.delete')}
                 </button>
               )
             }
@@ -147,19 +149,19 @@ export default function MemberDetailPage() {
           >
             <ConfirmPopup
               open={showConfirm}
-              title="Bạn có chắc chắn muốn xóa hội viên này không?"
+              title={t('members.deleteConfirm').replace('{name}', name)}
               onCancel={() => setShowConfirm(false)}
               onConfirm={async () => {
                 setShowConfirm(false);
                 await handleDelete();
               }}
-              confirmText="Xác nhận"
-              cancelText="Hủy"
+              confirmText={t('common.confirm')}
+              cancelText={t('common.cancel')}
             >
               <></>
             </ConfirmPopup>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Tên Hội Viên<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-2 text-black">{t('members.memberName')}<span className="text-red-500">*</span></label>
               <Input
                 value={name}
                 onChange={e => {
@@ -173,7 +175,7 @@ export default function MemberDetailPage() {
               {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Mã hội viên<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-2 text-black">{t('members.memberCode')}<span className="text-red-500">*</span></label>
               <Input
                 value={phone}
                 onChange={e => {
@@ -186,7 +188,7 @@ export default function MemberDetailPage() {
               {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
             </div>
             <div className="w-full mb-8 sm:mb-10">
-              <label className="block text-sm font-semibold mb-2 text-black">Trạng thái<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-2 text-black">{t('common.status')}<span className="text-red-500">*</span></label>
               <div className="relative w-full">
                 <select
                   value={status}
@@ -194,8 +196,8 @@ export default function MemberDetailPage() {
                   disabled={!isEditMode}
                   className="w-full border border-gray-300 bg-white rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none"
                 >
-                  <option value="active">Hoạt động</option>
-                  <option value="inactive">Không hoạt động</option>
+                  <option value="active">{t('members.status.active')}</option>
+                  <option value="inactive">{t('members.status.inactive')}</option>
                 </select>
                 {isEditMode && (
                   <Image

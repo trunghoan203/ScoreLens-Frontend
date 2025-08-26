@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 import { managerTableService } from '@/lib/managerTableService';
 import QRCode from 'react-qr-code';
 import Image from 'next/image';
+import { useI18n } from '@/lib/i18n/provider';
 
 const tableTypes = [
   { value: 'pool-8', label: 'Pool-8' },
@@ -30,6 +31,7 @@ export default function TableDetailPage() {
   const router = useRouter();
   const params = useParams();
   const tableId = params?.tableId as string;
+  const { t } = useI18n();
   const [, setLoading] = useState(true);
   const [, setTable] = useState<Table | null>(null);
 
@@ -68,15 +70,15 @@ export default function TableDetailPage() {
   }, [tableId]);
 
   const statusOptions = [
-    { value: 'empty', label: 'Trống' },
-    { value: 'inuse', label: 'Đang sử dụng' },
-    { value: 'maintenance', label: 'Bảo trì' },
+    { value: 'empty', label: t('managerTable.statusEmpty') },
+    { value: 'inuse', label: t('managerTable.statusInUse') },
+    { value: 'maintenance', label: t('managerTable.statusMaintenance') },
   ];
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!name) newErrors.name = 'Tên bàn là bắt buộc';
-    else if (name.length < 2) newErrors.name = 'Tên bàn phải có ít nhất 2 ký tự';
+    if (!name) newErrors.name = t('managerTable.tableNameRequired');
+    else if (name.length < 2) newErrors.name = t('managerTable.tableNameMinLength');
     setErrors(newErrors);
     return newErrors;
   };
@@ -89,16 +91,20 @@ export default function TableDetailPage() {
     }
     try {
       await managerTableService.updateTable(tableId, { name: name, category: type, status });
-      toast.success('Đã lưu bàn thành công!');
+      toast.success(t('managerTable.saveSuccess'));
       setIsEditMode(false);
-    } catch {
-      toast.error('Lưu bàn thất bại.');
+    } catch (error: any) {
+      if (error?.response?.status !== 400) {
+        console.error(error);
+      }
+      const errorMessage = error?.response?.data?.message || t('managerTable.saveFailed');
+      toast.error(errorMessage);
     }
   };
 
   const handleEditClick = () => {
     if (status === 'inuse') {
-      toast.error('Bàn này đang diễn ra trận đấu, không được phép chỉnh sửa!');
+      toast.error(t('managerTable.tableInMatchError'));
       return;
     }
     setIsEditMode(true);
@@ -107,17 +113,17 @@ export default function TableDetailPage() {
   const handleDelete = async () => {
     try {
       await managerTableService.deleteTable(tableId);
-      toast.success('Đã xóa bàn thành công!');
+      toast.success(t('managerTable.deleteSuccess'));
       router.push('/manager/tables');
     } catch (error) {
       console.error(error);
-      toast.error('Xóa bàn thất bại.');
+      toast.error(t('managerTable.deleteFailed'));
     }
   };
 
   const handleDeleteClick = () => {
     if (status === 'inuse') {
-      toast.error('Bàn này đang diễn ra trận đấu, không được phép chỉnh sửa!');
+      toast.error(t('managerTable.tableInMatchError'));
       return;
     }
     setShowConfirm(true);
@@ -156,14 +162,14 @@ export default function TableDetailPage() {
         <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
           <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
             <span className="text-lg sm:text-xl lg:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
-              QUẢN LÝ BÀN
+              {t('managerTable.pageTitle')}
             </span>
           </div>
           <AddFormLayout
-            title={isEditMode ? "CHỈNH SỬA BÀN" : "CHI TIẾT BÀN"}
+            title={isEditMode ? t('managerTable.editTableTitle') : t('managerTable.tableDetailsTitle')}
             onBack={() => router.push('/manager/tables')}
-            backLabel="Quay lại"
-            submitLabel={isEditMode ? "Lưu" : "Chỉnh sửa"}
+            backLabel={t('managerTable.backLabel')}
+            submitLabel={isEditMode ? t('managerTable.saveLabel') : t('managerTable.editLabel')}
             extraActions={
               !isEditMode && (
                 <button
@@ -171,7 +177,7 @@ export default function TableDetailPage() {
                   className="w-full sm:w-32 lg:w-40 bg-red-500 hover:bg-red-600 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg"
                   onClick={handleDeleteClick}
                 >
-                  Xóa
+                  {t('managerTable.deleteLabel')}
                 </button>
               )
             }
@@ -186,24 +192,24 @@ export default function TableDetailPage() {
           >
             <ConfirmPopup
               open={showConfirm}
-              title="Bạn có chắc chắn muốn xóa bàn này không?"
+              title={t('managerTable.deleteConfirmTitle')}
               onCancel={() => setShowConfirm(false)}
               onConfirm={async () => {
                 setShowConfirm(false);
                 await handleDelete();
               }}
-              confirmText="Xác nhận"
-              cancelText="Hủy"
+              confirmText={t('managerTable.confirmText')}
+              cancelText={t('managerTable.cancelText')}
             >
               <></>
             </ConfirmPopup>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Tên Bàn<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-2 text-black">{t('managerTable.tableNameLabel')}<span className="text-red-500">*</span></label>
               <Input value={name} onChange={e => setName(e.target.value)} required disabled={!isEditMode} />
               {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Loại Bàn<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-2 text-black">{t('managerTable.tableTypeLabel')}<span className="text-red-500">*</span></label>
               <div className="relative">
                 <select
                   className="flex w-full border border-gray-300 rounded-md bg-white px-3 sm:px-4 py-2 sm:py-3 text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all appearance-none"
@@ -228,7 +234,7 @@ export default function TableDetailPage() {
               </div>
             </div>
             <div className="w-full mb-8 sm:mb-10">
-              <label className="block text-sm font-semibold mb-2 text-black">Trạng Thái<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-2 text-black">{t('managerTable.statusLabel')}<span className="text-red-500">*</span></label>
               <div className="relative">
                 <select
                   className="flex w-full border border-gray-300 rounded-md px-3 sm:px-4 py-2 sm:py-3 text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all appearance-none"
@@ -267,7 +273,7 @@ export default function TableDetailPage() {
                     onClick={handleDownloadQR}
                     className="mt-3 px-3 sm:px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm font-medium"
                   >
-                    Tải mã QR
+                    {t('managerTable.downloadQR')}
                   </button>
                 </div>
               </div>

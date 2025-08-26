@@ -12,6 +12,7 @@ import EmptyState from '@/components/ui/EmptyState';
 import { managerMemberService } from '@/lib/managerMemberService';
 import toast from 'react-hot-toast';
 import { useManagerAuthGuard } from '@/lib/hooks/useManagerAuthGuard';
+import { useI18n } from '@/lib/i18n/provider';
 import Image from 'next/image';
 
 export interface Member {
@@ -23,6 +24,7 @@ export interface Member {
 }
 
 export default function MembersPage() {
+  const { t } = useI18n();
   const { isChecking } = useManagerAuthGuard();
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -53,8 +55,8 @@ export default function MembersPage() {
         setMembers(mappedMembers);
       })
       .catch(() => {
-        setError('Không thể tải danh sách hội viên');
-        toast.error('Không thể tải danh sách hội viên');
+        setError(t('managerMembers.loadMembersError'));
+        toast.error(t('managerMembers.loadMembersError'));
       })
       .finally(() => setLoading(false));
   }, []);
@@ -98,7 +100,7 @@ export default function MembersPage() {
 
   return (
     <>
-      {loading && <ScoreLensLoading text="Đang tải..." />}
+      {loading && <ScoreLensLoading text={t('managerMembers.loadingText')} />}
       <div className="min-h-screen flex bg-[#18191A]">
         <SidebarManager />
         <main className="flex-1 bg-white min-h-screen lg:ml-0">
@@ -125,10 +127,10 @@ export default function MembersPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                   </svg>
                 }
-                title={search ? 'Không tìm thấy hội viên phù hợp' : 'Chưa có hội viên nào'}
-                description="Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy hội viên phù hợp"
+                title={search ? t('managerMembers.noMembersFoundWithSearch') : t('managerMembers.noMembersFound')}
+                description={t('managerMembers.noMembersDescription')}
                 secondaryAction={search ? {
-                  label: 'Xem tất cả',
+                  label: t('managerMembers.viewAll'),
                   onClick: () => setSearch(''),
                   icon: (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -162,7 +164,7 @@ export default function MembersPage() {
                     >
                       <Image
                         src="/icon/chevron-left.svg"
-                        alt="Previous"
+                        alt={t('managerMembers.previous')}
                         width={20}
                         height={20}
                         className="w-4 h-4 sm:w-5 sm:h-5"
@@ -192,7 +194,7 @@ export default function MembersPage() {
                     >
                       <Image
                         src="/icon/chevron-right.svg"
-                        alt="Next"
+                        alt={t('managerMembers.next')}
                         width={20}
                         height={20}
                         className="w-4 h-4 sm:w-5 sm:h-5"
@@ -202,7 +204,7 @@ export default function MembersPage() {
                 )}
 
                 <div className="mt-4 text-center text-gray-400 italic text-xs sm:text-sm">
-                  Hiển thị {startIndex + 1}-{Math.min(endIndex, filteredMembers.length)} trong tổng số {filteredMembers.length} hội viên
+                  {t('managerMembers.showingMembers').replace('{start}', String(startIndex + 1)).replace('{end}', String(Math.min(endIndex, filteredMembers.length))).replace('{total}', String(filteredMembers.length))}
                 </div>
               </>
             )}

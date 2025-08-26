@@ -7,16 +7,18 @@ import { AuthLayout } from '@/components/shared/AuthLayout';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { managerService } from '@/lib/managerService';
+import { useI18n } from '@/lib/i18n/provider';
 
 export default function ManagerLoginPage() {
   const [email, setemail] = useState('');
   const [errors, setErrors] = useState<{ email?: string; general?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
- 
+  const { t } = useI18n();
+
   const validateForm = () => {
     const newErrors: typeof errors = {};
     if (!email) {
-      newErrors.email = 'Mã quản lý là bắt buộc';
+      newErrors.email = t('auth.managerLogin.emailRequired');
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -32,10 +34,10 @@ export default function ManagerLoginPage() {
     try {
       await managerService.login(email);
       window.location.href = `/manager/verification?email=${encodeURIComponent(email)}`;
-      toast.success('Mã xác thực đã được gửi!');
+      toast.success(t('auth.managerLogin.verificationSent'));
     } catch (error) {
       const err = error as { message?: string };
-      toast.error(err.message || 'Đã xảy ra lỗi. Vui lòng thử lại.');
+      toast.error(err.message || t('auth.managerLogin.errorMessage'));
     } finally {
       setIsLoading(false);
     }
@@ -43,23 +45,22 @@ export default function ManagerLoginPage() {
 
   return (
     <AuthLayout
-      title="Đăng nhập Quản lý"
-      description="Vui lòng nhập email để tiếp tục"
+      title={t('auth.managerLogin.title')}
+      description={t('auth.managerLogin.description')}
     >
-      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 p-3 sm:p-4 md:p-6 overflow-hidden">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 p-3 sm:p-4 md:p-6 overflow-hidden" noValidate>
         <div>
           <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-            Email
+            {t('auth.managerLogin.emailLabel')}
           </label>
           <Input
             id="email"
             name="email"
             value={email}
             onChange={(e) => setemail(e.target.value)}
-            className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all text-sm sm:text-base ${
-              errors.email ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="Nhập email của bạn"
+            className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all text-sm sm:text-base ${errors.email ? 'border-red-500' : 'border-gray-300'
+              }`}
+            placeholder={t('auth.managerLogin.emailPlaceholder')}
             required
             disabled={isLoading}
           />
@@ -75,7 +76,7 @@ export default function ManagerLoginPage() {
           disabled={isLoading}
           className="py-2 sm:py-3 text-sm sm:text-base"
         >
-          {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+          {isLoading ? t('auth.managerLogin.loggingIn') : t('auth.managerLogin.loginButton')}
         </Button>
 
         <div className="text-center mt-4 sm:mt-6">
@@ -86,7 +87,7 @@ export default function ManagerLoginPage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Quay lại trang chủ
+            {t('auth.managerLogin.backToHome')}
           </Link>
         </div>
       </form>

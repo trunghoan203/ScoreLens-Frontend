@@ -12,11 +12,12 @@ import clubsService, { ClubResponse } from '@/lib/clubsService';
 import adminService from '@/lib/adminService';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import Image from 'next/image';
+import { useI18n } from '@/lib/i18n/provider';
 
 
 function convertDateFormat(dateString: string, fromFormat: 'iso' | 'ddmmyyyy', toFormat: 'iso' | 'ddmmyyyy'): string {
   if (fromFormat === toFormat) return dateString;
-  
+
   if (fromFormat === 'iso' && toFormat === 'ddmmyyyy') {
     try {
       const date = new Date(dateString);
@@ -41,6 +42,7 @@ export default function ManagerDetailPage() {
   const router = useRouter();
   const params = useParams();
   const managerId = params?.managerId as string;
+  const { t } = useI18n();
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -59,51 +61,51 @@ export default function ManagerDetailPage() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (name && name.length < 2) {
-      newErrors.name = 'Tên quản lý phải có ít nhất 2 ký tự';
+      newErrors.name = t('managers.managerNameMinLength');
     } else if (name && name.length > 255) {
-      newErrors.name = 'Tên quản lý không được vượt quá 255 ký tự';
+      newErrors.name = t('managers.managerNameMaxLength');
     }
     if (phone && !/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phone)) {
-      newErrors.phone = 'Số điện thoại không hợp lệ';
+      newErrors.phone = t('managers.phoneInvalid');
     }
     if (dob && !/^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/.test(dob)) {
-      newErrors.dob = 'Ngày sinh không hợp lệ (định dạng phải là dd/mm/yyyy)';
+      newErrors.dob = t('managers.dateOfBirthInvalid');
     } else if (dob) {
       const [day, month, year] = dob.split("/").map(Number);
       const dobDate = new Date(year, month - 1, day);
       const today = new Date();
-      
-      const isValidDate = dobDate.getFullYear() === year && 
-                         dobDate.getMonth() === month - 1 && 
-                         dobDate.getDate() === day;
-      
+
+      const isValidDate = dobDate.getFullYear() === year &&
+        dobDate.getMonth() === month - 1 &&
+        dobDate.getDate() === day;
+
       if (!isValidDate || dobDate > today) {
-        newErrors.dob = 'Ngày sinh không hợp lệ hoặc ở tương lai';
+        newErrors.dob = t('managers.dateOfBirthInvalidOrFuture');
       }
     }
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = 'Email không hợp lệ';
+      newErrors.email = t('managers.emailInvalid');
     }
     if (citizenCode && !/^\d{12}$/.test(citizenCode)) {
-      newErrors.citizenCode = 'CCCD phải có đúng 12 chữ số';
+      newErrors.citizenCode = t('managers.citizenCodeLength');
     } else if (citizenCode) {
       const provinceCode = parseInt(citizenCode.slice(0, 3), 10);
       if (provinceCode < 1 || provinceCode > 96) {
-        newErrors.citizenCode = 'Mã tỉnh/thành phố không hợp lệ';
+        newErrors.citizenCode = t('managers.citizenCodeProvinceInvalid');
       }
       const genderCentury = parseInt(citizenCode[3], 10);
       if (genderCentury < 0 || genderCentury > 9) {
-        newErrors.citizenCode = 'Mã giới tính/thế kỷ không hợp lệ';
+        newErrors.citizenCode = t('managers.citizenCodeGenderInvalid');
       }
       const yearTwoDigits = parseInt(citizenCode.slice(4, 6), 10);
       if (yearTwoDigits < 0 || yearTwoDigits > 99) {
-        newErrors.citizenCode = 'Năm sinh không hợp lệ';
+        newErrors.citizenCode = t('managers.citizenCodeYearInvalid');
       }
     }
     if (address && address.length < 5) {
-      newErrors.address = 'Địa chỉ phải có ít nhất 5 ký tự';
+      newErrors.address = t('managers.addressMinLength');
     } else if (address && address.length > 255) {
-      newErrors.address = 'Địa chỉ không được vượt quá 255 ký tự';
+      newErrors.address = t('managers.addressMaxLength');
     }
     setErrors(newErrors);
     return newErrors;
@@ -126,7 +128,7 @@ export default function ManagerDetailPage() {
         setClubId(typeof dataObj.clubId === 'string' ? dataObj.clubId : '');
         setIsActive(typeof dataObj.isActive === 'boolean' ? dataObj.isActive : false);
       } catch {
-        toast.error('Không thể tải chi tiết quản lý');
+        toast.error(t('managers.cannotLoadData'));
       } finally {
         setLoading(false);
       }
@@ -149,12 +151,12 @@ export default function ManagerDetailPage() {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const formErrors = validateForm();
     if (Object.keys(formErrors).length > 0) {
       return;
     }
-    
+
     try {
       await managerService.updateManager(managerId, {
         fullName: name,
@@ -166,17 +168,17 @@ export default function ManagerDetailPage() {
         clubId,
         isActive,
       });
-      toast.success('Lưu quản lý thành công!');
+      toast.success(t('managers.saveSuccess'));
       setIsEditMode(false);
       setErrors({});
     } catch (error: unknown) {
       console.error('Error updating manager:', error);
-      
+
       if (typeof error === 'object' && error !== null && 'response' in error) {
         const axiosError = error as { response?: { data?: unknown } };
         if (axiosError.response?.data) {
           const responseData = axiosError.response.data as { message?: string; errors?: Record<string, string[]> };
-          
+
           if (responseData.errors) {
             const newErrors: Record<string, string> = {};
             Object.keys(responseData.errors).forEach(key => {
@@ -185,15 +187,15 @@ export default function ManagerDetailPage() {
               }
             });
             setErrors(newErrors);
-            toast.error('Vui lòng kiểm tra lại thông tin');
+            toast.error(t('managers.pleaseCheckInfo'));
           } else {
-            toast.error(responseData.message || 'Cập nhật quản lý thất bại!');
+            toast.error(responseData.message || t('managers.updateFailed'));
           }
         } else {
-          toast.error('Cập nhật quản lý thất bại!');
+          toast.error(t('managers.updateFailed'));
         }
       } else {
-        toast.error('Cập nhật quản lý thất bại!');
+        toast.error(t('managers.updateFailed'));
       }
     }
   };
@@ -201,17 +203,17 @@ export default function ManagerDetailPage() {
   const handleDelete = async () => {
     try {
       await managerService.deleteManager(managerId);
-      toast.success('Đã xóa quản lý thành công!');
+      toast.success(t('managers.deleteSuccess'));
       router.push('/admin/managers');
     } catch (error: unknown) {
       const errMsg = (typeof error === 'object' && error && 'message' in error) ? (error as { message?: string }).message : undefined;
-      toast.error(errMsg || 'Xóa quản lý thất bại!');
+      toast.error(errMsg || t('managers.deleteFailed'));
     }
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    
+
     if (value) {
       const [year, month, day] = value.split('-');
       const formattedDate = `${day}/${month}/${year}`;
@@ -232,7 +234,7 @@ export default function ManagerDetailPage() {
           <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
             <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
               <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
-                QUẢN LÝ
+                {t('managers.title')}
               </span>
             </div>
             <div className="py-8">
@@ -254,14 +256,14 @@ export default function ManagerDetailPage() {
         <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
           <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
             <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
-              QUẢN LÝ
+              {t('managers.title')}
             </span>
           </div>
           <AddFormLayout
-            title={isEditMode ? "CHỈNH SỬA QUẢN LÝ" : "CHI TIẾT QUẢN LÝ"}
+            title={isEditMode ? t('managers.editManager') : t('managers.managerDetails')}
             onBack={() => router.push('/admin/managers')}
-            backLabel="Quay lại"
-            submitLabel={isEditMode ? "Lưu" : "Chỉnh sửa"}
+            backLabel={t('common.back')}
+            submitLabel={isEditMode ? t('common.save') : t('common.edit')}
             extraActions={
               !isEditMode && (
                 <button
@@ -269,7 +271,7 @@ export default function ManagerDetailPage() {
                   className="w-full sm:w-40 bg-red-500 hover:bg-red-600 text-white font-bold py-2.5 sm:py-2 rounded-lg transition text-sm sm:text-lg touch-manipulation order-2 sm:order-3"
                   onClick={() => setShowConfirm(true)}
                 >
-                  Xóa
+                  {t('common.delete')}
                 </button>
               )
             }
@@ -277,16 +279,16 @@ export default function ManagerDetailPage() {
           >
             <ConfirmPopup
               open={showConfirm}
-              title="Bạn có chắc chắn muốn xóa không?"
+              title={t('managers.deleteConfirm')}
               onCancel={() => setShowConfirm(false)}
               onConfirm={async () => { setShowConfirm(false); await handleDelete(); }}
-              confirmText="Xác nhận"
-              cancelText="Hủy"
+              confirmText={t('common.confirm')}
+              cancelText={t('common.cancel')}
             >
               <></>
             </ConfirmPopup>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Chọn Chi Nhánh<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('managers.selectBranch')}<span className="text-red-500">*</span></label>
               <div className="relative w-full">
                 <select
                   value={clubId}
@@ -296,7 +298,7 @@ export default function ManagerDetailPage() {
                   name="clubId"
                   className="w-full border border-gray-300 bg-white rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none"
                 >
-                  <option value="">-- Chọn chi nhánh --</option>
+                  <option value="">{t('managers.selectBranchPlaceholder')}</option>
                   {clubs.map(club => (
                     <option key={club.clubId} value={club.clubId}>{club.clubName}</option>
                   ))}
@@ -313,17 +315,17 @@ export default function ManagerDetailPage() {
               </div>
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Tên Quản Lý<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('managers.managerName')}<span className="text-red-500">*</span></label>
               <Input value={name} onChange={e => setName(e.target.value)} required disabled={!isEditMode} className="py-2.5 sm:py-3" />
               {errors.name && <span className="text-red-500 text-xs sm:text-sm">{errors.name}</span>}
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Số Điện Thoại<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('common.phone')}<span className="text-red-500">*</span></label>
               <Input value={phone} onChange={e => setPhone(e.target.value)} required disabled={!isEditMode} className="py-2.5 sm:py-3" />
               {errors.phone && <span className="text-red-500 text-xs sm:text-sm">{errors.phone}</span>}
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Ngày Sinh<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('managers.dateOfBirth')}<span className="text-red-500">*</span></label>
               <input
                 type="date"
                 value={dob ? (() => {
@@ -337,7 +339,7 @@ export default function ManagerDetailPage() {
                   return '';
                 })() : ''}
                 onChange={handleDateChange}
-                placeholder="dd/mm/yyyy"
+                placeholder={t('managers.dateFormat')}
                 disabled={!isEditMode}
                 className={`w-full bg-white border rounded-md px-3 sm:px-4 py-2.5 sm:py-3 text-sm font-base text-black placeholder-gray-500 hover:border-lime-400 outline-none transition-all ${isEditMode
                   ? 'border-gray-300 focus:border-lime-500 hover:border-lime-400'
@@ -347,22 +349,22 @@ export default function ManagerDetailPage() {
               {errors.dob && <span className="text-red-500 text-xs sm:text-sm">{errors.dob}</span>}
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Email<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('common.email')}<span className="text-red-500">*</span></label>
               <Input value={email} onChange={e => setEmail(e.target.value)} required disabled={!isEditMode} className="py-2.5 sm:py-3" />
               {errors.email && <span className="text-red-500 text-xs sm:text-sm">{errors.email}</span>}
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">CCCD<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('managers.citizenCode')}<span className="text-red-500">*</span></label>
               <Input value={citizenCode} onChange={e => setCitizenCode(e.target.value)} required disabled={!isEditMode} className="py-2.5 sm:py-3" />
               {errors.citizenCode && <span className="text-red-500 text-xs sm:text-sm">{errors.citizenCode}</span>}
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Địa Chỉ<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('common.address')}<span className="text-red-500">*</span></label>
               <Input value={address} onChange={e => setAddress(e.target.value)} required disabled={!isEditMode} className="py-2.5 sm:py-3" />
               {errors.address && <span className="text-red-500 text-xs sm:text-sm">{errors.address}</span>}
             </div>
             <div className="w-full mb-8 sm:mb-10">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Trạng Thái<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('common.status')}<span className="text-red-500">*</span></label>
               <div className="relative w-full">
                 <select
                   value={isActive ? 'active' : 'inactive'}
@@ -371,8 +373,8 @@ export default function ManagerDetailPage() {
                   disabled={!isEditMode}
                   name="isActive"
                   className="w-full border border-gray-300 bg-white rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none" >
-                  <option value="active">Hoạt động</option>
-                  <option value="inactive">Không hoạt động</option>
+                  <option value="active">{t('managers.status.active')}</option>
+                  <option value="inactive">{t('managers.status.inactive')}</option>
                 </select>
                 {isEditMode && (
                   <Image

@@ -22,7 +22,14 @@ export function useSuperAdminAuthGuard() {
                 ?.split('=')[1];
 
             if (!accessToken && !refreshToken) {
+                const savedLanguage = localStorage.getItem('scorelens-language');
+
                 localStorage.clear();
+
+                if (savedLanguage) {
+                    localStorage.setItem('scorelens-language', savedLanguage);
+                }
+
                 document.cookie.split(";").forEach(function (c) {
                     document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
                 });

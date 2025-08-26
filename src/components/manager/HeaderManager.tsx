@@ -6,15 +6,18 @@ import { useManagerNotifications } from '@/lib/hooks/useManagerNotifications';
 import { NotificationItem } from '@/components/shared/NotificationItem';
 import { Menu, X } from 'lucide-react';
 import { useMobileMenuStore } from '@/lib/mobileMenuState';
+import LanguageSelector from '@/components/shared/LanguageSelector';
+import { useI18n } from '@/lib/i18n/provider';
 
 
 export default function HeaderManager() {
+  const { t, currentLanguage } = useI18n();
   const [managerName, setManagerName] = useState<string>('Chưa đăng nhập');
   const [clubName, setClubName] = useState<string>('Đang tải...');
   const [notificationOpen, setNotificationOpen] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
   const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenuStore();
-  
+
   const {
     notifications,
     unreadCount,
@@ -23,6 +26,12 @@ export default function HeaderManager() {
     markAllAsRead,
     deleteNotification
   } = useManagerNotifications();
+
+  // Initialize translated text after component mounts
+  useEffect(() => {
+    setManagerName(t('common.notLoggedIn'));
+    setClubName(t('common.loading'));
+  }, []);
 
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('managerAccessToken') : null;
@@ -50,8 +59,8 @@ export default function HeaderManager() {
           }
         })
         .catch(() => {
-          setManagerName('Manager');
-          setClubName('Club không xác định');
+          setManagerName(t('common.admin'));
+          setClubName(t('common.unknown'));
         });
     }
   }, []);
@@ -66,6 +75,17 @@ export default function HeaderManager() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Only update text when language changes if we don't have actual data
+  useEffect(() => {
+    // Only reset to default values if we don't have actual user data
+    if (managerName === 'Chưa đăng nhập' || managerName === 'Not logged in') {
+      setManagerName(t('common.notLoggedIn'));
+    }
+    if (clubName === 'Đang tải...' || clubName === 'Loading...') {
+      setClubName(t('common.loading'));
+    }
+  }, [currentLanguage, t, managerName, clubName]);
+
   return (
     <>
       <div className="flex items-center justify-between w-full min-h-[60px] gap-4 sm:gap-6">
@@ -73,7 +93,7 @@ export default function HeaderManager() {
           <button
             className="lg:hidden p-2 rounded-lg bg-[#181818] text-white shadow-lg"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle navigation menu"
+            aria-label={t('common.toggleNavigationMenu')}
           >
             {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -82,40 +102,40 @@ export default function HeaderManager() {
           </h1>
         </div>
         <div className="flex items-center gap-3 sm:gap-6">
+          <LanguageSelector variant="light" />
+
           <div className="relative" ref={notificationRef}>
             <motion.button
               onClick={() => setNotificationOpen(prev => !prev)}
-              className={`relative focus:outline-none p-2 sm:p-3 rounded-full transition-all duration-300 touch-manipulation ${
-                notificationOpen 
-                  ? 'bg-lime-500/20 border-2 border-lime-400 shadow-lg shadow-lime-500/25' 
-                  : 'hover:bg-gray-100 hover:shadow-md hover:scale-105 active:scale-95'
-              }`}
+              className={`relative focus:outline-none p-2 sm:p-3 rounded-full transition-all duration-300 touch-manipulation ${notificationOpen
+                ? 'bg-lime-500/20 border-2 border-lime-400 shadow-lg shadow-lime-500/25'
+                : 'hover:bg-gray-100 hover:shadow-md hover:scale-105 active:scale-95'
+                }`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               <motion.div
-                animate={{ 
+                animate={{
                   rotate: notificationOpen ? 15 : 0,
-                  scale: unreadCount > 0 ? [1, 1.1, 1] : 1 
+                  scale: unreadCount > 0 ? [1, 1.1, 1] : 1
                 }}
-                transition={{ 
+                transition={{
                   duration: 0.3,
                   scale: { repeat: unreadCount > 0 ? Infinity : 0, repeatDelay: 2 }
                 }}
               >
                 <Image
                   src="/icon/bell.svg"
-                  alt="Notifications"
+                  alt={t('common.notifications')}
                   width={22}
                   height={22}
-                  className={`transition-all duration-300 ${
-                    notificationOpen 
-                      ? 'brightness-0 saturate-100 filter hue-rotate-90' 
-                      : 'text-gray-600 hover:brightness-75'
-                  }`}
+                  className={`transition-all duration-300 ${notificationOpen
+                    ? 'brightness-0 saturate-100 filter hue-rotate-90'
+                    : 'text-gray-600 hover:brightness-75'
+                    }`}
                 />
               </motion.div>
-              
+
               <AnimatePresence>
                 {unreadCount > 0 && (
                   <motion.span
@@ -146,7 +166,7 @@ export default function HeaderManager() {
                         <div className="p-1.5 sm:p-2 bg-lime-100 rounded-lg">
                           <Image
                             src="/icon/bell.svg"
-                            alt="Notifications"
+                            alt={t('common.notifications')}
                             width={18}
                             height={18}
                             className="brightness-0 saturate-100 filter hue-rotate-90"
@@ -154,11 +174,11 @@ export default function HeaderManager() {
                         </div>
                         <div>
                           <h3 className="text-base sm:text-lg font-bold text-gray-900">
-                            Thông báo
+                            {t('common.notifications')}
                           </h3>
                           {unreadCount > 0 && (
                             <p className="text-xs sm:text-sm text-gray-600">
-                              {unreadCount} thông báo mới
+                              {unreadCount} {t('common.newNotifications')}
                             </p>
                           )}
                         </div>
@@ -170,7 +190,7 @@ export default function HeaderManager() {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >
-                          Đánh dấu tất cả
+                          {t('common.markAllAsRead')}
                         </motion.button>
                       )}
                     </div>
@@ -184,7 +204,7 @@ export default function HeaderManager() {
                           animate={{ rotate: 360 }}
                           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                         />
-                        <p className="text-xs sm:text-sm text-gray-500 mt-3 sm:mt-4 font-medium">Đang tải thông báo...</p>
+                        <p className="text-xs sm:text-sm text-gray-500 mt-3 sm:mt-4 font-medium">{t('common.loadingNotifications')}</p>
                       </div>
                     ) : notifications.length > 0 ? (
                       <motion.div
@@ -210,7 +230,7 @@ export default function HeaderManager() {
                         ))}
                       </motion.div>
                     ) : (
-                      <motion.div 
+                      <motion.div
                         className="p-8 sm:p-12 text-center"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -219,14 +239,14 @@ export default function HeaderManager() {
                         <div className="bg-gray-100 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                           <Image
                             src="/icon/bell.svg"
-                            alt="No notifications"
+                            alt={t('common.noNotifications')}
                             width={40}
                             height={40}
                             className="opacity-60"
                           />
                         </div>
-                        <p className="text-sm sm:text-base font-medium text-gray-600 mb-1 sm:mb-2">Không có thông báo</p>
-                        <p className="text-xs sm:text-sm text-gray-400">Các thông báo mới sẽ xuất hiện tại đây</p>
+                        <p className="text-sm sm:text-base font-medium text-gray-600 mb-1 sm:mb-2">{t('common.noNotifications')}</p>
+                        <p className="text-xs sm:text-sm text-gray-400">{t('common.newNotificationsWillAppearHere')}</p>
                       </motion.div>
                     )}
                   </div>
@@ -238,7 +258,7 @@ export default function HeaderManager() {
           <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-100">
             <Image
               src="/images/Avatar.png"
-              alt="Manager Avatar"
+              alt={t('common.profile')}
               width={36}
               height={36}
               className="w-full h-full object-cover"

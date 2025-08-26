@@ -15,6 +15,7 @@ import toast from 'react-hot-toast';
 import { useAdminAuthGuard } from '@/lib/hooks/useAdminAuthGuard';
 import { Users2, Menu } from 'lucide-react';
 import { ScoreLensLoading } from "@/components/ui/ScoreLensLoading";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface Manager {
   name: string;
@@ -30,6 +31,7 @@ export default function ManagersPage() {
   const { isChecking } = useAdminAuthGuard();
   const [search, setSearch] = useState("");
   const router = useRouter();
+  const { t } = useI18n();
   const [managers, setManagers] = useState<Manager[]>([]);
   const [loading, setLoading] = useState(true);
   const [tableLoading, setTableLoading] = useState(false);
@@ -45,7 +47,7 @@ export default function ManagersPage() {
         if (profile.brandId) {
           apiRes = await managerService.getManagers(profile.brandId);
         } else {
-          toast.error('Tài khoản admin của bạn không được liên kết với thương hiệu nào.');
+          toast.error(t('managers.noBrandLinked'));
         }
         const data = apiRes && typeof apiRes === 'object' && apiRes !== null && Array.isArray((apiRes as Record<string, unknown>).data)
           ? (apiRes as Record<string, unknown>).data as unknown[]
@@ -69,7 +71,7 @@ export default function ManagersPage() {
             name: typeof obj.fullName === 'string' ? obj.fullName : '',
             phone: typeof obj.phoneNumber === 'string' ? obj.phoneNumber : '',
             email: typeof obj.email === 'string' ? obj.email : '',
-            clubName: club ? club.clubName : (clubId ? 'Chưa có Chi nhánh' : 'N/A'),
+            clubName: club ? club.clubName : (clubId ? t('managers.noBranch') : t('common.notAvailable')),
             status: obj.isActive ? 'active' : 'inactive',
             managerId: typeof obj.managerId === 'string' ? obj.managerId : undefined,
             _id: typeof obj._id === 'string' ? obj._id : undefined,
@@ -78,7 +80,7 @@ export default function ManagersPage() {
         setManagers(mapped);
       } catch (error: unknown) {
         const errMsg = (typeof error === 'object' && error && 'message' in error) ? (error as { message?: string }).message : undefined;
-        toast.error(errMsg || 'Không thể tải danh sách quản lý');
+        toast.error(errMsg || t('managers.cannotLoadList'));
         setManagers([]);
       } finally {
         setLoading(false);
@@ -114,7 +116,7 @@ export default function ManagersPage() {
 
   return (
     <>
-      {loading && <ScoreLensLoading text="Đang tải..." />}
+      {loading && <ScoreLensLoading text={t('common.loading')} />}
       <div className="min-h-screen flex bg-[#18191A]">
         <Sidebar />
         <main className="flex-1 bg-white min-h-screen lg:ml-0">
@@ -124,7 +126,7 @@ export default function ManagersPage() {
           <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
             <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
               <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
-                QUẢN LÝ
+                {t('managers.title')}
               </span>
             </div>
             <ManagerSearchBar
@@ -145,14 +147,14 @@ export default function ManagersPage() {
                 icon={
                   <Users2 className="w-14 h-14 text-white" strokeWidth={1.5} />
                 }
-                title={search ? 'Không tìm thấy quản lý phù hợp' : 'Chưa có quản lý nào'}
+                title={search ? t('managers.noSearchResults') : t('managers.noManagers')}
                 description={
                   search
-                    ? 'Thử thay đổi từ khóa tìm kiếm để tìm thấy quản lý phù hợp'
-                    : 'Sử dụng nút "Thêm quản lý" ở trên để tạo quản lý đầu tiên'
+                    ? t('managers.tryDifferentKeywords')
+                    : t('managers.useAddButton')
                 }
                 secondaryAction={search ? {
-                  label: 'Xem tất cả',
+                  label: t('common.viewAll'),
                   onClick: () => setSearch(''),
                   icon: (
                     <Menu className="w-5 h-5" />

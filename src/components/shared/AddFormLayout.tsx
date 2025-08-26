@@ -28,7 +28,7 @@ export default function AddFormLayout({
 }: AddFormLayoutProps) {
   return (
     <div className="flex justify-center items-center min-h-[60vh] px-4 sm:px-6 lg:px-8">
-      <form onSubmit={onSubmit} className="w-full max-w-xl border border-lime-400 rounded-xl p-4 sm:p-6 lg:p-10 bg-white flex flex-col items-center">
+      <form onSubmit={onSubmit} className="w-full max-w-xl border border-lime-400 rounded-xl p-4 sm:p-6 lg:p-10 bg-white flex flex-col items-center" noValidate>
         <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-center mb-6 sm:mb-8 lg:mb-10 tracking-wider text-black">{title}</h2>
         {children}
         <div className="flex flex-col sm:flex-row w-full justify-between gap-3 sm:gap-4 mt-2">

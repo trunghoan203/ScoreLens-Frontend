@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface TableFilterBarProps {
   search: string;
@@ -11,6 +12,8 @@ interface TableFilterBarProps {
 }
 
 export default function TableFilterBar({ search, onSearchChange, type, onTypeChange, status, onStatusChange }: TableFilterBarProps) {
+  const { t } = useI18n();
+
   return (
     <div className="w-full mb-6 sm:mb-8">
       <div
@@ -21,7 +24,7 @@ export default function TableFilterBar({ search, onSearchChange, type, onTypeCha
           <div className="relative flex items-center w-full sm:w-80 bg-white rounded-lg sm:rounded-xl border border-gray-300 shadow-sm focus-within:border-lime-400 transition-all">
             <input
               type="text"
-              placeholder="Nhập tên bàn để tìm kiếm"
+              placeholder={t('dashboard.searchPlaceholder')}
               value={search}
               onChange={e => onSearchChange(e.target.value)}
               className="bg-transparent outline-none flex-1 text-[#000000] text-sm sm:text-base px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl placeholder-gray-400 font-medium"
@@ -39,7 +42,7 @@ export default function TableFilterBar({ search, onSearchChange, type, onTypeCha
               onChange={e => onTypeChange(e.target.value)}
               className="w-full text-sm sm:text-base font-bold text-[#000000] bg-white/80 border border-gray-400 rounded-lg sm:rounded-xl py-2 pl-3 sm:pl-4 pr-10 shadow-sm focus:border-[#8ADB10] focus:ring-2 focus:ring-lime-100 appearance-none cursor-pointer transition-all"
             >
-              <option value="">Tất cả</option>
+              <option value="">{t('dashboard.all')}</option>
               <option value="pool-8">Pool 8</option>
               <option value="carom">Carom</option>
             </select>
@@ -53,10 +56,10 @@ export default function TableFilterBar({ search, onSearchChange, type, onTypeCha
               onChange={e => onStatusChange(e.target.value)}
               className="w-full text-sm sm:text-base font-bold text-[#000000] bg-white/80 border border-gray-400 rounded-lg sm:rounded-xl py-2 pl-3 sm:pl-4 pr-10 shadow-sm focus:border-[#8ADB10] focus:ring-2 focus:ring-lime-100 appearance-none cursor-pointer transition-all"
             >
-              <option value="">Tất cả</option>
-              <option value="using">Đang sử dụng</option>
-              <option value="available">Bàn trống</option>
-              <option value="maintenance">Bảo trì</option>
+              <option value="">{t('dashboard.all')}</option>
+              <option value="using">{t('dashboard.tablesInUse')}</option>
+              <option value="available">{t('dashboard.availableTables')}</option>
+              <option value="maintenance">{t('tables.status.maintenance')}</option>
             </select>
             <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-lime-500">
               <Image src="/icon/chevron-down_Black.svg" alt="Dropdown" width={22} height={22} />

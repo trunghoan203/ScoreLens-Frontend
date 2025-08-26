@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ToasterWrapper } from "@/components/ui/ToasterWrapper";
+import { I18nProvider } from "@/lib/i18n/provider";
+import { LanguageAttribute } from "@/components/shared/LanguageAttribute";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,10 +20,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi">
+    <html>
       <body className={`${inter.className} bg-black`}>
-        {children}
-        <ToasterWrapper />
+        <I18nProvider>
+          <LanguageAttribute />
+          {children}
+          <ToasterWrapper />
+        </I18nProvider>
       </body>
     </html>
   );

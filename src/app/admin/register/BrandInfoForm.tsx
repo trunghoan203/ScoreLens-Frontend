@@ -6,6 +6,7 @@ import axios from '@/lib/axios';
 import toast from 'react-hot-toast';
 import { Image as LucideImage } from 'lucide-react';
 import { uploadAndGetUrl, type SignUrlResponse } from '@/lib/uploadFileService';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface BrandInfo {
   brandId: string;
@@ -22,6 +23,7 @@ interface BrandInfoFormProps {
 }
 
 export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
+  const { t } = useI18n();
   const [, setImage] = useState<File | null>(null);
   const [logoUrl, setLogoUrl] = useState(initialData?.logo_url || '');
   const [brandName, setBrandName] = useState(initialData?.brandName || '');
@@ -59,20 +61,20 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
           ...(token && { Authorization: `Bearer ${token}` }),
         },
       });
-      
+
       const signData: SignUrlResponse = res.data as SignUrlResponse;
-      
+
       const uploadedUrl = await uploadAndGetUrl({
         file,
         sign: signData,
         resourceType: 'image'
       });
-      
+
       setLogoUrl(uploadedUrl);
-      toast.success('Upload logo thành công!');
+      toast.success(t('brandInfoForm.uploadSuccess'));
     } catch (err) {
       const error = err as { response?: { data?: { message?: string } } };
-      toast.error('Upload thất bại: ' + (error.response?.data?.message || (error as Error).message));
+      toast.error(t('brandInfoForm.uploadFailed') + ': ' + (error.response?.data?.message || (error as Error).message));
     } finally {
       setUploading(false);
     }
@@ -80,32 +82,32 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!brandName) newErrors.brandName = 'Tên thương hiệu là bắt buộc';
-    else if (brandName.length < 2) newErrors.brandName = 'Tên thương hiệu phải có ít nhất 2 ký tự';
-    if (!phoneNumber) newErrors.phoneNumber = 'Số điện thoại là bắt buộc';
-    else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phoneNumber)) newErrors.phoneNumber = 'Số điện thoại không hợp lệ';
+    if (!brandName) newErrors.brandName = t('brandInfoForm.brandNameRequired');
+    else if (brandName.length < 2) newErrors.brandName = t('brandInfoForm.brandNameMinLength');
+    if (!phoneNumber) newErrors.phoneNumber = t('brandInfoForm.phoneRequired');
+    else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phoneNumber)) newErrors.phoneNumber = t('brandInfoForm.phoneInvalid');
     if (!citizenCode) {
-      newErrors.citizenCode = 'CCCD là bắt buộc';
+      newErrors.citizenCode = t('brandInfoForm.citizenCodeRequired');
     } else if (!/^\d{12}$/.test(citizenCode)) {
-      newErrors.citizenCode = 'CCCD phải có đúng 12 chữ số';
+      newErrors.citizenCode = t('brandInfoForm.citizenCodeLength');
     } else {
       const provinceCode = parseInt(citizenCode.slice(0, 3), 10);
       if (provinceCode < 1 || provinceCode > 96) {
-      newErrors.citizenCode = 'Mã tỉnh/thành phố không hợp lệ';
+        newErrors.citizenCode = t('brandInfoForm.citizenCodeProvinceInvalid');
       }
       const genderCentury = parseInt(citizenCode[3], 10);
       if (genderCentury < 0 || genderCentury > 9) {
-      newErrors.citizenCode = 'Mã giới tính/thế kỷ không hợp lệ';
+        newErrors.citizenCode = t('brandInfoForm.citizenCodeGenderInvalid');
       }
       const yearTwoDigits = parseInt(citizenCode.slice(4, 6), 10);
       if (yearTwoDigits < 0 || yearTwoDigits > 99) {
-      newErrors.citizenCode = 'Năm sinh không hợp lệ';
+        newErrors.citizenCode = t('brandInfoForm.citizenCodeYearInvalid');
       }
     }
-    if (!logoUrl) newErrors.logoUrl = 'Logo là bắt buộc';
+    if (!logoUrl) newErrors.logoUrl = t('brandInfoForm.logoRequired');
     if (website) {
       if (!/^https:\/\/[^\s/$.?#].[^\s]*$/i.test(website)) {
-        newErrors.website = 'URL không hợp lệ, phải bắt đầu bằng https://';
+        newErrors.website = t('brandInfoForm.websiteInvalid');
       }
     }
     setErrors(newErrors);
@@ -123,10 +125,6 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
     setIsLoading(true);
     try {
       let brandId = initialData?.brandId;
-          const newErrors = validateForm();
-    if (Object.keys(newErrors).length > 0) {
-      return;
-    }
       if (initialData?.brandId) {
         const response = await axios.put(`/admin/brands/${initialData.brandId}`, {
           brandName,
@@ -137,12 +135,12 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
         });
         const brandData = response.data as { brandId?: string; _id?: string };
         brandId = brandData.brandId || brandData._id || initialData.brandId || '';
-        toast.success('Cập nhật thông tin thương hiệu thành công!');
+        toast.success(t('brandInfoForm.updateSuccess'));
       } else {
         brandId = '';
-        toast.success('Lưu thông tin thương hiệu thành công!');
+        toast.success(t('brandInfoForm.saveSuccess'));
       }
-      
+
       onSuccess({
         brandId,
         brandName,
@@ -154,7 +152,7 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
     } catch (error: unknown) {
       setImage(null);
       const err = error as { response?: { data?: { message?: string } } };
-      const message = err.response?.data?.message || 'Thao tác thất bại. Vui lòng thử lại.';
+      const message = err.response?.data?.message || t('brandInfoForm.operationFailed');
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -165,17 +163,17 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
   const isFormValid = brandName && phoneNumber && citizenCode && logoUrl;
 
   return (
-    <form className="w-full max-w-4xl mx-auto flex flex-col gap-4 sm:gap-6 items-center px-4 sm:px-6 lg:px-0 pb-8" onSubmit={handleSubmit}>
+    <form className="w-full max-w-4xl mx-auto flex flex-col gap-4 sm:gap-6 items-center px-4 sm:px-6 lg:px-0 pb-8" onSubmit={handleSubmit} noValidate>
       <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center text-gray-900 mb-4 sm:mb-6">
-        {initialData?.brandId ? 'Chỉnh sửa thông tin thương hiệu' : 'Thông tin thương hiệu'}
+        {initialData?.brandId ? t('brandInfoForm.editTitle') : t('brandInfoForm.title')}
       </h2>
       <div className="flex flex-col items-center w-full">
-        <label className="block text-[#000000] sm:text-lg font-semibold mb-3 sm:mb-4 w-full text-center">Logo thương hiệu</label>
+        <label className="block text-[#000000] sm:text-lg font-semibold mb-3 sm:mb-4 w-full text-center">{t('brandInfoForm.logoLabel')}</label>
         <div className="relative w-48 h-48 sm:w-60 sm:h-60 lg:w-72 lg:h-72 bg-gray-100 rounded-xl flex items-center justify-center mb-4 border border-gray-200 overflow-hidden touch-manipulation">
           {logoUrl ? (
             <Image src={logoUrl} alt="Logo" fill className="object-cover w-full h-full" />
           ) : (
-            <span className="text-gray-400 text-sm sm:text-base text-center px-4">Chưa chọn logo</span>
+            <span className="text-gray-400 text-sm sm:text-base text-center px-4">{t('brandInfoForm.logoNotSelected')}</span>
           )}
           <input
             type="file"
@@ -188,61 +186,61 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
           </div>
         </div>
         {uploading && (
-          <div className="text-sm sm:text-base text-gray-600 mb-2">Đang tải lên...</div>
+          <div className="text-sm sm:text-base text-gray-600 mb-2">{t('brandInfoForm.uploading')}</div>
         )}
       </div>
       <div className="w-full space-y-4 sm:space-y-6">
-        <div className="text-center text-xs sm:text-sm text-red-500">Định dạng ảnh cho phép: PNG, JPG, JPEG, tối đa 5MB</div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+        <div className="text-center text-xs sm:text-sm text-red-500">{t('brandInfoForm.imageFormatInfo')}</div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <div className="sm:col-span-2">
-            <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-1 sm:mb-2">Tên thương hiệu <span className="text-red-500">*</span></label>
-            <Input 
-              value={brandName} 
-              onChange={e => setBrandName(e.target.value)} 
-              placeholder="Nhập tên thương hiệu..." 
-              required 
+            <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-1 sm:mb-2">{t('brandInfoForm.brandNameLabel')} <span className="text-red-500">*</span></label>
+            <Input
+              value={brandName}
+              onChange={e => setBrandName(e.target.value)}
+              placeholder={t('brandInfoForm.brandNamePlaceholder')}
+              required
               className="text-sm sm:text-base py-2 sm:py-3"
             />
             {errors.brandName && <div className="text-red-500 text-xs sm:text-sm mt-1">{errors.brandName}</div>}
           </div>
-          
+
           <div>
-            <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-1 sm:mb-2">Số điện thoại <span className="text-red-500">*</span></label>
-            <Input 
-              value={phoneNumber} 
-              onChange={e => setPhoneNumber(e.target.value)} 
-              placeholder="Nhập số điện thoại..." 
+            <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-1 sm:mb-2">{t('brandInfoForm.phoneLabel')} <span className="text-red-500">*</span></label>
+            <Input
+              value={phoneNumber}
+              onChange={e => setPhoneNumber(e.target.value)}
+              placeholder={t('brandInfoForm.phonePlaceholder')}
               required
               className="text-sm sm:text-base py-2 sm:py-3"
             />
             {errors.phoneNumber && <div className="text-red-500 text-xs sm:text-sm mt-1">{errors.phoneNumber}</div>}
           </div>
-          
+
           <div>
-            <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-1 sm:mb-2">CCCD <span className="text-red-500">*</span></label>
-            <Input 
-              value={citizenCode} 
-              onChange={e => setCitizenCode(e.target.value)} 
-              placeholder="Nhập CCCD..." 
-              required 
+            <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-1 sm:mb-2">{t('brandInfoForm.citizenCodeLabel')} <span className="text-red-500">*</span></label>
+            <Input
+              value={citizenCode}
+              onChange={e => setCitizenCode(e.target.value)}
+              placeholder={t('brandInfoForm.citizenCodePlaceholder')}
+              required
               className="text-sm sm:text-base py-2 sm:py-3"
             />
             {errors.citizenCode && <div className="text-red-500 text-xs sm:text-sm mt-1">{errors.citizenCode}</div>}
           </div>
-          
+
           <div className="sm:col-span-2">
-            <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-1 sm:mb-2">Website</label>
-            <Input 
-              value={website} 
-              onChange={e => setWebsite(e.target.value)} 
-              placeholder="https://example.com" 
+            <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-1 sm:mb-2">{t('brandInfoForm.websiteLabel')}</label>
+            <Input
+              value={website}
+              onChange={e => setWebsite(e.target.value)}
+              placeholder={t('brandInfoForm.websitePlaceholder')}
               className="text-sm sm:text-base py-2 sm:py-3"
             />
             {errors.website && <div className="text-red-500 text-xs sm:text-sm mt-1">{errors.website}</div>}
           </div>
         </div>
       </div>
-      
+
       <div className="w-full mt-6 sm:mt-8">
         <Button
           type="submit"
@@ -256,9 +254,9 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
             }
           }}
         >
-          {isLoading 
-            ? (initialData?.brandId ? 'Đang cập nhật...' : 'Đang lưu...') 
-            : (initialData?.brandId ? 'Cập nhật và tiếp tục' : 'Lưu và tiếp tục')
+          {isLoading
+            ? (initialData?.brandId ? t('brandInfoForm.updating') : t('brandInfoForm.saving'))
+            : (initialData?.brandId ? t('brandInfoForm.updateAndContinue') : t('brandInfoForm.saveAndContinue'))
           }
         </Button>
       </div>

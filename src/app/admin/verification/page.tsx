@@ -9,6 +9,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import { ArrowLeft } from 'lucide-react';
+import { useI18n } from '@/lib/i18n/provider';
 
 export default function AdminVerificationPage() {
   return (
@@ -21,6 +22,7 @@ export default function AdminVerificationPage() {
 function AdminVerificationPageInner({ searchParams }: { searchParams: URLSearchParams | null }) {
   const router = useRouter();
   const email = searchParams?.get('email') || '';
+  const { t } = useI18n();
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
@@ -82,17 +84,17 @@ function AdminVerificationPageInner({ searchParams }: { searchParams: URLSearchP
     e.preventDefault();
     const otpString = otp.join('');
     if (otpString.length !== 6) {
-      toast.error('Vui lòng nhập đầy đủ 6 chữ số');
+      toast.error(t('auth.adminVerification.otpRequired'));
       return;
     }
 
     setIsLoading(true);
     try {
       await new Promise(res => setTimeout(res, 1000));
-      toast.success('Xác thực thành công!');
+      toast.success(t('auth.adminVerification.verificationSuccess'));
       router.push(`/admin/branches?email=${encodeURIComponent(email)}&otp=${otpString}`);
     } catch {
-      toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
+      toast.error(t('auth.adminVerification.verificationFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -115,13 +117,13 @@ function AdminVerificationPageInner({ searchParams }: { searchParams: URLSearchP
 
   return (
     <AuthLayout
-      title="Xác thực tài khoản"
-      description={`Chúng tôi đã gửi mã xác thực đến ${email}`}
+      title={t('auth.adminVerification.title')}
+      description={`${t('auth.adminVerification.description')} ${email}`}
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6" noValidate>
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-4">
-            Nhập mã xác minh 6 chữ số
+            {t('auth.adminVerification.verificationTitle')}
           </label>
           <div className="flex gap-3 justify-center mb-4" onPaste={handlePaste}>
             {otp.map((digit, index) => (
@@ -148,7 +150,7 @@ function AdminVerificationPageInner({ searchParams }: { searchParams: URLSearchP
                 />
                 {digit ? (
                   <Image
-                    src={numberImages[Number(digit)-1]}
+                    src={numberImages[Number(digit) - 1]}
                     alt={`Số ${digit}`}
                     width={36}
                     height={36}
@@ -167,12 +169,12 @@ function AdminVerificationPageInner({ searchParams }: { searchParams: URLSearchP
           className="w-full bg-lime-400 text-gray-900 font-bold py-3 px-6 rounded-lg hover:bg-lime-500 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={!isFormValid}
         >
-          {isLoading ? 'Đang xác minh...' : 'Xác minh'}
+          {isLoading ? t('auth.adminVerification.verifying') : t('auth.adminVerification.verificationButton')}
         </Button>
 
         <div className="text-center space-y-4">
           <div>
-            <span className="text-gray-600 text-sm">Không nhận được mã? </span>
+            <span className="text-gray-600 text-sm">{t('auth.adminVerification.notReceivedCode')} </span>
             {canResend ? (
               <button
                 type="button"
@@ -180,11 +182,11 @@ function AdminVerificationPageInner({ searchParams }: { searchParams: URLSearchP
                 disabled={isLoading}
                 className="text-lime-600 font-semibold hover:underline text-sm transition-colors disabled:opacity-50"
               >
-                Gửi lại mã
+                {t('auth.adminVerification.resendCode')}
               </button>
             ) : (
               <span className="text-gray-500 text-sm">
-                Gửi lại sau {resendTimer}s
+                {t('auth.adminVerification.resendTimer')} {resendTimer}s
               </span>
             )}
           </div>
@@ -194,7 +196,7 @@ function AdminVerificationPageInner({ searchParams }: { searchParams: URLSearchP
               className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1"
             >
               <ArrowLeft className="w-4 h-4" />
-              Quay lại đăng nhập
+              {t('auth.adminVerification.backToLogin')}
             </Link>
           </div>
         </div>

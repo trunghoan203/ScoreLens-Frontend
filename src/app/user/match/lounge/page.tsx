@@ -8,9 +8,11 @@ import FooterButton from '@/components/user/FooterButton';
 import { userMatchService } from '@/lib/userMatchService';
 import { toast } from 'react-hot-toast';
 import { io, Socket } from 'socket.io-client';
-import RoleBadge from '@/components/ui/RoleBadge';
+import { config } from '@/lib/config';
+import { useI18n } from '@/lib/i18n/provider';
 
 function GuestJoinContent() {
+  const { t } = useI18n();
   const searchParams = useSearchParams();
   const router = useRouter();
   const tableNumber = searchParams!.get('table') || '??';
@@ -60,10 +62,9 @@ function GuestJoinContent() {
       if (isConnecting || socketRef.current?.connected) return;
 
       isConnecting = true;
-      const socketUrl = 'http://localhost:8000';
 
       try {
-        const socket = io(socketUrl, {
+        const socket = io(config.socketUrl, {
           transports: ['websocket', 'polling'],
           autoConnect: true,
           timeout: 10000,
@@ -105,12 +106,12 @@ function GuestJoinContent() {
 
         socket.on('guest_joined', () => {
 
-          toast.success('Người chơi mới đã tham gia phòng!');
+          toast.success(t('userMatch.lounge.success.newPlayerJoined'));
         });
 
         socket.on('guest_left', () => {
 
-          toast('Người chơi đã rời khỏi phòng');
+          toast(t('userMatch.lounge.success.playerLeft'));
         });
 
         socket.on('match_updated', (data) => {
@@ -138,7 +139,7 @@ function GuestJoinContent() {
               const teamAMembers: string[] = [];
               data.teams[0].members.forEach((member: { guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }, index: number) => {
                 const memberName =
-                  member.guestName || member.membershipName || member.fullName || member.name || member.userName || member.displayName || `Người chơi ${index + 1}`;
+                  member.guestName || member.membershipName || member.fullName || member.name || member.userName || member.displayName || t('userMatch.lounge.playerPlaceholder').replace('{index}', (index + 1).toString());
                 teamAMembers.push(memberName);
                 guests.push({
                   id: `teamA-${index}`,
@@ -154,7 +155,7 @@ function GuestJoinContent() {
               const teamBMembers: string[] = [];
               data.teams[1].members.forEach((member: { guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }, index: number) => {
                 const memberName =
-                  member.guestName || member.membershipName || member.fullName || member.name || member.userName || member.displayName || `Người chơi ${index + 1}`;
+                  member.guestName || member.membershipName || member.fullName || member.name || member.userName || member.displayName || t('userMatch.lounge.playerPlaceholder').replace('{index}', (index + 1).toString());
                 teamBMembers.push(memberName);
                 guests.push({
                   id: `teamB-${index}`,
@@ -199,7 +200,7 @@ function GuestJoinContent() {
         socketRef.current.disconnect();
       }
     };
-  }, [matchId, roomCode, tableNumber, tableId, sessionToken, router]);
+  }, [matchId, roomCode, tableNumber, tableId, sessionToken, router, t]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -267,7 +268,7 @@ function GuestJoinContent() {
     };
 
     loadMatchData();
-  }, [matchId, guestName]);
+  }, [matchId, guestName, teamA]);
 
   useEffect(() => {
     if (matchId && !tableId) {
@@ -363,7 +364,7 @@ function GuestJoinContent() {
             matchCode: roomCode,
             leaverInfo
           });
-          toast.success('Đã rời khỏi phòng');
+          toast.success(t('userMatch.lounge.success.leftRoom'));
         } catch {
 
         }
@@ -383,13 +384,13 @@ function GuestJoinContent() {
       router.push(`/user/match/create?${loginParams.toString()}`);
 
     } catch {
-      toast.error('Có lỗi xảy ra khi rời phòng');
+      toast.error(t('userMatch.lounge.error.errorLeavingRoom'));
     } finally {
       setIsLeaving(false);
     }
   };
 
-  if (loading) return <ScoreLensLoading text="Đang tham gia phòng..." />;
+  if (loading) return <ScoreLensLoading text={t('userMatch.lounge.loadingText')} />;
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 pt-20 overflow-hidden">
@@ -398,15 +399,15 @@ function GuestJoinContent() {
       <main className="flex-1 flex flex-col px-4 py-8 overflow-y-auto scroll-smooth">
         <div className="text-center mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-[#000000]">
-            {tableNumber.toUpperCase()} - {tableInfo?.category ? (tableInfo.category === 'pool-8' ? 'POOL 8' : ` ${tableInfo.category.toUpperCase()}`) : (tableId ? 'ĐANG TẢI...' : 'POOL 8')}
+            {tableNumber.toUpperCase()} - {tableInfo?.category ? (tableInfo.category === 'pool-8' ? t('userMatch.lounge.pool8') : ` ${tableInfo.category.toUpperCase()}`) : (tableId ? t('userMatch.lounge.loading') : t('userMatch.lounge.pool8'))}
           </h2>
-          <p className="text-sm sm:text-base text-[#000000] font-medium">Bạn đã tham gia phòng với tên: {guestName}</p>
+          <p className="text-sm sm:text-base text-[#000000] font-medium">{t('userMatch.lounge.description').replace('{name}', guestName)}</p>
         </div>
 
         <div className="flex-1 flex justify-center overflow-y-auto scroll-smooth">
           <div className="w-full max-w-sm space-y-6 pb-8">
             <div className="space-y-3 flex flex-col items-center justify-center w-full">
-              <p className="text-base font-medium text-[#000000]">Mã Tham Gia</p>
+              <p className="text-base font-medium text-[#000000]">{t('userMatch.lounge.joinCode')}</p>
               <div className="px-6 py-4 rounded-2xl bg-white border border-[#000000]/80 shadow-sm mx-auto">
                 <div className="flex items-center justify-center gap-3 select-all">
                   {roomCode.split('').map((ch, idx) => (
@@ -419,18 +420,18 @@ function GuestJoinContent() {
                   ))}
                 </div>
               </div>
-              <p className="text-xs text-[#000000]/70">Chia sẻ mã này cho người chơi để tham gia phòng</p>
+              <p className="text-xs text-[#000000]/70">{t('userMatch.lounge.shareCodeNote')}</p>
             </div>
 
             <div className="space-y-4 w-full">
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-                <h3 className="font-bold text-[#000000] mb-3">Đội A</h3>
+                <h3 className="font-bold text-[#000000] mb-3">{t('userMatch.lounge.teamALabel')}</h3>
                 <div className="space-y-3 max-h-64 overflow-y-auto scroll-smooth">
                   {teamA.map((player, index) => (
                     <div key={index} className="flex items-center gap-2">
                       <input
                         type="text"
-                        placeholder={`Người Chơi ${index + 1}`}
+                        placeholder={t('userMatch.lounge.playerPlaceholder').replace('{index}', (index + 1).toString())}
                         value={player}
                         onChange={(e) => handleChange('A', index, e.target.value)}
                         disabled={true}
@@ -442,13 +443,13 @@ function GuestJoinContent() {
               </div>
 
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-                <h3 className="font-bold text-[#000000] mb-3">Đội B</h3>
+                <h3 className="font-bold text-[#000000] mb-3">{t('userMatch.lounge.teamBLabel')}</h3>
                 <div className="space-y-3 max-h-64 overflow-y-auto scroll-smooth">
                   {teamB.map((player, index) => (
                     <div key={index} className="flex items-center gap-2">
                       <input
                         type="text"
-                        placeholder={`Người Chơi ${index + 1}`}
+                        placeholder={t('userMatch.lounge.playerPlaceholder').replace('{index}', (index + 1).toString())}
                         value={player}
                         onChange={(e) => handleChange('B', index, e.target.value)}
                         disabled={true}
@@ -472,7 +473,7 @@ function GuestJoinContent() {
             : 'bg-[#FF0000] hover:bg-red-600 text-[#FFFFFF]'
             }`}
         >
-          {isLeaving ? 'Đang rời phòng...' : 'Rời phòng'}
+          {isLeaving ? t('userMatch.lounge.leaving') : t('userMatch.lounge.leaveButton')}
         </button>
       </FooterButton>
 
@@ -480,24 +481,24 @@ function GuestJoinContent() {
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-lg text-center">
             <h2 className="text-xl font-bold text-[#000000] mb-4">
-              Xác nhận rời phòng
+              {t('userMatch.lounge.confirmLeaveTitle')}
             </h2>
             <p className="text-sm text-gray-600 mb-6">
-              Bạn có chắc chắn muốn rời khỏi phòng này không?
+              {t('userMatch.lounge.confirmLeaveMessage')}
             </p>
             <div className="flex gap-4">
               <button
                 onClick={() => setShowLeaveConfirm(false)}
                 className="w-full bg-[#FF0000] hover:bg-gray-400 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base transition"
               >
-                Hủy
+                {t('userMatch.lounge.cancel')}
               </button>
               <button
                 onClick={handleConfirmLeave}
                 disabled={isLeaving}
                 className="w-full bg-[#8ADB10] hover:bg-red-600 disabled:bg-gray-400 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base transition disabled:cursor-not-allowed"
               >
-                {isLeaving ? 'Đang rời phòng...' : 'Xác nhận'}
+                {isLeaving ? t('userMatch.lounge.leaving') : t('userMatch.lounge.confirm')}
               </button>
             </div>
           </div>
@@ -507,9 +508,14 @@ function GuestJoinContent() {
   );
 }
 
+function LoadingFallback() {
+  const { t } = useI18n();
+  return <ScoreLensLoading text={t('userMatch.lounge.loadingText')} />;
+}
+
 export default function GuestJoinPage() {
   return (
-    <Suspense fallback={<ScoreLensLoading text="Đang tải..." />}>
+    <Suspense fallback={<LoadingFallback />}>
       <GuestJoinContent />
     </Suspense>
   );

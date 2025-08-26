@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Search } from 'lucide-react';
 import { getAllFeedback } from '@/lib/saFeedbackService';
+import { useI18n } from '@/lib/i18n/provider';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
 
@@ -46,6 +47,7 @@ interface ApiFeedback {
 
 export function FeedbackTable() {
   const router = useRouter();
+  const { t } = useI18n();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [statusFilter, setStatusFilter] = useState('pending');
@@ -63,11 +65,11 @@ export function FeedbackTable() {
         setLoading(false);
       })
       .catch(() => {
-        toast.error('Không lấy được danh sách phản hồi');
+        toast.error(t('superAdminHome.cannotLoadAdminList'));
         setFeedbacks([]);
         setLoading(false);
       });
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -113,11 +115,11 @@ export function FeedbackTable() {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'resolved': return 'Đã xử lý';
-      case 'managerP': return 'Quản lý xử lý';
-      case 'adminP': return 'Chủ doanh nghiệp xử lý';
-      case 'superadminP': return 'Quản trị viên xử lý';
-      default: return 'Không xác định';
+      case 'resolved': return t('superAdminHome.feedbackStatusResolved');
+      case 'managerP': return t('superAdminHome.feedbackStatusManagerP');
+      case 'adminP': return t('superAdminHome.feedbackStatusAdminP');
+      case 'superadminP': return t('superAdminHome.feedbackStatusSuperadminP');
+      default: return t('superAdminHome.feedbackStatusUnknown');
     }
   };
 
@@ -138,7 +140,7 @@ export function FeedbackTable() {
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-lime-500 w-4 h-4 sm:w-5 sm:h-5" />
           <input
             type="text"
-            placeholder="Nhập thương hiệu hoặc chi nhánh..."
+            placeholder={t('superAdminHome.feedbackSearchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 sm:py-2.5 pl-3 sm:pl-4 pr-8 sm:pr-10 text-sm sm:text-base font-medium text-black placeholder-gray-400 shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none"
@@ -152,9 +154,9 @@ export function FeedbackTable() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 sm:py-2.5 pl-3 sm:pl-4 pr-8 sm:pr-10 text-sm sm:text-base font-medium text-black shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none appearance-none"
             >
-              <option value="all">Tất cả</option>
-              <option value="pending">Chưa xử lý</option>
-              <option value="resolved">Đã xử lý</option>
+              <option value="all">{t('superAdminHome.feedbackAllStatus')}</option>
+              <option value="pending">{t('superAdminHome.feedbackPendingStatus')}</option>
+              <option value="resolved">{t('superAdminHome.feedbackResolvedStatus')}</option>
             </select>
             <Image
               src="/icon/chevron-down_Black.svg"
@@ -180,13 +182,13 @@ export function FeedbackTable() {
         <div className="hidden lg:block overflow-x-auto">
           <div className="space-y-2 rounded-lg min-w-[800px]">
             <div className="grid grid-cols-12 bg-black text-white font-semibold text-center">
-              <div className="col-span-3 py-3 text-sm xl:text-base">THƯƠNG HIỆU</div>
-              <div className="col-span-3 py-3 text-sm xl:text-base">CHI NHÁNH</div>
-              <div className="col-span-3 py-3 text-sm xl:text-base">NGÀY</div>
-              <div className="col-span-3 py-3 text-sm xl:text-base">TRẠNG THÁI</div>
+              <div className="col-span-3 py-3 text-sm xl:text-base">{t('superAdminHome.feedbackBrandColumn')}</div>
+              <div className="col-span-3 py-3 text-sm xl:text-base">{t('superAdminHome.feedbackBranchColumn')}</div>
+              <div className="col-span-3 py-3 text-sm xl:text-base">{t('superAdminHome.feedbackDateColumn')}</div>
+              <div className="col-span-3 py-3 text-sm xl:text-base">{t('superAdminHome.feedbackStatusColumn')}</div>
             </div>
             {loading ? (
-              <div className="py-6 sm:py-8 text-center text-gray-500 text-sm sm:text-base">Đang tải...</div>
+              <div className="py-6 sm:py-8 text-center text-gray-500 text-sm sm:text-base">{t('superAdminHome.loading')}</div>
             ) : displayedFeedbacks.length > 0 ? (
               displayedFeedbacks.map((fb) => (
                 <div
@@ -195,7 +197,7 @@ export function FeedbackTable() {
                   onClick={() => router.push(`/superadmin/feedback/${fb.feedbackId}`)}
                 >
                   <div className="col-span-3 py-4 font-semibold text-black text-sm xl:text-base px-2">
-                    {fb.clubInfo?.brandName || 'Không xác định'}
+                    {fb.clubInfo?.brandName || t('superAdminHome.feedbackStatusUnknown')}
                   </div>
                   <div className="col-span-3 py-4 text-gray-700 text-sm xl:text-base px-2">
                     {fb.clubInfo?.clubName || ''}
@@ -214,14 +216,14 @@ export function FeedbackTable() {
                 </div>
               ))
             ) : (
-              <div className="py-6 sm:py-8 text-center text-gray-500 text-sm sm:text-base">Không tìm thấy phản hồi nào.</div>
+              <div className="py-6 sm:py-8 text-center text-gray-500 text-sm sm:text-base">{t('superAdminHome.feedbackNoFeedbacksFound')}</div>
             )}
           </div>
         </div>
 
         <div className="block lg:hidden space-y-3">
           {loading ? (
-            <div className="py-6 sm:py-8 text-center text-gray-500 text-sm sm:text-base">Đang tải...</div>
+            <div className="py-6 sm:py-8 text-center text-gray-500 text-sm sm:text-base">{t('superAdminHome.loading')}</div>
           ) : displayedFeedbacks.length > 0 ? (
             displayedFeedbacks.map((fb) => (
               <div
@@ -232,9 +234,9 @@ export function FeedbackTable() {
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900 text-base mb-1">
-                      {fb.clubInfo?.brandName || 'Không xác định'}
+                      {fb.clubInfo?.brandName || t('superAdminHome.feedbackStatusUnknown')}
                     </h3>
-                    <p className="text-gray-600 text-sm">{fb.clubInfo?.clubName || 'Chưa có chi nhánh'}</p>
+                    <p className="text-gray-600 text-sm">{fb.clubInfo?.clubName || t('superAdminHome.feedbackNoBranch')}</p>
                   </div>
                   <Badge
                     variant={getStatusColor(fb.status)}
@@ -245,7 +247,7 @@ export function FeedbackTable() {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center">
-                    <span className="text-gray-500 text-xs font-medium w-8">Ngày:</span>
+                    <span className="text-gray-500 text-xs font-medium w-8">{t('superAdminHome.feedbackDateLabel')}</span>
                     <span className="text-gray-800 text-sm font-medium">
                       {fb.createdAt ? new Date(fb.createdAt).toISOString().slice(0, 10) : ''}
                     </span>
@@ -253,13 +255,13 @@ export function FeedbackTable() {
                 </div>
                 <div className="mt-3 pt-3 border-t border-gray-100">
                   <div className="flex justify-end">
-                    <span className="text-lime-600 text-xs font-medium">Nhấn để xem chi tiết →</span>
+                    <span className="text-lime-600 text-xs font-medium">{t('superAdminHome.feedbackClickToViewDetails')}</span>
                   </div>
                 </div>
               </div>
             ))
           ) : (
-            <div className="py-6 sm:py-8 text-center text-gray-500 text-sm sm:text-base">Không tìm thấy phản hồi nào.</div>
+            <div className="py-6 sm:py-8 text-center text-gray-500 text-sm sm:text-base">{t('superAdminHome.feedbackNoFeedbacksFound')}</div>
           )}
         </div>
       </div>
@@ -316,7 +318,7 @@ export function FeedbackTable() {
       )}
 
       <div className="mt-3 sm:mt-4 text-center text-gray-400 italic text-xs sm:text-sm">
-        Hiển thị {startIndex + 1}-{Math.min(endIndex, sortedFeedbacks.length)} trong tổng số {sortedFeedbacks.length} phản hồi
+        {t('superAdminHome.feedbackShowingResults').replace('{start}', (startIndex + 1).toString()).replace('{end}', Math.min(endIndex, sortedFeedbacks.length).toString()).replace('{total}', sortedFeedbacks.length.toString())}
       </div>
     </div>
   );

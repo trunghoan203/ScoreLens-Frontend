@@ -3,8 +3,9 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useI18n } from '@/lib/i18n/provider';
 
-type AdminStatus = 'Đã duyệt' | 'Chưa duyệt' | 'Bị từ chối';
+type AdminStatus = string;
 
 interface Admin {
   id: string;
@@ -17,10 +18,19 @@ interface Admin {
   };
 }
 
-const statusVariantMap: Record<AdminStatus, 'success' | 'danger' | 'default'> = {
-  'Đã duyệt': 'success',
-  'Chưa duyệt': 'default',
-  'Bị từ chối': 'danger',
+const getStatusVariant = (status: string): 'success' | 'danger' | 'default' => {
+  switch (status) {
+    case 'Đã duyệt':
+    case 'Approved':
+      return 'success';
+    case 'Bị từ chối':
+    case 'Rejected':
+      return 'danger';
+    case 'Chưa duyệt':
+    case 'Pending':
+    default:
+      return 'default';
+  }
 };
 
 interface AdminTableProps {
@@ -31,6 +41,7 @@ interface AdminTableProps {
 }
 
 export function AdminTable({ admins, searchTerm, statusFilter, onRowClick }: AdminTableProps) {
+  const { t } = useI18n();
   const [visibleCount, setVisibleCount] = React.useState(5);
 
   const sortedAdmins = admins.sort((a, b) => {
@@ -50,13 +61,13 @@ export function AdminTable({ admins, searchTerm, statusFilter, onRowClick }: Adm
     if (statusFilter) {
       switch (statusFilter) {
         case 'approved':
-          matchesStatus = admin.status === 'Đã duyệt';
+          matchesStatus = admin.status === t('superAdminHome.statusApproved');
           break;
         case 'pending':
-          matchesStatus = admin.status === 'Chưa duyệt';
+          matchesStatus = admin.status === t('superAdminHome.statusPending');
           break;
         case 'rejected':
-          matchesStatus = admin.status === 'Bị từ chối';
+          matchesStatus = admin.status === t('superAdminHome.statusRejected');
           break;
         default:
           matchesStatus = true;
@@ -77,9 +88,9 @@ export function AdminTable({ admins, searchTerm, statusFilter, onRowClick }: Adm
       <div className="hidden lg:block overflow-x-auto">
         <div className="space-y-2 rounded-lg min-w-[800px]">
           <div className="grid grid-cols-12 bg-black text-white font-semibold text-center">
-            <div className="col-span-4 py-3 text-sm xl:text-base">TÊN</div>
-            <div className="col-span-4 py-3 text-sm xl:text-base">EMAIL</div>
-            <div className="col-span-4 py-3 text-sm xl:text-base">TRẠNG THÁI</div>
+            <div className="col-span-4 py-3 text-sm xl:text-base">{t('superAdminHome.table.name')}</div>
+            <div className="col-span-4 py-3 text-sm xl:text-base">{t('superAdminHome.table.email')}</div>
+            <div className="col-span-4 py-3 text-sm xl:text-base">{t('superAdminHome.table.status')}</div>
           </div>
           {visibleAdmins.length > 0 ? (
             visibleAdmins.map((admin) => (
@@ -92,7 +103,7 @@ export function AdminTable({ admins, searchTerm, statusFilter, onRowClick }: Adm
                 <div className="col-span-4 py-4 text-gray-700 text-sm xl:text-base px-2">{admin.email}</div>
                 <div className="col-span-4 py-4 flex justify-center px-2">
                   <Badge
-                    variant={statusVariantMap[admin.status]}
+                    variant={getStatusVariant(admin.status)}
                     className="rounded-full px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-base font-semibold"
                   >
                     {admin.status}
@@ -101,7 +112,7 @@ export function AdminTable({ admins, searchTerm, statusFilter, onRowClick }: Adm
               </div>
             ))
           ) : (
-            <div className="py-6 sm:py-8 text-center text-gray-500 text-sm sm:text-base">Không tìm thấy admin nào.</div>
+            <div className="py-6 sm:py-8 text-center text-gray-500 text-sm sm:text-base">{t('superAdminHome.noAdminsFound')}</div>
           )}
         </div>
       </div>
@@ -120,7 +131,7 @@ export function AdminTable({ admins, searchTerm, statusFilter, onRowClick }: Adm
                   <p className="text-gray-600 text-sm">{admin.email}</p>
                 </div>
                 <Badge
-                  variant={statusVariantMap[admin.status]}
+                  variant={getStatusVariant(admin.status)}
                   className="ml-3 px-3 py-1 rounded-full text-white font-medium text-xs flex-shrink-0"
                 >
                   {admin.status}
@@ -128,13 +139,13 @@ export function AdminTable({ admins, searchTerm, statusFilter, onRowClick }: Adm
               </div>
               <div className="mt-3 pt-3 border-t border-gray-100">
                 <div className="flex justify-end">
-                  <span className="text-lime-600 text-xs font-medium">Nhấn để xem chi tiết →</span>
+                  <span className="text-lime-600 text-xs font-medium">{t('superAdminHome.table.clickToViewDetails')}</span>
                 </div>
               </div>
             </div>
           ))
         ) : (
-          <div className="py-6 sm:py-8 text-center text-gray-500 text-sm sm:text-base">Không tìm thấy admin nào.</div>
+          <div className="py-6 sm:py-8 text-center text-gray-500 text-sm sm:text-base">{t('superAdminHome.noAdminsFound')}</div>
         )}
       </div>
 
@@ -144,7 +155,7 @@ export function AdminTable({ admins, searchTerm, statusFilter, onRowClick }: Adm
             onClick={handleLoadMore}
             className="bg-lime-500 hover:bg-lime-600 text-white font-semibold px-6 sm:px-8 py-2.5 sm:py-3 text-sm sm:text-base rounded-xl hover:shadow-md transition"
           >
-            XEM THÊM
+            {t('superAdminHome.loadMore')}
           </Button>
         </div>
       )}

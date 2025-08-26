@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface AdminFiltersProps {
   searchTerm: string;
@@ -16,6 +17,8 @@ export function AdminFilters({
   onSearchChange,
   onStatusChange,
 }: AdminFiltersProps) {
+  const { t } = useI18n();
+
   return (
     <div className="w-full mb-6 sm:mb-8">
       <div
@@ -25,7 +28,7 @@ export function AdminFilters({
         <div className="relative w-full sm:w-80 h-10 sm:h-12 bg-white rounded-xl border-2 border-gray-200 focus:border-lime-400 transition-all">
           <input
             type="text"
-            placeholder="Nhập tên hoặc email..."
+            placeholder={t('superAdminHome.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             className="h-full w-full bg-transparent px-3 sm:px-4 pr-8 sm:pr-10 rounded-xl placeholder-gray-400 focus:outline-none text-[#000000] sm:text-base"
@@ -45,10 +48,10 @@ export function AdminFilters({
             onChange={(e) => onStatusChange(e.target.value)}
             className="h-full w-full bg-transparent px-3 sm:px-4 pr-8 sm:pr-10 rounded-xl appearance-none focus:outline-none text-sm sm:text-base"
           >
-            <option value="">Tất cả</option>
-            <option value="approved">Đã duyệt</option>
-            <option value="pending">Chưa duyệt</option>
-            <option value="rejected">Bị từ chối</option>
+            <option value="">{t('superAdminHome.allStatus')}</option>
+            <option value="approved">{t('superAdminHome.approvedStatus')}</option>
+            <option value="pending">{t('superAdminHome.pendingStatus')}</option>
+            <option value="rejected">{t('superAdminHome.rejectedStatus')}</option>
           </select>
           <Image
             src="/icon/chevron-down_Black.svg"

@@ -1,5 +1,7 @@
+"use client";
 import React from 'react';
 import Image from 'next/image';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface FeedbackSearchBarProps {
   search: string;
@@ -18,10 +20,12 @@ export default function FeedbackSearchBar({
   dateFilter = '',
   setDateFilter = () => { }
 }: FeedbackSearchBarProps) {
+  const { t } = useI18n();
+
   const statusOptions = [
-    { value: 'all', label: 'Tất cả' },
-    { value: 'pending', label: 'Chưa xử lý' },
-    { value: 'resolved', label: 'Đã xử lý' },
+    { value: 'all', label: t('feedbacks.filterOptions.all') },
+    { value: 'pending', label: t('feedbacks.filterOptions.pending') },
+    { value: 'resolved', label: t('feedbacks.filterOptions.resolved') },
   ];
 
   return (
@@ -29,7 +33,7 @@ export default function FeedbackSearchBar({
       <div className="flex items-center border border-gray-300 bg-gray-100 rounded-lg px-3 sm:px-4 py-2 w-full sm:w-80 lg:w-96">
         <input
           type="text"
-          placeholder="Nhập chi nhánh hoặc bàn để tìm kiếm"
+          placeholder={t('feedbacks.searchPlaceholder')}
           className="bg-transparent outline-none flex-1 text-gray-700 text-sm sm:text-base"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -38,7 +42,7 @@ export default function FeedbackSearchBar({
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-        <div className="relative w-full sm:w-32 lg:w-40">
+        <div className="relative w-full sm:w-40 lg:w-40">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -59,7 +63,7 @@ export default function FeedbackSearchBar({
           />
         </div>
 
-        <div className="relative w-full sm:w-40 lg:w-48">
+        <div className="relative w-full sm:w-40 lg:w-55">
           <input
             type="date"
             value={dateFilter}

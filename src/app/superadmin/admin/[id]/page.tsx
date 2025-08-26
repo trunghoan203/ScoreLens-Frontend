@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { getAdminDetail, approveAdmin, rejectAdmin } from '@/lib/saAdminService';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface Club {
   clubId: string;
@@ -37,6 +38,7 @@ interface Admin {
 }
 
 export default function AdminDetailPage() {
+  const { t } = useI18n();
   const params = useParams();
   const id = typeof params?.id === 'string' ? params.id : '';
   const router = useRouter();
@@ -49,7 +51,7 @@ export default function AdminDetailPage() {
   useEffect(() => {
     if (!id) {
       setLoading(false);
-      toast.error('ID không hợp lệ');
+      toast.error(t('superAdminAdminDetail.invalidId'));
       return;
     }
     setLoading(true);
@@ -57,7 +59,7 @@ export default function AdminDetailPage() {
       .then((res) => {
         const data = res.data as { admin?: Admin };
         if (!data.admin) {
-          toast.error('Không tìm thấy admin');
+          toast.error(t('superAdminAdminDetail.adminNotFound'));
           setAdmin(null);
         } else {
           setAdmin(data.admin);
@@ -65,18 +67,18 @@ export default function AdminDetailPage() {
         setLoading(false);
       })
       .catch(() => {
-        toast.error('Không tìm thấy admin');
+        toast.error(t('superAdminAdminDetail.adminNotFound'));
         setLoading(false);
       });
-  }, [id]);
+  }, [id, t]);
 
   const handleApprove = async () => {
     try {
       await approveAdmin(id);
-      toast.success('Admin đã được duyệt.');
+      toast.success(t('superAdminAdminDetail.approveSuccess'));
       router.push('/superadmin/home?tab=approval');
     } catch {
-      toast.error('Duyệt thất bại');
+      toast.error(t('superAdminAdminDetail.approveFailed'));
     }
   };
 
@@ -86,16 +88,16 @@ export default function AdminDetailPage() {
 
   const handleConfirmReject = async () => {
     if (!rejectReason.trim()) {
-      toast.error('Vui lòng nhập lý do từ chối!');
+      toast.error(t('superAdminAdminDetail.rejectReasonRequired'));
       return;
     }
     setRejecting(true);
     try {
       await rejectAdmin(id, rejectReason);
-      toast.success('Admin đã bị từ chối.');
+      toast.success(t('superAdminAdminDetail.rejectSuccess'));
       router.push('/superadmin/home?tab=approval');
     } catch {
-      toast.error('Từ chối thất bại');
+      toast.error(t('superAdminAdminDetail.rejectFailed'));
     } finally {
       setRejecting(false);
       setShowRejectReason(false);
@@ -104,34 +106,34 @@ export default function AdminDetailPage() {
 
   const MotionButton = motion(Button);
 
-  if (loading) return <div className="p-4 text-center">Đang tải...</div>;
-  if (!admin) return <div className="p-4 text-center text-red-500">Không tìm thấy admin với ID: {id}</div>;
+  if (loading) return <div className="p-4 text-center">{t('superAdminAdminDetail.loading')}</div>;
+  if (!admin) return <div className="p-4 text-center text-red-500">{t('superAdminAdminDetail.adminNotFound')} với ID: {id}</div>;
 
   return (
     <>
       <HeaderSuperAdmin />
-      <PageBanner title="ADMIN" />
+      <PageBanner title={t('superAdminAdminDetail.pageTitle')} />
       <div className="min-h-screen bg-gray-50 px-4 md:px-8 py-10">
         <div className="max-w-5xl mx-auto space-y-6">
           <h2 className="text-center text-2xl md:text-3xl font-bold text-black">
-            THÔNG TIN CHI TIẾT
+            {t('superAdminAdminDetail.detailTitle')}
           </h2>
 
           <div className="flex flex-col items-center mb-4">
             <span className="text-base font-semibold text-black">
-              Trạng thái: {admin.status === 'pending' && (
-                <span className="text-yellow-500">Chờ duyệt</span>
+              {t('superAdminAdminDetail.statusLabel')} {admin.status === 'pending' && (
+                <span className="text-yellow-500">{t('superAdminAdminDetail.statusPending')}</span>
               )}
               {admin.status === 'approved' && (
-                <span className="text-green-600">Đã duyệt</span>
+                <span className="text-green-600">{t('superAdminAdminDetail.statusApproved')}</span>
               )}
               {admin.status === 'rejected' && (
-                <span className="text-red-600">Bị từ chối</span>
+                <span className="text-red-600">{t('superAdminAdminDetail.statusRejected')}</span>
               )}
             </span>
             {admin.status === 'rejected' && admin.rejectedReason && (
               <div className="mt-2 px-4 py-2 bg-red-50 border border-red-200 rounded text-red-700 text-sm max-w-xl text-center">
-                <b>Lý do bị từ chối:</b> {admin.rejectedReason}
+                <b>{t('superAdminAdminDetail.rejectedReasonTitle')}</b> {admin.rejectedReason}
               </div>
             )}
           </div>
@@ -152,31 +154,31 @@ export default function AdminDetailPage() {
               ) : (
                 <div className="w-60 h-72 bg-gray-200 rounded-md flex items-center justify-center text-gray-500 text-sm">
                   <div className="text-center">
-                    <div>Không có logo</div>
-                    <div className="text-xs mt-1">Brand: {admin.brand?.brandName || 'N/A'}</div>
+                    <div>{t('superAdminAdminDetail.noLogo')}</div>
+                    <div className="text-xs mt-1">{t('superAdminAdminDetail.brandLabel')} {admin.brand?.brandName || 'N/A'}</div>
                   </div>
                 </div>
               )}
             </div>
             <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">
               <div>
-                <label className="block text-sm font-medium text-black mb-1">Tên Quán</label>
+                <label className="block text-sm font-medium text-black mb-1">{t('superAdminAdminDetail.brandNameLabel')}</label>
                 <Input value={admin.brand?.brandName || ''} disabled />
               </div>
               <div>
-                <label className="block text-sm font-medium text-black mb-1">Họ và Tên</label>
+                <label className="block text-sm font-medium text-black mb-1">{t('superAdminAdminDetail.fullNameLabel')}</label>
                 <Input value={admin.fullName || ''} disabled />
               </div>
               <div>
-                <label className="block text-sm font-medium text-black mb-1">CCCD</label>
+                <label className="block text-sm font-medium text-black mb-1">{t('superAdminAdminDetail.citizenCodeLabel')}</label>
                 <Input value={admin.brand?.citizenCode || ''} disabled />
               </div>
               <div>
-                <label className="block text-sm font-medium text-black mb-1">Số Điện Thoại</label>
+                <label className="block text-sm font-medium text-black mb-1">{t('superAdminAdminDetail.phoneNumberLabel')}</label>
                 <Input value={admin.brand?.phoneNumber || ''} disabled />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-black mb-1">Email</label>
+                <label className="block text-sm font-medium text-black mb-1">{t('superAdminAdminDetail.emailLabel')}</label>
                 <Input value={admin.email || ''} disabled />
               </div>
             </div>
@@ -192,19 +194,19 @@ export default function AdminDetailPage() {
                     className="relative p-6 border rounded-xl bg-white shadow-md mb-6 transition-shadow hover:shadow-lg"
                   >
                     <div className="mb-4">
-                      <span className="text-base font-semibold text-lime-600">Chi nhánh {idx + 1}</span>
+                      <span className="text-base font-semibold text-lime-600">{t('superAdminAdminDetail.branchLabel')} {idx + 1}</span>
                     </div>
                     <div className="grid grid-cols-3 gap-10 text-sm text-gray-700">
                       <div>
-                        <label className="block text-xs font-medium text-gray-500 mb-1">Tên chi nhánh</label>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">{t('superAdminAdminDetail.branchNameLabel')}</label>
                         <div className="font-medium text-gray-800">{club.clubName || ''}</div>
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-500 mb-1">Địa chỉ</label>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">{t('superAdminAdminDetail.addressLabel')}</label>
                         <div className="font-medium text-gray-800">{club.address || ''}</div>
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-500 mb-1">Số bàn</label>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">{t('superAdminAdminDetail.tableNumberLabel')}</label>
                         <div className="font-medium text-gray-800">{club.tableNumber || ''}</div>
                       </div>
                     </div>
@@ -228,7 +230,7 @@ export default function AdminDetailPage() {
                   className="w-44 h-12 text-base font-semibold rounded-xl bg-red-500 hover:bg-red-600 text-white shadow-lg hover:shadow-xl transform transition-all duration-200"
                   onClick={handleReject}
                 >
-                  TỪ CHỐI
+                  {t('superAdminAdminDetail.rejectButton')}
                 </MotionButton>
 
                 <MotionButton
@@ -242,19 +244,19 @@ export default function AdminDetailPage() {
                   className="w-44 h-12 text-base font-semibold rounded-xl bg-lime-500 hover:bg-lime-600 text-white shadow-lg hover:shadow-xl transform transition-all duration-200"
                   onClick={handleApprove}
                 >
-                  DUYỆT
+                  {t('superAdminAdminDetail.approveButton')}
                 </MotionButton>
               </div>
 
               {showRejectReason && (
                 <div className="w-full max-w-xl bg-white border border-lime-500 rounded-2xl shadow-xl p-6 mt-6 transition-all duration-300">
                   <h3 className="text-xl font-bold text-lime-600 mb-4 text-center">
-                    Nhập lý do từ chối
+                    {t('superAdminAdminDetail.rejectReasonTitle')}
                   </h3>
 
                   <textarea
                     className="w-full min-h-[100px] rounded-lg border border-lime-500 p-4 text-black text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-lime-500 resize-none"
-                    placeholder="Vui lòng nhập lý do từ chối tại đây..."
+                    placeholder={t('superAdminAdminDetail.rejectReasonPlaceholder')}
                     value={rejectReason}
                     onChange={(e) => setRejectReason(e.target.value)}
                     disabled={rejecting}
@@ -273,7 +275,7 @@ export default function AdminDetailPage() {
                       disabled={rejecting}
                       className="w-full sm:w-40 h-11 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 shadow-md hover:shadow-lg transform transition-all duration-200 order-2 sm:order-1"
                     >
-                      Hủy
+                      {t('superAdminAdminDetail.cancelButton')}
                     </MotionButton>
 
                     <MotionButton
@@ -291,10 +293,10 @@ export default function AdminDetailPage() {
                       {rejecting ? (
                         <div className="flex items-center gap-2">
                           <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                          Đang gửi...
+                          {t('superAdminAdminDetail.sending')}
                         </div>
                       ) : (
-                        'Xác nhận từ chối'
+                        t('superAdminAdminDetail.confirmRejectButton')
                       )}
                     </MotionButton>
                   </div>
@@ -312,7 +314,7 @@ export default function AdminDetailPage() {
                 className="w-44 h-12 text-base font-semibold rounded-xl bg-lime-500 text-white hover:bg-lime-600 shadow-lg hover:shadow-xl transform transition-all duration-200"
                 onClick={() => router.push('/superadmin/home')}
               >
-                QUAY LẠI
+                {t('superAdminAdminDetail.backButton')}
               </MotionButton>
             </div>
           ) : (
@@ -328,7 +330,7 @@ export default function AdminDetailPage() {
                 className="w-44 h-12 text-base font-semibold rounded-xl bg-lime-500 text-white hover:bg-lime-600 shadow-lg hover:shadow-xl transform transition-all duration-200"
                 onClick={() => router.push('/superadmin/home')}
               >
-                QUAY LẠI
+                {t('superAdminAdminDetail.backButton')}
               </MotionButton>
             </div>
           )}

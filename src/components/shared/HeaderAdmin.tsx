@@ -3,15 +3,16 @@
 import { useState, useRef, useEffect } from 'react';
 import { ScoreLensLogo } from '@/components/icons/LogoWhite';
 import Image from 'next/image';
+import { useI18n } from '@/lib/i18n/provider';
 
 export function HeaderAdmin() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [currentLanguage, setCurrentLanguage] = useState<'VI' | 'EN'>('VI');
+  const { currentLanguage, changeLanguage } = useI18n();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const languages = [
-    { code: 'VI', name: 'Việt Nam', flag: '/images/vietNam.png' },
-    { code: 'EN', name: 'English', flag: '/images/english.png' }
+    { code: 'vi', name: 'Việt Nam', flag: '/images/vietNam.png' },
+    { code: 'en', name: 'English', flag: '/images/english.png' }
   ];
 
   const currentLanguageData = languages.find(lang => lang.code === currentLanguage);
@@ -30,8 +31,8 @@ export function HeaderAdmin() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [dropdownOpen]);
 
-  const handleLanguageChange = (languageCode: 'VI' | 'EN') => {
-    setCurrentLanguage(languageCode);
+  const handleLanguageChange = (languageCode: 'vi' | 'en') => {
+    changeLanguage(languageCode);
     setDropdownOpen(false);
   };
   return (
@@ -52,7 +53,7 @@ export function HeaderAdmin() {
               height={16}
               className="sm:w-[30px] sm:h-[20px] rounded-sm"
             />
-            <span className="text-base sm:text-lg font-medium text-[#FFFFFF]">{currentLanguage}</span>
+            <span className="text-base sm:text-lg font-medium text-[#FFFFFF]">{currentLanguage.toUpperCase()}</span>
             <Image
               src="/icon/chevron-down.svg"
               alt="Chevron Down"
@@ -69,7 +70,7 @@ export function HeaderAdmin() {
                   key={language.code}
                   className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 cursor-pointer hover:bg-gray-50 transition-colors touch-manipulation ${currentLanguage === language.code ? 'bg-lime-50 text-[#8ADB10]' : 'text-gray-700'
                     }`}
-                  onClick={() => handleLanguageChange(language.code as 'VI' | 'EN')}
+                  onClick={() => handleLanguageChange(language.code as 'vi' | 'en')}
                 >
                   <Image
                     src={language.flag}
@@ -93,7 +94,7 @@ export function HeaderAdmin() {
             </div>
           )}
         </div>
-        
+
         <div className="sm:hidden relative" ref={dropdownRef}>
           <div
             className="flex items-center gap-1 cursor-pointer hover:text-lime-400 transition-colors touch-manipulation"
@@ -123,7 +124,7 @@ export function HeaderAdmin() {
                   key={language.code}
                   className={`flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors touch-manipulation ${currentLanguage === language.code ? 'bg-lime-50 text-[#8ADB10]' : 'text-gray-700'
                     }`}
-                  onClick={() => handleLanguageChange(language.code as 'VI' | 'EN')}
+                  onClick={() => handleLanguageChange(language.code as 'vi' | 'en')}
                 >
                   <Image
                     src={language.flag}

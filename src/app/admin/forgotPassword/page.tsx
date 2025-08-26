@@ -11,8 +11,10 @@ import axios from '@/lib/axios';
 import toast from 'react-hot-toast';
 import { Loader2, Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 import { PasswordInput } from '@/components/ui/PasswordInput';
+import { useI18n } from '@/lib/i18n/provider';
 
 export default function AdminForgotPasswordPage() {
+  const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -32,11 +34,11 @@ export default function AdminForgotPasswordPage() {
     setIsLoading(true);
     try {
       await axios.post('/admin/forgotPassword', { email });
-      toast.success('Email đã được gửi thành công! Vui lòng kiểm tra hộp thư.');
+      toast.success(t('auth.forgotPassword.emailSentSuccess'));
       setStep(2);
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
-      const errorMessage = error.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.';
+      const errorMessage = error.response?.data?.message || t('auth.forgotPassword.generalError');
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -47,24 +49,24 @@ export default function AdminForgotPasswordPage() {
     e.preventDefault();
     setIsLoading(true);
     if (newPassword.length < 8) {
-      const errorMessage = 'Mật khẩu phải có ít nhất 8 ký tự.';
+      const errorMessage = t('auth.forgotPassword.passwordMinLength');
       toast.error(errorMessage);
       setIsLoading(false);
       return;
     }
     if (newPassword !== confirmPassword) {
-      const errorMessage = 'Mật khẩu xác nhận không khớp.';
+      const errorMessage = t('auth.forgotPassword.passwordMismatch');
       toast.error(errorMessage);
       setIsLoading(false);
       return;
     }
     try {
       await axios.post('/admin/set-newPassword', { email, newPassword });
-      toast.success('Đặt lại mật khẩu thành công!');
+      toast.success(t('auth.forgotPassword.resetSuccess'));
       setStep(4);
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
-      const errorMessage = error.response?.data?.message || 'Đặt lại mật khẩu thất bại.';
+      const errorMessage = error.response?.data?.message || t('auth.forgotPassword.resetFailed');
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -88,16 +90,16 @@ export default function AdminForgotPasswordPage() {
                     className="mb-4"
                   />
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-center text-black mb-2">ĐẶT LẠI MẬT KHẨU THÀNH CÔNG</h2>
-                <p className="text-base sm:text-lg text-center text-gray-700 mb-2">Bạn có thể đăng nhập với mật khẩu mới.</p>
+                <h2 className="text-2xl sm:text-3xl font-bold text-center text-black mb-2">{t('auth.forgotPassword.successTitle')}</h2>
+                <p className="text-base sm:text-lg text-center text-gray-700 mb-2">{t('auth.forgotPassword.successDescription')}</p>
                 <div className="flex justify-center my-4 sm:my-6">
                   <div className="animate-success-bounce">
                     <CheckCircle size={80} strokeWidth={2} className="sm:w-[110px] sm:h-[110px] text-lime-400" fill="none" />
                   </div>
                 </div>
-                <div className="text-lg sm:text-xl font-bold text-black text-center mb-2 animate-success-pop">Bạn đã có thể đăng nhập!</div>
+                <div className="text-lg sm:text-xl font-bold text-black text-center mb-2 animate-success-pop">{t('auth.forgotPassword.canLoginNow')}</div>
                 <Link href="/admin/login" className="bg-lime-400 text-white hover:bg-lime-500 rounded-lg py-3 sm:py-4 text-sm sm:text-base font-semibold transition-transform w-full flex justify-center items-center touch-manipulation">
-                  Trở về Đăng nhập
+                  {t('auth.forgotPassword.backToLogin')}
                 </Link>
               </div>
             </div>
@@ -114,121 +116,121 @@ export default function AdminForgotPasswordPage() {
         </div>
       ) : (
         <AuthLayout
-          title="Quên mật khẩu?"
-          description="Nhập email để lấy lại mật khẩu"
+          title={t('auth.forgotPassword.title')}
+          description={t('auth.forgotPassword.description')}
         >
 
           {step === 1 && (
-        <form onSubmit={handleSubmitEmail} className="space-y-4 sm:space-y-6 p-4 sm:p-6 overflow-hidden">
-          <div>
-            <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-              Email
-            </label>
-            <Input
-              type="email"
-              id="email"
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all border-gray-300 text-sm sm:text-base"
-              placeholder="Nhập email của bạn"
-              required
-              disabled={isLoading}
-            />
-          </div>
-          <Button
-            type="submit"
-            variant="lime"
-            fullWidth
-            disabled={isLoading || !email}
-            className="w-full py-3 sm:py-4 text-base sm:text-lg font-semibold"
-          >
-            {isLoading ? (
-              <div className="flex items-center justify-center">
-                <Loader2 className="animate-spin -ml-1 mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5 text-gray-900" />
-                <span className="text-sm sm:text-base">Đang gửi...</span>
+            <form onSubmit={handleSubmitEmail} className="space-y-4 sm:space-y-6 p-4 sm:p-6 overflow-hidden" noValidate>
+              <div>
+                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                  {t('common.email')}
+                </label>
+                <Input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all border-gray-300 text-sm sm:text-base"
+                  placeholder={t('auth.forgotPassword.emailPlaceholder')}
+                  required
+                  disabled={isLoading}
+                />
               </div>
-            ) : (
-              <div className="flex items-center justify-center">
-                <Mail className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                <span className="text-sm sm:text-base">Gửi</span>
+              <Button
+                type="submit"
+                variant="lime"
+                fullWidth
+                disabled={isLoading || !email}
+                className="w-full py-3 sm:py-4 text-base sm:text-lg font-semibold"
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center">
+                    <Loader2 className="animate-spin -ml-1 mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5 text-gray-900" />
+                    <span className="text-sm sm:text-base">{t('auth.forgotPassword.sending')}</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center">
+                    <Mail className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                    <span className="text-sm sm:text-base">{t('auth.forgotPassword.sendButton')}</span>
+                  </div>
+                )}
+              </Button>
+              <div className="text-center w-full mt-4">
+                <span className="text-gray-800 text-xs sm:text-sm">{t('auth.forgotPassword.rememberPassword')} </span>
+                <Link
+                  href="/admin/login"
+                  className="text-lime-600 font-semibold hover:underline text-xs sm:text-sm transition-colors touch-manipulation"
+                >
+                  {t('auth.forgotPassword.backToLogin')}
+                </Link>
               </div>
-            )}
-          </Button>
-          <div className="text-center w-full mt-4">
-            <span className="text-gray-800 text-xs sm:text-sm">Đã nhớ mật khẩu? </span>
-            <Link
-              href="/admin/login"
-              className="text-lime-600 font-semibold hover:underline text-xs sm:text-sm transition-colors touch-manipulation"
-            >
-              Quay lại đăng nhập
-            </Link>
-          </div>
-          <div className="text-center mt-4 sm:mt-6">
-            <Link
-              href="/"
-              className="text-xs sm:text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1 touch-manipulation"
-            >
-              <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
-              Quay lại trang chủ
-            </Link>
-          </div>
-        </form>
-      )}
-      {step === 2 && (
-        <VerifyCodeForm
-          email={email}
-          apiEndpoint="/admin/verify-resetCode"
-          codeField="resetCode"
-          onBack={() => setStep(1)}
-          onSuccess={() => {
-            setStep(3);
-          }}
-        />
-      )}
-      {step === 3 && (
-        <form onSubmit={handleSubmitNewPassword} className="space-y-4 sm:space-y-6 p-4 sm:p-6 overflow-hidden">
-          <div>
-            <label htmlFor="newPassword" className="block text-sm font-semibold text-gray-700 mb-2">
-              Mật khẩu mới
-            </label>
-            <PasswordInput
-              id="newPassword"
-              name="newPassword"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all border-gray-300 text-sm sm:text-base"
-              placeholder="Nhập mật khẩu mới"
-              required
-              disabled={isLoading}
+              <div className="text-center mt-4 sm:mt-6">
+                <Link
+                  href="/"
+                  className="text-xs sm:text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1 touch-manipulation"
+                >
+                  <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+                  {t('common.backToHome')}
+                </Link>
+              </div>
+            </form>
+          )}
+          {step === 2 && (
+            <VerifyCodeForm
+              email={email}
+              apiEndpoint="/admin/verify-resetCode"
+              codeField="resetCode"
+              onBack={() => setStep(1)}
+              onSuccess={() => {
+                setStep(3);
+              }}
             />
-          </div>
-          <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
-              Xác nhận mật khẩu mới
-            </label>
-            <PasswordInput
-              id="confirmPassword"
-              name="confirmPassword"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all border-gray-300 text-sm sm:text-base"
-              placeholder="Nhập lại mật khẩu mới"
-              required
-              disabled={isLoading}
-            />
-          </div>
-          <Button
-            type="submit"
-            variant="lime"
-            fullWidth
-            disabled={isLoading || !newPassword || !confirmPassword}
-            className="w-full py-3 sm:py-4 text-base sm:text-lg font-semibold"
-          >
-            {isLoading ? 'Đang đặt lại...' : 'Đặt lại mật khẩu'}
-          </Button>
-        </form>
-      )}
+          )}
+          {step === 3 && (
+            <form onSubmit={handleSubmitNewPassword} className="space-y-4 sm:space-y-6 p-4 sm:p-6 overflow-hidden" noValidate>
+              <div>
+                <label htmlFor="newPassword" className="block text-sm font-semibold text-gray-700 mb-2">
+                  {t('auth.forgotPassword.newPasswordLabel')}
+                </label>
+                <PasswordInput
+                  id="newPassword"
+                  name="newPassword"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all border-gray-300 text-sm sm:text-base"
+                  placeholder={t('auth.forgotPassword.newPasswordPlaceholder')}
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
+                  {t('auth.forgotPassword.confirmPasswordLabel')}
+                </label>
+                <PasswordInput
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all border-gray-300 text-sm sm:text-base"
+                  placeholder={t('auth.forgotPassword.confirmPasswordPlaceholder')}
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+              <Button
+                type="submit"
+                variant="lime"
+                fullWidth
+                disabled={isLoading || !newPassword || !confirmPassword}
+                className="w-full py-3 sm:py-4 text-base sm:text-lg font-semibold"
+              >
+                {isLoading ? t('auth.forgotPassword.resetting') : t('auth.forgotPassword.resetButton')}
+              </Button>
+            </form>
+          )}
         </AuthLayout>
       )}
     </>

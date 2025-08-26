@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 import { managerCameraService } from '@/lib/managerCameraService';
 import { managerTableService } from '@/lib/managerTableService';
 import Image from 'next/image';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface Table {
   tableId: string;
@@ -20,6 +21,7 @@ interface Table {
 
 export default function AddCameraPage() {
   const router = useRouter();
+  const { t } = useI18n();
   const [tables, setTables] = useState<Table[]>([]);
   const [tableId, setTableId] = useState('');
   const [ip, setIp] = useState('');
@@ -47,17 +49,17 @@ export default function AddCameraPage() {
         setTables(mappedTables);
       })
       .catch(() => {
-        toast.error('Không thể tải danh sách bàn');
+        toast.error(t('cameras.cannotLoadTables'));
       });
   }, []);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!ip) newErrors.ip = 'Địa chỉ IP là bắt buộc';
-    else if (!/^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/.test(ip)) newErrors.ip = 'Địa chỉ IP không hợp lệ';
-    if (!username) newErrors.username = 'Tên đăng nhập là bắt buộc';
-    else if (username.length < 2) newErrors.username = 'Tên đăng nhập phải có ít nhất 2 ký tự';
-    if (!password) newErrors.password = 'Mật khẩu là bắt buộc';
+    if (!ip) newErrors.ip = t('cameras.ipAddressRequired');
+    else if (!/^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/.test(ip)) newErrors.ip = t('cameras.ipAddressInvalid');
+    if (!username) newErrors.username = t('cameras.usernameRequired');
+    else if (username.length < 2) newErrors.username = t('cameras.usernameMinLength');
+    if (!password) newErrors.password = t('cameras.passwordRequired');
     setErrors(newErrors);
     return newErrors;
   };
@@ -87,22 +89,22 @@ export default function AddCameraPage() {
           username,
           password,
           isConnect: true
-        }) as any; 
+        }) as any;
         if (createResult.success) {
-          toast.success('Camera đã được thêm thành công!');
+          toast.success(t('cameras.cameraAddedSuccess'));
           router.push('/manager/camera');
         } else {
-          const errorMessage = createResult.message || 'Không thể tạo camera trong database';
+          const errorMessage = createResult.message || t('cameras.cannotCreateCamera');
           console.error('Camera creation failed:', createResult);
           toast.error(errorMessage);
         }
       } else {
-        toast.error(testResult.message || 'Không thể kết nối camera');
+        toast.error(testResult.message || t('cameras.cannotConnectCamera'));
       }
     } catch (error) {
       console.error('Error in handleCheckCamera:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Lỗi không xác định';
-      toast.error('Lỗi khi kiểm tra camera: ' + errorMessage);
+      const errorMessage = error instanceof Error ? error.message : t('cameras.unknownError');
+      toast.error(t('cameras.errorCheckingCamera') + ': ' + errorMessage);
     } finally {
       setIsChecking(false);
     }
@@ -118,17 +120,17 @@ export default function AddCameraPage() {
         <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
           <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6">
             <span className="text-lg sm:text-xl lg:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
-              QUẢN LÝ CAMERA
+              {t('cameras.manageCamera')}
             </span>
           </div>
           <AddFormLayout
-            title="THÊM CAMERA"
+            title={t('cameras.addCameraTitle')}
             onSubmit={handleSubmit}
             onBack={() => router.push('/manager/camera')}
-            submitLabel={isChecking ? "Đang kiểm tra..." : "Kiểm tra"}
+            submitLabel={isChecking ? t('cameras.checking') : t('cameras.test')}
           >
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Bàn<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-2 text-black">{t('cameras.table')}<span className="text-red-500">*</span></label>
               <div className="relative w-full">
                 <select
                   value={tableId}
@@ -136,10 +138,10 @@ export default function AddCameraPage() {
                   required
                   className="w-full border border-gray-300 bg-white rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none"
                 >
-                  <option className="text-black" value="">Chọn bàn</option>
+                  <option className="text-black" value="">{t('cameras.selectTablePlaceholder')}</option>
                   {tables.map(table => (
                     <option className="text-black" key={table.tableId} value={table.tableId}>
-                      {table.name} - {table.category === 'pool-8' ? 'Pool 8' : table.category === 'carom' ? 'Carom' : table.category}
+                      {table.name} - {table.category === 'pool-8' ? t('cameras.formatCategory.pool8') : table.category === 'carom' ? t('cameras.formatCategory.carom') : table.category}
                     </option>
                   ))}
                 </select>
@@ -153,18 +155,18 @@ export default function AddCameraPage() {
               </div>
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">IP<span className="text-red-500">*</span></label>
-              <Input value={ip} onChange={e => setIp(e.target.value)} required placeholder="Nhập địa chỉ IP" />
+              <label className="block text-sm font-semibold mb-2 text-black">{t('cameras.ipAddress')}<span className="text-red-500">*</span></label>
+              <Input value={ip} onChange={e => setIp(e.target.value)} required placeholder={t('cameras.ipAddressPlaceholder')} />
               {errors.ip && <p className="text-red-500 text-sm mt-1">{errors.ip}</p>}
             </div>
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Username<span className="text-red-500">*</span></label>
-              <Input value={username} onChange={e => setUsername(e.target.value)} required placeholder="Nhập username" />
+              <label className="block text-sm font-semibold mb-2 text-black">{t('cameras.username')}<span className="text-red-500">*</span></label>
+              <Input value={username} onChange={e => setUsername(e.target.value)} required placeholder={t('cameras.usernamePlaceholder')} />
               {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
             </div>
             <div className="w-full mb-8 sm:mb-10">
-              <label className="block text-sm font-semibold mb-2 text-black">Mật khẩu<span className="text-red-500">*</span></label>
-              <PasswordInput value={password} onChange={e => setPassword(e.target.value)} required placeholder="Nhập mật khẩu" />
+              <label className="block text-sm font-semibold mb-2 text-black">{t('cameras.password')}<span className="text-red-500">*</span></label>
+              <PasswordInput value={password} onChange={e => setPassword(e.target.value)} required placeholder={t('cameras.passwordPlaceholder')} />
               {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
             </div>
           </AddFormLayout>

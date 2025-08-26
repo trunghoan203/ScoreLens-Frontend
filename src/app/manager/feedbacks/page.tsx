@@ -13,6 +13,7 @@ import { useManagerAuthGuard } from '@/lib/hooks/useManagerAuthGuard';
 import { managerFeedbackService } from '@/lib/managerFeedbackService';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface Feedback {
   id: string;
@@ -26,6 +27,7 @@ interface Feedback {
 }
 
 export default function FeedbacksPage() {
+  const { t } = useI18n();
   const { isChecking } = useManagerAuthGuard();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("pending");
@@ -53,16 +55,16 @@ export default function FeedbacksPage() {
           const tableInfo = obj.tableInfo as Record<string, unknown> | undefined;
           const clubInfo = obj.clubInfo as Record<string, unknown> | undefined;
 
-          let tableName = 'Không xác định';
+          let tableName = t('common.unknown');
           if (tableInfo?.name) {
             tableName = String(tableInfo.name);
           }
 
           return {
             id: String(obj.feedbackId || obj._id || ''),
-            branch: String(clubInfo?.clubName || 'Không xác định'),
+            branch: String(clubInfo?.clubName || t('common.unknown')),
             table: String(tableName),
-            time: String(obj.createdAt ? new Date(obj.createdAt as string).toLocaleString('vi-VN') : 'Không xác định'),
+            time: String(obj.createdAt ? new Date(obj.createdAt as string).toLocaleString('vi-VN') : t('common.unknown')),
             status: (obj.status as Feedback['status']) || 'managerP',
             feedback: String(obj.content || ''),
             notes: String(obj.note || ''),
@@ -79,8 +81,8 @@ export default function FeedbacksPage() {
         setFeedbacks(sortedFeedbacks);
       } catch (error) {
         console.error('Error fetching data:', error);
-        setError('Không thể tải danh sách phản hồi');
-        toast.error('Không thể tải danh sách phản hồi');
+        setError(t('feedbacks.cannotLoadFeedbacks'));
+        toast.error(t('feedbacks.cannotLoadFeedbacks'));
       } finally {
         setLoading(false);
       }
@@ -140,7 +142,7 @@ export default function FeedbacksPage() {
 
   return (
     <>
-      {loading && <ScoreLensLoading text="Đang tải..." />}
+      {loading && <ScoreLensLoading text={t('feedbacks.loading')} />}
       <div className="min-h-screen flex bg-[#18191A]">
         <SidebarManager />
         <main className="flex-1 bg-white min-h-screen lg:ml-0">
@@ -170,10 +172,10 @@ export default function FeedbacksPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
                 }
-                title={search || statusFilter !== 'pending' || dateFilter ? 'Không tìm thấy phản hồi phù hợp' : 'Chưa có phản hồi nào'}
-                description="Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy phản hồi phù hợp"
+                title={search || statusFilter !== 'pending' || dateFilter ? t('feedbacks.noSearchResults') : t('feedbacks.noFeedbacks')}
+                description={t('feedbacks.tryDifferentFilters')}
                 secondaryAction={search || statusFilter !== 'pending' || dateFilter ? {
-                  label: 'Xem tất cả',
+                  label: t('feedbacks.viewAll'),
                   onClick: () => {
                     setSearch('');
                     setStatusFilter('all');
@@ -246,7 +248,11 @@ export default function FeedbacksPage() {
                 )}
 
                 <div className="mt-4 text-center text-gray-400 italic text-xs">
-                  Hiển thị {startIndex + 1}-{Math.min(endIndex, filteredFeedbacks.length)} trong tổng số {filteredFeedbacks.length} phản hồi
+                  {t('feedbacks.showingResults')
+                    .replace('{start}', String(startIndex + 1))
+                    .replace('{end}', String(Math.min(endIndex, filteredFeedbacks.length)))
+                    .replace('{total}', String(filteredFeedbacks.length))
+                  }
                 </div>
               </>
             )}

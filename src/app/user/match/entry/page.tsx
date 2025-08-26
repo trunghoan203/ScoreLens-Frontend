@@ -8,8 +8,7 @@ import FooterButton from '@/components/user/FooterButton';
 import Image from 'next/image';
 import { userMatchService } from '@/lib/userMatchService';
 import toast from 'react-hot-toast';
-import RoleBadge from '@/components/ui/RoleBadge';
-import { setIdentity, setSession } from '@/lib/session';
+import { useI18n } from '@/lib/i18n/provider';
 
 function GuestLoginContent() {
   const [roomCode, setRoomCode] = useState<string[]>(['', '', '', '', '', '']);
@@ -27,6 +26,7 @@ function GuestLoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const { t } = useI18n();
 
   const numberImages = [
     '/images/numberBalls/ball_0.png',
@@ -76,7 +76,7 @@ function GuestLoginContent() {
             setTableName(tableData.name);
           }
 
-          toast.success('Chào mừng bạn đến với ScoreLens');
+          toast.success(t('userMatch.entry.success.welcome'));
         } catch {
         }
       }
@@ -85,7 +85,7 @@ function GuestLoginContent() {
     if (tableId) {
       autoVerifyTable();
     }
-  }, [tableId]);
+  }, [tableId, t]);
 
   const handleChange = (index: number, value: string) => {
     const digit = value.replace(/\D/g, '');
@@ -118,7 +118,7 @@ function GuestLoginContent() {
   const handleContinue = async () => {
     const code = roomCode.join('');
     if (code.length !== 6) {
-      toast.error('Vui lòng nhập đủ 6 chữ số!');
+      toast.error(t('userMatch.entry.error.incompleteCode'));
       return;
     }
 
@@ -133,22 +133,22 @@ function GuestLoginContent() {
         if (code) params.set('room', code);
         if (codeMatchId.matchId) params.set('matchId', codeMatchId.matchId);
         if (tableId) params.set('tableId', tableId);
-        
+
         if (sessionToken) {
           params.set('sessionToken', sessionToken);
         }
 
-        toast.success('Mã phòng hợp lệ!');
+        toast.success(t('userMatch.entry.success.validCode'));
         router.push(`/user/match/join?${params.toString()}`);
       } else {
-        toast.error('Mã phòng không hợp lệ!');
+        toast.error(t('userMatch.entry.error.invalidCode'));
       }
     } catch {
-      toast.error('Mã phòng không tồn tại hoặc đã bị hủy!');
+      toast.error(t('userMatch.entry.error.codeNotFound'));
     }
   };
 
-  if (loading) return <ScoreLensLoading text="Đang tải..." />;
+  if (loading) return <ScoreLensLoading text={t('userMatch.entry.loading')} />;
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-100 pt-20">
@@ -157,10 +157,10 @@ function GuestLoginContent() {
       <main className="flex-1 flex flex-col px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-[#000000]">
-            {(tableInfo?.name || tableName || 'BÀN').toUpperCase()} - {tableInfo?.category ? (tableInfo.category === 'pool-8' ? 'POOL 8' : ` ${tableInfo.category.toUpperCase()}`) : (tableId ? 'Đang tải...' : 'Pool 8 Ball')}
+            {(tableInfo?.name || tableName || t('userMatch.entry.title')).toUpperCase()} - {tableInfo?.category ? (tableInfo.category === 'pool-8' ? 'POOL 8' : ` ${tableInfo.category.toUpperCase()}`) : (tableId ? t('userMatch.entry.loading') : t('userMatch.entry.pool8Ball'))}
           </h1>
           <p className="text-base sm:text-lg text-[#000000] font-medium">
-            Hãy nhập mã phòng để tiếp tục
+            {t('userMatch.entry.description')}
           </p>
         </div>
 
@@ -217,16 +217,21 @@ function GuestLoginContent() {
           style={{ backgroundColor: '#8ADB10' }}
           className="w-full hover:bg-lime-600 text-[#FFFFFF] font-semibold py-3 rounded-xl text-base sm:text-base transition"
         >
-          Tiếp tục
+          {t('userMatch.entry.continue')}
         </button>
       </FooterButton>
     </div>
   );
 }
 
+function LoadingFallback() {
+  const { t } = useI18n();
+  return <ScoreLensLoading text={t('userMatch.entry.loading')} />;
+}
+
 export default function GuestLoginPage() {
   return (
-    <Suspense fallback={<ScoreLensLoading text="Đang tải..." />}>
+    <Suspense fallback={<LoadingFallback />}>
       <GuestLoginContent />
     </Suspense>
   );

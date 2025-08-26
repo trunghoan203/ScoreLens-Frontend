@@ -11,6 +11,7 @@ import { FeedbackTable } from '@/components/features/FeedbackTable';
 import { getAdminList } from '@/lib/saAdminService';
 import { useSuperAdminAuthGuard } from '@/lib/hooks/useSuperAdminAuthGuard';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { useI18n } from '@/lib/i18n/provider';
 import toast from 'react-hot-toast';
 
 interface ApiAdmin {
@@ -27,7 +28,7 @@ export interface TableAdmin {
   name: string;
   email: string;
   location: string;
-  status: 'Đã duyệt' | 'Chưa duyệt' | 'Bị từ chối';
+  status: string;
   createdAt: string;
 }
 
@@ -36,6 +37,7 @@ function SuperAdminHomeContent() {
   const searchParams = useSearchParams();
   const initialTab = searchParams?.get('tab') === 'feedback' ? 'feedback' : 'approval';
   const { isChecking } = useSuperAdminAuthGuard();
+  const { t } = useI18n();
 
   const [activeTab, setActiveTab] = useState<'approval' | 'feedback'>(initialTab);
   const [searchTerm, setSearchTerm] = useState('');
@@ -67,27 +69,27 @@ function SuperAdminHomeContent() {
             id: admin.adminId,
             name: admin.fullName,
             email: admin.email,
-            location: admin.location || 'N/A',
+            location: admin.location || t('common.notAvailable'),
             status:
               admin.status === 'approved'
-                ? 'Đã duyệt'
+                ? t('superAdminHome.statusApproved')
                 : admin.status === 'pending'
-                  ? 'Chưa duyệt'
-                  : 'Bị từ chối',
+                  ? t('superAdminHome.statusPending')
+                  : t('superAdminHome.statusRejected'),
             createdAt: admin.createdAt,
           }));
           setAdmins(mappedAdmins);
           setLoading(false);
         })
         .catch(() => {
-          toast.error('Không lấy được danh sách admin');
+          toast.error(t('superAdminHome.cannotLoadAdminList'));
           setAdmins([]);
           setLoading(false);
         });
     } else if (activeTab === 'feedback') {
       setLoading(false);
     }
-  }, [activeTab, admins.length]);
+  }, [activeTab, admins.length, t]);
 
   useEffect(() => {
     if (activeTab === 'approval' && admins.length > 0) {
@@ -109,12 +111,12 @@ function SuperAdminHomeContent() {
         <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="text-center">
             <LoadingSpinner size="lg" />
-            <p className="mt-4 text-gray-600 font-medium">Đang tải...</p>
+            <p className="mt-4 text-gray-600 font-medium">{t('superAdminHome.loading')}</p>
           </div>
         </div>
       )}
       <HeaderSuperAdmin />
-      <PageBanner title={activeTab === 'approval' ? 'DANH SÁCH ADMIN' : 'DANH SÁCH PHẢN HỒI'} />
+      <PageBanner title={activeTab === 'approval' ? t('superAdminHome.adminListTitle') : t('superAdminHome.feedbackListTitle')} />
       <div className="bg-[#EEEDED] w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 min-h-[calc(100vh-200px)]">
         <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6 lg:space-y-8">
           {/* Toggle Tabs */}
@@ -132,13 +134,13 @@ function SuperAdminHomeContent() {
                 onClick={() => handleTabChange('approval')}
                 className={`relative z-10 w-1/2 h-full flex items-center justify-center font-semibold transition-colors duration-300 ${activeTab === 'approval' ? 'text-white' : 'text-gray-300'}`}
               >
-                Đơn duyệt
+                {t('superAdminHome.approvalTab')}
               </button>
               <button
                 onClick={() => handleTabChange('feedback')}
                 className={`relative z-10 w-1/2 h-full flex items-center justify-center font-semibold transition-colors duration-300 ${activeTab === 'feedback' ? 'text-white' : 'text-gray-300'}`}
               >
-                Phản hồi
+                {t('superAdminHome.feedbackTab')}
               </button>
             </div>
           </div>
@@ -185,12 +187,14 @@ function SuperAdminHomeContent() {
 }
 
 export default function SuperAdminHomePage() {
+  const { t } = useI18n();
+
   return (
     <Suspense fallback={
       <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-gray-600 font-medium">Đang tải...</p>
+          <p className="mt-4 text-gray-600 font-medium">{t('superAdminHome.loading')}</p>
         </div>
       </div>
     }>

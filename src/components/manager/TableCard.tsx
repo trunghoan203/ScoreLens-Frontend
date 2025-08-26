@@ -1,5 +1,6 @@
 "use client";
 import Image from 'next/image';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface TableCardProps {
   name: string;
@@ -18,6 +19,8 @@ interface TableCardProps {
 }
 
 export default function TableCard({ name, type, status, teamA, teamB, time, matchStatus, elapsedTime, isAiAssisted = false, scoreA = 0, scoreB = 0, creatorType = null, onDetail }: TableCardProps) {
+  const { t } = useI18n();
+
   const getDisplayStatus = (status: string) => {
     switch (status) {
       case 'inuse':
@@ -63,24 +66,24 @@ export default function TableCard({ name, type, status, teamA, teamB, time, matc
   const getStatusText = (status: string, isAiAssisted: boolean) => {
     switch (status) {
       case 'using':
-        return isAiAssisted ? 'Đang sử dụng - AI' : 'Đang sử dụng';
+        return isAiAssisted ? t('tableCard.status.usingWithAi') : t('tableCard.status.using');
       case 'available':
-        return 'Bàn trống';
+        return t('tableCard.status.available');
       case 'maintenance':
-        return 'Bảo trì';
+        return t('tableCard.status.maintenance');
       default:
-        return 'Bàn trống';
+        return t('tableCard.status.available');
     }
   };
 
   const getCreatorText = (creatorType: 'manager' | 'member' | 'guest' | null) => {
     switch (creatorType) {
       case 'manager':
-        return 'Quản lý';
+        return t('tableCard.creator.manager');
       case 'member':
-        return 'Hội viên';
+        return t('tableCard.creator.member');
       case 'guest':
-        return 'Khách';
+        return t('tableCard.creator.guest');
       default:
         return null;
     }
@@ -92,7 +95,7 @@ export default function TableCard({ name, type, status, teamA, teamB, time, matc
         <span className={`text-xs font-bold px-3 py-1 rounded-full ${getStatusStyle(displayStatus)} uppercase tracking-wide text-center whitespace-nowrap`}>
           {getStatusText(displayStatus, isAiAssisted)}
         </span>
-        <span className="text-xs text-[#000000] font-semibold">{displayType === 'pool-8' ? 'Bida Pool' : 'Bida Carom'}</span>
+        <span className="text-xs text-[#000000] font-semibold">{displayType === 'pool-8' ? t('tableCard.type.pool8') : t('tableCard.type.carom')}</span>
       </div>
 
       <div className="font-bold text-base mb-2 text-center text-gray-700">
@@ -101,7 +104,7 @@ export default function TableCard({ name, type, status, teamA, teamB, time, matc
 
       {displayStatus === 'using' && creatorType && (
         <div className="text-xs text-gray-600 text-center mb-4">
-          Người tạo: {getCreatorText(creatorType)}
+          {t('tableCard.creator.label')} {getCreatorText(creatorType)}
         </div>
       )}
 
@@ -110,12 +113,12 @@ export default function TableCard({ name, type, status, teamA, teamB, time, matc
           <div className="flex flex-col items-center justify-center w-full">
             <div className="flex w-full justify-between items-center mb-3">
               <div className="flex flex-col items-center ml-10">
-                <span className="text-xs text-[#000000] font-medium mb-1">Đội A</span>
+                <span className="text-xs text-[#000000] font-medium mb-1">{t('tableCard.team.teamA')}</span>
                 <span className="text-4xl font-bold text-[#000000]">{scoreA}</span>
               </div>
-              <span className="mx-2 text-[#000000] font-bold">VS</span>
+              <span className="mx-2 text-[#000000] font-bold">{t('tableCard.team.vs')}</span>
               <div className="flex flex-col items-center mr-10">
-                <span className="text-xs text-[#000000] font-medium mb-1">Đội B</span>
+                <span className="text-xs text-[#000000] font-medium mb-1">{t('tableCard.team.teamB')}</span>
                 <span className="text-4xl font-bold text-[#000000]">{scoreB}</span>
               </div>
             </div>
@@ -135,7 +138,7 @@ export default function TableCard({ name, type, status, teamA, teamB, time, matc
           <div className="flex flex-col items-center justify-center w-full">
             <div className="text-center">
               <div className="text-[#e36a23] text-2xl font-bold mb-3">⚠️</div>
-              <div className="text-[#e36a23] text-sm font-semibold mb-2">Đang bảo trì</div>
+              <div className="text-[#e36a23] text-sm font-semibold mb-2">{t('tableCard.status.maintenance')}</div>
             </div>
           </div>
         )}
@@ -152,7 +155,7 @@ export default function TableCard({ name, type, status, teamA, teamB, time, matc
           onClick={displayStatus === 'maintenance' ? undefined : onDetail}
           disabled={displayStatus === 'maintenance'}
         >
-          {displayStatus === 'using' ? 'Xem chi tiết' : displayStatus === 'available' ? 'Sẵn sàng' : 'Bảo trì'}
+          {displayStatus === 'using' ? t('tableCard.button.viewDetails') : displayStatus === 'available' ? t('tableCard.button.ready') : t('tableCard.button.maintenance')}
         </button>
       </div>
     </div>

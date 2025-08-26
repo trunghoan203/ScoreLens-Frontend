@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { managerTableService } from '@/lib/managerTableService';
 import Image from 'next/image';
+import { useI18n } from '@/lib/i18n/provider';
 
 const tableTypes = [
   { value: 'pool-8', label: 'Pool-8' },
@@ -15,6 +16,7 @@ const tableTypes = [
 ];
 
 export default function AddTablePage() {
+  const { t } = useI18n();
   const [name, setName] = useState('');
   const [type, setType] = useState(tableTypes[0].value);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -22,8 +24,8 @@ export default function AddTablePage() {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!name) newErrors.name = 'Tên bàn là bắt buộc';
-    else if (name.length < 2) newErrors.name = 'Tên bàn phải có ít nhất 2 ký tự';
+    if (!name) newErrors.name = t('managerTable.tableNameRequired');
+    else if (name.length < 2) newErrors.name = t('managerTable.tableNameMinLength');
     setErrors(newErrors);
     return newErrors;
   };
@@ -37,13 +39,13 @@ export default function AddTablePage() {
     }
     try {
       await managerTableService.createTable({ name: name, category: type });
-      toast.success('Đã thêm bàn thành công!');
+      toast.success(t('managerTable.addSuccess'));
       router.push('/manager/tables');
     } catch (error: any) {
       if (error?.response?.status !== 400) {
         console.error(error);
       }
-      const errorMessage = error?.response?.data?.message || 'Thêm bàn thất bại.';
+      const errorMessage = error?.response?.data?.message || t('managerTable.addFailed');
       toast.error(errorMessage);
     }
   };
@@ -58,21 +60,21 @@ export default function AddTablePage() {
         <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
           <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
             <span className="text-lg sm:text-xl lg:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
-              QUẢN LÝ BÀN
+              {t('managerTable.pageTitle')}
             </span>
           </div>
           <AddFormLayout
-            title="THÊM BÀN"
+            title={t('managerTable.addTableTitle')}
             onSubmit={handleSubmit}
             onBack={() => router.push('/manager/tables')}
           >
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-2 text-black">Tên Bàn<span className="text-red-500">*</span></label>
-              <Input value={name} onChange={e => setName(e.target.value)} required placeholder="Nhập tên bàn" />
+              <label className="block text-sm font-semibold mb-2 text-black">{t('managerTable.tableNameLabel')}<span className="text-red-500">*</span></label>
+              <Input value={name} onChange={e => setName(e.target.value)} required placeholder={t('managerTable.tableNamePlaceholder')} />
               {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
             </div>
             <div className="w-full mb-8 sm:mb-10">
-              <label className="block text-sm font-semibold mb-2 text-black">Loại Bàn<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-2 text-black">{t('managerTable.tableTypeLabel')}<span className="text-red-500">*</span></label>
               <div className="relative w-full">
                 <select
                   value={type}

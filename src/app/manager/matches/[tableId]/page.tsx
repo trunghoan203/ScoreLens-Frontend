@@ -9,6 +9,7 @@ import TableUsingView from '@/components/manager/TableUsingView';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { useManagerAuthGuard } from '@/lib/hooks/useManagerAuthGuard';
 import { useWebSocket } from '@/lib/hooks/useWebSocket';
+import { useDashboardWebSocket } from '@/lib/hooks/useDashboardWebSocket';
 import { managerTableService } from '@/lib/managerTableService';
 import { managerMemberService } from '@/lib/managerMemberService';
 import { managerMatchService } from '@/lib/managerMatchService';
@@ -18,6 +19,7 @@ import { EditScoreModal } from '@/components/manager/EditScoreModal';
 import { AISelectionModal } from '@/components/manager/AISelectionModal';
 import { managerCameraService } from '@/lib/managerCameraService';
 import toast from 'react-hot-toast';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface TableData {
   id: string;
@@ -77,6 +79,7 @@ interface Camera {
 
 
 export default function TableDetailPage() {
+  const { t } = useI18n();
   const { isChecking } = useManagerAuthGuard();
   const params = useParams();
   const router = useRouter();
@@ -149,12 +152,12 @@ export default function TableDetailPage() {
     try {
       setCameraLoading(true);
       const cameraData = await managerCameraService.getAllCameras();
-      
+
       let camerasArr: unknown[] = [];
       if (Array.isArray(cameraData)) camerasArr = cameraData;
       else if (cameraData && typeof cameraData === 'object' && Array.isArray((cameraData as { cameras?: unknown[] }).cameras)) camerasArr = (cameraData as { cameras: unknown[] }).cameras;
       else if (cameraData && typeof cameraData === 'object' && Array.isArray((cameraData as { data?: unknown[] }).data)) camerasArr = (cameraData as { data: unknown[] }).data;
-      
+
       const mappedCameras: Camera[] = camerasArr.map(c => {
         const obj = c as Partial<Camera>;
         return {
@@ -285,9 +288,6 @@ export default function TableDetailPage() {
           router.push('/manager/dashboard');
         }
 
-        const membersData = await managerMemberService.getAllMembers();
-        const members = Array.isArray(membersData) ? membersData : (membersData as MembersData)?.memberships || [];
-
         await refreshDashboardStats();
         await fetchCamerasForTable();
       } catch (error) {
@@ -315,10 +315,35 @@ export default function TableDetailPage() {
       setMatchStatus(match.status as 'pending' | 'ongoing' | 'completed');
       if (match.status === 'completed') {
         setElapsedTime('00:00:00');
-        refreshDashboardStats();
       }
     }
   });
+
+  const { requestStats } = useDashboardWebSocket({
+    onStatsUpdate: (stats) => {
+      setDashboardStats(stats);
+      setLoadingStats(false);
+    },
+    enabled: !loading && !isChecking
+  });
+
+  useEffect(() => {
+    if (!loading && !isChecking && requestStats) {
+      requestStats();
+    }
+  }, [loading, isChecking, requestStats]);
+
+  useEffect(() => {
+    if (!loading && !isChecking) {
+      const statsInterval = setInterval(() => {
+        refreshDashboardStats();
+      }, 30000);
+
+      return () => {
+        clearInterval(statsInterval);
+      };
+    }
+  }, [loading, isChecking]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -341,20 +366,6 @@ export default function TableDetailPage() {
       }
     };
   }, [matchStatus, matchStartTime]);
-
-  useEffect(() => {
-    const statsInterval = setInterval(() => {
-      if (!loading && !isChecking) {
-        refreshDashboardStats();
-      }
-    }, 30000);
-
-    return () => {
-      if (statsInterval) {
-        clearInterval(statsInterval);
-      }
-    };
-  }, [loading, isChecking]);
 
 
   const handleCreateMatch = async (teamA: Array<{ guestName?: string; phoneNumber?: string; membershipId?: string; membershipName?: string }>, teamB: Array<{ guestName?: string; phoneNumber?: string; membershipId?: string; membershipName?: string }>) => {
@@ -448,6 +459,8 @@ export default function TableDetailPage() {
         toast.success('Bắt đầu trận đấu thành công!');
         setMatchStatus('ongoing');
         setMatchStartTime(new Date());
+
+        await refreshDashboardStats();
       } else {
         toast.error((res?.message as string) || 'Bắt đầu trận đấu thất bại!');
       }
@@ -558,7 +571,7 @@ export default function TableDetailPage() {
         toast.error(err.message || 'Bạn đã tham gia trận đấu này rồi.');
       } else {
         console.error('Error updating team members:', error);
-        toast.error(err.message || 'Cập nhật thành viên thất bại!');
+        toast.error(err.message || t('managerMatches.updateMembersFailed'));
       }
     }
   };
@@ -566,30 +579,30 @@ export default function TableDetailPage() {
   const handleCancelMatch = async () => {
     try {
       if (!activeMatchId) {
-        toast.error('Không xác định được trận đấu để hủy');
+        toast.error(t('managerMatches.cannotIdentifyMatch'));
         return;
       }
 
       const res = await managerMatchService.deleteMatch(activeMatchId) as Record<string, unknown>;
       if (res?.success) {
-        toast.success('Hủy trận đấu thành công!');
+        toast.success(t('managerMatches.cancelMatchSuccess'));
 
         await refreshDashboardStats();
 
         router.push('/manager/dashboard');
       } else {
-        toast.error((res?.message as string) || 'Hủy trận đấu thất bại!');
+        toast.error((res?.message as string) || t('managerMatches.cancelMatchFailed'));
       }
     } catch (error) {
       console.error('Error canceling match:', error);
-      toast.error('Hủy trận đấu thất bại!');
+      toast.error(t('managerMatches.cancelMatchFailed'));
     }
   };
 
   const handleEndMatch = async () => {
     try {
       if (!activeMatchId) {
-        toast.error('Không xác định được trận đấu để kết thúc');
+        toast.error(t('managerMatches.cannotIdentifyMatchToEnd'));
         return;
       }
 
@@ -620,7 +633,7 @@ export default function TableDetailPage() {
 
         setMatchData({
           matchId: currentMatch?.matchId as string,
-          tableName: table?.name || 'Unknown',
+          tableName: table?.name || t('managerMatches.unknown'),
           gameType: currentMatch?.gameType as string,
           startTime: currentMatch?.startTime ? new Date(currentMatch.startTime as string) : undefined,
           endTime: new Date(),
@@ -628,33 +641,33 @@ export default function TableDetailPage() {
         });
         setShowSummaryModal(true);
       } else {
-        toast.error('Không thể lấy thông tin trận đấu');
+        toast.error(t('managerMatches.cannotGetMatchInfo'));
       }
     } catch (error) {
       console.error('Error getting match data:', error);
-      toast.error('Không thể lấy thông tin trận đấu');
+      toast.error(t('managerMatches.cannotGetMatchInfo'));
     }
   };
 
   const handleConfirmEndMatch = async () => {
     try {
       if (!activeMatchId) {
-        toast.error('Không xác định được trận đấu để kết thúc');
+        toast.error(t('managerMatches.cannotIdentifyMatchToEnd'));
         return;
       }
       const res = (await managerMatchService.endMatch(activeMatchId)) as Record<string, unknown>;
       if (res?.success) {
-        toast.success('Kết thúc trận đấu thành công!');
+        toast.success(t('managerMatches.endMatchSuccess'));
 
         await refreshDashboardStats();
 
         router.push('/manager/dashboard');
       } else {
-        toast.error((res?.message as string) || 'Kết thúc trận đấu thất bại!');
+        toast.error((res?.message as string) || t('managerMatches.endMatchFailed'));
       }
     } catch (error) {
       console.error('Error ending match:', error);
-      toast.error('Kết thúc trận đấu thất bại!');
+      toast.error(t('managerMatches.endMatchFailed'));
     }
   };
 
@@ -697,7 +710,7 @@ export default function TableDetailPage() {
             <div className="w-full mx-auto">
               <div className="bg-white rounded-lg shadow p-4 sm:p-6">
                 <div className="py-8 text-center text-gray-400">
-                  <div>Không tìm thấy bàn</div>
+                  <div>{t('managerMatches.tableNotFound')}</div>
                 </div>
               </div>
             </div>

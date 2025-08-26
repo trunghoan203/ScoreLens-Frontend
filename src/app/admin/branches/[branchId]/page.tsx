@@ -11,11 +11,13 @@ import toast from 'react-hot-toast';
 import clubsService, { ClubResponse } from '@/lib/clubsService';
 import adminDashboardService from '@/lib/adminDashboardService';
 import Image from 'next/image';
+import { useI18n } from '@/lib/i18n/provider';
 
 export default function BranchDetailPage() {
   const router = useRouter();
   const params = useParams();
   const clubId = params?.branchId as string;
+  const { t } = useI18n();
 
   const [club, setClub] = useState<ClubResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,25 +32,26 @@ export default function BranchDetailPage() {
   const [tableNumber, setTableNumber] = useState(0);
   const [actualTableCount, setActualTableCount] = useState(0);
   const [status, setStatus] = useState<'open' | 'closed' | 'maintenance'>('open');
+  const [existingClubs, setExistingClubs] = useState<any[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (name && name.length < 2) {
-      newErrors.name = 'Tên chi nhánh phải có ít nhất 2 ký tự';
+      newErrors.name = t('branches.detailPage.nameMinLength');
     } else if (name && name.length > 255) {
-      newErrors.name = 'Tên chi nhánh không được vượt quá 255 ký tự';
+      newErrors.name = t('branches.detailPage.nameMaxLength');
     }
     if (address && address.length < 5) {
-      newErrors.address = 'Địa chỉ phải có ít nhất 5 ký tự';
+      newErrors.address = t('branches.detailPage.addressMinLength');
     } else if (address && address.length > 255) {
-      newErrors.address = 'Địa chỉ không được vượt quá 255 ký tự';
+      newErrors.address = t('branches.detailPage.addressMaxLength');
     }
     if (phoneNumber && !/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phoneNumber)) {
-      newErrors.phoneNumber = 'Số điện thoại không hợp lệ';
+      newErrors.phoneNumber = t('branches.detailPage.phoneInvalid');
     }
     if (tableNumber <= 0) {
-      newErrors.tableNumber = 'Số bàn ít nhất là 1';
+      newErrors.tableNumber = t('branches.detailPage.tableNumberMin');
     }
     setErrors(newErrors);
     return newErrors;
@@ -57,7 +60,7 @@ export default function BranchDetailPage() {
   useEffect(() => {
     const loadClub = async () => {
       if (!clubId) {
-        toast.error('Club ID không hợp lệ');
+        toast.error(t('branches.detailPage.invalidClubId'));
         router.push('/admin/branches');
         return;
       }
@@ -83,7 +86,7 @@ export default function BranchDetailPage() {
         setStatus(clubData.status);
       } catch (error) {
         console.error('Error loading club:', error);
-        toast.error('Không thể tải thông tin chi nhánh');
+        toast.error(t('branches.detailPage.cannotLoadBranch'));
         router.push('/admin/branches');
       } finally {
         setIsLoading(false);
@@ -92,6 +95,18 @@ export default function BranchDetailPage() {
 
     loadClub();
   }, [clubId, router]);
+
+  useEffect(() => {
+    const fetchExistingClubs = async () => {
+      try {
+        const clubs = await clubsService.getAllClubs();
+        setExistingClubs(clubs);
+      } catch (error) {
+        console.error('Error fetching existing clubs:', error);
+      }
+    };
+    fetchExistingClubs();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,7 +126,7 @@ export default function BranchDetailPage() {
           tableNumber,
           status
         });
-        toast.success('Cập nhật chi nhánh thành công!');
+        toast.success(t('branches.detailPage.updateSuccess'));
         setIsEditMode(false);
         setErrors({});
       } catch (error: unknown) {
@@ -125,9 +140,9 @@ export default function BranchDetailPage() {
             }
           });
           setErrors(newErrors);
-          toast.error('Vui lòng kiểm tra lại thông tin');
+          toast.error(t('branches.detailPage.pleaseCheckInfo'));
         } else {
-          toast.error('Cập nhật chi nhánh thất bại');
+          toast.error(t('branches.detailPage.updateFailed'));
         }
       } finally {
         setIsSaving(false);
@@ -141,11 +156,11 @@ export default function BranchDetailPage() {
     try {
       setIsDeleting(true);
       await clubsService.deleteClub(clubId);
-      toast.success('Xóa chi nhánh thành công!');
+      toast.success(t('branches.detailPage.deleteSuccess'));
       router.push('/admin/branches');
     } catch (error) {
       console.error('Error deleting club:', error);
-      toast.error('Xóa chi nhánh thất bại');
+      toast.error(t('branches.detailPage.deleteFailed'));
     } finally {
       setIsDeleting(false);
       setShowConfirm(false);
@@ -163,7 +178,7 @@ export default function BranchDetailPage() {
           <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
             <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
               <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
-                CHI NHÁNH
+                {t('branches.detailPage.title')}
               </span>
             </div>
             <div className="py-8">
@@ -186,11 +201,11 @@ export default function BranchDetailPage() {
           <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
             <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
               <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
-                CHI NHÁNH
+                {t('branches.detailPage.title')}
               </span>
             </div>
             <div className="py-8 text-center">
-              <div className="text-gray-500">Không tìm thấy thông tin chi nhánh</div>
+              <div className="text-gray-500">{t('branches.detailPage.branchNotFound')}</div>
             </div>
           </div>
         </main>
@@ -208,14 +223,14 @@ export default function BranchDetailPage() {
         <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
           <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
             <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
-              CHI NHÁNH
+              {t('branches.detailPage.title')}
             </span>
           </div>
           <AddFormLayout
-            title={isEditMode ? "CHỈNH SỬA CHI NHÁNH" : "CHI TIẾT CHI NHÁNH"}
+            title={isEditMode ? t('branches.detailPage.editBranch') : t('branches.detailPage.branchDetails')}
             onBack={() => router.push('/admin/branches')}
-            backLabel="Quay lại"
-            submitLabel={isEditMode ? (isSaving ? "Đang lưu..." : "Lưu") : "Chỉnh sửa"}
+            backLabel={t('branches.detailPage.backToBranches')}
+            submitLabel={isEditMode ? (isSaving ? t('branches.detailPage.saving') : t('branches.detailPage.save')) : t('branches.detailPage.edit')}
             extraActions={
               !isEditMode && (
                 <button
@@ -224,7 +239,7 @@ export default function BranchDetailPage() {
                   onClick={() => setShowConfirm(true)}
                   disabled={isDeleting}
                 >
-                  {isDeleting ? "Đang xóa..." : "Xóa"}
+                  {isDeleting ? t('branches.detailPage.deleting') : t('branches.detailPage.delete')}
                 </button>
               )
             }
@@ -232,34 +247,50 @@ export default function BranchDetailPage() {
           >
             <ConfirmPopup
               open={showConfirm}
-              title="Bạn có chắc chắn muốn xóa không?"
+              title={t('branches.detailPage.deleteConfirm')}
               onCancel={() => setShowConfirm(false)}
               onConfirm={handleDelete}
-              confirmText={isDeleting ? "Đang xóa..." : "Xác nhận"}
-              cancelText="Hủy"
+              confirmText={isDeleting ? t('branches.detailPage.deleting') : t('branches.detailPage.confirm')}
+              cancelText={t('branches.detailPage.cancel')}
             >
               <div className="text-center text-black">
-                Bạn có chắc chắn muốn xóa chi nhánh &quot;{club.clubName}&quot; không?
+                {t('branches.detailPage.deleteConfirmMessage').replace('{name}', club.clubName)}
               </div>
             </ConfirmPopup>
 
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Tên Chi Nhánh<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('branches.detailPage.branchName')}<span className="text-red-500">*</span></label>
               <Input
                 value={name}
                 onChange={e => setName(e.target.value)}
                 required
                 disabled={!isEditMode}
                 className="py-2.5 sm:py-3"
-                              />
-                {errors.name && <span className="text-red-500 text-xs sm:text-sm">{errors.name}</span>}
-              </div>
+              />
+              {errors.name && <span className="text-red-500 text-xs sm:text-sm">{errors.name}</span>}
+            </div>
 
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Địa chỉ<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('branches.detailPage.address')}<span className="text-red-500">*</span></label>
               <Input
                 value={address}
-                onChange={e => setAddress(e.target.value)}
+                onChange={e => {
+                  setAddress(e.target.value);
+                  if (errors.address && e.target.value) {
+                    setErrors(prev => ({ ...prev, address: '' }));
+                  }
+                }}
+                onBlur={() => {
+                  if (isEditMode && address && address.length >= 5) {
+                    const isDuplicateAddress = existingClubs.some(club =>
+                      club.clubId !== clubId &&
+                      club.address.toLowerCase().trim() === address.toLowerCase().trim()
+                    );
+                    if (isDuplicateAddress) {
+                      setErrors(prev => ({ ...prev, address: t('branches.addressExists') }));
+                    }
+                  }
+                }}
                 required
                 disabled={!isEditMode}
                 className="py-2.5 sm:py-3"
@@ -268,7 +299,7 @@ export default function BranchDetailPage() {
             </div>
 
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Số điện thoại<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('branches.detailPage.phoneNumber')}<span className="text-red-500">*</span></label>
               <Input
                 value={phoneNumber}
                 onChange={e => setPhoneNumber(e.target.value)}
@@ -280,7 +311,7 @@ export default function BranchDetailPage() {
             </div>
 
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Số bàn đã đăng ký<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('branches.detailPage.registeredTables')}<span className="text-red-500">*</span></label>
               <Input
                 type="number"
                 value={tableNumber}
@@ -293,7 +324,7 @@ export default function BranchDetailPage() {
             </div>
 
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Số bàn thực tế trên hệ thống<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('branches.detailPage.actualTables')}<span className="text-red-500">*</span></label>
               <Input
                 type="number"
                 value={actualTableCount}
@@ -302,13 +333,13 @@ export default function BranchDetailPage() {
               />
               {actualTableCount !== tableNumber && (
                 <p className="text-xs text-red-600 italic mt-1 font-medium">
-                  ⚠️ Số bàn trên hệ thống không đúng với số bàn đã đăng ký
+                  {t('branches.detailPage.tableMismatchWarning')}
                 </p>
               )}
             </div>
 
             <div className="w-full mb-8 sm:mb-10">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">Trạng thái</label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('branches.detailPage.status')}</label>
               <div className="relative w-full">
                 <select
                   value={status}
@@ -316,9 +347,9 @@ export default function BranchDetailPage() {
                   disabled={!isEditMode}
                   className="flex w-full border border-gray-300 rounded-md bg-white px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all appearance-none"
                 >
-                  <option value="open">Mở cửa</option>
-                  <option value="closed">Đóng cửa</option>
-                  <option value="maintenance">Bảo trì</option>
+                  <option value="open">{t('branches.detailPage.statusOpen')}</option>
+                  <option value="closed">{t('branches.detailPage.statusClosed')}</option>
+                  <option value="maintenance">{t('branches.detailPage.statusMaintenance')}</option>
                 </select>
                 {isEditMode && (
                   <Image
