@@ -363,18 +363,19 @@ export default function FeedbackDetailPage() {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row w-full justify-between gap-3 sm:gap-4 mt-6 sm:mt-8">
+              <div className="flex flex-col sm:flex-row w-full justify-center gap-3 sm:gap-4 mt-6 sm:mt-8">
                 <button
                   type="button"
-                  className="w-full sm:w-32 lg:w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-3 sm:order-1"
+                  className="w-full sm:w-32 lg:w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg"
                   onClick={() => router.push('/manager/feedbacks')}
                 >
                   {t('feedbacks.back')}
                 </button>
+
                 {isEditMode ? (
                   <button
                     type="button"
-                    className="w-full sm:w-32 lg:w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-1 sm:order-2"
+                    className="w-full sm:w-32 lg:w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg"
                     onClick={handleSave}
                   >
                     {t('feedbacks.save')}
@@ -382,7 +383,7 @@ export default function FeedbackDetailPage() {
                 ) : (
                   <button
                     type="button"
-                    className="w-full sm:w-32 lg:w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-1 sm:order-2"
+                    className="w-full sm:w-32 lg:w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg"
                     onClick={handleEditMode}
                   >
                     {t('feedbacks.edit')}
