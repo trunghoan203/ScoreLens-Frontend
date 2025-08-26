@@ -9,6 +9,7 @@ import { ConfirmPopup } from '@/components/ui/ConfirmPopup';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import toast from 'react-hot-toast';
 import clubsService, { ClubResponse } from '@/lib/clubsService';
+import adminDashboardService from '@/lib/adminDashboardService';
 import Image from 'next/image';
 import { useI18n } from '@/lib/i18n/provider';
 
@@ -72,7 +73,16 @@ export default function BranchDetailPage() {
         setAddress(clubData.address);
         setPhoneNumber(clubData.phoneNumber);
         setTableNumber(clubData.tableNumber);
-        setActualTableCount(clubData.actualTableCount || 0);
+        if (typeof clubData.actualTableCount === 'number') {
+          setActualTableCount(clubData.actualTableCount);
+        } else {
+          try {
+            const clubDetail = await adminDashboardService.getClubDetail(clubId);
+            setActualTableCount(clubDetail.tables?.length || 0);
+          } catch {
+            setActualTableCount(0);
+          }
+        }
         setStatus(clubData.status);
       } catch (error) {
         console.error('Error loading club:', error);
@@ -119,11 +129,10 @@ export default function BranchDetailPage() {
         toast.success(t('branches.detailPage.updateSuccess'));
         setIsEditMode(false);
         setErrors({});
-      } catch (error: any) {
-        console.error('Error updating club:', error);
-
-        if (error.response?.data?.errors) {
-          const beErrors = error.response.data.errors;
+      } catch (error: unknown) {
+        const responseErrors = (error as { response?: { data?: { errors?: Record<string, string[]> } } })?.response?.data?.errors;
+        if (responseErrors) {
+          const beErrors = responseErrors;
           const newErrors: Record<string, string> = {};
           Object.keys(beErrors).forEach(key => {
             if (beErrors[key] && Array.isArray(beErrors[key])) {

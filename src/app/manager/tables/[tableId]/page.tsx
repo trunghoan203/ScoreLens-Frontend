@@ -237,16 +237,24 @@ export default function TableDetailPage() {
               <label className="block text-sm font-semibold mb-2 text-black">{t('managerTable.statusLabel')}<span className="text-red-500">*</span></label>
               <div className="relative">
                 <select
-                  className="flex w-full border border-gray-300 rounded-md bg-gray-100 px-3 sm:px-4 py-2 sm:py-3 text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all appearance-none cursor-not-allowed"
+                  className="flex w-full border border-gray-300 rounded-md px-3 sm:px-4 py-2 sm:py-3 text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all appearance-none"
                   value={status}
                   onChange={e => setStatus(e.target.value)}
                   required
-                  disabled={true}
                 >
                   {statusOptions.map(s => (
                     <option className="text-black" key={s.value} value={s.value}>{s.label}</option>
                   ))}
                 </select>
+                {isEditMode && (
+                  <Image
+                    src="/icon/chevron-down_Black.svg"
+                    alt="Dropdown"
+                    width={16}
+                    height={16}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"
+                  />
+                )}
               </div>
             </div>
 

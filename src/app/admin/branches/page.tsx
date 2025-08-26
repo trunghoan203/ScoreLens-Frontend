@@ -133,7 +133,7 @@ export default function BranchesPage() {
                   clubId: b.clubId,
                   name: b.clubName,
                   address: b.address,
-                  actualTableCount: b.actualTableCount,
+                  actualTableCount: (typeof b.actualTableCount === 'number' ? b.actualTableCount : b.tableNumber),
                   status: b.status as 'open' | 'closed'
                 }))}
               />

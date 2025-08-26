@@ -242,7 +242,7 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
                       Video đã chọn: {videoFile.name}
                     </p>
                     <p className="text-sm text-gray-500">
-                      Hãy nhấn "Phân tích Video" để bắt đầu phân tích.
+                      Hãy nhấn &quot;Phân tích Video&quot; để bắt đầu phân tích.
                     </p>
                   </div>
                 </div>
@@ -330,9 +330,6 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
                     >
                       Xem video đã xử lý
                     </a>
-                    <p className="text-xs text-gray-500 mt-2">
-                      Mở trong tab mới với Cloudinary video player
-                    </p>
                   </div>
                 </div>
               )}

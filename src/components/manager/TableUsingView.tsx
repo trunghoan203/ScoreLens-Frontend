@@ -135,17 +135,20 @@ export default function TableUsingView({ table, onBack, onEndMatch, onCancelMatc
         const gameEnd = rows.find(r => r.eventType === 'GameEnd');
         if (!gameEnd) return;
         const isTeamAWins = gameEnd.details === 'Team A WINS (8-ball pocketed after all objects)';
-        const teamIndex = isTeamAWins ? 0 : 1;
         const tId = toast.loading('Đang cập nhật điểm...');
-        await managerMatchService.updateScore(matchId, { teamIndex, score: (teamIndex === 0 ? (table.teamAScore || 0) + 1 : (table.teamAScore || 0)) });
-        await managerMatchService.updateScore(matchId, { teamIndex: teamIndex === 0 ? 1 : 0, score: (teamIndex === 1 ? (table.teamBScore || 0) + 1 : (table.teamBScore || 0)) });
+        const newTeamAScore = (table.teamAScore || 0) + (isTeamAWins ? 1 : 0);
+        const newTeamBScore = (table.teamBScore || 0) + (isTeamAWins ? 0 : 1);
+        await Promise.all([
+          managerMatchService.updateScore(matchId, { teamIndex: 0, score: newTeamAScore }),
+          managerMatchService.updateScore(matchId, { teamIndex: 1, score: newTeamBScore }),
+        ]);
         toast.dismiss(tId);
-        const newA = teamIndex === 0 ? (table.teamAScore || 0) + 1 : (table.teamAScore || 0);
-        const newB = teamIndex === 1 ? (table.teamBScore || 0) + 1 : (table.teamBScore || 0);
+        const newA = newTeamAScore;
+        const newB = newTeamBScore;
         if (onScoresUpdated) {
           onScoresUpdated(newA, newB);
         }
-        toast.success(`Cập nhật điểm: ${teamIndex === 0 ? 'Đội A' : 'Đội B'} +1`);
+        toast.success(`Cập nhật điểm: ${isTeamAWins ? 'Đội A' : 'Đội B'} +1`);
       } else if (result.analysis_type === 'carom') {
         const finalScore = rows.find(r => r.eventType === 'FinalScore');
         if (!finalScore) return;

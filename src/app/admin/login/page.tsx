@@ -120,7 +120,7 @@ export default function AdminLoginPage() {
             return;
           }
           if (admin.brandId) {
-            router.push('/admin/branches');
+            router.push('/admin/dashboard');
           } else {
             router.push('/admin/confirm');
           }
