@@ -14,7 +14,6 @@ const ROLES = [
   { key: 'user', label: 'guide.roles.user' },
 ];
 
-// Helper function to safely get array from translation
 const getTranslationArray = (t: any, key: string): string[] => {
   const translation = t(key);
   return Array.isArray(translation) ? translation : [];
