@@ -361,32 +361,33 @@ export default function FeedbackDetailPage() {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row w-full justify-between gap-3 sm:gap-4 mt-6 sm:mt-8">
-                <button
-                  type="button"
-                  className="w-full sm:w-32 lg:w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-3 sm:order-1"
-                  onClick={() => router.push('/manager/feedbacks')}
-                >
-                  Quay lại
-                </button>
-                {isEditMode ? (
-                  <button
-                    type="button"
-                    className="w-full sm:w-32 lg:w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-1 sm:order-2"
-                    onClick={handleSave}
-                  >
-                    Lưu
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="w-full sm:w-32 lg:w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-1 sm:order-2"
-                    onClick={handleEditMode}
-                  >
-                    Chỉnh sửa
-                  </button>
-                )}
-              </div>
+              <div className="flex flex-col sm:flex-row w-full justify-center gap-3 sm:gap-4 mt-6 sm:mt-8">
+  <button
+    type="button"
+    className="w-full sm:w-32 lg:w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg"
+    onClick={() => router.push('/manager/feedbacks')}
+  >
+    Quay lại
+  </button>
+
+  {isEditMode ? (
+    <button
+      type="button"
+      className="w-full sm:w-32 lg:w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg"
+      onClick={handleSave}
+    >
+      Lưu
+    </button>
+  ) : (
+    <button
+      type="button"
+      className="w-full sm:w-32 lg:w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg"
+      onClick={handleEditMode}
+    >
+      Chỉnh sửa
+    </button>
+  )}
+</div>
             </FeedbackDetailLayout>
           ) : null}
         </div>
