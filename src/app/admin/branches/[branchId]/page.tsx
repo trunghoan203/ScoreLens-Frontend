@@ -37,17 +37,23 @@ export default function BranchDetailPage() {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (name && name.length < 2) {
+    if (!name || name.trim() === '') {
+      newErrors.name = t('branches.detailPage.branchNameRequired') || 'Tên chi nhánh là bắt buộc';
+    } else if (name.length < 2) {
       newErrors.name = t('branches.detailPage.nameMinLength');
-    } else if (name && name.length > 255) {
+    } else if (name.length > 255) {
       newErrors.name = t('branches.detailPage.nameMaxLength');
     }
-    if (address && address.length < 5) {
+    if (!address || address.trim() === '') {
+      newErrors.address = t('branches.detailPage.addressRequired') || 'Địa chỉ là bắt buộc';
+    } else if (address.length < 5) {
       newErrors.address = t('branches.detailPage.addressMinLength');
-    } else if (address && address.length > 255) {
+    } else if (address.length > 255) {
       newErrors.address = t('branches.detailPage.addressMaxLength');
     }
-    if (phoneNumber && !/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phoneNumber)) {
+    if (!phoneNumber || phoneNumber.trim() === '') {
+      newErrors.phoneNumber = t('branches.detailPage.phoneNumberRequired') || 'Số điện thoại là bắt buộc';
+    } else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phoneNumber)) {
       newErrors.phoneNumber = t('branches.detailPage.phoneInvalid');
     }
     if (tableNumber <= 0) {

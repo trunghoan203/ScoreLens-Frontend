@@ -1,6 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import toast from 'react-hot-toast';
+import axios from '@/lib/axios';
+import { managerTableService } from '@/lib/managerTableService';
 
 interface ProcessVideoResponse {
   success: boolean;
@@ -12,23 +14,279 @@ interface ProcessVideoResponse {
   analysis_type: 'pool8' | 'carom';
 }
 
+interface RecordedClip {
+  id: string;
+  name: string;
+  url: string;
+  size: number;
+  duration: number;
+  createdAt: string;
+  tableId?: string;
+  tableName?: string;
+  jobId?: string;
+  fileName?: string;
+  filePath?: string;
+  modifiedAt?: string;
+}
+
+interface CameraData {
+  cameraId: string;
+  tableId: string;
+}
+
+interface TableData {
+  id: string;
+  tableId?: string;
+  name: string;
+  type: string;
+  category?: string;
+  status: string;
+}
+
+interface RecordingData {
+  jobId: string;
+  fileName?: string;
+  size?: number;
+  createdAt: string;
+  filePath?: string;
+  modifiedAt?: string;
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  cameras?: T[];
+  recordings?: T[];
+}
+
 interface VideoAIProps {
   onVideoProcessed?: (result: ProcessVideoResponse) => void;
   className?: string;
   analysisType: 'pool8' | 'carom';
+  tableId?: string;
+  cameraId?: string;
+  matchId?: string;
 }
 
-export default function VideoAI({ onVideoProcessed, className = '', analysisType }: VideoAIProps) {
+export default function VideoAI({ onVideoProcessed, className = '', analysisType, tableId, cameraId, matchId }: VideoAIProps) {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
   const [processResult, setProcessResult] = useState<Partial<ProcessVideoResponse>>({});
   const [isDragOver, setIsDragOver] = useState(false);
 
+  const [recordedClips, setRecordedClips] = useState<RecordedClip[]>([]);
+  const [loadingClips, setLoadingClips] = useState(false);
+  const [selectedClip, setSelectedClip] = useState<RecordedClip | null>(null);
+  const [showClipsList, setShowClipsList] = useState(false);
+  const [cameras, setCameras] = useState<CameraData[]>([]);
+  const [tables, setTables] = useState<TableData[]>([]);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
 
   const MAX_VIDEO_SIZE_GB = 2;
+
+  const fetchTables = async () => {
+    try {
+      const tablesData = await managerTableService.getAllTables();
+      const tablesArray = Array.isArray(tablesData) ? tablesData : (tablesData as { tables?: TableData[] })?.tables || [];
+
+      const transformedTables: TableData[] = tablesArray.map((table: TableData) => {
+        const tableType = table.category || table.type || '';
+        console.log('Table data:', {
+          id: table.tableId || table.id,
+          name: table.name,
+          category: table.category,
+          type: table.type,
+          finalType: tableType
+        });
+        return {
+          id: table.tableId || table.id || '',
+          tableId: table.tableId,
+          name: table.name,
+          type: tableType,
+          status: table.status
+        };
+      });
+
+      setTables(transformedTables);
+      return transformedTables;
+    } catch (error) {
+      console.error('Error fetching tables:', error);
+    }
+    return [];
+  };
+
+  const fetchCamerasForTable = async () => {
+    try {
+      const response = await axios.get('/manager/camera');
+      const data = response.data as unknown;
+
+      if ((data as { success: boolean; cameras: unknown[] }).success && (data as { success: boolean; cameras: unknown[] }).cameras) {
+        const tableCameras = (data as ApiResponse<CameraData>).cameras?.filter((cam: CameraData) =>
+          !tableId || cam.tableId === tableId
+        ) || [];
+        setCameras(tableCameras);
+        return tableCameras;
+      }
+    } catch (error) {
+      console.error('Error fetching cameras:', error);
+    }
+    return [];
+  };
+
+  const fetchRecordedClips = async () => {
+    try {
+      setLoadingClips(true);
+
+      const allTables = await fetchTables();
+
+      if (cameraId) {
+        try {
+          const response = await axios.get(`/manager/camera/${cameraId}/recordings`);
+          const data = response.data as unknown;
+
+          if ((data as { success: boolean; recordings: unknown[] }).success && (data as { success: boolean; recordings: unknown[] }).recordings) {
+            const clips: RecordedClip[] = (data as { success: boolean; recordings: unknown[] }).recordings.map((recording: unknown) => {
+              const rec = recording as {
+                jobId: string;
+                fileName?: string;
+                size?: number;
+                createdAt: string;
+                filePath?: string;
+                modifiedAt?: string;
+              };
+              const tableInfo = allTables.find(table => table.id === tableId || table.tableId === tableId);
+              const tableName = tableInfo ?
+                (tableInfo.type ? `${tableInfo.name} (${tableInfo.type})` : tableInfo.name) :
+                `Bàn ${tableId}`;
+              return {
+                id: rec.jobId,
+                name: rec.fileName || `Recording_${rec.jobId}`,
+                url: `/manager/camera/${cameraId}/recordings/${rec.jobId}/stream`,
+                size: rec.size || 0,
+                duration: 0,
+                createdAt: rec.createdAt,
+                tableId: tableId,
+                tableName: tableName,
+                jobId: rec.jobId,
+                fileName: rec.fileName,
+                filePath: rec.filePath,
+                modifiedAt: rec.modifiedAt
+              };
+            });
+            setRecordedClips(clips);
+            return;
+          }
+        } catch (error) {
+          console.error('Recordings API error for camera:', cameraId, error);
+        }
+      }
+
+      const tableCameras = await fetchCamerasForTable();
+      if (tableCameras.length === 0) {
+        setRecordedClips([]);
+        return;
+      }
+
+      const allRecordings: RecordedClip[] = [];
+
+      for (const camera of tableCameras) {
+        try {
+          const response = await axios.get(`/manager/camera/${camera.cameraId}/recordings`);
+          const data = response.data as ApiResponse<RecordingData>;
+
+          if (data.success && data.recordings) {
+            const clips: RecordedClip[] = data.recordings.map((recording: RecordingData) => {
+              const tableInfo = allTables.find(table => table.id === camera.tableId || table.tableId === camera.tableId);
+              const tableName = tableInfo ?
+                (tableInfo.type ? `${tableInfo.name} (${tableInfo.type})` : tableInfo.name) :
+                `Bàn ${camera.tableId}`;
+
+              return {
+                id: `${camera.cameraId}_${recording.jobId}`,
+                name: recording.fileName || `Recording_${recording.jobId}`,
+                url: `/manager/camera/${camera.cameraId}/recordings/${recording.jobId}/stream`,
+                size: recording.size || 0,
+                duration: 0,
+                createdAt: recording.createdAt,
+                tableId: camera.tableId,
+                tableName: tableName,
+                jobId: recording.jobId,
+                fileName: recording.fileName,
+                filePath: recording.filePath,
+                modifiedAt: recording.modifiedAt
+              };
+            });
+            allRecordings.push(...clips);
+          }
+        } catch (error) {
+          console.error(`Error fetching recordings for camera ${camera.cameraId}:`, error);
+        }
+      }
+
+      allRecordings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      setRecordedClips(allRecordings);
+
+    } catch (error) {
+      console.error('Error fetching recorded clips:', error);
+      toast.error('Không thể tải danh sách clip đã ghi');
+    } finally {
+      setLoadingClips(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecordedClips();
+  }, [tableId, cameraId, matchId]);
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const formatDuration = (seconds: number): string => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleString('vi-VN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const handleClipSelect = async (clip: RecordedClip) => {
+    try {
+      setSelectedClip(clip);
+      setShowClipsList(false);
+
+      const mockFile = new File([], clip.name, {
+        type: 'video/mp4',
+        lastModified: new Date(clip.createdAt).getTime()
+      });
+
+      const videoUrl = `http://localhost:8000/api${clip.url}`;
+
+      setVideoFile(mockFile);
+      setVideoUrl(videoUrl);
+
+      toast.success(`Đã chọn clip: ${clip.name}`);
+    } catch (error) {
+      console.error('Error selecting clip:', error);
+      toast.error('Không thể chọn clip');
+    }
+  };
 
   const validateFile = (file: File): boolean => {
     if (!file.type.startsWith('video/')) {
@@ -48,41 +306,68 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
     setVideoFile(file);
     const localUrl = URL.createObjectURL(file);
     setVideoUrl(localUrl);
+    setSelectedClip(null);
   };
 
   const processVideo = async () => {
-    if (!videoFile) {
+    if (!videoFile && !selectedClip) {
       toast.error('Vui lòng chọn video trước!');
       return;
     }
 
     try {
       setProcessing(true);
-      const formData = new FormData();
-      formData.append('video', videoFile);
-      formData.append('analysis_type', analysisType);
 
-      const res = await fetch('http://localhost:5000/process_video', {
-        method: 'POST',
-        body: formData
-      });
+      if (selectedClip) {
+        toast.success(`Đang phân tích clip: ${selectedClip.name}`);
 
-      if (!res.ok) {
-        throw new Error('Lỗi khi gửi video để phân tích');
-      }
+        const response = await axios.post('http://localhost:5000/process_video', {
+          clipId: selectedClip.id,
+          cameraId: selectedClip.tableId,
+          analysis_type: analysisType,
+          filePath: selectedClip.filePath
+        });
 
-      const data = await res.json();
-      setProcessResult(data);
+        const data = response.data as ProcessVideoResponse;
+        setProcessResult(data);
 
-      if (onVideoProcessed) {
-        onVideoProcessed(data as ProcessVideoResponse);
-        toast.success('Đã gửi kết quả AI đến xử lý điểm!');
-      }
+        if (onVideoProcessed) {
+          onVideoProcessed(data);
+          toast.success('Đã gửi kết quả AI đến xử lý điểm!');
+        }
 
-      if (data?.success) {
-        toast.success('Thành công! Đang xử lý điểm...');
+        if (data.success) {
+          toast.success('Thành công! Đang xử lý điểm...');
+        } else {
+          toast.error('Lỗi phân tích video!');
+        }
       } else {
-        toast.error('Lỗi phân tích video!');
+        const formData = new FormData();
+        formData.append('video', videoFile!);
+        formData.append('analysis_type', analysisType);
+
+        const res = await fetch('http://localhost:5000/process_video', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!res.ok) {
+          throw new Error('Lỗi khi gửi video để phân tích');
+        }
+
+        const data = await res.json();
+        setProcessResult(data);
+
+        if (onVideoProcessed) {
+          onVideoProcessed(data as ProcessVideoResponse);
+          toast.success('Đã gửi kết quả AI đến xử lý điểm!');
+        }
+
+        if (data?.success) {
+          toast.success('Thành công! Đang xử lý điểm...');
+        } else {
+          toast.error('Lỗi phân tích video!');
+        }
       }
     } catch (error) {
       console.error('[VideoAI] processVideo error:', error);
@@ -144,6 +429,7 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
     setVideoUrl(null);
     setVideoFile(null);
     setProcessResult({});
+    setSelectedClip(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -218,9 +504,112 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
         Video AI Billiards
       </h4>
 
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h5 className="text-base font-semibold text-gray-700">
+            Clip đã ghi ({recordedClips.length})
+            {tableId && <span className="text-sm text-gray-500 ml-2">- Bàn {tableId}</span>}
+            {cameraId && <span className="text-sm text-gray-500 ml-2">- Camera {cameraId}</span>}
+          </h5>
+          <div className="flex gap-2">
+            <Button
+              onClick={fetchRecordedClips}
+              disabled={loadingClips}
+              className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium"
+            >
+              {loadingClips ? (
+                <div className="flex items-center gap-1">
+                  <div className="animate-spin w-3 h-3 border border-white border-t-transparent rounded-full"></div>
+                  Tải lại
+                </div>
+              ) : (
+                'Tải lại'
+              )}
+            </Button>
+            <Button
+              onClick={() => setShowClipsList(!showClipsList)}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium"
+            >
+              {showClipsList ? 'Ẩn danh sách' : 'Xem danh sách'}
+            </Button>
+          </div>
+        </div>
+
+        {showClipsList && (
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 max-h-64 overflow-y-auto">
+            {loadingClips ? (
+              <div className="text-center py-4">
+                <div className="animate-spin w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                <p className="text-gray-500 text-sm">Đang tải danh sách clip...</p>
+              </div>
+            ) : recordedClips.length === 0 ? (
+              <div className="text-center py-4">
+                <p className="text-gray-500 text-sm">Chưa có clip nào được ghi</p>
+                {tableId && (
+                  <p className="text-xs text-gray-400 mt-1">
+                    Sử dụng nút "Record" trên camera để tạo clip mới
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {recordedClips.map((clip) => (
+                  <div
+                    key={clip.id}
+                    onClick={() => handleClipSelect(clip)}
+                    className={`p-3 rounded-lg border cursor-pointer transition-all hover:bg-blue-50 hover:border-blue-300 ${selectedClip?.id === clip.id
+                      ? 'bg-blue-100 border-blue-400'
+                      : 'bg-white border-gray-200'
+                      }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-800 truncate">{clip.name}</p>
+                        <div className="flex items-center gap-4 mt-1 text-xs text-gray-500">
+                          <span>{clip.tableName || 'Không xác định'}</span>
+                          <span>{formatFileSize(clip.size)}</span>
+                          {clip.duration > 0 && <span>{formatDuration(clip.duration)}</span>}
+                          <span>{formatDate(clip.createdAt)}</span>
+                        </div>
+                      </div>
+                      <div className="ml-3">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {selectedClip && (
+          <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-green-800">Clip đã chọn: {selectedClip.name}</p>
+                <p className="text-sm text-green-600">
+                  {selectedClip.tableName} • {formatFileSize(selectedClip.size)}
+                  {selectedClip.duration > 0 && ` • ${formatDuration(selectedClip.duration)}`}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setSelectedClip(null);
+                  clearVideo();
+                }}
+                className="text-red-500 hover:text-red-700 text-sm font-medium"
+              >
+                Bỏ chọn
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <div>
-          {!videoUrl ? (
+          {!videoUrl && !selectedClip ? (
             <div
               ref={dropZoneRef}
               onDragEnter={handleDragEnter}
@@ -255,6 +644,11 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
                     <p className="text-sm text-gray-500">
                       Hỗ trợ: MP4, MOV, AVI • Tối đa: {MAX_VIDEO_SIZE_GB}GB
                     </p>
+                    {recordedClips.length > 0 && (
+                      <p className="text-xs text-blue-600 mt-2">
+                        Hoặc chọn từ danh sách clip đã ghi ở trên
+                      </p>
+                    )}
                   </div>
                 </div>
               )}
@@ -270,22 +664,53 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
                   Xóa
                 </button>
               </div>
-              <video src={videoUrl} controls className="w-full rounded-lg border">
-                Your browser does not support the video tag.
-              </video>
-              {videoFile && (
-                <p className="text-sm text-gray-600 mt-2">
-                  {videoFile.name} ({(videoFile.size / (1024 * 1024 * 1024)).toFixed(1)}GB)
-                </p>
-              )}
+              {selectedClip ? (
+                <div className="space-y-3">
+                  <video
+                    src={videoUrl || ''}
+                    controls
+                    className="w-full rounded-lg border"
+                    crossOrigin="anonymous"
+                    preload="metadata"
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                  <div className="bg-white rounded-lg p-3 border border-gray-200">
+                    <p className="font-medium text-gray-800">{selectedClip.name}</p>
+                    <p className="text-sm text-gray-600">
+                      {selectedClip.tableName} • {formatFileSize(selectedClip.size)}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Tạo lúc: {formatDate(selectedClip.createdAt)}
+                    </p>
+                  </div>
+                  <div className="text-center py-2">
+                    <p className="text-sm text-gray-500">
+                      Clip đã được chọn từ danh sách recordings
+                    </p>
+                    <p className="text-xs text-blue-600 mt-1">
+                      Sẵn sàng để phân tích AI
+                    </p>
+                  </div>
+                </div>
+              ) : videoFile && videoUrl ? (
+                <>
+                  <video src={videoUrl || ''} controls className="w-full rounded-lg border">
+                    Your browser does not support the video tag.
+                  </video>
+                  <p className="text-sm text-gray-600 mt-2">
+                    {videoFile.name} ({(videoFile.size / (1024 * 1024 * 1024)).toFixed(1)}GB)
+                  </p>
+                </>
+              ) : null}
             </div>
           )}
 
           <div className="mt-4">
             <Button
               onClick={processVideo}
-              disabled={processing || !videoFile}
-              className={`w-full py-2 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-all ${!videoFile
+              disabled={processing || (!videoFile && !selectedClip)}
+              className={`w-full py-2 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-all ${!videoFile && !selectedClip
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : processing
                   ? 'bg-orange-500 text-white'
