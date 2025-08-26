@@ -15,6 +15,60 @@ export interface TestConnectionResponse {
   isConnectUpdated?: boolean;
 }
 
+export interface RecordResponse {
+  success: boolean;
+  message: string;
+  jobId?: string;
+  file?: {
+    name: string;
+    path: string;
+    size: number;
+  };
+  ai?: {
+    success: boolean;
+    result?: string;
+    score?: number;
+    detections?: any[];
+    error?: string;
+  };
+  duration: number;
+}
+
+export interface Recording {
+  jobId: string;
+  fileName: string;
+  filePath: string;
+  size: number;
+  createdAt: string;
+  modifiedAt: string;
+}
+
+export interface RecordingsResponse {
+  success: boolean;
+  cameraId: string;
+  recordings: Recording[];
+}
+
+export interface DeleteRecordingResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface CleanupResponse {
+  success: boolean;
+  message: string;
+  deletedCount: number;
+  maxAgeHours: number;
+}
+
+export interface TestPingResponse {
+  success: boolean;
+  message: string;
+  ipAddress: string;
+  pingResult?: string;
+  error?: string;
+}
+
 class ManagerCameraService {
   getToken() {
     if (typeof window !== 'undefined') {
@@ -143,6 +197,132 @@ class ManagerCameraService {
       console.error('Error stopping video stream:', error);
       throw error;
     }
+  }
+
+  async recordCamera(cameraId: string, duration?: number): Promise<RecordResponse> {
+    try {
+      const params = new URLSearchParams();
+      if (duration) {
+        params.append('duration', duration.toString());
+      }
+
+      const response = await axios.post(
+        `/manager/camera/${cameraId}/record?${params.toString()}`,
+        {},
+        {
+          headers: this.getAuthHeaders(),
+        }
+      );
+
+      return response.data as RecordResponse;
+    } catch (error: unknown) {
+      console.error('Error recording camera:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  async getCameraRecordings(cameraId: string): Promise<RecordingsResponse> {
+    try {
+      const response = await axios.get(
+        `/manager/camera/${cameraId}/recordings`,
+        {
+          headers: this.getAuthHeaders(),
+        }
+      );
+
+      return response.data as RecordingsResponse;
+    } catch (error: unknown) {
+      console.error('Error getting camera recordings:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  async deleteCameraRecording(cameraId: string, jobId: string): Promise<DeleteRecordingResponse> {
+    try {
+      const response = await axios.delete(
+        `/manager/camera/${cameraId}/recordings/${jobId}`,
+        {
+          headers: this.getAuthHeaders(),
+        }
+      );
+
+      return response.data as DeleteRecordingResponse;
+    } catch (error: unknown) {
+      console.error('Error deleting camera recording:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  async cleanupCameraRecordings(cameraId: string, maxAgeHours?: number): Promise<CleanupResponse> {
+    try {
+      const params = new URLSearchParams();
+      if (maxAgeHours) {
+        params.append('maxAgeHours', maxAgeHours.toString());
+      }
+
+      const response = await axios.post(
+        `/manager/camera/${cameraId}/recordings/cleanup?${params.toString()}`,
+        {},
+        {
+          headers: this.getAuthHeaders(),
+        }
+      );
+
+      return response.data as CleanupResponse;
+    } catch (error: unknown) {
+      console.error('Error cleaning up camera recordings:', error);
+      throw this.handleError(error);
+    }
+  }
+  async testCameraPing(cameraId: string): Promise<TestPingResponse> {
+    try {
+      const response = await axios.get(
+        `/manager/camera/${cameraId}/test-ping`,
+        {
+          headers: this.getAuthHeaders(),
+        }
+      );
+
+      return response.data as TestPingResponse;
+    } catch (error: unknown) {
+      console.error('Error testing camera ping:', error);
+      
+      if (typeof error === 'object' && error !== null && 'response' in error) {
+        const axiosError = error as { response?: { data?: unknown } };
+        if (axiosError.response?.data) {
+          const responseData = axiosError.response.data as { message?: string; error?: string };
+          return {
+            success: false,
+            message: responseData.message || 'Failed to test camera ping',
+            error: responseData.error || 'Unknown error',
+            ipAddress: ''
+          };
+        }
+      }
+      
+      return {
+        success: false,
+        message: 'Failed to test camera ping',
+        error: 'Network error',
+        ipAddress: ''
+      };
+    }
+  }
+  private handleError(error: unknown): Error {
+    if (typeof error === 'object' && error !== null && 'response' in error) {
+      const axiosError = error as { response?: { data?: unknown } };
+      if (axiosError.response?.data) {
+        const responseData = axiosError.response.data as { message?: string };
+        const enhancedError = new Error(responseData.message || 'Đã xảy ra lỗi');
+        (enhancedError as { response?: unknown }).response = axiosError.response;
+        return enhancedError;
+      }
+    }
+    if (typeof error === 'object' && error !== null && 'message' in error) {
+      const errorWithMessage = error as { message: string };
+      return new Error(errorWithMessage.message);
+    }
+    return new Error('Đã xảy ra lỗi không xác định');
   }
 }
 
