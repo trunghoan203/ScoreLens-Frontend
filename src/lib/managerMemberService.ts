@@ -10,6 +10,13 @@ interface ApiError {
 }
 
 class ManagerMemberService {
+  private getTranslation(key: string): string {
+    const translations: Record<string, string> = {
+      'shared.services.managerMember.phoneNumberAlreadyUsed': 'Phone number is already used by another member',
+    };
+    return translations[key] || key;
+  }
+
   getToken() {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('managerAccessToken');
@@ -38,7 +45,7 @@ class ManagerMemberService {
     } catch (error: unknown) {
       const apiError = error as ApiError;
       if (apiError.response?.data?.message === 'Số điện thoại đã được sử dụng bởi hội viên khác') {
-        throw new Error('Số điện thoại đã được sử dụng bởi hội viên khác');
+        throw new Error(this.getTranslation('shared.services.managerMember.phoneNumberAlreadyUsed'));
       }
       throw error;
     }
@@ -53,7 +60,7 @@ class ManagerMemberService {
     } catch (error: unknown) {
       const apiError = error as ApiError;
       if (apiError.response?.data?.message === 'Số điện thoại đã được sử dụng bởi hội viên khác') {
-        throw new Error('Số điện thoại đã được sử dụng bởi hội viên khác');
+        throw new Error(this.getTranslation('shared.services.managerMember.phoneNumberAlreadyUsed'));
       }
       throw error;
     }

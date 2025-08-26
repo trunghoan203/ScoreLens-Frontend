@@ -22,15 +22,12 @@ export function useAdminLogout() {
   const router = useRouter();
 
   const logout = () => {
-    // Xóa token
     if (typeof window !== 'undefined') {
       localStorage.removeItem('adminAccessToken');
     }
-    
-    // Xóa thông tin nhớ mật khẩu nếu có
+
     adminService.clearRememberMeData();
-    
-    // Chuyển hướng về trang login
+
     router.push('/admin/login');
   };
 

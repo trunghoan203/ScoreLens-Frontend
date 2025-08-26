@@ -48,12 +48,10 @@ export function HeaderSuperAdmin() {
                 await logoutSuperAdmin(refreshToken);
             }
 
-            // Save language preference before clearing localStorage
             const savedLanguage = localStorage.getItem('scorelens-language');
 
             localStorage.clear();
 
-            // Restore language preference
             if (savedLanguage) {
                 localStorage.setItem('scorelens-language', savedLanguage);
             }
@@ -64,12 +62,10 @@ export function HeaderSuperAdmin() {
 
             window.location.replace('/superadmin/login');
         } catch {
-            // Save language preference before clearing localStorage
             const savedLanguage = localStorage.getItem('scorelens-language');
 
             localStorage.clear();
 
-            // Restore language preference
             if (savedLanguage) {
                 localStorage.setItem('scorelens-language', savedLanguage);
             }

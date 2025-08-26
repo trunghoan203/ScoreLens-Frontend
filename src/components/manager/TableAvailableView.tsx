@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import axios from '@/lib/axios';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface TableAvailableViewProps {
   table: { id: string; name: string; category?: string };
@@ -20,6 +21,7 @@ interface TableAvailableViewProps {
 }
 
 export default function TableAvailableView({ table, onReady, loading = false, teamA: initialTeamA, teamB: initialTeamB, isEditing = false, onBack, elapsedTime, activeMatchId }: TableAvailableViewProps) {
+  const { t } = useI18n();
   const [teamA, setTeamA] = useState<string[]>(initialTeamA && initialTeamA.length > 0 ? initialTeamA : ['']);
   const [teamB, setTeamB] = useState<string[]>(initialTeamB && initialTeamB.length > 0 ? initialTeamB : ['']);
   const [teamAMembershipInfo, setTeamAMembershipInfo] = useState<Map<string, { membershipId: string; membershipName: string }>>(new Map());
@@ -35,7 +37,6 @@ export default function TableAvailableView({ table, onReady, loading = false, te
     }
   }, [initialTeamA, initialTeamB]);
 
-  // Load membership info when editing
   const loadMembershipInfo = useMemo(() => {
     return async () => {
       if (isEditing && activeMatchId) {
@@ -97,7 +98,7 @@ export default function TableAvailableView({ table, onReady, loading = false, te
     const setter = team === 'A' ? setTeamA : setTeamB;
     const current = team === 'A' ? teamA : teamB;
     if (current.length >= 4) {
-      toast.error('Không thể thêm quá 4 người chơi!', {
+      toast.error(t('manager.tableAvailable.cannotAddMorePlayers'), {
         style: {
           background: '#ef4444',
           color: '#fff',
@@ -130,16 +131,13 @@ export default function TableAvailableView({ table, onReady, loading = false, te
       const processedTeamA = [];
       const processedTeamB = [];
 
-      // Khi chỉnh sửa trận đấu, sử dụng thông tin membership đã load
       if (isEditing) {
-        // Xử lý Team A
         for (const player of teamA) {
           if (player.trim()) {
             const playerKey = player.trim().toLowerCase();
             const existingMember = teamAMembershipInfo.get(playerKey);
 
             if (existingMember) {
-              // Giữ nguyên membership
               processedTeamA.push({
                 membershipId: existingMember.membershipId,
                 membershipName: existingMember.membershipName
@@ -152,14 +150,12 @@ export default function TableAvailableView({ table, onReady, loading = false, te
           }
         }
 
-        // Xử lý Team B
         for (const player of teamB) {
           if (player.trim()) {
             const playerKey = player.trim().toLowerCase();
             const existingMember = teamBMembershipInfo.get(playerKey);
 
             if (existingMember) {
-              // Giữ nguyên membership
               processedTeamB.push({
                 membershipId: existingMember.membershipId,
                 membershipName: existingMember.membershipName
@@ -172,7 +168,6 @@ export default function TableAvailableView({ table, onReady, loading = false, te
           }
         }
       } else {
-        // Khi tạo trận đấu mới
         for (const player of teamA) {
           if (player.trim()) {
             if (player.length >= 10 && /^\d+$/.test(player)) {
@@ -196,7 +191,7 @@ export default function TableAvailableView({ table, onReady, loading = false, te
 
       const totalPlayers = processedTeamA.length + processedTeamB.length;
       if (totalPlayers === 0) {
-        toast.error('Trận đấu cần có ít nhất 1 người chơi!');
+        toast.error(t('manager.tableAvailable.matchNeedsAtLeastOnePlayer'));
         return;
       }
 
@@ -204,14 +199,14 @@ export default function TableAvailableView({ table, onReady, loading = false, te
 
     } catch (error) {
       console.error('Error processing teams:', error);
-      toast.error('Có lỗi xảy ra khi xử lý thông tin team!');
+      toast.error(t('manager.tableAvailable.errorProcessingTeams'));
     }
   };
 
   return (
     <div className="border border-lime-200 rounded-lg p-4 sm:p-6 lg:p-8 bg-[#FFFFFF] mx-auto text-[#000000]">
       <div className="flex justify-between items-center mb-4 sm:mb-6">
-        <h2 className="text-base sm:text-lg font-semibold">{isEditing ? 'Chỉnh sửa trận đấu' : 'Tạo trận đấu'}</h2>
+        <h2 className="text-base sm:text-lg font-semibold">{isEditing ? t('manager.tableAvailable.editMatch') : t('manager.tableAvailable.createMatch')}</h2>
         <TableStatusBadge status={isEditing ? "using" : "available"} />
       </div>
       <div className="text-center mb-6">
@@ -220,23 +215,23 @@ export default function TableAvailableView({ table, onReady, loading = false, te
       </div>
       <div className="flex flex-col lg:flex-row justify-center gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6">
         <div>
-          <div className="font-semibold mb-3 sm:mb-4 text-center text-sm sm:text-base">Đội A</div>
+          <div className="font-semibold mb-3 sm:mb-4 text-center text-sm sm:text-base">{t('manager.tableAvailable.teamA')}</div>
           {teamA.map((player, idx) => (
             <div key={idx} className="flex items-center gap-2 mb-2">
               <Input
                 value={player}
                 onChange={e => handleChange('A', idx, e.target.value)}
-                placeholder={`Người Chơi ${idx + 1}`}
+                placeholder={`${t('manager.tableAvailable.player')} ${idx + 1}`}
                 disabled={loading}
                 className="text-sm sm:text-base"
               />
               {idx === 0 ? (
                 <Button size="icon" variant="ghost" onClick={() => handleAddPlayer('A')} disabled={loading} className="hover:bg-transparent p-1 sm:p-2">
-                  <Image src="/icon/plus-circle.svg" width={20} height={20} className="w-5 h-5 sm:w-6 sm:h-6" alt="Thêm người chơi" />
+                  <Image src="/icon/plus-circle.svg" width={20} height={20} className="w-5 h-5 sm:w-6 sm:h-6" alt={t('manager.tableAvailable.addPlayer')} />
                 </Button>
               ) : (
                 <Button size="icon" variant="ghost" onClick={() => handleRemovePlayer('A', idx)} disabled={loading} className="hover:bg-transparent p-1 sm:p-2">
-                  <Image src="/icon/trash-2.svg" width={20} height={20} className="w-5 h-5 sm:w-6 sm:h-6" alt="Xóa người chơi" />
+                  <Image src="/icon/trash-2.svg" width={20} height={20} className="w-5 h-5 sm:w-6 sm:h-6" alt={t('manager.tableAvailable.removePlayer')} />
                 </Button>
               )}
             </div>
@@ -244,23 +239,23 @@ export default function TableAvailableView({ table, onReady, loading = false, te
         </div>
         <div className="flex justify-center lg:flex-col lg:justify-center font-bold text-lg sm:text-xl lg:text-2xl my-2 lg:my-0">VS</div>
         <div>
-          <div className="font-semibold mb-3 sm:mb-4 text-center text-sm sm:text-base">Đội B</div>
+          <div className="font-semibold mb-3 sm:mb-4 text-center text-sm sm:text-base">{t('manager.tableAvailable.teamB')}</div>
           {teamB.map((player, idx) => (
             <div key={idx} className="flex items-center gap-2 mb-2">
               <Input
                 value={player}
                 onChange={e => handleChange('B', idx, e.target.value)}
-                placeholder={`Người Chơi ${idx + 1}`}
+                placeholder={`${t('manager.tableAvailable.player')} ${idx + 1}`}
                 disabled={loading}
                 className="text-sm sm:text-base"
               />
               {idx === 0 ? (
                 <Button size="icon" variant="ghost" onClick={() => handleAddPlayer('B')} disabled={loading} className="hover:bg-transparent p-1 sm:p-2">
-                  <Image src="/icon/plus-circle.svg" width={20} height={20} className="w-5 h-5 sm:w-6 sm:h-6" alt="Thêm người chơi" />
+                  <Image src="/icon/plus-circle.svg" width={20} height={20} className="w-5 h-5 sm:w-6 sm:h-6" alt={t('manager.tableAvailable.addPlayer')} />
                 </Button>
               ) : (
                 <Button size="icon" variant="ghost" onClick={() => handleRemovePlayer('B', idx)} disabled={loading} className="hover:bg-transparent p-1 sm:p-2">
-                  <Image src="/icon/trash-2.svg" width={20} height={20} className="w-5 h-5 sm:w-6 sm:h-6" alt="Xóa người chơi" />
+                  <Image src="/icon/trash-2.svg" width={20} height={20} className="w-5 h-5 sm:w-6 sm:h-6" alt={t('manager.tableAvailable.removePlayer')} />
                 </Button>
               )}
             </div>
@@ -276,7 +271,7 @@ export default function TableAvailableView({ table, onReady, loading = false, te
           className="w-full sm:w-32 lg:w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-3 sm:order-1"
           onClick={isEditing && onBack ? onBack : () => router.push('/manager/dashboard')}
         >
-          Quay lại
+          {t('manager.tableAvailable.back')}
         </button>
         <button
           type="button"
@@ -284,7 +279,7 @@ export default function TableAvailableView({ table, onReady, loading = false, te
           disabled={loading}
           className="w-full sm:w-32 lg:w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-1 sm:order-2"
         >
-          {loading ? 'Đang tạo...' : isEditing ? 'Lưu thay đổi' : 'Sẵn sàng'}
+          {loading ? t('manager.tableAvailable.creating') : isEditing ? t('manager.tableAvailable.saveChanges') : t('manager.tableAvailable.ready')}
         </button>
       </div>
     </div>

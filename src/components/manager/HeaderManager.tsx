@@ -27,7 +27,6 @@ export default function HeaderManager() {
     deleteNotification
   } = useManagerNotifications();
 
-  // Initialize translated text after component mounts
   useEffect(() => {
     setManagerName(t('common.notLoggedIn'));
     setClubName(t('common.loading'));
@@ -75,9 +74,7 @@ export default function HeaderManager() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Only update text when language changes if we don't have actual data
   useEffect(() => {
-    // Only reset to default values if we don't have actual user data
     if (managerName === 'Chưa đăng nhập' || managerName === 'Not logged in') {
       setManagerName(t('common.notLoggedIn'));
     }

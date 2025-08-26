@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface MatchHistorySearchProps {
     search: string;
@@ -16,6 +17,7 @@ export function MatchHistorySearch({
     setDateFilter = () => { },
     isSearching = false
 }: MatchHistorySearchProps) {
+    const { t } = useI18n();
     const [inputValue, setInputValue] = useState(search);
 
     useEffect(() => {
@@ -33,7 +35,7 @@ export function MatchHistorySearch({
             <div className="flex items-center border border-gray-300 bg-gray-100 rounded-lg px-4 py-2 w-96">
                 <input
                     type="text"
-                    placeholder="Tìm kiếm trận đấu"
+                    placeholder={t('matchHistory.search.placeholder')}
                     className="bg-transparent outline-none flex-1 text-gray-700"
                     value={inputValue}
                     onChange={e => setInputValue(e.target.value)}

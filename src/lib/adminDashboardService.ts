@@ -138,6 +138,17 @@ export interface ApiResponse<T> {
 }
 
 class AdminDashboardService {
+  private getTranslation(key: string): string {
+    // This is a fallback for when useI18n is not available in service files
+    // In practice, these error messages should be handled by the calling components
+    const translations: Record<string, string> = {
+      'shared.services.adminDashboard.cannotLoadDashboardData': 'Cannot load dashboard data',
+      'shared.services.adminDashboard.cannotLoadDashboardStats': 'Cannot load dashboard statistics',
+      'shared.services.adminDashboard.cannotLoadClubDetail': 'Cannot load club detail information',
+      'shared.services.adminDashboard.unknownError': 'An unknown error occurred',
+    };
+    return translations[key] || key;
+  }
 
   async getDashboard(): Promise<DashboardData> {
     try {
@@ -145,8 +156,7 @@ class AdminDashboardService {
       if (response.data.success) {
         return response.data.data;
       }
-      console.log("Dashboard data:", response.data);
-      throw new Error(response.data.message || 'Không thể lấy dữ liệu dashboard');
+      throw new Error(response.data.message || this.getTranslation('shared.services.adminDashboard.cannotLoadDashboardData'));
     } catch (error) {
       throw this.handleError(error);
     }
@@ -159,7 +169,7 @@ class AdminDashboardService {
       if (response.data.success) {
         return response.data.data;
       }
-      throw new Error(response.data.message || 'Không thể lấy thống kê dashboard');
+      throw new Error(response.data.message || this.getTranslation('shared.services.adminDashboard.cannotLoadDashboardStats'));
     } catch (error) {
       throw this.handleError(error);
     }
@@ -172,8 +182,7 @@ class AdminDashboardService {
       if (response.data.success) {
         return response.data.data;
       }
-      console.log("Club detail:", response.data);
-      throw new Error(response.data.message || 'Không thể lấy thông tin chi tiết club');
+      throw new Error(response.data.message || this.getTranslation('shared.services.adminDashboard.cannotLoadClubDetail'));
     } catch (error) {
       throw this.handleError(error);
     }
@@ -191,7 +200,7 @@ class AdminDashboardService {
       const errorWithMessage = error as { message: string };
       return new Error(errorWithMessage.message);
     }
-    return new Error('Đã xảy ra lỗi không xác định');
+    return new Error(this.getTranslation('shared.services.adminDashboard.unknownError'));
   }
 }
 

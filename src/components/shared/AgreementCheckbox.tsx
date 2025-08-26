@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface AgreementCheckboxProps {
   checked: boolean;
@@ -8,6 +9,8 @@ interface AgreementCheckboxProps {
 }
 
 export function AgreementCheckbox({ checked, onChange, required }: AgreementCheckboxProps) {
+  const { t } = useI18n();
+
   return (
     <div className="w-full flex items-center gap-2">
       <input
@@ -19,9 +22,9 @@ export function AgreementCheckbox({ checked, onChange, required }: AgreementChec
         required={required}
       />
       <label htmlFor="agree" className="text-sm text-gray-700">
-        Tôi đăng ký và đã đọc các{' '}
+        {t('shared.agreementCheckbox.agreement')}{' '}
         <Link href="#" className="text-lime-600 underline">
-          Điều khoản và chính sách bảo mật
+          {t('shared.agreementCheckbox.termsAndPrivacy')}
         </Link>
       </label>
     </div>

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { userFeedbackService } from '@/lib/userFeedbackService';
 import { userMatchService } from '@/lib/userMatchService';
 import toast from 'react-hot-toast';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface FeedbackProps {
   onClose: () => void;
@@ -25,6 +26,7 @@ export default function Feedback({
   membershipId,
   guestToken
 }: FeedbackProps) {
+  const { t } = useI18n();
   const [feedback, setFeedback] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [tableInfo, setTableInfo] = useState<{
@@ -63,26 +65,26 @@ export default function Feedback({
 
   const handleSubmit = async () => {
     if (!feedback.trim()) {
-      toast.error('Vui lòng nhập phản hồi!');
+      toast.error(t('shared.feedback.pleaseEnterFeedback'));
       return;
     }
 
     const finalTableId = tableId || tableInfo?.tableId;
 
     if (!finalTableId) {
-      toast.error('Thiếu thông tin bàn để gửi phản hồi!');
+      toast.error(t('shared.feedback.missingTableInfo'));
       return;
     }
 
     const finalClubId = clubId || tableInfo?.clubId;
 
     if (!finalClubId) {
-      toast.error('Không thể xác định thông tin câu lạc bộ!');
+      toast.error(t('shared.feedback.cannotDetermineClub'));
       return;
     }
 
     if (!membershipId && !guestToken) {
-      toast.error('Thiếu thông tin xác thực người dùng!');
+      toast.error(t('shared.feedback.missingUserInfo'));
       return;
     }
 
@@ -105,7 +107,7 @@ export default function Feedback({
       onSuccess();
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
-      const errorMessage = error.response?.data?.message || 'Gửi phản hồi thất bại!';
+      const errorMessage = error.response?.data?.message || t('shared.feedback.submitFailed');
       toast.error(errorMessage);
     } finally {
       setSubmitting(false);
@@ -126,20 +128,20 @@ export default function Feedback({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="text-center mb-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-[#000000]">ĐÁNH GIÁ</h2>
-          <p className="text-sm text-gray-600 mt-2">Chia sẻ trải nghiệm của bạn</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-[#000000]">{t('shared.feedback.title')}</h2>
+          <p className="text-sm text-gray-600 mt-2">{t('shared.feedback.subtitle')}</p>
         </div>
 
         <div className="space-y-4">
           <div className="bg-[#8ADB10] rounded-xl px-4 py-3 text-left space-y-2 w-full">
-            <p className="text-[#FFFFFF] font-semibold text-sm">ĐÁNH GIÁ:</p>
+            <p className="text-[#FFFFFF] font-semibold text-sm">{t('shared.feedback.feedbackLabel')}</p>
             <div className="bg-white rounded-xl p-2">
               <textarea
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
                 rows={5}
                 className="w-full rounded-lg p-2 outline-none text-[#000000] text-sm resize-none bg-transparent"
-                placeholder="Nhập đánh giá của bạn..."
+                placeholder={t('shared.feedback.placeholder')}
                 disabled={submitting}
               />
             </div>
@@ -153,7 +155,7 @@ export default function Feedback({
             style={{ backgroundColor: '#FF0000' }}
             className="flex-1 hover:bg-red-600 text-[#FFFFFF] font-semibold py-3 rounded-xl text-base transition"
           >
-            Hủy
+            {t('shared.feedback.cancel')}
           </Button>
           <Button
             onClick={handleSubmit}
@@ -161,7 +163,7 @@ export default function Feedback({
             style={{ backgroundColor: '#8ADB10' }}
             className="flex-1 hover:bg-lime-600 text-[#FFFFFF] font-semibold py-3 rounded-xl text-base transition"
           >
-            {submitting ? 'Đang gửi...' : 'Đánh giá'}
+            {submitting ? t('shared.feedback.submitting') : t('shared.feedback.submit')}
           </Button>
         </div>
       </div>

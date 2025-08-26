@@ -1,4 +1,5 @@
 import React from 'react';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface RoleBadgeProps {
   role: 'host' | 'participant' | 'manager';
@@ -13,12 +14,14 @@ const RoleBadge: React.FC<RoleBadgeProps> = ({
   showIcon = false,
   className = ''
 }) => {
+  const { t } = useI18n();
+
   const getRoleConfig = () => {
     switch (role) {
       case 'host':
         return {
-          label: 'Chủ phòng',
-          description: 'Người tạo trận đấu',
+          label: t('shared.roleBadge.host'),
+          description: t('shared.roleBadge.hostDescription'),
           bgColor: 'bg-green-100',
           textColor: 'text-green-800',
           borderColor: 'border-green-200',
@@ -30,8 +33,8 @@ const RoleBadge: React.FC<RoleBadgeProps> = ({
         };
       case 'manager':
         return {
-          label: 'Manager',
-          description: 'Quản lý',
+          label: t('shared.roleBadge.manager'),
+          description: t('shared.roleBadge.managerDescription'),
           bgColor: 'bg-blue-100',
           textColor: 'text-blue-800',
           borderColor: 'border-blue-200',
@@ -43,8 +46,8 @@ const RoleBadge: React.FC<RoleBadgeProps> = ({
         };
       case 'participant':
         return {
-          label: 'Participant',
-          description: 'Người tham gia',
+          label: t('shared.roleBadge.participant'),
+          description: t('shared.roleBadge.participantDescription'),
           bgColor: 'bg-gray-100',
           textColor: 'text-gray-800',
           borderColor: 'border-gray-200',
@@ -56,8 +59,8 @@ const RoleBadge: React.FC<RoleBadgeProps> = ({
         };
       default:
         return {
-          label: 'Unknown',
-          description: 'Không xác định',
+          label: t('shared.roleBadge.unknown'),
+          description: t('shared.roleBadge.unknownDescription'),
           bgColor: 'bg-gray-100',
           textColor: 'text-gray-800',
           borderColor: 'border-gray-200',

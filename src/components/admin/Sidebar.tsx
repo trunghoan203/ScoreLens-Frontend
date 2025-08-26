@@ -75,7 +75,7 @@ export default function Sidebar() {
             href="/admin/dashboard"
             className={`block px-4 py-3 rounded-lg font-semibold transition text-sm xl:text-base ${pathname?.startsWith('/admin/dashboard') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
           >
-            Trang chủ
+            {t('nav.dashboard')}
           </Link>
           <Link
             href="/admin/branches"

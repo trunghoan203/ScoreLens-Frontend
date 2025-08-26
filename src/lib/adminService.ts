@@ -21,11 +21,10 @@ export interface RememberMeData {
 
 class AdminService {
   private readonly REMEMBER_ME_KEY = 'adminRememberMe';
-  private readonly REMEMBER_ME_DURATION = 30 * 24 * 60 * 60 * 1000; // 30 days
+  private readonly REMEMBER_ME_DURATION = 30 * 24 * 60 * 60 * 1000;
 
-  /**
-   * Lấy thông tin profile của admin đang đăng nhập
-   */
+
+  // Lấy thông tin profile của admin đang đăng nhập
   async getProfile(): Promise<AdminProfile> {
     try {
       const response = await axios.get('/admin/profile');
@@ -38,9 +37,8 @@ class AdminService {
     }
   }
 
-  /**
-   * Lấy brandId của admin đang đăng nhập
-   */
+
+  // Lấy brandId của admin đang đăng nhập
   async getBrandId(): Promise<string | null> {
     try {
       const profile = await this.getProfile();
@@ -51,9 +49,8 @@ class AdminService {
     }
   }
 
-  /**
-   * Lưu thông tin đăng nhập để nhớ mật khẩu
-   */
+
+  // Lưu thông tin đăng nhập để nhớ mật khẩu
   saveRememberMeData(data: RememberMeData): void {
     if (typeof window === 'undefined') return;
 
@@ -69,9 +66,8 @@ class AdminService {
     }
   }
 
-  /**
-   * Lấy thông tin đăng nhập đã lưu
-   */
+
+  // Lấy thông tin đăng nhập đã lưu
   getRememberMeData(): RememberMeData | null {
     if (typeof window === 'undefined') return null;
 
@@ -81,8 +77,7 @@ class AdminService {
 
       const data = JSON.parse(savedData);
       const now = Date.now();
-      
-      // Kiểm tra xem dữ liệu có còn hợp lệ không (30 ngày)
+
       if (now - data.timestamp > this.REMEMBER_ME_DURATION) {
         this.clearRememberMeData();
         return null;
@@ -100,17 +95,15 @@ class AdminService {
     }
   }
 
-  /**
-   * Xóa thông tin đăng nhập đã lưu
-   */
+
+  // Xóa thông tin đăng nhập đã lưu
   clearRememberMeData(): void {
     if (typeof window === 'undefined') return;
     localStorage.removeItem(this.REMEMBER_ME_KEY);
   }
 
-  /**
-   * Kiểm tra xem có dữ liệu nhớ mật khẩu không
-   */
+
+  // Kiểm tra xem có dữ liệu nhớ mật khẩu không
   hasRememberMeData(): boolean {
     return this.getRememberMeData() !== null;
   }
@@ -127,9 +120,8 @@ class AdminService {
     }
   }
 
-  /**
-   * Xử lý lỗi chung
-   */
+
+  // Xử lý lỗi chung
   private handleError(error: unknown): Error {
     if (typeof error === 'object' && error !== null && 'response' in error) {
       const axiosError = error as { response?: { data?: { message?: string } } };

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { managerCameraService, RecordResponse } from '@/lib/managerCameraService';
 import toast from 'react-hot-toast';
 import { Video, Loader2 } from 'lucide-react';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface CameraRecordButtonProps {
   cameraId: string;
@@ -23,6 +24,7 @@ export const CameraRecordButton: React.FC<CameraRecordButtonProps> = ({
   disabled = false,
   className = ''
 }) => {
+  const { t } = useI18n();
   const [isRecording, setIsRecording] = useState(false);
   const [countdown, setCountdown] = useState(duration);
 
@@ -42,23 +44,23 @@ export const CameraRecordButton: React.FC<CameraRecordButtonProps> = ({
       });
     }, 1000);
 
-          try {
-        const result = await managerCameraService.recordCamera(cameraId, duration);
-        
-        if (result.success) {
-          onSuccess?.(result);
-          if (result.ai?.success) {
-            toast.success(`AI Analysis: ${result.ai.result || 'Phân tích hoàn tất'}`);
-          } else if (result.ai?.error) {
-            toast.error(`AI upload thất bại: ${result.ai.error}`);
-          } else if (!result.ai) {
-          }
-        } else {
-          toast.error(result.message || 'Record thất bại');
-          onError?.(result.message || 'Record thất bại');
+    try {
+      const result = await managerCameraService.recordCamera(cameraId, duration);
+
+      if (result.success) {
+        onSuccess?.(result);
+        if (result.ai?.success) {
+          toast.success(`${t('manager.cameraRecord.aiAnalysis')} ${result.ai.result || t('manager.cameraRecord.analysisComplete')}`);
+        } else if (result.ai?.error) {
+          toast.error(`${t('manager.cameraRecord.aiUploadFailed')} ${result.ai.error}`);
+        } else if (!result.ai) {
         }
+      } else {
+        toast.error(result.message || t('manager.cameraRecord.recordFailed'));
+        onError?.(result.message || t('manager.cameraRecord.recordFailed'));
+      }
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Lỗi không xác định';
+      const errorMessage = error instanceof Error ? error.message : t('manager.cameraRecord.unknownError');
       onError?.(errorMessage);
       toast.error(`Lỗi: ${errorMessage}`);
     } finally {
@@ -79,12 +81,12 @@ export const CameraRecordButton: React.FC<CameraRecordButtonProps> = ({
         {isRecording ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            Đang ghi... ({countdown}s)
+            {t('manager.cameraRecord.recording')} ({countdown}s)
           </>
         ) : (
           <>
             <Video className="w-4 h-4 mr-2" />
-            Record + AI ({duration}s)
+            {t('manager.cameraRecord.recordWithAi')} ({duration}s)
           </>
         )}
       </Button>

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import toast from 'react-hot-toast';
 import RoleBadge from '@/components/ui/RoleBadge';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface Props {
   onClose: () => void;
@@ -22,17 +23,18 @@ export default function ScoreEditor({
   canEdit = true,
   userRole = 'participant'
 }: Props) {
+  const { t } = useI18n();
   const [scoreA, setScoreA] = useState(initialScoreA);
   const [scoreB, setScoreB] = useState(initialScoreB);
 
   const handleSave = async () => {
     if (!canEdit) {
-      toast.error('Bạn không có quyền chỉnh sửa điểm. Chỉ người tạo trận đấu mới có thể thực hiện.');
+      toast.error(t('shared.scoreEditor.noPermissionError'));
       return;
     }
 
     onSave(scoreA, scoreB);
-    toast.success('Đã cập nhật thành công!');
+    toast.success(t('shared.scoreEditor.updateSuccess'));
     onClose();
   };
 
@@ -42,7 +44,7 @@ export default function ScoreEditor({
         <div className="bg-white rounded-2xl p-6 w-full max-w-md sm:max-w-lg shadow-lg max-h-[90vh] overflow-y-auto">
           <div className="text-center mb-4">
             <h2 className="text-xl sm:text-2xl font-bold text-[#000000] mb-2">
-              CHỈNH SỬA ĐIỂM SỐ
+              {t('shared.scoreEditor.title')}
             </h2>
             <RoleBadge role={userRole} size="sm" showIcon />
           </div>
@@ -54,10 +56,10 @@ export default function ScoreEditor({
               </svg>
             </div>
             <p className="text-gray-600 mb-2">
-              Bạn không có quyền chỉnh sửa điểm trận đấu
+              {t('shared.scoreEditor.noPermissionTitle')}
             </p>
             <p className="text-sm text-gray-500">
-              Chỉ người tạo trận đấu (Host) mới có thể thực hiện thao tác này
+              {t('shared.scoreEditor.noPermissionDescription')}
             </p>
           </div>
 
@@ -67,7 +69,7 @@ export default function ScoreEditor({
               style={{ backgroundColor: '#8ADB10' }}
               className="bg-[#8ADB10] hover:bg-lime-500 text-[#FFFFFF] font-semibold py-3 px-8 rounded-xl text-sm sm:text-base"
             >
-              Đóng
+              {t('shared.scoreEditor.close')}
             </Button>
           </div>
         </div>
@@ -80,14 +82,14 @@ export default function ScoreEditor({
       <div className="bg-white rounded-2xl p-6 w-full max-w-md sm:max-w-lg shadow-lg max-h-[90vh] overflow-y-auto">
         <div className="text-center mb-4">
           <h2 className="text-xl sm:text-2xl font-bold text-[#000000] mb-2">
-            CHỈNH SỬA ĐIỂM SỐ
+            {t('shared.scoreEditor.title')}
           </h2>
           <RoleBadge role={userRole} size="sm" showIcon />
         </div>
 
         <div className="flex justify-between items-center mb-5">
           <div className="flex flex-col items-center">
-            <p className="font-semibold text-xl text-[#000000] mb-4">Đội A</p>
+            <p className="font-semibold text-xl text-[#000000] mb-4">{t('shared.scoreEditor.teamA')}</p>
             <div className="flex items-center gap-2">
               <input
                 type="number"
@@ -106,7 +108,7 @@ export default function ScoreEditor({
           </div>
 
           <div className="flex flex-col items-center">
-            <p className="font-semibold text-xl text-[#000000] mb-4">Đội B</p>
+            <p className="font-semibold text-xl text-[#000000] mb-4">{t('shared.scoreEditor.teamB')}</p>
             <div className="flex items-center gap-2">
               <input
                 type="number"
@@ -126,14 +128,14 @@ export default function ScoreEditor({
               onClick={() => setScoreA(0)}
               className="text-[#000000] hover:bg-red-50"
             >
-              Đặt lại điểm Đội A
+              {t('shared.scoreEditor.resetTeamA')}
             </Button>
             <Button
               variant="outline"
               onClick={() => setScoreB(0)}
               className="text-[#000000] hover:bg-red-50"
             >
-              Đặt lại điểm Đội B
+              {t('shared.scoreEditor.resetTeamB')}
             </Button>
           </div>
         </div>
@@ -144,14 +146,14 @@ export default function ScoreEditor({
             style={{ backgroundColor: '#FF0000' }}
             className="w-full bg-[#FF0000] hover:bg-red-500 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base"
           >
-            Huỷ
+            {t('shared.scoreEditor.cancel')}
           </Button>
           <Button
             onClick={handleSave}
             style={{ backgroundColor: '#8ADB10' }}
             className="w-full bg-[#8ADB10] hover:bg-lime-500 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base"
           >
-            Lưu điểm
+            {t('shared.scoreEditor.saveScore')}
           </Button>
         </div>
       </div>
