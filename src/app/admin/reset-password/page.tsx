@@ -117,7 +117,7 @@ function AdminResetPasswordPageInner({ searchParams }: { searchParams: URLSearch
       description={email ? `${t('auth.adminResetPassword.descriptionWithEmail')} ${email}` : t('auth.adminResetPassword.description')}
     >
       <div className="flex-1 flex flex-col justify-center">
-        <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6 overflow-hidden">
+        <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6 overflow-hidden" noValidate>
           <div>
             <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
               {t('auth.adminResetPassword.newPasswordLabel')}

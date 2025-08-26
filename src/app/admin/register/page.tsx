@@ -213,7 +213,7 @@ export default function AdminRegisterPage() {
       description={t('auth.adminRegister.description')}
     >
       {step === 1 && (
-        <form className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]" onSubmit={e => { e.preventDefault(); if (validateStep1()) setStep(2); }}>
+        <form className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]" onSubmit={e => { e.preventDefault(); if (validateStep1()) setStep(2); }} noValidate>
           <div>
             <label htmlFor="fullName" className="block text-sm font-semibold text-gray-700 mb-2">
               {t('auth.adminRegister.fullNameLabel')}
@@ -267,7 +267,7 @@ export default function AdminRegisterPage() {
         </form>
       )}
       {step === 2 && (
-        <form className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]" onSubmit={handleSubmit}>
+        <form className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]" onSubmit={handleSubmit} noValidate>
           <div>
             <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
               {t('auth.adminRegister.passwordLabel')}
@@ -335,7 +335,7 @@ export default function AdminRegisterPage() {
         </form>
       )}
       {step === 3 && (
-        <form className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]" onSubmit={handleVerifySubmit}>
+        <form className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]" onSubmit={handleVerifySubmit} noValidate>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-4">
               {t('auth.adminRegister.verificationTitle')}

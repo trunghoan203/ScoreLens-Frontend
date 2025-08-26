@@ -12,6 +12,7 @@ import EmptyState from '@/components/ui/EmptyState';
 import { managerTableService } from '@/lib/managerTableService';
 import toast from 'react-hot-toast';
 import { useManagerAuthGuard } from '@/lib/hooks/useManagerAuthGuard';
+import { useI18n } from '@/lib/i18n/provider';
 
 export interface Table {
   tableId: string;
@@ -24,6 +25,7 @@ export interface Table {
 }
 
 export default function TablesPage() {
+  const { t } = useI18n();
   const { isChecking } = useManagerAuthGuard();
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -56,11 +58,11 @@ export default function TablesPage() {
         setTables(mappedTables);
       })
       .catch(() => {
-        setError('Không thể tải danh sách bàn');
-        toast.error('Không thể tải danh sách bàn');
+        setError(t('managerTable.cannotLoadTables'));
+        toast.error(t('managerTable.cannotLoadTables'));
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   if (isChecking) return null;
 
@@ -88,7 +90,7 @@ export default function TablesPage() {
 
   return (
     <>
-      {loading && <ScoreLensLoading text="Đang tải..." />}
+      {loading && <ScoreLensLoading text={t('managerTable.loading')} />}
       <div className="min-h-screen flex bg-[#18191A]">
         <SidebarManager />
         <main className="flex-1 bg-white min-h-screen lg:ml-0">
@@ -118,10 +120,10 @@ export default function TablesPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 5v4m8-4v4M8 11h8M8 15h8" />
                   </svg>
                 }
-                title="Không tìm thấy bàn phù hợp"
-                description="Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy bàn phù hợp"
+                title={t('managerTable.noTablesFound')}
+                description={t('managerTable.tryDifferentSearch')}
                 secondaryAction={search || categoryFilter ? {
-                  label: 'Xem tất cả',
+                  label: t('managerTable.viewAll'),
                   onClick: () => {
                     setSearch('');
                     setCategoryFilter('');

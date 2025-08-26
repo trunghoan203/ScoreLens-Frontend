@@ -163,7 +163,7 @@ export function BrandInfoForm({ onSuccess, initialData }: BrandInfoFormProps) {
   const isFormValid = brandName && phoneNumber && citizenCode && logoUrl;
 
   return (
-    <form className="w-full max-w-4xl mx-auto flex flex-col gap-4 sm:gap-6 items-center px-4 sm:px-6 lg:px-0 pb-8" onSubmit={handleSubmit}>
+    <form className="w-full max-w-4xl mx-auto flex flex-col gap-4 sm:gap-6 items-center px-4 sm:px-6 lg:px-0 pb-8" onSubmit={handleSubmit} noValidate>
       <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center text-gray-900 mb-4 sm:mb-6">
         {initialData?.brandId ? t('brandInfoForm.editTitle') : t('brandInfoForm.title')}
       </h2>

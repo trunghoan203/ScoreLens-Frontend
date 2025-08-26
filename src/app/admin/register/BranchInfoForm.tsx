@@ -265,7 +265,7 @@ export function BranchInfoForm({
 
   return (
     <>
-      <form className="w-full max-w-6xl mx-auto flex flex-col gap-6 sm:gap-8 items-start px-4 sm:px-6 lg:px-0 pb-8" onSubmit={handleSubmit}>
+      <form className="w-full max-w-6xl mx-auto flex flex-col gap-6 sm:gap-8 items-start px-4 sm:px-6 lg:px-0 pb-8" onSubmit={handleSubmit} noValidate>
         <div className="w-full">
           <div className="mb-4 sm:mb-6">
             <Button

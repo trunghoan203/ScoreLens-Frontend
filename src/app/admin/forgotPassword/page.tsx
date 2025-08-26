@@ -121,7 +121,7 @@ export default function AdminForgotPasswordPage() {
         >
 
           {step === 1 && (
-            <form onSubmit={handleSubmitEmail} className="space-y-4 sm:space-y-6 p-4 sm:p-6 overflow-hidden">
+            <form onSubmit={handleSubmitEmail} className="space-y-4 sm:space-y-6 p-4 sm:p-6 overflow-hidden" noValidate>
               <div>
                 <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
                   {t('common.email')}
@@ -189,7 +189,7 @@ export default function AdminForgotPasswordPage() {
             />
           )}
           {step === 3 && (
-            <form onSubmit={handleSubmitNewPassword} className="space-y-4 sm:space-y-6 p-4 sm:p-6 overflow-hidden">
+            <form onSubmit={handleSubmitNewPassword} className="space-y-4 sm:space-y-6 p-4 sm:p-6 overflow-hidden" noValidate>
               <div>
                 <label htmlFor="newPassword" className="block text-sm font-semibold text-gray-700 mb-2">
                   {t('auth.forgotPassword.newPasswordLabel')}

@@ -120,7 +120,7 @@ function AdminVerificationPageInner({ searchParams }: { searchParams: URLSearchP
       title={t('auth.adminVerification.title')}
       description={`${t('auth.adminVerification.description')} ${email}`}
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6" noValidate>
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-4">
             {t('auth.adminVerification.verificationTitle')}

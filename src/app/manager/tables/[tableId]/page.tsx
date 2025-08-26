@@ -113,7 +113,7 @@ export default function TableDetailPage() {
   const handleDelete = async () => {
     try {
       await managerTableService.deleteTable(tableId);
-      toast.success('Đã xóa bàn thành công!');
+      toast.success(t('managerTable.deleteSuccess'));
       router.push('/manager/tables');
     } catch (error) {
       console.error(error);

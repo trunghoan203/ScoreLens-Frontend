@@ -177,7 +177,7 @@ export default function AdminLoginPage() {
     >
       <SearchParamsWrapper>
         {(searchParams) => (
-          <form onSubmit={(e) => handleSubmit(e, searchParams)} className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]">
+          <form onSubmit={(e) => handleSubmit(e, searchParams)} className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]" noValidate>
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
                 {t('auth.adminLogin.emailLabel')}

@@ -243,6 +243,7 @@ export default function ClubInfoPage() {
             <form
               className="w-full flex flex-col gap-6 sm:gap-8 items-center px-0 pb-8"
               onSubmit={handleSubmit}
+              noValidate
             >
               <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 items-start w-full max-w-6xl mx-auto">
                 <div className="flex flex-col items-center w-full lg:w-1/3">

@@ -48,7 +48,7 @@ export default function ManagerLoginPage() {
       title={t('auth.managerLogin.title')}
       description={t('auth.managerLogin.description')}
     >
-      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 p-3 sm:p-4 md:p-6 overflow-hidden">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 p-3 sm:p-4 md:p-6 overflow-hidden" noValidate>
         <div>
           <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
             {t('auth.managerLogin.emailLabel')}

@@ -315,7 +315,7 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
                       <div>
-                        <span className="block text-gray-500 mb-1">Họ tên</span>
+                        <span className="block text-gray-500 mb-1">Họ và tên</span>
                         <span className="font-medium text-gray-900 break-words">
                           {adminProfileState.fullName || 'N/A'}
                         </span>
