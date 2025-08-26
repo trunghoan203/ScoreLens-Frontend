@@ -11,7 +11,6 @@ import toast from 'react-hot-toast';
 import { managerCameraService } from '@/lib/managerCameraService';
 import { managerTableService } from '@/lib/managerTableService';
 import { CameraRecordButton } from '@/components/manager/CameraRecordButton';
-import { CameraRecordingsList } from '@/components/manager/CameraRecordingsList';
 
 import Image from 'next/image';
 
@@ -283,14 +282,6 @@ export default function CameraDetailPage() {
               />
             </div>
 
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">Recordings History</h3>
-              <CameraRecordingsList
-                cameraId={cameraId}
-                onRefresh={() => {
-                }}
-              />
-            </div>
           </div>
         </div>
       </main>
