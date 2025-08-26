@@ -281,6 +281,7 @@ export default function CameraDetailPage() {
                 }}
               />
             </div>
+
           </div>
         </div>
       </main>
