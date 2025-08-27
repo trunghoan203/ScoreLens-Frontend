@@ -1,11 +1,19 @@
+interface DashboardStats {
+    totalMembers: number;
+    totalMatches: number;
+    todayMatches: number;
+}
+
 interface MemberIdFormProps {
     memberId: string;
     setMemberId: (value: string) => void;
     onSubmit: (e: React.FormEvent) => void;
     t: (key: string) => string;
+    stats?: DashboardStats | null;
+    statsLoading?: boolean;
 }
 
-export function MemberIdForm({ memberId, setMemberId, onSubmit, t }: MemberIdFormProps) {
+export function MemberIdForm({ memberId, setMemberId, onSubmit, t, stats, statsLoading = false }: MemberIdFormProps) {
     return (
         <>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-8 text-black text-center">
@@ -14,15 +22,21 @@ export function MemberIdForm({ memberId, setMemberId, onSubmit, t }: MemberIdFor
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
                 <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-4 sm:p-6 text-center shadow-lg">
-                    <div className="text-2xl sm:text-3xl font-bold mb-2">1,250</div>
+                    <div className="text-2xl sm:text-3xl font-bold mb-2">
+                        {statsLoading ? '...' : stats?.totalMembers.toLocaleString() || '0'}
+                    </div>
                     <div className="text-xs sm:text-sm opacity-90">{t('history.totalMembers')}</div>
                 </div>
                 <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-4 sm:p-6 text-center shadow-lg">
-                    <div className="text-2xl sm:text-3xl font-bold mb-2">3,847</div>
+                    <div className="text-2xl sm:text-3xl font-bold mb-2">
+                        {statsLoading ? '...' : stats?.totalMatches.toLocaleString() || '0'}
+                    </div>
                     <div className="text-xs sm:text-sm opacity-90">{t('history.totalMatches')}</div>
                 </div>
                 <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-4 sm:p-6 text-center shadow-lg sm:col-span-2 lg:col-span-1">
-                    <div className="text-2xl sm:text-3xl font-bold mb-2">156</div>
+                    <div className="text-2xl sm:text-3xl font-bold mb-2">
+                        {statsLoading ? '...' : stats?.todayMatches.toLocaleString() || '0'}
+                    </div>
                     <div className="text-xs sm:text-sm opacity-90">{t('history.todayMatches')}</div>
                 </div>
             </div>

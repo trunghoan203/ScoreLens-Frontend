@@ -10,12 +10,37 @@ import { userMatchService } from '@/lib/userMatchService';
 import toast from 'react-hot-toast';
 import { useI18n } from "@/lib/i18n/provider";
 
+interface DashboardStats {
+    totalMembers: number;
+    totalMatches: number;
+    todayMatches: number;
+}
 
 export default function HistoryPage() {
     const { t } = useI18n();
     const router = useRouter();
     const [memberId, setMemberId] = useState('');
     const [loading, setLoading] = useState(true);
+    const [stats, setStats] = useState<DashboardStats | null>(null);
+    const [statsLoading, setStatsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const response = await userMatchService.getDashboardStats();
+                if (response && typeof response === 'object' && 'success' in response && response.success) {
+                    const statsData = response as { success: boolean; stats: DashboardStats };
+                    setStats(statsData.stats);
+                }
+            } catch (error) {
+                console.error('Error fetching dashboard stats:', error);
+            } finally {
+                setStatsLoading(false);
+            }
+        };
+
+        fetchStats();
+    }, []);
 
     useEffect(() => {
         const timer = setTimeout(() => setLoading(false), 1200);
@@ -66,6 +91,8 @@ export default function HistoryPage() {
                         setMemberId={setMemberId}
                         onSubmit={handleSubmit}
                         t={t}
+                        stats={stats}
+                        statsLoading={statsLoading}
                     />
                 </div>
             </div>

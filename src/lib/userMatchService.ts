@@ -372,6 +372,16 @@ class UserMatchService {
       throw this.handleError(error);
     }
   }
+
+  async getDashboardStats() {
+    try {
+      const response = await axios.get('/membership/dashboard/stats');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+      throw error;
+    }
+  }
 }
 
 export const userMatchService = new UserMatchService();
