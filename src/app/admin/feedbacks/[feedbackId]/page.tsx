@@ -91,15 +91,15 @@ export default function AdminFeedbackDetailPage() {
             clubId: String(feedbackObj.clubId || ''),
             tableId: String(feedbackObj.tableId || ''),
             clubInfo: {
-              clubId: String(clubInfo?.clubId || ''),
-              clubName: String(clubInfo?.clubName || ''),
+              clubId: String(clubInfo?.clubId || feedbackObj.clubId || ''),
+              clubName: String(clubInfo?.clubName || t('feedbacks.deletedClub')),
               address: String(clubInfo?.address || '')
             },
             tableInfo: {
               tableId: String(feedbackObj.tableId || ''),
-              tableName: String(tableInfo?.name || t('common.unknown')),
+              tableName: String(tableInfo?.name || t('feedbacks.deletedTable')),
               tableNumber: String(tableInfo?.tableNumber || ''),
-              category: String(tableInfo?.category || t('common.unknown'))
+              category: String(tableInfo?.category || t('feedbacks.unknown'))
             },
             content: String(feedbackObj.content || ''),
             status: (feedbackObj.status as Feedback['status']) || 'adminP',
@@ -115,35 +115,58 @@ export default function AdminFeedbackDetailPage() {
             updatedAt: feedbackObj.updatedAt ? new Date(feedbackObj.updatedAt as string) : new Date(),
           };
 
-          const hasUndefinedInfo =
-            mappedFeedback.tableInfo?.tableName === t('common.unknown') ||
-            mappedFeedback.tableInfo?.category === t('common.unknown') ||
-            !mappedFeedback.tableInfo?.tableName ||
-            !mappedFeedback.tableInfo?.category;
-
-          if (hasUndefinedInfo) {
-            setError(t('feedbacks.cannotLoadData'));
-          } else {
-            setFeedback(mappedFeedback);
-            setStatus(mappedFeedback.status);
-            let latestNote = '';
-            if (mappedFeedback.history && mappedFeedback.history.length > 0) {
-              const sortedHistory = [...mappedFeedback.history].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-              latestNote = sortedHistory.find(h => h.note && h.note.trim() !== '')?.note || '';
-            }
-            if (!isEditMode) {
-              setNotes(latestNote || mappedFeedback.note || '');
-            } else {
-              setNotes('');
-            }
-            setError(null);
+          setFeedback(mappedFeedback);
+          setStatus(mappedFeedback.status);
+          let latestNote = '';
+          if (mappedFeedback.history && mappedFeedback.history.length > 0) {
+            const sortedHistory = [...mappedFeedback.history].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            latestNote = sortedHistory.find(h => h.note && h.note.trim() !== '')?.note || '';
           }
+          if (!isEditMode) {
+            setNotes(latestNote || mappedFeedback.note || '');
+          } else {
+            setNotes('');
+          }
+          setError(null);
         } else {
           setError(t('feedbacks.notFound'));
         }
       } catch (error) {
         console.error('Error fetching feedback detail:', error);
-        setError(t('feedbacks.cannotLoadData'));
+
+        // Create a basic feedback structure even when there's an error
+        // This allows users to still view the feedback content if available
+        const errorFeedback: Feedback = {
+          feedbackId: String(feedbackId || ''),
+          createdBy: {
+            userId: '',
+            type: 'guest'
+          },
+          clubId: '',
+          tableId: '',
+          clubInfo: {
+            clubId: '',
+            clubName: t('feedbacks.deletedClub'),
+            address: ''
+          },
+          tableInfo: {
+            tableId: '',
+            tableName: t('feedbacks.deletedTable'),
+            tableNumber: '',
+            category: t('feedbacks.unknown')
+          },
+          content: t('feedbacks.cannotLoadData'),
+          status: 'adminP',
+          note: '',
+          history: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        setFeedback(errorFeedback);
+        setStatus('adminP');
+        setNotes('');
+        setError(null);
       } finally {
         setLoading(false);
       }
@@ -261,15 +284,15 @@ export default function AdminFeedbackDetailPage() {
                 <div className="flex-1 space-y-6 order-1 md:order-none">
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.table.branch')}</label>
-                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.clubInfo?.clubName || feedback?.clubId || ''} disabled />
+                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.clubInfo?.clubName || feedback?.clubId || t('feedbacks.deletedClub')} disabled />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.table.table')}</label>
-                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.tableInfo?.tableName || feedback?.tableId || ''} disabled />
+                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.tableInfo?.tableName || feedback?.tableId || t('feedbacks.deletedTable')} disabled />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.tableType')}</label>
-                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.tableInfo?.category === 'pool-8' ? 'Pool 8' : feedback?.tableInfo?.category === 'carom' ? 'Carom' : feedback?.tableInfo?.category || t('common.unknown')} disabled />
+                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.tableInfo?.category === 'pool-8' ? 'Pool 8' : feedback?.tableInfo?.category === 'carom' ? 'Carom' : feedback?.tableInfo?.category || t('feedbacks.unknown')} disabled />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.creatorTypeLabel')}</label>
@@ -277,11 +300,11 @@ export default function AdminFeedbackDetailPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.createdAt')}</label>
-                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.createdAt ? new Date(feedback.createdAt).toLocaleString('vi-VN') : ''} disabled />
+                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.createdAt ? new Date(feedback.createdAt).toLocaleString('vi-VN') : t('feedbacks.unknown')} disabled />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.updatedAt')}</label>
-                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.updatedAt ? new Date(feedback.updatedAt).toLocaleString('vi-VN') : ''} disabled />
+                    <input className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black" value={feedback?.updatedAt ? new Date(feedback.updatedAt).toLocaleString('vi-VN') : t('feedbacks.unknown')} disabled />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">{t('common.status')}</label>
@@ -360,7 +383,7 @@ export default function AdminFeedbackDetailPage() {
                                     <span className="text-xs bg-gray-200 px-2 py-1 rounded-full text-gray-600">{item.byRole}</span>
                                   </div>
                                   <span className="text-xs text-gray-500">
-                                    {item.date ? new Date(item.date).toLocaleString('vi-VN') : ''}
+                                    {item.date ? new Date(item.date).toLocaleString('vi-VN') : t('feedbacks.unknown')}
                                   </span>
                                 </div>
                                 {item.note && (

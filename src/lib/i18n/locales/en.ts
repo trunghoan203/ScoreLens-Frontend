@@ -60,6 +60,7 @@ export default {
         logoutSuccess: 'Logout successful!',
         logoutFailed: 'Logout failed.',
         tryAgain: 'Try again',
+        backToHome: 'Back to home',
     },
 
     // Navigation
@@ -100,6 +101,12 @@ export default {
             canLoginNow: 'You can now login!',
             backToLogin: 'Back to Login',
             rememberPassword: 'Remember your password?',
+            newPasswordLabel: 'New Password',
+            newPasswordPlaceholder: 'Enter new password',
+            confirmPasswordLabel: 'Confirm Password',
+            confirmPasswordPlaceholder: 'Re-enter new password',
+            resetting: 'Resetting...',
+            resetButton: 'Reset Password',
         },
         logoutConfirm: 'Are you sure you want to logout?',
         resetPassword: 'Reset Password',
@@ -514,11 +521,11 @@ export default {
 
     // Branch Info Form
     branchInfoForm: {
-        title: 'Branch Information',
+        title: 'Club Information',
         backToPrevious: '← Back to previous step',
-        branch: 'Branch',
-        addBranch: 'Add Branch',
-        removeBranch: 'Remove Branch',
+        branch: 'Club',
+        addBranch: 'Add Club',
+        removeBranch: 'Remove Club',
         clubNameLabel: 'Club Name',
         clubNameRequired: 'Club name is required',
         clubNamePlaceholder: 'Enter club name...',
@@ -539,7 +546,7 @@ export default {
         cancel: 'Cancel',
         deleteSuccess: 'Club deleted successfully!',
         deleteFailed: 'Failed to delete club!',
-        updateSuccess: 'Branch updated successfully!',
+        updateSuccess: 'Club updated successfully!',
         createSuccess: 'Club created successfully!',
         updateFailed: 'Failed to update club!',
         createFailed: 'Failed to create club!',
@@ -551,7 +558,7 @@ export default {
         updateAndContinue: 'Update and Continue',
         confirmInfo: 'Confirm Information',
         brandInfoTitle: 'Brand Information',
-        branchInfoTitle: 'Branch Information',
+        branchInfoTitle: 'Club Information',
         brandName: 'Brand Name',
         phoneNumber: 'Phone Number',
         website: 'Website',
@@ -563,9 +570,9 @@ export default {
         createBrandAndClubSuccess: 'Brand and clubs created successfully!',
         cannotUpdateStatus: 'Cannot update admin status to pending.',
         operationFailed: 'Operation failed. Please try again.',
-        deleteConfirmTitle: 'Confirm Delete Branch',
+        deleteConfirmTitle: 'Confirm Delete Club',
         deleteConfirmText: 'Delete',
-        deleteConfirmMessage: 'Are you sure you want to delete this branch?',
+        deleteConfirmMessage: 'Are you sure you want to delete this club?',
     },
 
     // Feedbacks
@@ -649,6 +656,9 @@ export default {
         save: 'Save',
         edit: 'Edit',
         back: 'Back',
+        deletedClub: 'Unknown',
+        deletedTable: 'Unknown',
+        unknown: 'Unknown',
     },
 
     // Cameras
@@ -852,7 +862,7 @@ export default {
         all: 'All',
         // Admin Dashboard specific
         adminDashboardTitle: 'DASHBOARD',
-        totalBranchesCard: 'Total Branches',
+        totalBranchesCard: 'Total Clubs',
         activeBranches: 'Open',
         closedBranches: 'Closed',
         totalTablesCard: 'Total Tables',
@@ -865,19 +875,19 @@ export default {
         totalFeedbacksCard: 'Feedbacks',
         pendingFeedbacksCard: 'Pending',
         resolvedFeedbacks: 'Resolved',
-        branchComparison: 'Branch Comparison',
-        branchComparisonDesc: 'Number of tables and managers by branch',
+        branchComparison: 'Club Comparison',
+        branchComparisonDesc: 'Number of tables and managers by club',
         tableStatus: 'Table Status',
         tableStatusDesc: 'Distribution of tables in use and empty',
-        branchStatistics: 'Detailed Branch Statistics',
-        branchStatisticsDesc: 'View detailed activity of each branch',
+        branchStatistics: 'Detailed Club Statistics',
+        branchStatisticsDesc: 'View detailed activity of each club',
         noDataTitle: 'No data available',
-        noDataDesc: 'The system has no branches or data to display',
+        noDataDesc: 'The system has no clubs or data to display',
         chartNoData: 'No chart data available',
         errorTitle: 'Data loading error',
         clearError: 'Clear error',
         tryAgain: 'Try again',
-        branchNumber: 'Branch #{number}',
+        branchNumber: 'Club #{number}',
         tableStatusTitle: 'Table Status',
         managerStatusTitle: 'Manager Status',
         tablesInUseStatus: 'In Use',
@@ -1385,9 +1395,7 @@ export default {
                 items: [
                     'Permanently store all participated matches',
                     'View detailed match history',
-                    'Track personal statistics and progress',
                     'Create private matches without assistance',
-                    'Receive notifications about special events'
                 ]
             }
         },
@@ -1454,22 +1462,100 @@ export default {
                 }
             },
             part3: {
-                title: 'Part 3: Important Notes',
-                criticalNote: '⚠️ Extremely Important Note: Since you are using the web app as a guest, this match data is only temporary. If you close the browser tab or exit, information about this match will be permanently lost and you will not be able to view it again.',
-            },
-            part4: {
-                title: 'Part 4: Upgrade to Membership',
+                title: 'Part 3: Upgrade to Membership',
                 description: 'Do you want to save all matches to review your achievements and progress? Register as a Member of the club!',
                 memberBenefits: '🎁 Benefits When Becoming a Membership:',
                 items: [
                     'Permanently store all participated matches',
                     'View detailed match history',
-                    'Track personal statistics and progress',
                     'Create private matches without assistance',
-                    'Receive notifications about special events',
                     'Contact Club Manager to register as a membership'
                 ]
             }
+        }
+    },
+
+    // FAQ
+    faq: {
+        loading: 'Loading...',
+        title: 'Frequently Asked Questions (FAQ)',
+        categories: {
+            general: 'General Questions',
+            usage: 'Usage Guide',
+            membership: 'Membership',
+            technical: 'Technical',
+        },
+        general: {
+            whatIsScoreLens: {
+                question: 'What is ScoreLens?',
+                answer: 'ScoreLens is an automatic billiards scoring system using AI technology and cameras. The system helps record accurate scores in real-time without manual intervention.'
+            },
+            needAccount: {
+                question: 'Do I need to register an account?',
+                answer: 'Not required. You can use as a guest, but registering as a member will have many benefits such as storing match history, personal statistics and many other features.'
+            },
+            isFree: {
+                question: 'Is the system free?',
+                answer: 'Yes, you can use the system completely free as a guest. However, to have more features and data storage, you should register as a member.'
+            }
+        },
+        usage: {
+            howToUse: {
+                question: 'How to use the ScoreLens system?',
+                answer: 'Just scan the QR code on the billiards table with your phone camera, then enter team names and start the match. The system will automatically track scores.'
+            },
+            phoneCompatibility: {
+                question: 'Does the system work on all phones?',
+                answer: 'Yes, the system works on both iPhone and Android. You just need a camera and web browser to use it.'
+            },
+            editScores: {
+                question: 'Can I edit scores?',
+                answer: 'Yes, the room owner can edit scores if AI misrecognizes. Press the \'Edit\' button to adjust the score accurately.'
+            },
+            endMatch: {
+                question: 'How to end a match?',
+                answer: 'The room owner can press the \'End\' button to end the match. Then you can evaluate the match and send feedback.'
+            }
+        },
+        membership: {
+            howToBecome: {
+                question: 'How to become a member?',
+                answer: 'Contact the club manager to register as a member. You will receive a member code to use the system with full features.'
+            },
+            benefits: {
+                question: 'What are the benefits of becoming a member?',
+                answer: 'Members can permanently store all matches, view detailed history, track personal statistics, create private matches and receive notifications about special events.'
+            },
+            viewHistory: {
+                question: 'How to view match history?',
+                answer: 'If you are a member, you can view history at the \'Match History\' page. If you are a guest, data will be lost when you close the browser.'
+            },
+            convertToMember: {
+                question: 'Can I convert from guest to member?',
+                answer: 'Yes, you can register as a member at any time. However, matches played previously as a guest will not be stored.'
+            }
+        },
+        technical: {
+            technology: {
+                question: 'What technology does the system use?',
+                answer: 'ScoreLens uses AI (Artificial Intelligence) technology and cameras to automatically recognize and track scores in real-time.'
+            },
+            accuracy: {
+                question: 'How accurate is the system?',
+                answer: 'The system has high accuracy, however in some cases manual adjustment may be needed if AI misrecognizes.'
+            },
+            security: {
+                question: 'Is the data secure?',
+                answer: 'Yes, we are committed to protecting your personal information according to privacy policy and complying with current legal regulations.'
+            },
+            offline: {
+                question: 'Can I use offline?',
+                answer: 'Currently the system requires internet connection to work. We are developing offline features in the future.'
+            }
+        },
+        notFound: {
+            title: 'Can\'t find the answer you need?',
+            button: 'View Detailed Guide'
         }
     },
 
@@ -1702,6 +1788,19 @@ export default {
         endMatchSuccess: 'Match ended successfully!',
         endMatchFailed: 'Failed to end match!',
         updateMembersFailed: 'Failed to update members!',
+        createMatchSuccess: 'Match created successfully!',
+        createMatchFailed: 'Failed to create match!',
+        cannotIdentifyMatchToStart: 'Cannot identify match to start',
+        startMatchSuccess: 'Match started successfully!',
+        startMatchFailed: 'Failed to start match!',
+        cannotIdentifyMatchToUpdate: 'Cannot identify match to update',
+        updateScoreSuccess: 'Score updated successfully!',
+        updateScoreFailed: 'Failed to update score!',
+        updateMembersSuccess: 'Members updated successfully!',
+        duplicatePlayerNames: 'Player names cannot be the same.',
+        alreadyJoinedMatch: 'You have already joined this match.',
+        cannotLoadCameras: 'Cannot load camera list',
+        cannotLoadData: 'Cannot load data',
         team: 'Team',
         unknown: 'Unknown',
     },
@@ -1735,9 +1834,9 @@ export default {
 
     // Admin Add Branch
     adminAddBranch: {
-        branchNameRequired: 'Branch name is required',
-        branchNameMinLength: 'Branch name must be at least 2 characters',
-        branchNameMaxLength: 'Branch name cannot exceed 255 characters',
+        branchNameRequired: 'Club name is required',
+        branchNameMinLength: 'Club name must be at least 2 characters',
+        branchNameMaxLength: 'Club name cannot exceed 255 characters',
         addressRequired: 'Address is required',
         addressMinLength: 'Address must be at least 5 characters',
         addressMaxLength: 'Address cannot exceed 255 characters',
@@ -1863,7 +1962,7 @@ export default {
         tryAgain: 'Try Again',
         backToList: 'Back to List',
         brandLabel: 'Brand',
-        branchLabel: 'Branch',
+        branchLabel: 'Club',
         tableLabel: 'Table',
         tableTypeLabel: 'Table Type',
         creatorTypeLabel: 'Creator Type',
@@ -1896,6 +1995,8 @@ export default {
         updateSuccess: 'Updated successfully',
         updateFailed: 'Update failed',
         completed: 'Completed',
+        deletedClub: 'Unknown',
+        deletedTable: 'Unkown',
     },
 
     // Super Admin Home Page
@@ -1934,7 +2035,7 @@ export default {
             clickToViewDetails: 'Click to view details',
         },
         // Feedback table translations
-        feedbackSearchPlaceholder: 'Enter brand or branch...',
+        feedbackSearchPlaceholder: 'Enter brand or club...',
         feedbackAllStatus: 'All',
         feedbackPendingStatus: 'Pending',
         feedbackResolvedStatus: 'Resolved',
@@ -1943,7 +2044,7 @@ export default {
         feedbackDateColumn: 'DATE',
         feedbackStatusColumn: 'STATUS',
         feedbackDateLabel: 'Date:',
-        feedbackNoBranch: 'No branch yet',
+        feedbackNoBranch: 'Unknown',
         feedbackNoFeedbacksFound: 'No feedbacks found',
         feedbackClickToViewDetails: 'Click to view details →',
         feedbackShowingResults: 'Showing {start}-{end} of {total} feedbacks',
@@ -2205,7 +2306,7 @@ export default {
     // Register Steps Component
     registerSteps: {
         brandInfo: 'Brand Information',
-        branchInfo: 'Branch Information',
+        branchInfo: 'Club Information',
         confirm: 'Confirm',
     },
 
@@ -2228,7 +2329,7 @@ export default {
     // Match Detail Popup Component
     matchDetailPopup: {
         title: 'MATCH DETAILS',
-        branch: 'Branch:',
+        branch: 'Club:',
         location: 'Location:',
         gameType: 'Game Type:',
         startTime: 'Start Time:',
@@ -2255,7 +2356,7 @@ export default {
         },
         table: {
             time: 'TIME',
-            branch: 'BRANCH',
+            branch: 'CLUB',
             format: 'FORMAT',
             winningTeam: 'WINNING TEAM',
             score: 'SCORE',
@@ -2727,7 +2828,7 @@ export default {
         adminDashboardTitle: 'ADMIN DASHBOARD',
         noDataTitle: 'No Data Available',
         noDataDesc: 'There is no data to display at the moment.',
-        totalBranchesCard: 'Total Branches',
+        totalBranchesCard: 'Total Clubs',
         activeBranches: 'Active',
         closedBranches: 'Closed',
         totalTablesCard: 'Total Tables',
@@ -2740,14 +2841,14 @@ export default {
         totalFeedbacksCard: 'Total Feedbacks',
         pendingFeedbacksCard: 'Pending',
         resolvedFeedbacks: 'Resolved',
-        branchComparison: 'Branch Comparison',
-        branchComparisonDesc: 'Comparison of tables and managers across branches',
+        branchComparison: 'Club Comparison',
+        branchComparisonDesc: 'Comparison of tables and managers across clubs',
         tableStatus: 'Table Status',
         tableStatusDesc: 'Distribution of table statuses',
         chartNoData: 'No data available for chart',
-        branchStatistics: 'Branch Statistics',
-        branchStatisticsDesc: 'Detailed statistics for each branch',
-        branchNumber: 'Branch #{number}',
+        branchStatistics: 'Club Statistics',
+        branchStatisticsDesc: 'Detailed statistics for each club',
+        branchNumber: 'Club #{number}',
         tables: 'Tables',
         managers: 'Managers',
         inUse: 'In Use',

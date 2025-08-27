@@ -24,7 +24,7 @@ export default function AddManagerPage() {
   const [address, setAddress] = useState('');
   const [clubId, setClubId] = useState('');
   const [clubs, setClubs] = useState<ClubResponse[]>([]);
-  const [isActive, setIsActive] = useState(true);
+
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -267,28 +267,7 @@ export default function AddManagerPage() {
               <Input value={address} onChange={e => setAddress(e.target.value)} required className="py-2.5 sm:py-3" />
               {errors.address && <span className="text-red-500 text-xs sm:text-sm">{errors.address}</span>}
             </div>
-            <div className="w-full mb-8 sm:mb-10">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('common.status')}<span className="text-red-500">*</span></label>
-              <div className="relative w-full">
-                <select
-                  value={isActive ? 'active' : 'inactive'}
-                  onChange={e => setIsActive(e.target.value === 'active')}
-                  required
-                  name="isActive"
-                  className="w-full border border-gray-300 bg-white rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-black outline-none focus:outline-none focus:border-lime-500 hover:border-lime-400 appearance-none"
-                >
-                  <option value="active">{t('managers.status.active')}</option>
-                  <option value="inactive">{t('managers.status.inactive')}</option>
-                </select>
-                <Image
-                  src="/icon/chevron-down_Black.svg"
-                  alt="Dropdown"
-                  width={16}
-                  height={16}
-                  className="sm:w-5 sm:h-5 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                />
-              </div>
-            </div>
+
           </AddFormLayout>
         </div>
       </main>

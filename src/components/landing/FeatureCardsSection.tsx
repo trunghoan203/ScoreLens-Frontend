@@ -41,7 +41,7 @@ export const FeatureCardsSection = () => {
   ];
 
   return (
-    <section className="py-12 sm:py-16 md:py-24 bg-white">
+    <section id="features" className="py-12 sm:py-16 md:py-24 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-6 sm:gap-8">
         {features.map((feature) => (
           <FeatureCard key={feature.title} {...feature} />

@@ -6,7 +6,7 @@ export const ScoringSystemSection = () => {
   const { t } = useI18n();
 
   return (
-    <section className="py-12 sm:py-16 md:py-24 bg-white text-black">
+    <section id="scoring-system" className="py-12 sm:py-16 md:py-24 bg-white text-black">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-8 sm:gap-12 items-center">
         <div className="rounded-lg overflow-hidden order-2 lg:order-1">
           <Image
@@ -24,7 +24,18 @@ export const ScoringSystemSection = () => {
           </p>
           <ul className="list-disc list-inside space-y-2 text-sm sm:text-base text-gray-700 mb-6 sm:mb-8">
             {t('home.scoringSystem.features').map((feature: string, index: number) => (
-              <li key={index}>{feature}</li>
+              <li key={index}>
+                {feature.includes('Membership system') ? (
+                  <button
+                    onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="text-lime-600 hover:text-lime-700 underline cursor-pointer"
+                  >
+                    {feature}
+                  </button>
+                ) : (
+                  feature
+                )}
+              </li>
             ))}
           </ul>
         </div>

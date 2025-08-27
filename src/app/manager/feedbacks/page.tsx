@@ -68,16 +68,16 @@ export default function FeedbacksPage() {
           const tableInfo = obj.tableInfo as Record<string, unknown> | undefined;
           const clubInfo = obj.clubInfo as Record<string, unknown> | undefined;
 
-          let tableName = t('common.unknown');
+          let tableName = t('feedbacks.unknown');
           if (tableInfo?.name) {
             tableName = String(tableInfo.name);
           }
 
           return {
             id: String(obj.feedbackId || obj._id || ''),
-            branch: String(clubInfo?.clubName || t('common.unknown')),
+            branch: String(clubInfo?.clubName || t('feedbacks.deletedClub')),
             table: String(tableName),
-            time: String(obj.createdAt ? new Date(obj.createdAt as string).toLocaleString('vi-VN') : t('common.unknown')),
+            time: String(obj.createdAt ? new Date(obj.createdAt as string).toLocaleString('vi-VN') : t('feedbacks.unknown')),
             status: (obj.status as Feedback['status']) || 'managerP',
             feedback: String(obj.content || ''),
             notes: String(obj.note || ''),

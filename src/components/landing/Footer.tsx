@@ -23,16 +23,16 @@ export const Footer = () => {
             <h4 className="font-bold text-base sm:text-lg mb-3 sm:mb-4 text-white">{t('home.footer.functions.title')}</h4>
             <div className="space-y-2 sm:space-y-3 flex flex-col">
               {t('home.footer.functions.items').map((item: string, index: number) => (
-                <FooterLink key={index} href="#">{item}</FooterLink>
+                <FooterLink key={index} href="/">{item}</FooterLink>
               ))}
             </div>
           </div>
           <div>
             <h4 className="font-bold text-base sm:text-lg mb-3 sm:mb-4 text-white">{t('home.footer.support.title')}</h4>
             <div className="space-y-2 sm:space-y-3 flex flex-col">
-              {t('home.footer.support.items').map((item: string, index: number) => (
-                <FooterLink key={index} href="#">{item}</FooterLink>
-              ))}
+              <FooterLink href="/faq">Frequently asked questions</FooterLink>
+              <FooterLink href="/terms">Terms of service</FooterLink>
+              <FooterLink href="/guide">Online guide (FAQs)</FooterLink>
             </div>
           </div>
           <div className="sm:col-span-2 lg:col-span-1">

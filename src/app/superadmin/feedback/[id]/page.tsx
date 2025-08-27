@@ -99,16 +99,16 @@ export default function FeedbackDetailPage() {
             clubId: String(feedbackObj.clubId || ''),
             tableId: String(feedbackObj.tableId || ''),
             clubInfo: {
-              clubId: String(clubInfo?.clubId || ''),
-              clubName: String(clubInfo?.clubName || ''),
+              clubId: String(clubInfo?.clubId || feedbackObj.clubId || ''),
+              clubName: String(clubInfo?.clubName || t('superAdminFeedbackDetail.deletedClub')),
               address: String(clubInfo?.address || ''),
-              brandName: String(clubInfo?.brandName || '')
+              brandName: String(clubInfo?.brandName || t('superAdminFeedbackDetail.unknown'))
             },
             tableInfo: {
               tableId: String(feedbackObj.tableId || ''),
-              tableName: String(tableInfo?.name || 'Không xác định'),
+              tableName: String(tableInfo?.name || t('superAdminFeedbackDetail.deletedTable')),
               tableNumber: String(tableInfo?.tableNumber || ''),
-              category: String(tableInfo?.category || 'Không xác định')
+              category: String(tableInfo?.category || t('superAdminFeedbackDetail.unknown'))
             },
             content: String(feedbackObj.content || ''),
             status: (feedbackObj.status as Feedback['status']) || 'adminP',
@@ -144,11 +144,77 @@ export default function FeedbackDetailPage() {
 
           setError(null);
         } else {
-          setError(t('superAdminFeedbackDetail.feedbackNotFound'));
+          // Even if feedback object is not found, we can still show a basic structure
+          // to prevent the page from crashing
+          const basicFeedback: Feedback = {
+            feedbackId: String(id || ''),
+            createdBy: {
+              userId: '',
+              type: 'guest'
+            },
+            clubId: '',
+            tableId: '',
+            clubInfo: {
+              clubId: '',
+              clubName: t('superAdminFeedbackDetail.deletedClub'),
+              address: '',
+              brandName: t('superAdminFeedbackDetail.unknown')
+            },
+            tableInfo: {
+              tableId: '',
+              tableName: t('superAdminFeedbackDetail.deletedTable'),
+              tableNumber: '',
+              category: t('superAdminFeedbackDetail.unknown')
+            },
+            content: t('superAdminFeedbackDetail.feedbackNotFound'),
+            status: 'superadminP',
+            note: '',
+            history: [],
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
+          setFeedback(basicFeedback);
+          setStatus('superadminP');
+          setNotes('');
+          setError(null);
         }
       } catch (error) {
         console.error('Error fetching feedback detail:', error);
-        setError(t('superAdminFeedbackDetail.cannotLoadFeedback'));
+
+        // Create a basic feedback structure even when there's an error
+        // This allows users to still view the feedback content if available
+        const errorFeedback: Feedback = {
+          feedbackId: String(id || ''),
+          createdBy: {
+            userId: '',
+            type: 'guest'
+          },
+          clubId: '',
+          tableId: '',
+          clubInfo: {
+            clubId: '',
+            clubName: t('superAdminFeedbackDetail.deletedClub'),
+            address: '',
+            brandName: t('superAdminFeedbackDetail.unknown')
+          },
+          tableInfo: {
+            tableId: '',
+            tableName: t('superAdminFeedbackDetail.deletedTable'),
+            tableNumber: '',
+            category: t('superAdminFeedbackDetail.unknown')
+          },
+          content: t('superAdminFeedbackDetail.cannotLoadFeedback'),
+          status: 'superadminP',
+          note: '',
+          history: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        setFeedback(errorFeedback);
+        setStatus('superadminP');
+        setNotes('');
+        setError(null);
       } finally {
         setLoading(false);
       }
@@ -305,11 +371,11 @@ export default function FeedbackDetailPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-2 text-black">{t('superAdminFeedbackDetail.branchLabel')}</label>
-                  <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-sm sm:text-base text-black" value={feedback.clubInfo?.clubName || feedback.clubId || ''} disabled />
+                  <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-sm sm:text-base text-black" value={feedback.clubInfo?.clubName || feedback.clubId || t('superAdminFeedbackDetail.deletedClub')} disabled />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-2 text-black">{t('superAdminFeedbackDetail.tableLabel')}</label>
-                  <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-sm sm:text-base text-black" value={feedback.tableInfo?.tableName || feedback.tableId || ''} disabled />
+                  <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-sm sm:text-base text-black" value={feedback.tableInfo?.tableName || feedback.tableId || t('superAdminFeedbackDetail.deletedTable')} disabled />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-2 text-black">{t('superAdminFeedbackDetail.tableTypeLabel')}</label>
@@ -321,11 +387,11 @@ export default function FeedbackDetailPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-2 text-black">{t('superAdminFeedbackDetail.createdAtLabel')}</label>
-                  <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-sm sm:text-base text-black" value={feedback.createdAt ? new Date(feedback.createdAt).toLocaleString('vi-VN') : ''} disabled />
+                  <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-sm sm:text-base text-black" value={feedback.createdAt ? new Date(feedback.createdAt).toLocaleString('vi-VN') : t('superAdminFeedbackDetail.unknown')} disabled />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-2 text-black">{t('superAdminFeedbackDetail.updatedAtLabel')}</label>
-                  <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-sm sm:text-base text-black" value={feedback.updatedAt ? new Date(feedback.updatedAt).toLocaleString('vi-VN') : ''} disabled />
+                  <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-sm sm:text-base text-black" value={feedback.updatedAt ? new Date(feedback.updatedAt).toLocaleString('vi-VN') : t('superAdminFeedbackDetail.unknown')} disabled />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-2 text-black">{t('superAdminFeedbackDetail.statusLabel')}</label>
@@ -405,7 +471,7 @@ export default function FeedbackDetailPage() {
                                   <span className="text-xs bg-gray-200 px-2 py-1 rounded-full text-gray-600">{item.byRole}</span>
                                 </div>
                                 <span className="text-xs text-gray-500">
-                                  {item.date ? new Date(item.date).toLocaleString('vi-VN') : ''}
+                                  {item.date ? new Date(item.date).toLocaleString('vi-VN') : t('superAdminFeedbackDetail.unknown')}
                                 </span>
                               </div>
                               {item.note && <NoteWithToggle note={item.note} />}

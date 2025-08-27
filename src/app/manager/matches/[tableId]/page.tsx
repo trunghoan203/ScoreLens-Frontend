@@ -176,7 +176,7 @@ export default function TableDetailPage() {
       setCameras(tableCameras);
     } catch (error) {
       console.error('Error fetching cameras:', error);
-      toast.error('Không thể tải danh sách camera');
+      toast.error(t('managerMatches.cannotLoadCameras'));
     } finally {
       setCameraLoading(false);
     }
@@ -212,8 +212,8 @@ export default function TableDetailPage() {
             if (matchResponse.success && Array.isArray(matchResponse.data) && matchResponse.data.length > 0) {
               const activeMatch = matchResponse.data[0];
               if (activeMatch.teams && activeMatch.teams.length >= 2) {
-                const teamAMembers = activeMatch.teams[0]?.members?.map((m: Record<string, unknown>) => m.guestName || m.membershipName || 'Unknown') || [];
-                const teamBMembers = activeMatch.teams[1]?.members?.map((m: Record<string, unknown>) => m.guestName || m.membershipName || 'Unknown') || [];
+                const teamAMembers = activeMatch.teams[0]?.members?.map((m: Record<string, unknown>) => m.guestName || m.membershipName || t('managerMatches.unknown')) || [];
+                const teamBMembers = activeMatch.teams[1]?.members?.map((m: Record<string, unknown>) => m.guestName || m.membershipName || t('managerMatches.unknown')) || [];
                 setTeamA(teamAMembers);
                 setTeamB(teamBMembers);
                 setTeamAScore(activeMatch.teams[0]?.score || 0);
@@ -244,8 +244,8 @@ export default function TableDetailPage() {
               if (pendingResponse.success && Array.isArray(pendingResponse.data) && pendingResponse.data.length > 0) {
                 const pendingMatch = pendingResponse.data[0];
                 if (pendingMatch.teams && pendingMatch.teams.length >= 2) {
-                  const teamAMembers = pendingMatch.teams[0]?.members?.map((m: Record<string, unknown>) => m.guestName || m.membershipName || 'Unknown') || [];
-                  const teamBMembers = pendingMatch.teams[1]?.members?.map((m: Record<string, unknown>) => m.guestName || m.membershipName || 'Unknown') || [];
+                  const teamAMembers = pendingMatch.teams[0]?.members?.map((m: Record<string, unknown>) => m.guestName || m.membershipName || t('managerMatches.unknown')) || [];
+                  const teamBMembers = pendingMatch.teams[1]?.members?.map((m: Record<string, unknown>) => m.guestName || m.membershipName || t('managerMatches.unknown')) || [];
                   setTeamA(teamAMembers);
                   setTeamB(teamBMembers);
                   setTeamAScore(pendingMatch.teams[0]?.score || 0);
@@ -284,7 +284,7 @@ export default function TableDetailPage() {
             setActiveMatchId(null);
           }
         } else {
-          toast.error('Không tìm thấy bàn');
+          toast.error(t('managerMatches.tableNotFound'));
           router.push('/manager/dashboard');
         }
 
@@ -292,7 +292,7 @@ export default function TableDetailPage() {
         await fetchCamerasForTable();
       } catch (error) {
         console.error('Error fetching data:', error);
-        toast.error('Không thể tải dữ liệu');
+        toast.error(t('managerMatches.cannotLoadData'));
       } finally {
         setLoading(false);
         setLoadingStats(false);
@@ -387,11 +387,11 @@ export default function TableDetailPage() {
         isAiAssisted,
         teams: [
           {
-            teamName: 'Đội A',
+            teamName: t('manager.tableAvailable.teamA'),
             members: pendingTeams.teamA
           },
           {
-            teamName: 'Đội B',
+            teamName: t('manager.tableAvailable.teamB'),
             members: pendingTeams.teamB
           }
         ]
@@ -400,7 +400,7 @@ export default function TableDetailPage() {
       const response = await managerMatchService.createMatch(matchData) as Record<string, unknown>;
 
       if (response.success) {
-        toast.success('Tạo trận đấu thành công!');
+        toast.success(t('managerMatches.createMatchSuccess'));
 
         const responseData = response.data as Record<string, unknown>;
         if (responseData?.teams && Array.isArray(responseData.teams)) {
@@ -409,14 +409,14 @@ export default function TableDetailPage() {
 
           if (teamA?.members && Array.isArray(teamA.members)) {
             const teamAMembers = teamA.members.map((m: Record<string, unknown>) =>
-              (m.membershipName as string) || (m.guestName as string) || 'Unknown'
+              (m.membershipName as string) || (m.guestName as string) || t('managerMatches.unknown')
             );
             setTeamA(teamAMembers);
           }
 
           if (teamB?.members && Array.isArray(teamB.members)) {
             const teamBMembers = teamB.members.map((m: Record<string, unknown>) =>
-              (m.membershipName as string) || (m.guestName as string) || 'Unknown'
+              (m.membershipName as string) || (m.guestName as string) || t('managerMatches.unknown')
             );
             setTeamB(teamBMembers);
           }
@@ -436,11 +436,11 @@ export default function TableDetailPage() {
         await refreshDashboardStats();
 
       } else {
-        toast.error((response.message as string) || 'Tạo trận đấu thất bại!');
+        toast.error((response.message as string) || t('managerMatches.createMatchFailed'));
       }
     } catch (error) {
       console.error('Error creating match:', error);
-      toast.error('Tạo trận đấu thất bại!');
+      toast.error(t('managerMatches.createMatchFailed'));
     } finally {
       setCreatingMatch(false);
       setShowAISelectionModal(false);
@@ -451,22 +451,22 @@ export default function TableDetailPage() {
   const handleStartMatch = async () => {
     try {
       if (!activeMatchId) {
-        toast.error('Không xác định được trận đấu để bắt đầu');
+        toast.error(t('managerMatches.cannotIdentifyMatchToStart'));
         return;
       }
       const res = (await managerMatchService.startMatch(activeMatchId)) as Record<string, unknown>;
       if (res?.success) {
-        toast.success('Bắt đầu trận đấu thành công!');
+        toast.success(t('managerMatches.startMatchSuccess'));
         setMatchStatus('ongoing');
         setMatchStartTime(new Date());
 
         await refreshDashboardStats();
       } else {
-        toast.error((res?.message as string) || 'Bắt đầu trận đấu thất bại!');
+        toast.error((res?.message as string) || t('managerMatches.startMatchFailed'));
       }
     } catch (error) {
       console.error('Error starting match:', error);
-      toast.error('Bắt đầu trận đấu thất bại!');
+      toast.error(t('managerMatches.startMatchFailed'));
     }
   };
 
@@ -483,7 +483,7 @@ export default function TableDetailPage() {
   const handleSaveScores = async (newTeamAScore: number, newTeamBScore: number) => {
     try {
       if (!activeMatchId) {
-        toast.error('Không xác định được trận đấu để cập nhật');
+        toast.error(t('managerMatches.cannotIdentifyMatchToUpdate'));
         return;
       }
 
@@ -495,17 +495,17 @@ export default function TableDetailPage() {
       setTeamAScore(newTeamAScore);
       setTeamBScore(newTeamBScore);
       setShowEditScoreModal(false);
-      toast.success('Cập nhật điểm số thành công!');
+      toast.success(t('managerMatches.updateScoreSuccess'));
     } catch (error) {
       console.error('Error updating scores:', error);
-      toast.error('Cập nhật điểm số thất bại!');
+      toast.error(t('managerMatches.updateScoreFailed'));
     }
   };
 
   const handleUpdateTeams = async (updatedTeamA: Array<{ guestName?: string; phoneNumber?: string; membershipId?: string; membershipName?: string }>, updatedTeamB: Array<{ guestName?: string; phoneNumber?: string; membershipId?: string; membershipName?: string }>) => {
     try {
       if (!activeMatchId) {
-        toast.error('Không xác định được trận đấu để cập nhật');
+        toast.error(t('managerMatches.cannotIdentifyMatchToUpdate'));
         return;
       }
 
@@ -529,7 +529,7 @@ export default function TableDetailPage() {
 
       const teamsPayloadPrecheck = [updatedTeamA, updatedTeamB];
       if (!validateNoDuplicate(teamsPayloadPrecheck)) {
-        toast.error('Tên người chơi không được giống nhau.');
+        toast.error(t('managerMatches.duplicatePlayerNames'));
         return;
       }
 
@@ -549,14 +549,14 @@ export default function TableDetailPage() {
 
           if (teamA?.members && Array.isArray(teamA.members)) {
             const teamAMembers = teamA.members.map((m: Record<string, unknown>) =>
-              (m.membershipName as string) || (m.guestName as string) || 'Unknown'
+              (m.membershipName as string) || (m.guestName as string) || t('managerMatches.unknown')
             );
             setTeamA(teamAMembers);
           }
 
           if (teamB?.members && Array.isArray(teamB.members)) {
             const teamBMembers = teamB.members.map((m: Record<string, unknown>) =>
-              (m.membershipName as string) || (m.guestName as string) || 'Unknown'
+              (m.membershipName as string) || (m.guestName as string) || t('managerMatches.unknown')
             );
             setTeamB(teamBMembers);
           }
@@ -564,11 +564,11 @@ export default function TableDetailPage() {
       }
 
       setIsEditing(false);
-      toast.success('Cập nhật thành viên thành công!');
+      toast.success(t('managerMatches.updateMembersSuccess'));
     } catch (error) {
       const err = error as Error & { status?: number };
       if (err?.status === 409) {
-        toast.error(err.message || 'Bạn đã tham gia trận đấu này rồi.');
+        toast.error(err.message || t('managerMatches.alreadyJoinedMatch'));
       } else {
         console.error('Error updating team members:', error);
         toast.error(err.message || t('managerMatches.updateMembersFailed'));
@@ -618,13 +618,13 @@ export default function TableDetailPage() {
 
         const teamsWithWinner = [
           {
-            teamName: (teams[0]?.teamName as string) || 'Đội A',
+            teamName: (teams[0]?.teamName as string) || t('manager.tableAvailable.teamA'),
             score: aScore,
             isWinner: hasUniqueWinner && aScore > bScore,
             members: (teams[0]?.members as Array<Record<string, unknown>>) || [],
           },
           {
-            teamName: (teams[1]?.teamName as string) || 'Đội B',
+            teamName: (teams[1]?.teamName as string) || t('manager.tableAvailable.teamB'),
             score: bScore,
             isWinner: hasUniqueWinner && bScore > aScore,
             members: (teams[1]?.members as Array<Record<string, unknown>>) || [],

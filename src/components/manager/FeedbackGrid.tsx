@@ -40,7 +40,7 @@ export default function FeedbackGrid({
       case 'managerP': return t('feedbacks.status.managerP');
       case 'adminP': return t('feedbacks.status.adminP');
       case 'superadminP': return t('feedbacks.status.superadminP');
-      default: return 'Không xác định';
+      default: return t('feedbacks.unknown');
     }
   };
 
