@@ -93,7 +93,7 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
   }, [initialTeamA, initialTeamB, matchId, actorMembershipId]);
 
   const handleChange = (team: 'A' | 'B', index: number, value: string) => {
-    if (index === 0) {
+    if (team === 'A' && index === 0) {
       return;
     }
 
@@ -121,7 +121,7 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
     const playerName = current[index];
     const duplicateCount = current.filter(name => name === playerName).length;
 
-    if (index === 0 && duplicateCount === 1) {
+    if (team === 'A' && index === 0 && duplicateCount === 1) {
       toast.error(t('teamMembers.errors.cannotRemoveOnlyOwner'));
       return;
     }

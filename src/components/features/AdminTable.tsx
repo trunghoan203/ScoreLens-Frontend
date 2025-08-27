@@ -19,18 +19,18 @@ interface Admin {
 }
 
 const getStatusVariant = (status: string): 'success' | 'danger' | 'default' => {
-  switch (status) {
-    case 'Đã duyệt':
-    case 'Approved':
-      return 'success';
-    case 'Bị từ chối':
-    case 'Rejected':
-      return 'danger';
-    case 'Chưa duyệt':
-    case 'Pending':
-    default:
-      return 'default';
+  // Handle both status keys and translated text
+  const statusLower = status.toLowerCase();
+  if (statusLower === 'approved' || statusLower === 'đã duyệt') {
+    return 'success';
   }
+  if (statusLower === 'rejected' || statusLower === 'bị từ chối') {
+    return 'danger';
+  }
+  if (statusLower === 'pending' || statusLower === 'chưa duyệt') {
+    return 'default';
+  }
+  return 'default';
 };
 
 interface AdminTableProps {
@@ -43,6 +43,36 @@ interface AdminTableProps {
 export function AdminTable({ admins, searchTerm, statusFilter, onRowClick }: AdminTableProps) {
   const { t } = useI18n();
   const [visibleCount, setVisibleCount] = React.useState(5);
+
+  const getStatusText = React.useMemo(() => {
+    return (status: string): string => {
+      const statusLower = status.toLowerCase();
+
+      // Handle status keys
+      if (statusLower === 'approved') {
+        return t('superAdminHome.statusApproved');
+      }
+      if (statusLower === 'rejected') {
+        return t('superAdminHome.statusRejected');
+      }
+      if (statusLower === 'pending') {
+        return t('superAdminHome.statusPending');
+      }
+
+      // Handle already translated text
+      if (statusLower === 'đã duyệt' || statusLower === 'approved') {
+        return t('superAdminHome.statusApproved');
+      }
+      if (statusLower === 'bị từ chối' || statusLower === 'rejected') {
+        return t('superAdminHome.statusRejected');
+      }
+      if (statusLower === 'chưa duyệt' || statusLower === 'pending') {
+        return t('superAdminHome.statusPending');
+      }
+
+      return status; // fallback to original text if unknown
+    };
+  }, [t]);
 
   const sortedAdmins = admins.sort((a, b) => {
     const dateA = new Date(a.createdAt).getTime();
@@ -59,15 +89,16 @@ export function AdminTable({ admins, searchTerm, statusFilter, onRowClick }: Adm
 
     let matchesStatus = true;
     if (statusFilter) {
+      const statusLower = admin.status.toLowerCase();
       switch (statusFilter) {
         case 'approved':
-          matchesStatus = admin.status === t('superAdminHome.statusApproved');
+          matchesStatus = statusLower === 'approved' || statusLower === 'đã duyệt';
           break;
         case 'pending':
-          matchesStatus = admin.status === t('superAdminHome.statusPending');
+          matchesStatus = statusLower === 'pending' || statusLower === 'chưa duyệt';
           break;
         case 'rejected':
-          matchesStatus = admin.status === t('superAdminHome.statusRejected');
+          matchesStatus = statusLower === 'rejected' || statusLower === 'bị từ chối';
           break;
         default:
           matchesStatus = true;
@@ -104,9 +135,9 @@ export function AdminTable({ admins, searchTerm, statusFilter, onRowClick }: Adm
                 <div className="col-span-4 py-4 flex justify-center px-2">
                   <Badge
                     variant={getStatusVariant(admin.status)}
-                    className="rounded-full px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-base font-semibold"
+                    className="rounded-full px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold"
                   >
-                    {admin.status}
+                    {getStatusText(admin.status)}
                   </Badge>
                 </div>
               </div>
@@ -134,7 +165,7 @@ export function AdminTable({ admins, searchTerm, statusFilter, onRowClick }: Adm
                   variant={getStatusVariant(admin.status)}
                   className="ml-3 px-3 py-1 rounded-full text-white font-medium text-xs flex-shrink-0"
                 >
-                  {admin.status}
+                  {getStatusText(admin.status)}
                 </Badge>
               </div>
               <div className="mt-3 pt-3 border-t border-gray-100">

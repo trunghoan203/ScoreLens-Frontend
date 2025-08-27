@@ -8,13 +8,17 @@ export function NoteWithToggle({ note }: { note: string }) {
   const [expanded, setExpanded] = useState(false);
   const isLong = note.length > 100;
 
+  const noteLabel = t('shared.noteWithToggle.note');
+  const expandLabel = t('shared.noteWithToggle.expand');
+  const collapseLabel = t('shared.noteWithToggle.collapse');
+
   return (
     <div className="relative w-full">
       <div className="bg-gradient-to-br from-slate-50 to-gray-50 border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
         <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3 border-b border-slate-200 bg-gradient-to-r from-slate-100 to-gray-100">
           <StickyNote size={16} className="sm:w-[18px] sm:h-[18px] text-slate-600 flex-shrink-0" />
           <span className="font-semibold text-slate-800 text-xs sm:text-sm tracking-wide">
-            {t('shared.noteWithToggle.note')}
+            {noteLabel}
           </span>
         </div>
 
@@ -46,7 +50,7 @@ export function NoteWithToggle({ note }: { note: string }) {
                            transition-all duration-200 hover:shadow-sm touch-manipulation"
               >
                 <span>
-                  {expanded ? t('shared.noteWithToggle.collapse') : t('shared.noteWithToggle.expand')}
+                  {expanded ? collapseLabel : expandLabel}
                 </span>
                 {expanded ? (
                   <ChevronUp size={12} className="sm:w-[14px] sm:h-[14px] group-hover:-translate-y-0.5 transition-transform" />

@@ -62,7 +62,7 @@ export default function FeedbackTable({ feedbacks }: { feedbacks: Feedback[] }) 
                 <div className="py-4 flex justify-center px-2">
                   <Badge
                     variant={getStatusColor(feedback.status)}
-                    className="text-xs xl:text-sm font-semibold flex-shrink-0 whitespace-nowrap min-w-[200px]"
+                    className="text-xs font-semibold flex-shrink-0 whitespace-nowrap"
                   >
                     {getStatusText(feedback.status)}
                   </Badge>
@@ -73,6 +73,7 @@ export default function FeedbackTable({ feedbacks }: { feedbacks: Feedback[] }) 
         </div>
       </div>
 
+      {/* Mobile View */}
       <div className="block lg:hidden space-y-3 sm:space-y-4">
         {feedbacks.map((feedback) => (
           <div

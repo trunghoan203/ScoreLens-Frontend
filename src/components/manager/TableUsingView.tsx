@@ -189,7 +189,7 @@ export default function TableUsingView({ table, onBack, onEndMatch, onCancelMatc
             {isAiAssisted && matchStatus === 'ongoing' && (
               <button
                 type="button"
-                className="inline-block px-6 py-2 rounded-xl bg-blue-600 text-[#FFFFFF] font-semibold text-base shadow whitespace-nowrap"
+                className="inline-block px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-[#FFFFFF] font-semibold text-base shadow whitespace-nowrap"
                 onClick={() => setShowVideoAIModal(true)}
               >
                 {t('manager.tableUsing.videoAi')}

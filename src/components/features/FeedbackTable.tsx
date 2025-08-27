@@ -81,7 +81,7 @@ export function FeedbackTable() {
   };
 
   const filteredFeedbacks = feedbacks.filter((fb) => {
-    if (fb.status === 'managerP') {
+    if (fb.status !== 'superadminP' && fb.status !== 'resolved') {
       return false;
     }
 
@@ -96,7 +96,7 @@ export function FeedbackTable() {
     } else if (statusFilter === 'resolved') {
       matchesStatus = fb.status === 'resolved';
     } else if (statusFilter === 'all') {
-      matchesStatus = fb.status === 'superadminP' || fb.status === 'adminP' || fb.status === 'resolved';
+      matchesStatus = fb.status === 'superadminP' || fb.status === 'resolved';
     }
 
     return matchesSearch && matchesDate && matchesStatus;
@@ -126,8 +126,6 @@ export function FeedbackTable() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'resolved': return 'success';
-      case 'managerP': return 'danger';
-      case 'adminP': return 'danger';
       case 'superadminP': return 'danger';
       default: return 'danger';
     }
@@ -152,7 +150,7 @@ export function FeedbackTable() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 sm:py-2.5 pl-3 sm:pl-4 pr-8 sm:pr-10 text-sm sm:text-base font-medium text-black shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none appearance-none"
+              className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 sm:py-2.5 pl-3 sm:pl-4 pr-8 sm:pr-10 text-sm font-medium text-black shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none appearance-none"
             >
               <option value="all">{t('superAdminHome.feedbackAllStatus')}</option>
               <option value="pending">{t('superAdminHome.feedbackPendingStatus')}</option>
@@ -203,12 +201,12 @@ export function FeedbackTable() {
                     {fb.clubInfo?.clubName || ''}
                   </div>
                   <div className="col-span-3 py-4 text-gray-700 text-sm xl:text-base px-2">
-                    {fb.createdAt ? new Date(fb.createdAt).toISOString().slice(0, 10) : ''}
+                    {fb.createdAt ? new Date(fb.createdAt).toLocaleString('vi-VN') : ''}
                   </div>
                   <div className="col-span-3 py-4 flex justify-center px-2">
                     <Badge
                       variant={getStatusColor(fb.status)}
-                      className="rounded-full px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-base font-semibold"
+                      className="rounded-full px-3 sm:px-5 py-1.5 sm:py-2 text-xs font-semibold"
                     >
                       {getStatusText(fb.status)}
                     </Badge>
@@ -249,7 +247,7 @@ export function FeedbackTable() {
                   <div className="flex items-center">
                     <span className="text-gray-500 text-xs font-medium w-8">{t('superAdminHome.feedbackDateLabel')}</span>
                     <span className="text-gray-800 text-sm font-medium">
-                      {fb.createdAt ? new Date(fb.createdAt).toISOString().slice(0, 10) : ''}
+                      {fb.createdAt ? new Date(fb.createdAt).toLocaleString('vi-VN') : ''}
                     </span>
                   </div>
                 </div>

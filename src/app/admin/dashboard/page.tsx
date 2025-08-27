@@ -62,7 +62,6 @@ export default function DashboardPage() {
     managers: branch.managers,
   })) || [];
 
-  // Map backend status to translation keys
   const getStatusTranslationKey = (status: string) => {
     switch (status) {
       case 'Đang sử dụng':
@@ -79,8 +78,8 @@ export default function DashboardPage() {
   const tableStatusData = dashboardData?.tableStatusDistribution?.map((item) => ({
     name: getStatusTranslationKey(item.status),
     value: item.count,
-    color: item.status === 'Đang sử dụng' ? '#10B981' :
-      item.status === 'Trống' ? '#6B7280' : '#F59E0B',
+    color: item.status === 'Đang sử dụng' ? '#FF0000' :
+      item.status === 'Trống' ? '#0FBC11' : '#F59E0B',
   })) || [];
 
   if (isLoadingDashboard && !dashboardData) {
@@ -398,7 +397,7 @@ export default function DashboardPage() {
                         {dashboardData.branchDetails.map((branch, index: number) => (
                           <div
                             key={branch.clubId}
-                            className="group relative overflow-hidden border border-gray-200 rounded-2xl p-6 hover:shadow-xl hover:border-lime-300 transition-all duration-300 cursor-pointer bg-gradient-to-r from-white to-gray-50/50 hover:from-lime-50/30 hover:to-white"
+                            className="group relative overflow-hidden border border-gray-200 rounded-2xl p-6 hover:shadow-xl hover:border-lime-300 transition-all duration-300 bg-gradient-to-r from-white to-gray-50/50 hover:from-lime-50/30 hover:to-white"
                           >
                             <div className="absolute inset-0 bg-gradient-to-r from-lime-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <div className="relative">

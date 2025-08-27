@@ -232,7 +232,7 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
 
     } catch (error) {
       console.error('Error fetching recorded clips:', error);
-      toast.error('Không thể tải danh sách clip đã ghi');
+      toast.error(t('shared.videoAI.cannotLoadClips'));
     } finally {
       setLoadingClips(false);
     }
@@ -283,16 +283,16 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
       setVideoFile(mockFile);
       setVideoUrl(videoUrl);
 
-      toast.success(`Đã chọn clip: ${clip.name}`);
+      toast.success(t('shared.videoAI.clipSelectedSuccess').replace('{name}', clip.name));
     } catch (error) {
       console.error('Error selecting clip:', error);
-      toast.error('Không thể chọn clip');
+      toast.error(t('shared.videoAI.cannotSelectClip'));
     }
   };
 
   const validateFile = (file: File): boolean => {
     if (!file.type.startsWith('video/')) {
-      toast.error('Vui lòng chọn đúng định dạng video!');
+      toast.error(t('shared.videoAI.pleaseSelectVideoFormat'));
       return false;
     }
     if (file.size > MAX_VIDEO_SIZE_GB * 1024 * 1024 * 1024) {
@@ -321,7 +321,7 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
       setProcessing(true);
 
       if (selectedClip) {
-        toast.success(`Đang phân tích clip: ${selectedClip.name}`);
+        toast.success(t('shared.videoAI.analyzingClip').replace('{name}', selectedClip.name));
 
         const response = await axios.post('http://localhost:5000/process_video', {
           clipId: selectedClip.id,
@@ -510,9 +510,9 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <h5 className="text-base font-semibold text-gray-700">
-            Clip đã ghi ({recordedClips.length})
-            {tableId && <span className="text-sm text-gray-500 ml-2">- Bàn {tableId}</span>}
-            {cameraId && <span className="text-sm text-gray-500 ml-2">- Camera {cameraId}</span>}
+            {t('shared.videoAI.recordedClips')} ({recordedClips.length})
+            {tableId && <span className="text-sm text-gray-500 ml-2">{t('shared.videoAI.tableInfo').replace('{tableId}', tableId)}</span>}
+            {cameraId && <span className="text-sm text-gray-500 ml-2">{t('shared.videoAI.cameraInfo').replace('{cameraId}', cameraId)}</span>}
           </h5>
           <div className="flex gap-2">
             <Button
@@ -523,17 +523,17 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
               {loadingClips ? (
                 <div className="flex items-center gap-1">
                   <div className="animate-spin w-3 h-3 border border-white border-t-transparent rounded-full"></div>
-                  Tải lại
+                  {t('shared.videoAI.refreshing')}
                 </div>
               ) : (
-                'Tải lại'
+                t('shared.videoAI.refresh')
               )}
             </Button>
             <Button
               onClick={() => setShowClipsList(!showClipsList)}
               className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium"
             >
-              {showClipsList ? 'Ẩn danh sách' : 'Xem danh sách'}
+              {showClipsList ? t('shared.videoAI.hideList') : t('shared.videoAI.showList')}
             </Button>
           </div>
         </div>
@@ -543,14 +543,14 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
             {loadingClips ? (
               <div className="text-center py-4">
                 <div className="animate-spin w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
-                <p className="text-gray-500 text-sm">Đang tải danh sách clip...</p>
+                <p className="text-gray-500 text-sm">{t('shared.videoAI.loadingClips')}</p>
               </div>
             ) : recordedClips.length === 0 ? (
               <div className="text-center py-4">
-                <p className="text-gray-500 text-sm">Chưa có clip nào được ghi</p>
+                <p className="text-gray-500 text-sm">{t('shared.videoAI.noClipsRecorded')}</p>
                 {tableId && (
                   <p className="text-xs text-gray-400 mt-1">
-                    Sử dụng nút "Record" trên camera để tạo clip mới
+                    {t('shared.videoAI.useRecordButton')}
                   </p>
                 )}
               </div>
@@ -569,7 +569,7 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-gray-800 truncate">{clip.name}</p>
                         <div className="flex items-center gap-4 mt-1 text-xs text-gray-500">
-                          <span>{clip.tableName || 'Không xác định'}</span>
+                          <span>{clip.tableName || t('shared.videoAI.unknown')}</span>
                           <span>{formatFileSize(clip.size)}</span>
                           {clip.duration > 0 && <span>{formatDuration(clip.duration)}</span>}
                           <span>{formatDate(clip.createdAt)}</span>
@@ -590,7 +590,7 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
           <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-green-800">Clip đã chọn: {selectedClip.name}</p>
+                <p className="font-medium text-green-800">{t('shared.videoAI.clipSelected').replace('{name}', selectedClip.name)}</p>
                 <p className="text-sm text-green-600">
                   {selectedClip.tableName} • {formatFileSize(selectedClip.size)}
                   {selectedClip.duration > 0 && ` • ${formatDuration(selectedClip.duration)}`}
@@ -603,7 +603,7 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
                 }}
                 className="text-red-500 hover:text-red-700 text-sm font-medium"
               >
-                Bỏ chọn
+                {t('shared.videoAI.deselect')}
               </button>
             </div>
           </div>
@@ -649,7 +649,7 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
                     </p>
                     {recordedClips.length > 0 && (
                       <p className="text-xs text-blue-600 mt-2">
-                        Hoặc chọn từ danh sách clip đã ghi ở trên
+                        {t('shared.videoAI.orSelectFromList')}
                       </p>
                     )}
                   </div>
@@ -684,15 +684,15 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
                       {selectedClip.tableName} • {formatFileSize(selectedClip.size)}
                     </p>
                     <p className="text-xs text-gray-500">
-                      Tạo lúc: {formatDate(selectedClip.createdAt)}
+                      {t('shared.videoAI.createdAt')} {formatDate(selectedClip.createdAt)}
                     </p>
                   </div>
                   <div className="text-center py-2">
                     <p className="text-sm text-gray-500">
-                      Clip đã được chọn từ danh sách recordings
+                      {t('shared.videoAI.clipSelectedFromRecordings')}
                     </p>
                     <p className="text-xs text-blue-600 mt-1">
-                      Sẵn sàng để phân tích AI
+                      {t('shared.videoAI.readyForAnalysis')}
                     </p>
                   </div>
                 </div>

@@ -335,18 +335,15 @@ function EndMatchPageContent() {
               onClick={() => {
                 router.push('/');
               }}
-              variant="outline"
-              style={{ backgroundColor: '#FF0000' }}
-              className="flex-1 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center hover:opacity-90"
+              className="flex-1 text-[#FFFFFF] bg-red-500 hover:bg-red-600 font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center hover:opacity-90"
             >
               {t('endMatch.end.exit')}
             </Button>
             <Button
               onClick={handleRate}
-              style={{ backgroundColor: '#8ADB10' }}
-              className="flex-1 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center hover:opacity-90"
+              className="flex-1 text-[#FFFFFF] font-semibold py-3 rounded-xl text-sm sm:text-base flex items-center justify-center bg-lime-500 hover:bg-lime-600 hover:opacity-90"
             >
-              {t('endMatch.end.rate')}
+              {t('endMatch.end.feedback')}
             </Button>
           </div>
         </div>
