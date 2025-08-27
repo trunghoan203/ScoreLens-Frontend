@@ -3,6 +3,7 @@ import { cameraStreamService } from '@/lib/cameraStreamService';
 import { CameraRecordButton } from './CameraRecordButton';
 import toast from 'react-hot-toast';
 import { useI18n } from '@/lib/i18n/provider';
+import axios from '@/lib/axios';
 
 interface CameraVideoModalProps {
   isOpen: boolean;
@@ -10,6 +11,14 @@ interface CameraVideoModalProps {
   onClose: () => void;
   onConfirm: () => void;
   isDetailView?: boolean;
+}
+
+interface RecordStatus {
+  isRecording: boolean;
+  currentJobId?: string;
+  startTime?: string;
+  duration?: number;
+  remainingTime?: number;
 }
 
 export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
@@ -24,6 +33,82 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
   const [isStreaming, setIsStreaming] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [recordStatus, setRecordStatus] = useState<RecordStatus>({ isRecording: false });
+  const [recordStatusInterval, setRecordStatusInterval] = useState<NodeJS.Timeout | null>(null);
+
+  const fetchRecordStatus = async () => {
+    if (!cameraId) return;
+
+    try {
+      const response = await axios.get(`/manager/camera/${cameraId}/recordings`);
+      const data = response.data as {
+        success: boolean;
+        cameraId: string;
+        recordings: Array<{
+          jobId: string;
+          fileName: string;
+          filePath: string;
+          size: number;
+          createdAt: string;
+          modifiedAt: string;
+        }>;
+        activeRecording?: {
+          matchId: string;
+          cameraId: string;
+          isActive: boolean;
+          startTime: string;
+          duration: number;
+        };
+        isRecording?: boolean;
+      };
+
+      if (data.success) {
+        const newStatus = {
+          isRecording: data.activeRecording?.isActive || data.isRecording || false,
+          currentJobId: data.activeRecording?.matchId,
+          startTime: data.activeRecording?.startTime,
+          duration: data.activeRecording?.duration,
+          remainingTime: data.activeRecording?.duration ?
+            Math.max(0, data.activeRecording.duration - Math.floor((Date.now() - new Date(data.activeRecording.startTime).getTime()) / 1000)) :
+            undefined
+        };
+
+        setRecordStatus(newStatus);
+      }
+    } catch (error) {
+      setRecordStatus({ isRecording: false });
+    }
+  };
+
+  const startRecordStatusPolling = () => {
+    if (recordStatusInterval) {
+      clearInterval(recordStatusInterval);
+    }
+
+    const interval = setInterval(() => {
+      fetchRecordStatus();
+    }, 5000);
+
+    setRecordStatusInterval(interval);
+  };
+
+  const stopRecordStatusPolling = () => {
+    if (recordStatusInterval) {
+      clearInterval(recordStatusInterval);
+      setRecordStatusInterval(null);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen && cameraId) {
+      fetchRecordStatus();
+      startRecordStatusPolling();
+    }
+
+    return () => {
+      stopRecordStatusPolling();
+    };
+  }, [isOpen, cameraId]);
 
   useEffect(() => {
     if (isOpen && cameraId && videoRef.current) {
@@ -62,7 +147,6 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
         try {
           cameraStreamService.stopVideoStream(cameraId);
         } catch (error) {
-          console.error('Error stopping stream:', error);
         }
       }
     };
@@ -72,6 +156,7 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
     if (cameraId && isStreaming) {
       cameraStreamService.stopVideoStream(cameraId);
     }
+    stopRecordStatusPolling();
     setIsStreaming(false);
     setIsLoading(false);
     setError(null);
@@ -82,10 +167,18 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
     if (cameraId && isStreaming) {
       cameraStreamService.stopVideoStream(cameraId);
     }
+    stopRecordStatusPolling();
     setIsStreaming(false);
     setIsLoading(false);
     setError(null);
     onConfirm();
+  };
+
+  const formatTime = (seconds?: number): string => {
+    if (!seconds) return '00:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   if (!isOpen) return null;
@@ -94,6 +187,17 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
     <div className="fixed inset-0 bg-black/80 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-4xl mx-4">
         <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-gray-800">
+            Video trực tiếp
+          </h3>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <div className={`w-3 h-3 rounded-full ${recordStatus.isRecording ? 'bg-red-500 animate-pulse' : 'bg-gray-400'}`}></div>
+              <span className="text-sm font-medium text-gray-700">
+                {recordStatus.isRecording ? 'Đang ghi' : 'Không ghi'}
+              </span>
+            </div>
+          </div>
         </div>
 
         <div className="relative mb-4">
@@ -136,6 +240,13 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
               {t('manager.cameraVideo.liveStream')}
             </div>
           )}
+
+          {recordStatus.isRecording && (
+            <div className="absolute top-2 left-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+              <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+              REC
+            </div>
+          )}
         </div>
 
         <div className="flex justify-between items-center">
@@ -144,7 +255,7 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
               cameraId={cameraId}
               duration={20}
               onSuccess={(result) => {
-                // Record completed
+                fetchRecordStatus();
               }}
             />
           )}

@@ -111,6 +111,7 @@ export default function TableDetailPage() {
 
   const [cameras, setCameras] = useState<Camera[]>([]);
   const [cameraLoading, setCameraLoading] = useState(false);
+  const [isAutoRecording, setIsAutoRecording] = useState(false);
 
   const [dashboardStats, setDashboardStats] = useState({
     totalTables: 0,
@@ -460,6 +461,24 @@ export default function TableDetailPage() {
         setMatchStatus('ongoing');
         setMatchStartTime(new Date());
 
+        if (isAiAssisted && cameras && cameras.length > 0) {
+          const connectedCamera = cameras.find(c => c.isConnect);
+          if (connectedCamera) {
+            try {
+              await managerMatchService.startAutoRecording(activeMatchId, {
+                cameraId: connectedCamera.cameraId,
+                intervalSeconds: 20
+              });
+              setIsAutoRecording(true);
+            } catch (recordingError) {
+              console.error('Error starting auto recording:', recordingError);
+              toast.error('Không thể bắt đầu tự động record video');
+            }
+          } else {
+            toast.error('Không có camera nào đang kết nối cho bàn này');
+          }
+        }
+
         await refreshDashboardStats();
       } else {
         toast.error((res?.message as string) || 'Bắt đầu trận đấu thất bại!');
@@ -655,6 +674,16 @@ export default function TableDetailPage() {
         toast.error(t('managerMatches.cannotIdentifyMatchToEnd'));
         return;
       }
+
+      if (isAiAssisted && isAutoRecording) {
+        try {
+          await managerMatchService.stopAutoRecording(activeMatchId);
+          setIsAutoRecording(false);
+        } catch (recordingError) {
+          console.error('Error stopping auto recording:', recordingError);
+        }
+      }
+
       const res = (await managerMatchService.endMatch(activeMatchId)) as Record<string, unknown>;
       if (res?.success) {
         toast.success(t('managerMatches.endMatchSuccess'));

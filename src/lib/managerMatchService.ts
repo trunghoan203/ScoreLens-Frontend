@@ -30,7 +30,6 @@ interface UpdateTeamMembersData {
 }
 
 class ManagerMatchService {
-  // Create Match
   async createMatch(matchData: CreateMatchData) {
     try {
       const res = await axios.post('/manager/matches', matchData);
@@ -40,7 +39,6 @@ class ManagerMatchService {
     }
   }
 
-  // Get Match By Code
   async getMatchByCode(matchCode: string) {
     try {
       const res = await axios.get(`/manager/matches/code/${matchCode}`);
@@ -50,17 +48,15 @@ class ManagerMatchService {
     }
   }
 
-  // Get Match By Id
   async getMatchById(matchId: string) {
     try {
       const res = await axios.get(`/manager/matches/${matchId}`);
-      return res.data;
+      return res.data as { success: boolean; match?: any };
     } catch (error) {
       throw this.handleError(error);
     }
   }
 
-  // Get Match by TableId
   async getMatchesByTable(tableId: string, status?: string, limit = 10, page = 1) {
     try {
       let url = `/manager/matches/table/${tableId}?limit=${limit}&page=${page}`;
@@ -74,7 +70,6 @@ class ManagerMatchService {
     }
   }
 
-  // Get Match History
   async getMatchHistory(membershipId: string, limit = 10, page = 1) {
     try {
       const res = await axios.get(`/manager/matches/history/${membershipId}?limit=${limit}&page=${page}`);
@@ -84,7 +79,6 @@ class ManagerMatchService {
     }
   }
 
-  // Update Score
   async updateScore(matchId: string, scoreData: UpdateScoreData) {
     try {
       const res = await axios.put(`/manager/matches/${matchId}/score`, scoreData);
@@ -94,7 +88,6 @@ class ManagerMatchService {
     }
   }
 
-  // Update Team Members
   async updateTeamMembers(matchId: string, teamsData: UpdateTeamMembersData) {
     try {
       const res = await axios.put(`/manager/matches/${matchId}/teams`, teamsData);
@@ -104,7 +97,6 @@ class ManagerMatchService {
     }
   }
 
-  // Start Match
   async startMatch(matchId: string) {
     try {
       const res = await axios.put(`/manager/matches/${matchId}/start`, {});
@@ -114,7 +106,6 @@ class ManagerMatchService {
     }
   }
 
-  // End Match
   async endMatch(matchId: string) {
     try {
       const res = await axios.put(`/manager/matches/${matchId}/end`, {});
@@ -124,7 +115,6 @@ class ManagerMatchService {
     }
   }
 
-  // Update Video URL
   async updateVideoUrl(matchId: string, videoUrl: string) {
     try {
       const res = await axios.put(`/manager/matches/${matchId}/video-url`, { videoUrl });
@@ -134,7 +124,48 @@ class ManagerMatchService {
     }
   }
 
-  // Delete Match
+  async startAutoRecording(matchId: string, data: { cameraId: string; intervalSeconds?: number }) {
+    try {
+      const res = await axios.post(`/manager/matches/${matchId}/auto-record/start`, data);
+      return res.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+  
+  async stopAutoRecording(matchId: string) {
+    try {
+      const res = await axios.post(`/manager/matches/${matchId}/auto-record/stop`, {});
+      return res.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async getAutoRecordingStatus(matchId: string) {
+    try {
+      const res = await axios.get(`/manager/matches/${matchId}/auto-record/status`);
+      return res.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+       async getMatchRecordings(matchId: string, cameraId?: string) {
+         try {
+           const res = await axios.get(`/manager/matches/${matchId}/recordings`);
+           return res.data as { success: boolean; recordings?: any[] };
+         } catch (error) {
+           if (cameraId) {
+             const res = await axios.get(`/manager/camera/${cameraId}/recordings`, {
+               params: { matchId }
+             });
+             return res.data as { success: boolean; recordings?: any[] };
+           }
+           throw this.handleError(error);
+         }
+       }
+
   async deleteMatch(matchId: string) {
     try {
       const res = await axios.delete(`/manager/matches/${matchId}`);
