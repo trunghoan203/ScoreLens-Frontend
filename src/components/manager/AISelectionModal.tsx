@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from '../ui/button';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface AISelectionModalProps {
     open: boolean;
@@ -12,6 +13,7 @@ export const AISelectionModal: React.FC<AISelectionModalProps> = ({
     onConfirm,
     onCancel
 }) => {
+    const { t } = useI18n();
     const [selectedOption, setSelectedOption] = React.useState<'ai' | 'no-ai'>('ai');
 
     if (!open) return null;
@@ -25,12 +27,12 @@ export const AISelectionModal: React.FC<AISelectionModalProps> = ({
             <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
                 {/* Title */}
                 <h2 className="text-2xl font-bold text-black text-center mb-4">
-                    Chọn tính năng AI
+                    {t('aiSelection.title')}
                 </h2>
 
                 {/* Question */}
                 <p className="text-black text-center mb-6">
-                    Bạn có muốn sử dụng AI trong trận đấu không?
+                    {t('aiSelection.description')}
                 </p>
 
                 {/* AI Options */}
@@ -42,9 +44,9 @@ export const AISelectionModal: React.FC<AISelectionModalProps> = ({
                             }`}
                         onClick={() => setSelectedOption('ai')}
                     >
-                        <div className="font-bold text-center text-black">Có sử dụng AI</div>
+                        <div className="font-bold text-center text-black">{t('aiSelection.withAi.title')}</div>
                         <div className="text-sm text-center text-gray-600 mt-1">
-                            AI sẽ giúp tính điểm của trận đấu
+                            {t('aiSelection.withAi.description')}
                         </div>
                     </div>
 
@@ -55,9 +57,9 @@ export const AISelectionModal: React.FC<AISelectionModalProps> = ({
                             }`}
                         onClick={() => setSelectedOption('no-ai')}
                     >
-                        <div className="font-bold text-center text-black">Không sử dụng AI</div>
+                        <div className="font-bold text-center text-black">{t('aiSelection.withoutAi.title')}</div>
                         <div className="text-sm text-center text-gray-600 mt-1">
-                            Chỉ sử dụng tính năng cơ bản của trận đấu
+                            {t('aiSelection.withoutAi.description')}
                         </div>
                     </div>
                 </div>
@@ -69,14 +71,14 @@ export const AISelectionModal: React.FC<AISelectionModalProps> = ({
                         variant="destructive"
                         className="px-8 text-base font-semibold w-[160px]"
                     >
-                        Hủy
+                        {t('aiSelection.cancel')}
                     </Button>
                     <Button
                         onClick={handleConfirm}
                         variant="lime"
                         className="px-8 text-base w-[160px]"
                     >
-                        Tạo trận đấu
+                        {t('aiSelection.createMatch')}
                     </Button>
                 </div>
             </div>

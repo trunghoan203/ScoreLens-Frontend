@@ -163,10 +163,15 @@ export default function FeedbackDetailPage() {
     { value: 'resolved', label: t('superAdminFeedbackDetail.resolved') },
   ];
 
+  const canEditFeedback = feedback?.status === 'superadminP';
+
+  const hasBeenProcessedBySuperAdmin = feedback?.status === 'resolved';
+
+  const canShowEditButton = canEditFeedback && !hasBeenProcessedBySuperAdmin;
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'resolved': return 'success';
-      case 'managerP': return 'danger';
       case 'adminP': return 'danger';
       case 'superadminP': return 'danger';
       default: return 'danger';
@@ -176,7 +181,6 @@ export default function FeedbackDetailPage() {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'resolved': return t('superAdminFeedbackDetail.statusResolved');
-      case 'managerP': return t('superAdminFeedbackDetail.statusManagerP');
       case 'adminP': return t('superAdminFeedbackDetail.statusAdminP');
       case 'superadminP': return t('superAdminFeedbackDetail.statusSuperadminP');
       default: return t('superAdminFeedbackDetail.statusUnknown');
@@ -404,9 +408,7 @@ export default function FeedbackDetailPage() {
                                   {item.date ? new Date(item.date).toLocaleString('vi-VN') : ''}
                                 </span>
                               </div>
-                              {item.note && (
-                                <NoteWithToggle note={item.note} />
-                              )}
+                              {item.note && <NoteWithToggle note={item.note} />}
                             </div>
                           ))}
                       </div>
@@ -426,28 +428,47 @@ export default function FeedbackDetailPage() {
               </div>
             </div>
             <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 mt-6 sm:mt-8">
-              <button
-                type="button"
-                className="w-full sm:w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-2 sm:order-1"
-                onClick={handleCancel}
-              >
-                {isEditMode ? t('superAdminFeedbackDetail.cancel') : t('superAdminFeedbackDetail.back')}
-              </button>
               {isEditMode ? (
-                <button
-                  type="button"
-                  className="w-full sm:w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-1 sm:order-2"
-                  onClick={handleSave}
-                >
-                  {t('superAdminFeedbackDetail.save')}
-                </button>
+                <>
+                  <button
+                    type="button"
+                    className="w-full sm:w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-2 sm:order-1"
+                    onClick={handleCancel}
+                  >
+                    {t('superAdminFeedbackDetail.cancel')}
+                  </button>
+                  <button
+                    type="button"
+                    className="w-full sm:w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-1 sm:order-2"
+                    onClick={handleSave}
+                  >
+                    {t('superAdminFeedbackDetail.save')}
+                  </button>
+                </>
+              ) : feedback?.status === 'superadminP' ? (
+                <>
+                  <button
+                    type="button"
+                    className="w-full sm:w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-2 sm:order-1"
+                    onClick={handleCancel}
+                  >
+                    {t('superAdminFeedbackDetail.back')}
+                  </button>
+                  <button
+                    type="button"
+                    className="w-full sm:w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-1 sm:order-2"
+                    onClick={() => setIsEditMode(true)}
+                  >
+                    {t('superAdminFeedbackDetail.edit')}
+                  </button>
+                </>
               ) : (
                 <button
                   type="button"
-                  className="w-full sm:w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg order-1 sm:order-2"
-                  onClick={() => setIsEditMode(true)}
+                  className="w-full sm:w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg"
+                  onClick={handleCancel}
                 >
-                  {t('superAdminFeedbackDetail.edit')}
+                  {t('superAdminFeedbackDetail.back')}
                 </button>
               )}
             </div>

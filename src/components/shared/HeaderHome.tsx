@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ScoreLensLogo } from '@/components/icons/LogoWhite';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import Image from 'next/image';
 import { LoginRolePopup } from '@/components/auth/LoginRolePopup';
 import { useI18n } from '@/lib/i18n/provider';
 import LanguageSelector from './LanguageSelector';
@@ -30,6 +29,7 @@ export function HeaderHome() {
             <button
               className="md:hidden p-2 text-white hover:text-lime-400 transition-colors"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={t('shared.headerHome.toggleMenu')}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />

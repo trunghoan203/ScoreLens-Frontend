@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface MatchDetail {
     matchId?: string;
@@ -36,6 +37,8 @@ interface MatchDetailPopupProps {
 }
 
 export function MatchDetailPopup({ match, isOpen, onClose }: MatchDetailPopupProps) {
+    const { t } = useI18n();
+
     if (!isOpen || !match) return null;
 
     const isValidVideoUrl = (url: string): boolean => {
@@ -55,7 +58,7 @@ export function MatchDetailPopup({ match, isOpen, onClose }: MatchDetailPopupPro
                 <div className="p-6">
                     <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 flex items-center justify-center mb-8">
                         <span className="text-2xl font-extrabold text-white text-center tracking-widest flex items-center gap-3">
-                            CHI TIẾT TRẬN ĐẤU
+                            {t('matchDetailPopup.title')}
                         </span>
                     </div>
                     <div className="space-y-4">
@@ -63,32 +66,32 @@ export function MatchDetailPopup({ match, isOpen, onClose }: MatchDetailPopupPro
                         <div className="bg-white rounded-lg p-2">
                             <div className="space-y-1 text-base">
                                 <div className="flex justify-between">
-                                    <span className="text-[#000000]">Chi nhánh:</span>
-                                    <span className="font-medium text-[#000000] text-right">{match.clubName || 'Không xác định'}</span>
+                                    <span className="text-[#000000]">{t('matchDetailPopup.branch')}</span>
+                                    <span className="font-medium text-[#000000] text-right">{match.clubName || t('matchDetailPopup.unknown')}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-[#000000]">Địa điểm:</span>
-                                    <span className="font-medium text-[#000000] text-right">{match.address || 'Không xác định'}</span>
+                                    <span className="text-[#000000]">{t('matchDetailPopup.location')}</span>
+                                    <span className="font-medium text-[#000000] text-right">{match.address || t('matchDetailPopup.unknownLocation')}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-[#000000]">Loại game:</span>
+                                    <span className="text-[#000000]">{t('matchDetailPopup.gameType')}</span>
                                     <span className="font-medium capitalize text-[#000000]">{match.type}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-[#000000]">Bắt đầu:</span>
+                                    <span className="text-[#000000]">{t('matchDetailPopup.startTime')}</span>
                                     <span className="font-medium text-[#000000] text-right">{match.startTime}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-[#000000]">Kết thúc:</span>
+                                    <span className="text-[#000000]">{t('matchDetailPopup.endTime')}</span>
                                     <span className="font-medium text-[#000000] text-right">{match.endTime}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-[#000000]">Thời gian chơi:</span>
+                                    <span className="text-[#000000]">{t('matchDetailPopup.playTime')}</span>
                                     <span className="font-medium font-mono text-base text-[#000000]">{match.playTime}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-[#000000]">Trận đấu AI:</span>
-                                    <span className="font-medium font-mono text-base text-[#000000]">{match.isAIAssisted ? 'Có' : 'Không'}</span>
+                                    <span className="text-[#000000]">{t('matchDetailPopup.aiMatch')}</span>
+                                    <span className="font-medium font-mono text-base text-[#000000]">{match.isAIAssisted ? t('matchDetailPopup.yes') : t('matchDetailPopup.no')}</span>
                                 </div>
 
                             </div>
@@ -112,13 +115,13 @@ export function MatchDetailPopup({ match, isOpen, onClose }: MatchDetailPopupPro
                                             {team.members && team.members.length > 0 ? (
                                                 team.members.map((member, memberIndex) => (
                                                     <div key={memberIndex} className="truncate mb-1 text-center font-semibold">
-                                                        Người chơi {memberIndex + 1}: {member.membershipName || member.guestName || 'Unknown'}
-                                                        {member.role === 'host' && <span className="ml-1 text-blue-600">(Chủ phòng)</span>}
+                                                        {t('matchDetailPopup.player')} {memberIndex + 1}: {member.membershipName || member.guestName || t('matchDetailPopup.unknown')}
+                                                        {member.role === 'host' && <span className="ml-1 text-blue-600">{t('matchDetailPopup.host')}</span>}
                                                     </div>
                                                 ))
                                             ) : (
                                                 <div className="truncate mb-1 text-center font-semibold text-[#000000]">
-                                                    Không có thành viên
+                                                    {t('matchDetailPopup.noMembers')}
                                                 </div>
                                             )}
                                         </div>
@@ -132,7 +135,7 @@ export function MatchDetailPopup({ match, isOpen, onClose }: MatchDetailPopupPro
                             <div className="text-center p-2 bg-lime-50 rounded-lg border border-lime-200">
                                 <div className="text-xl mb-1">🎉</div>
                                 <div className="text-lg font-bold text-[#000000] mb-1">
-                                    {match.teams.find(team => team.isWinner)?.teamName} chiến thắng!
+                                    {match.teams.find(team => team.isWinner)?.teamName} {t('matchDetailPopup.winnerAnnouncement')}
                                 </div>
                             </div>
                         )}
@@ -140,7 +143,7 @@ export function MatchDetailPopup({ match, isOpen, onClose }: MatchDetailPopupPro
                         {/* VOD Button - Only show if isAIAssisted is true */}
                         {canShowVOD(match) && (
                             <div className="bg-gray-100 p-4 rounded-lg text-center">
-                                <div className="text-sm text-[#000000] mb-2">Video trận đấu</div>
+                                <div className="text-sm text-[#000000] mb-2">{t('matchDetailPopup.matchVideo')}</div>
                                 <a
                                     href={match.videoUrl}
                                     target="_blank"
@@ -154,7 +157,7 @@ export function MatchDetailPopup({ match, isOpen, onClose }: MatchDetailPopupPro
                                         height={24}
                                         className="w-6 h-6"
                                     />
-                                    VOD
+                                    {t('matchDetailPopup.vod')}
                                 </a>
                             </div>
                         )}
@@ -165,7 +168,7 @@ export function MatchDetailPopup({ match, isOpen, onClose }: MatchDetailPopupPro
                             onClick={onClose}
                             className="bg-lime-400 hover:bg-lime-500 text-white font-semibold px-6 py-2 rounded-lg transition"
                         >
-                            Đóng
+                            {t('matchDetailPopup.close')}
                         </button>
                     </div>
                 </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface EditScoreModalProps {
   open: boolean;
@@ -16,6 +17,7 @@ export const EditScoreModal: React.FC<EditScoreModalProps> = ({
   onSave,
   onCancel,
 }) => {
+  const { t } = useI18n();
   const [newTeamAScore, setNewTeamAScore] = useState<number>(teamAScore);
   const [newTeamBScore, setNewTeamBScore] = useState<number>(teamBScore);
 
@@ -35,20 +37,20 @@ export const EditScoreModal: React.FC<EditScoreModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
       <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-md mx-4 transform animate-scale-in">
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-[#000000] mb-2">Chỉnh sửa điểm số</h2>
-          <p className="text-[#000000]">Cập nhật điểm số cho từng đội</p>
+          <h2 className="text-2xl font-bold text-[#000000] mb-2">{t('manager.editScore.title')}</h2>
+          <p className="text-[#000000]">{t('manager.editScore.description')}</p>
         </div>
 
         <div className="space-y-6 mb-8">
           <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="font-semibold text-lg mb-3 text-[#000000]">Đội A</h3>
+            <h3 className="font-semibold text-lg mb-3 text-[#000000]">{t('manager.editScore.teamA')}</h3>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-[#000000]">Điểm hiện tại:</span>
+              <span className="text-sm text-[#000000]">{t('manager.editScore.currentScore')}:</span>
               <span className="text-2xl font-bold text-[#000000]">{teamAScore}</span>
             </div>
             <div className="mt-3">
               <label className="block text-sm font-medium text-[#000000] mb-2">
-                Điểm mới:
+                {t('manager.editScore.newScore')}:
               </label>
               <Input
                 type="number"
@@ -61,14 +63,14 @@ export const EditScoreModal: React.FC<EditScoreModalProps> = ({
           </div>
 
           <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="font-semibold text-lg mb-3 text-[#000000]">Đội B</h3>
+            <h3 className="font-semibold text-lg mb-3 text-[#000000]">{t('manager.editScore.teamB')}</h3>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-[#000000]">Điểm hiện tại:</span>
+              <span className="text-sm text-[#000000]">{t('manager.editScore.currentScore')}:</span>
               <span className="text-2xl font-bold text-[#000000]">{teamBScore}</span>
             </div>
             <div className="mt-3">
               <label className="block text-sm font-medium text-[#000000] mb-2">
-                Điểm mới:
+                {t('manager.editScore.newScore')}:
               </label>
               <Input
                 type="number"
@@ -87,14 +89,14 @@ export const EditScoreModal: React.FC<EditScoreModalProps> = ({
             className="w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 rounded-lg transition text-lg"
             onClick={handleCancel}
           >
-            Hủy
+            {t('manager.editScore.cancel')}
           </button>
           <button
             type="button"
             className="w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 rounded-lg transition text-lg"
             onClick={handleSave}
           >
-            Lưu thay đổi
+            {t('manager.editScore.saveChanges')}
           </button>
         </div>
       </div>

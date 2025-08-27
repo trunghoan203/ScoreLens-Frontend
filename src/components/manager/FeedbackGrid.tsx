@@ -110,11 +110,6 @@ export default function FeedbackGrid({
                 </span>
               </div>
             </div>
-            <div className="mt-3 pt-3 border-t border-gray-100">
-              <div className="flex justify-end">
-                <span className="text-lime-600 text-xs font-medium">{t('feedbacks.clickToViewDetails')}</span>
-              </div>
-            </div>
           </div>
         ))}
       </div>

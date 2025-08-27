@@ -1,10 +1,16 @@
 
 import React, { useState } from "react";
 import { ChevronDown, ChevronUp, StickyNote } from "lucide-react";
+import { useI18n } from '@/lib/i18n/provider';
 
 export function NoteWithToggle({ note }: { note: string }) {
+  const { t } = useI18n();
   const [expanded, setExpanded] = useState(false);
   const isLong = note.length > 100;
+
+  const noteLabel = t('shared.noteWithToggle.note');
+  const expandLabel = t('shared.noteWithToggle.expand');
+  const collapseLabel = t('shared.noteWithToggle.collapse');
 
   return (
     <div className="relative w-full">
@@ -12,18 +18,17 @@ export function NoteWithToggle({ note }: { note: string }) {
         <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3 border-b border-slate-200 bg-gradient-to-r from-slate-100 to-gray-100">
           <StickyNote size={16} className="sm:w-[18px] sm:h-[18px] text-slate-600 flex-shrink-0" />
           <span className="font-semibold text-slate-800 text-xs sm:text-sm tracking-wide">
-            GHI CHÚ
+            {noteLabel}
           </span>
         </div>
 
         <div className="relative px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3">
           <div
-            className={`text-xs sm:text-sm text-gray-700 leading-relaxed break-words hyphens-auto transition-all duration-300 ${
-              isLong && !expanded 
-                ? "line-clamp-3" 
-                : ""
-            }`}
-            style={{ 
+            className={`text-xs sm:text-sm text-gray-700 leading-relaxed break-words hyphens-auto transition-all duration-300 ${isLong && !expanded
+              ? "line-clamp-3"
+              : ""
+              }`}
+            style={{
               wordWrap: 'break-word',
               overflowWrap: 'break-word',
               wordBreak: 'break-word',
@@ -45,7 +50,7 @@ export function NoteWithToggle({ note }: { note: string }) {
                            transition-all duration-200 hover:shadow-sm touch-manipulation"
               >
                 <span>
-                  {expanded ? "Thu gọn" : "Xem thêm"}
+                  {expanded ? collapseLabel : expandLabel}
                 </span>
                 {expanded ? (
                   <ChevronUp size={12} className="sm:w-[14px] sm:h-[14px] group-hover:-translate-y-0.5 transition-transform" />

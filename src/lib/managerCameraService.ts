@@ -70,6 +70,18 @@ export interface TestPingResponse {
 }
 
 class ManagerCameraService {
+  private getTranslation(key: string): string {
+    const translations: Record<string, string> = {
+      'shared.services.managerCamera.failedToCreateCamera': 'Failed to create camera',
+      'shared.services.managerCamera.failedToTestConnection': 'Failed to test camera connection',
+      'shared.services.managerCamera.failedToTestPing': 'Failed to test camera ping',
+      'shared.services.managerCamera.networkError': 'Network error',
+      'shared.services.managerCamera.unknownError': 'Unknown error',
+      'shared.services.managerCamera.errorOccurred': 'An error occurred',
+    };
+    return translations[key] || key;
+  }
+
   getToken() {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('managerAccessToken');
@@ -94,39 +106,39 @@ class ManagerCameraService {
     }
   }
 
-  async createCamera(data: { 
-    tableId: string; 
-    IPAddress: string; 
-    username: string; 
-    password: string; 
+  async createCamera(data: {
+    tableId: string;
+    IPAddress: string;
+    username: string;
+    password: string;
     isConnect?: boolean;
   }) {
     try {
       const res = await axios.post('/manager/camera', data, {
         headers: this.getAuthHeaders(),
       });
-      
+
       return res.data;
     } catch (error: any) {
       console.error('Error creating camera:', error);
       console.error('Error response:', error.response?.data);
       console.error('Error status:', error.response?.status);
       console.error('Error headers:', error.response?.headers);
-      
+
       return {
         success: false,
-        message: error.response?.data?.message || error.message || 'Failed to create camera',
+        message: error.response?.data?.message || error.message || this.getTranslation('shared.services.managerCamera.failedToCreateCamera'),
         error: error.response?.data || error.message
       };
     }
   }
 
-  async updateCamera(id: string, data: { 
+  async updateCamera(id: string, data: {
     tableId?: string;
-    IPAddress?: string; 
-    username?: string; 
-    password?: string; 
-    isConnect?: boolean; 
+    IPAddress?: string;
+    username?: string;
+    password?: string;
+    isConnect?: boolean;
   }) {
     try {
       const res = await axios.put(`/manager/camera/${id}`, data, {
@@ -161,15 +173,15 @@ class ManagerCameraService {
       const res = await axios.post('/manager/camera/test-connection', data, {
         headers: this.getAuthHeaders(),
       });
-    
+
       return res.data as TestConnectionResponse;
     } catch (error: any) {
       console.error('Error testing camera connection:', error);
       console.error('Error response:', error.response?.data);
-      
+
       return {
         success: false,
-        message: error.response?.data?.message || error.message || 'Failed to test camera connection',
+        message: error.response?.data?.message || error.message || this.getTranslation('shared.services.managerCamera.failedToTestConnection'),
         error: error.response?.data || error.message
       };
     }
@@ -286,24 +298,24 @@ class ManagerCameraService {
       return response.data as TestPingResponse;
     } catch (error: unknown) {
       console.error('Error testing camera ping:', error);
-      
+
       if (typeof error === 'object' && error !== null && 'response' in error) {
         const axiosError = error as { response?: { data?: unknown } };
         if (axiosError.response?.data) {
           const responseData = axiosError.response.data as { message?: string; error?: string };
           return {
             success: false,
-            message: responseData.message || 'Failed to test camera ping',
-            error: responseData.error || 'Unknown error',
+            message: responseData.message || this.getTranslation('shared.services.managerCamera.failedToTestPing'),
+            error: responseData.error || this.getTranslation('shared.services.managerCamera.unknownError'),
             ipAddress: ''
           };
         }
       }
-      
+
       return {
         success: false,
-        message: 'Failed to test camera ping',
-        error: 'Network error',
+        message: this.getTranslation('shared.services.managerCamera.failedToTestPing'),
+        error: this.getTranslation('shared.services.managerCamera.networkError'),
         ipAddress: ''
       };
     }
@@ -313,7 +325,7 @@ class ManagerCameraService {
       const axiosError = error as { response?: { data?: unknown } };
       if (axiosError.response?.data) {
         const responseData = axiosError.response.data as { message?: string };
-        const enhancedError = new Error(responseData.message || 'Đã xảy ra lỗi');
+        const enhancedError = new Error(responseData.message || this.getTranslation('shared.services.managerCamera.errorOccurred'));
         (enhancedError as { response?: unknown }).response = axiosError.response;
         return enhancedError;
       }
@@ -322,7 +334,7 @@ class ManagerCameraService {
       const errorWithMessage = error as { message: string };
       return new Error(errorWithMessage.message);
     }
-    return new Error('Đã xảy ra lỗi không xác định');
+    return new Error(this.getTranslation('shared.services.managerCamera.unknownError'));
   }
 }
 

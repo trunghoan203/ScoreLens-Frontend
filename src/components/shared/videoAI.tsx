@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import toast from 'react-hot-toast';
+import { useI18n } from '@/lib/i18n/provider';
 import axios from '@/lib/axios';
 import { managerTableService } from '@/lib/managerTableService';
 
@@ -68,6 +69,7 @@ interface VideoAIProps {
 }
 
 export default function VideoAI({ onVideoProcessed, className = '', analysisType, tableId, cameraId, matchId }: VideoAIProps) {
+  const { t } = useI18n();
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
@@ -230,7 +232,7 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
 
     } catch (error) {
       console.error('Error fetching recorded clips:', error);
-      toast.error('Không thể tải danh sách clip đã ghi');
+      toast.error(t('shared.videoAI.cannotLoadClips'));
     } finally {
       setLoadingClips(false);
     }
@@ -281,20 +283,20 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
       setVideoFile(mockFile);
       setVideoUrl(videoUrl);
 
-      toast.success(`Đã chọn clip: ${clip.name}`);
+      toast.success(t('shared.videoAI.clipSelectedSuccess').replace('{name}', clip.name));
     } catch (error) {
       console.error('Error selecting clip:', error);
-      toast.error('Không thể chọn clip');
+      toast.error(t('shared.videoAI.cannotSelectClip'));
     }
   };
 
   const validateFile = (file: File): boolean => {
     if (!file.type.startsWith('video/')) {
-      toast.error('Vui lòng chọn đúng định dạng video!');
+      toast.error(t('shared.videoAI.pleaseSelectVideoFormat'));
       return false;
     }
     if (file.size > MAX_VIDEO_SIZE_GB * 1024 * 1024 * 1024) {
-      toast.error(`Video không được vượt quá ${MAX_VIDEO_SIZE_GB}GB!`);
+      toast.error(t('shared.videoAI.maxSize').replace('{size}', MAX_VIDEO_SIZE_GB.toString()));
       return false;
     }
     return true;
@@ -311,7 +313,7 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
 
   const processVideo = async () => {
     if (!videoFile && !selectedClip) {
-      toast.error('Vui lòng chọn video trước!');
+      toast.error(t('shared.videoAI.pleaseSelectVideo'));
       return;
     }
 
@@ -319,7 +321,7 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
       setProcessing(true);
 
       if (selectedClip) {
-        toast.success(`Đang phân tích clip: ${selectedClip.name}`);
+        toast.success(t('shared.videoAI.analyzingClip').replace('{name}', selectedClip.name));
 
         const response = await axios.post('http://localhost:5000/process_video', {
           clipId: selectedClip.id,
@@ -333,13 +335,13 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
 
         if (onVideoProcessed) {
           onVideoProcessed(data);
-          toast.success('Đã gửi kết quả AI đến xử lý điểm!');
+          toast.success(t('shared.videoAI.aiResultSent'));
         }
 
         if (data.success) {
-          toast.success('Thành công! Đang xử lý điểm...');
+          toast.success(t('shared.videoAI.processingScore'));
         } else {
-          toast.error('Lỗi phân tích video!');
+          toast.error(t('shared.videoAI.videoAnalysisError'));
         }
       } else {
         const formData = new FormData();
@@ -352,7 +354,7 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
         });
 
         if (!res.ok) {
-          throw new Error('Lỗi khi gửi video để phân tích');
+          throw new Error(t('shared.videoAI.errorSendingVideo'));
         }
 
         const data = await res.json();
@@ -360,18 +362,18 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
 
         if (onVideoProcessed) {
           onVideoProcessed(data as ProcessVideoResponse);
-          toast.success('Đã gửi kết quả AI đến xử lý điểm!');
+          toast.success(t('shared.videoAI.aiResultSent'));
         }
 
         if (data?.success) {
-          toast.success('Thành công! Đang xử lý điểm...');
+          toast.success(t('shared.videoAI.processingScore'));
         } else {
-          toast.error('Lỗi phân tích video!');
+          toast.error(t('shared.videoAI.videoAnalysisError'));
         }
       }
     } catch (error) {
       console.error('[VideoAI] processVideo error:', error);
-      toast.error('Lỗi phân tích video!');
+      toast.error(t('shared.videoAI.videoAnalysisError'));
     } finally {
       setProcessing(false);
     }
@@ -407,7 +409,7 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
     if (videoFile) {
       handleVideoSelect(videoFile);
     } else {
-      toast.error('Vui lòng thả file video!');
+      toast.error(t('shared.videoAI.pleaseDropVideo'));
     }
   };
 
@@ -448,7 +450,8 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
 
   const downloadVideo = async () => {
     try {
-      toast.success(`Đang tải ${processResult.filename || 'video.mp4'}...`);
+      const filename = processResult.filename || 'video.mp4';
+      toast.success(t('shared.videoAI.downloadingVideo').replace('{filename}', filename));
 
       const response = await fetch(processResult.cloudinary_url!);
       const blob = await response.blob();
@@ -457,7 +460,7 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
-      a.download = processResult.filename || 'video.mp4';
+      a.download = filename;
 
       document.body.appendChild(a);
       a.click();
@@ -465,10 +468,10 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
-      toast.success(`Đã tải thành công ${processResult.filename || 'video.mp4'}!`);
+      toast.success(t('shared.videoAI.videoDownloaded').replace('{filename}', filename));
     } catch (error) {
       console.error('Lỗi khi tải video:', error);
-      toast.error('Lỗi khi tải video!');
+      toast.error(t('shared.videoAI.videoDownloadError'));
     }
   };
 
@@ -501,15 +504,15 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
   return (
     <div className={`bg-white rounded-lg shadow p-4 sm:p-6 ${className}`}>
       <h4 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6 text-center text-gray-800">
-        Video AI Billiards
+        {t('shared.videoAI.title')}
       </h4>
 
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <h5 className="text-base font-semibold text-gray-700">
-            Clip đã ghi ({recordedClips.length})
-            {tableId && <span className="text-sm text-gray-500 ml-2">- Bàn {tableId}</span>}
-            {cameraId && <span className="text-sm text-gray-500 ml-2">- Camera {cameraId}</span>}
+            {t('shared.videoAI.recordedClips')} ({recordedClips.length})
+            {tableId && <span className="text-sm text-gray-500 ml-2">{t('shared.videoAI.tableInfo').replace('{tableId}', tableId)}</span>}
+            {cameraId && <span className="text-sm text-gray-500 ml-2">{t('shared.videoAI.cameraInfo').replace('{cameraId}', cameraId)}</span>}
           </h5>
           <div className="flex gap-2">
             <Button
@@ -520,17 +523,17 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
               {loadingClips ? (
                 <div className="flex items-center gap-1">
                   <div className="animate-spin w-3 h-3 border border-white border-t-transparent rounded-full"></div>
-                  Tải lại
+                  {t('shared.videoAI.refreshing')}
                 </div>
               ) : (
-                'Tải lại'
+                t('shared.videoAI.refresh')
               )}
             </Button>
             <Button
               onClick={() => setShowClipsList(!showClipsList)}
               className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium"
             >
-              {showClipsList ? 'Ẩn danh sách' : 'Xem danh sách'}
+              {showClipsList ? t('shared.videoAI.hideList') : t('shared.videoAI.showList')}
             </Button>
           </div>
         </div>
@@ -540,14 +543,14 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
             {loadingClips ? (
               <div className="text-center py-4">
                 <div className="animate-spin w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
-                <p className="text-gray-500 text-sm">Đang tải danh sách clip...</p>
+                <p className="text-gray-500 text-sm">{t('shared.videoAI.loadingClips')}</p>
               </div>
             ) : recordedClips.length === 0 ? (
               <div className="text-center py-4">
-                <p className="text-gray-500 text-sm">Chưa có clip nào được ghi</p>
+                <p className="text-gray-500 text-sm">{t('shared.videoAI.noClipsRecorded')}</p>
                 {tableId && (
                   <p className="text-xs text-gray-400 mt-1">
-                    Sử dụng nút "Record" trên camera để tạo clip mới
+                    {t('shared.videoAI.useRecordButton')}
                   </p>
                 )}
               </div>
@@ -566,7 +569,7 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-gray-800 truncate">{clip.name}</p>
                         <div className="flex items-center gap-4 mt-1 text-xs text-gray-500">
-                          <span>{clip.tableName || 'Không xác định'}</span>
+                          <span>{clip.tableName || t('shared.videoAI.unknown')}</span>
                           <span>{formatFileSize(clip.size)}</span>
                           {clip.duration > 0 && <span>{formatDuration(clip.duration)}</span>}
                           <span>{formatDate(clip.createdAt)}</span>
@@ -587,7 +590,7 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
           <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-green-800">Clip đã chọn: {selectedClip.name}</p>
+                <p className="font-medium text-green-800">{t('shared.videoAI.clipSelected').replace('{name}', selectedClip.name)}</p>
                 <p className="text-sm text-green-600">
                   {selectedClip.tableName} • {formatFileSize(selectedClip.size)}
                   {selectedClip.duration > 0 && ` • ${formatDuration(selectedClip.duration)}`}
@@ -600,7 +603,7 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
                 }}
                 className="text-red-500 hover:text-red-700 text-sm font-medium"
               >
-                Bỏ chọn
+                {t('shared.videoAI.deselect')}
               </button>
             </div>
           </div>
@@ -628,10 +631,10 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
                 <div className="space-y-3 sm:space-y-4">
                   <div>
                     <p className="text-base sm:text-lg font-medium text-green-700 mb-2">
-                      Video đã chọn: {videoFile.name}
+                      {t('shared.videoAI.videoSelected').replace('{name}', videoFile.name)}
                     </p>
                     <p className="text-sm text-gray-500">
-                      Hãy nhấn &quot;Phân tích Video&quot; để bắt đầu phân tích.
+                      {t('shared.videoAI.pressAnalyze')}
                     </p>
                   </div>
                 </div>
@@ -639,14 +642,14 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
                 <div className="space-y-3 sm:space-y-4">
                   <div>
                     <p className="text-base sm:text-lg font-medium text-gray-700 mb-2">
-                      Thêm video tại đây
+                      {t('shared.videoAI.addVideoHere')}
                     </p>
                     <p className="text-sm text-gray-500">
-                      Hỗ trợ: MP4, MOV, AVI • Tối đa: {MAX_VIDEO_SIZE_GB}GB
+                      {t('shared.videoAI.supportedFormats')} • {t('shared.videoAI.maxSize').replace('{size}', MAX_VIDEO_SIZE_GB.toString())}
                     </p>
                     {recordedClips.length > 0 && (
                       <p className="text-xs text-blue-600 mt-2">
-                        Hoặc chọn từ danh sách clip đã ghi ở trên
+                        {t('shared.videoAI.orSelectFromList')}
                       </p>
                     )}
                   </div>
@@ -656,24 +659,24 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
           ) : (
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
               <div className="flex justify-between items-center mb-3">
-                <p className="font-medium text-green-700">Video đã tải lên</p>
+                <p className="font-medium text-green-700">{t('shared.videoAI.videoUploaded')}</p>
                 <button
                   onClick={clearVideo}
                   className="text-red-500 hover:text-red-700 text-sm font-medium"
                 >
-                  Xóa
+                  {t('shared.videoAI.clear')}
                 </button>
               </div>
               {selectedClip ? (
                 <div className="space-y-3">
                   <video
-                    src={videoUrl || ''}
+                    src={videoUrl ?? ''}
                     controls
                     className="w-full rounded-lg border"
                     crossOrigin="anonymous"
                     preload="metadata"
                   >
-                    Your browser does not support the video tag.
+                    {t('shared.videoAI.yourBrowserNotSupport')}
                   </video>
                   <div className="bg-white rounded-lg p-3 border border-gray-200">
                     <p className="font-medium text-gray-800">{selectedClip.name}</p>
@@ -681,25 +684,25 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
                       {selectedClip.tableName} • {formatFileSize(selectedClip.size)}
                     </p>
                     <p className="text-xs text-gray-500">
-                      Tạo lúc: {formatDate(selectedClip.createdAt)}
+                      {t('shared.videoAI.createdAt')} {formatDate(selectedClip.createdAt)}
                     </p>
                   </div>
                   <div className="text-center py-2">
                     <p className="text-sm text-gray-500">
-                      Clip đã được chọn từ danh sách recordings
+                      {t('shared.videoAI.clipSelectedFromRecordings')}
                     </p>
                     <p className="text-xs text-blue-600 mt-1">
-                      Sẵn sàng để phân tích AI
+                      {t('shared.videoAI.readyForAnalysis')}
                     </p>
                   </div>
                 </div>
               ) : videoFile && videoUrl ? (
                 <>
-                  <video src={videoUrl || ''} controls className="w-full rounded-lg border">
-                    Your browser does not support the video tag.
+                  <video src={videoUrl ?? ''} controls className="w-full rounded-lg border">
+                    {t('shared.videoAI.yourBrowserNotSupport')}
                   </video>
                   <p className="text-sm text-gray-600 mt-2">
-                    {videoFile.name} ({(videoFile.size / (1024 * 1024 * 1024)).toFixed(1)}GB)
+                    {videoFile?.name} ({(videoFile?.size / (1024 * 1024 * 1024)).toFixed(1)}GB)
                   </p>
                 </>
               ) : null}
@@ -720,10 +723,10 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
               {processing ? (
                 <div className="flex items-center justify-center gap-2">
                   <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
-                  Đang phân tích...
+                  {t('shared.videoAI.analyzing')}
                 </div>
               ) : (
-                'Phân tích Video'
+                t('shared.videoAI.analyzeVideo')
               )}
             </Button>
           </div>
@@ -733,19 +736,19 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
           {processResult.success ? (
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
               <h5 className="font-semibold text-gray-800 mb-3 text-center">
-                Kết quả phân tích
+                {t('shared.videoAI.analysisResults')}
               </h5>
 
               <div className="bg-white rounded-lg p-3 mb-4 border border-gray-200">
                 <div className="space-y-2 text-sm">
-                  <p><strong>Loại phân tích:</strong> {analysisType === 'pool8' ? 'Pool 8-Ball' : 'Carom'}</p>
-                  <p><strong>Tên file:</strong> {processResult.filename || 'N/A'}</p>
+                  <p><strong>{t('shared.videoAI.analysisType')}</strong> {analysisType === 'pool8' ? t('shared.videoAI.pool8Ball') : t('shared.videoAI.carom')}</p>
+                  <p><strong>{t('shared.videoAI.fileName')}</strong> {processResult.filename || t('shared.videoAI.notAvailable')}</p>
                 </div>
               </div>
 
               {processResult.cloudinary_url && (
                 <div className="mb-4">
-                  <h6 className="font-medium text-gray-700 mb-2">Video đã xử lý</h6>
+                  <h6 className="font-medium text-gray-700 mb-2">{t('shared.videoAI.processedVideo')}</h6>
                   <div className="bg-white rounded-lg p-3 border border-gray-200">
                     <a
                       href={processResult.player_url}
@@ -753,7 +756,7 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
                       rel="noopener noreferrer"
                       className="inline-block bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg font-medium transition-colors text-sm"
                     >
-                      Xem video đã xử lý
+                      {t('shared.videoAI.viewProcessedVideo')}
                     </a>
                   </div>
                 </div>
@@ -761,16 +764,16 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
 
               {csvData.length > 0 && (
                 <div className="mb-4">
-                  <h6 className="font-medium text-gray-700 mb-2">Sự kiện trận đấu</h6>
+                  <h6 className="font-medium text-gray-700 mb-2">{t('shared.videoAI.matchEvents')}</h6>
                   <div className="bg-white rounded-lg border border-gray-200 max-h-48 overflow-auto">
                     <div className="min-w-full">
                       <table className="w-full text-xs">
                         <thead className="bg-gray-100 sticky top-0">
                           <tr>
-                            <th className="px-2 py-2 text-left font-medium text-gray-700 w-20">Loại sự kiện</th>
-                            <th className="px-2 py-2 text-left font-medium text-gray-700 w-12">Lượt đánh</th>
-                            <th className="px-2 py-2 text-left font-medium text-gray-700 w-16">Thời gian</th>
-                            <th className="px-2 py-2 text-left font-medium text-gray-700">Chi tiết</th>
+                            <th className="px-2 py-2 text-left font-medium text-gray-700 w-20">{t('shared.videoAI.eventType')}</th>
+                            <th className="px-2 py-2 text-left font-medium text-gray-700 w-12">{t('shared.videoAI.turn')}</th>
+                            <th className="px-2 py-2 text-left font-medium text-gray-700 w-16">{t('shared.videoAI.time')}</th>
+                            <th className="px-2 py-2 text-left font-medium text-gray-700">{t('shared.videoAI.details')}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -797,20 +800,20 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
                     onClick={downloadVideo}
                     className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium text-sm"
                   >
-                    Tải video
+                    {t('shared.videoAI.downloadVideo')}
                   </Button>
                 )}
                 <Button
                   onClick={downloadCsv}
                   className="flex-1 bg-lime-400 hover:bg-lime-500 text-white py-2 rounded-lg font-medium text-sm"
                 >
-                  Tải CSV
+                  {t('shared.videoAI.downloadCsv')}
                 </Button>
               </div>
             </div>
           ) : (
             <div className="bg-gray-50 rounded-lg p-6 text-center border border-gray-200">
-              <p className="text-gray-500">Kết quả phân tích sẽ hiển thị ở đây</p>
+              <p className="text-gray-500">{t('shared.videoAI.analysisResultsWillShow')}</p>
             </div>
           )}
         </div>

@@ -169,6 +169,8 @@ export default function AdminFeedbackDetailPage() {
     }
   };
 
+  const canEdit = feedback?.status === 'managerP' || feedback?.status === 'adminP' || feedback?.status === 'resolved';
+
   const getStatusText = (status: string) => {
     switch (status) {
       case 'resolved': return t('feedbacks.status.resolved');
@@ -195,6 +197,10 @@ export default function AdminFeedbackDetailPage() {
   };
 
   const handleEditMode = () => {
+    if (!canEdit) {
+      toast.error(t('feedbacks.cannotEditFeedback'));
+      return;
+    }
     setIsEditMode(true);
     setNotes('');
   };
@@ -279,7 +285,7 @@ export default function AdminFeedbackDetailPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">{t('common.status')}</label>
-                    {isEditMode ? (
+                    {isEditMode && canEdit ? (
                       <div className="relative w-full">
                         <select
                           className="w-full bg-gray-100 rounded-lg px-6 py-3 text-black outline-none appearance-none min-w-[280px] sm:min-w-[320px] lg:min-w-[380px]"
@@ -318,7 +324,7 @@ export default function AdminFeedbackDetailPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.processingNote')}</label>
-                    {isEditMode ? (
+                    {isEditMode && canEdit ? (
                       <textarea
                         className="w-full bg-gray-100 rounded-lg px-4 py-2 text-black"
                         value={notes}
@@ -396,7 +402,7 @@ export default function AdminFeedbackDetailPage() {
                       {t('common.back')}
                     </button>
                   </>
-                ) : (
+                ) : canEdit ? (
                   <>
                     <button
                       type="button"
@@ -413,6 +419,14 @@ export default function AdminFeedbackDetailPage() {
                       {t('common.back')}
                     </button>
                   </>
+                ) : (
+                  <button
+                    type="button"
+                    className="w-40 border border-lime-400 text-lime-500 bg-white hover:bg-lime-50 font-bold py-2 rounded-lg transition text-lg touch-manipulation"
+                    onClick={() => router.push('/admin/feedbacks')}
+                  >
+                    {t('common.back')}
+                  </button>
                 )}
               </div>
             </FeedbackDetailLayout>

@@ -20,7 +20,7 @@ interface Feedback {
   branch: string;
   table: string;
   time: string;
-  status: 'managerP' | 'adminP' | 'resolved';
+  status: 'managerP' | 'adminP' | 'superadminP' | 'resolved';
   feedback: string;
   notes: string;
   createdAt: Date;
@@ -36,8 +36,21 @@ export default function FeedbacksPage() {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [managerClubId, setManagerClubId] = useState<string | null>(null);
   const itemPage = 10;
   const router = useRouter();
+
+  useEffect(() => {
+    try {
+      const managerData = localStorage.getItem('managerData');
+      if (managerData) {
+        const manager = JSON.parse(managerData);
+        setManagerClubId(manager.clubId || null);
+      }
+    } catch (error) {
+      console.error('Error getting manager data:', error);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -89,7 +102,7 @@ export default function FeedbacksPage() {
     };
 
     fetchData();
-  }, []);
+  }, [managerClubId]);
 
   const filteredFeedbacks = feedbacks.filter(f => {
     const branch = (f.branch || '').toString().toLowerCase();
@@ -102,7 +115,7 @@ export default function FeedbacksPage() {
 
     let matchesStatus = false;
     if (statusFilter === 'all') {
-      matchesStatus = f.status === 'adminP' || f.status === 'managerP' || f.status === 'resolved';
+      matchesStatus = f.status === 'adminP' || f.status === 'managerP' || f.status === 'superadminP' || f.status === 'resolved';
     } else if (statusFilter === 'pending') {
       matchesStatus = f.status === 'managerP';
     } else if (statusFilter === 'resolved') {
@@ -117,7 +130,12 @@ export default function FeedbacksPage() {
       matchesDate = feedbackDate === dateFilter;
     }
 
-    return matchesSearch && matchesStatus && matchesDate;
+    let matchesClub = true;
+    if (managerClubId) {
+      matchesClub = true;
+    }
+
+    return matchesSearch && matchesStatus && matchesDate && matchesClub;
   });
 
   const totalPages = Math.ceil(filteredFeedbacks.length / itemPage);

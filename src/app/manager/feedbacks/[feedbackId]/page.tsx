@@ -35,7 +35,7 @@ interface Feedback {
     category?: string;
   };
   content: string;
-  status: 'managerP' | 'adminP' | 'resolved';
+  status: 'managerP' | 'adminP' | 'superadminP' | 'resolved';
   note?: string;
   history: Array<{
     byId: string;
@@ -151,11 +151,14 @@ export default function FeedbackDetailPage() {
     { value: 'resolved', label: t('feedbacks.status.resolved') },
   ];
 
+  const canEdit = feedback?.status === 'managerP';
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'resolved': return 'success';
       case 'managerP': return 'danger';
       case 'adminP': return 'danger';
+      case 'superadminP': return 'danger';
       default: return 'danger';
     }
   };
@@ -165,6 +168,7 @@ export default function FeedbackDetailPage() {
       case 'resolved': return t('feedbacks.status.resolved');
       case 'managerP': return t('feedbacks.status.managerP');
       case 'adminP': return t('feedbacks.status.adminP');
+      case 'superadminP': return t('feedbacks.status.superadminP');
       default: return t('common.unknown');
     }
   };
@@ -185,6 +189,10 @@ export default function FeedbackDetailPage() {
   };
 
   const handleEditMode = () => {
+    if (!canEdit) {
+      toast.error(t('feedbacks.cannotEditFeedback'));
+      return;
+    }
     setIsEditMode(true);
     setNotes('');
   }
@@ -264,7 +272,7 @@ export default function FeedbackDetailPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.feedbackStatus')}</label>
-                    {isEditMode ? (
+                    {isEditMode && canEdit ? (
                       <div className="relative w-full">
                         <select
                           className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black outline-none appearance-none text-sm sm:text-base"
@@ -303,7 +311,7 @@ export default function FeedbackDetailPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.processingNote')}</label>
-                    {isEditMode ? (
+                    {isEditMode && canEdit ? (
                       <textarea
                         className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black text-sm sm:text-base"
                         value={notes}
@@ -380,7 +388,7 @@ export default function FeedbackDetailPage() {
                   >
                     {t('feedbacks.save')}
                   </button>
-                ) : (
+                ) : canEdit ? (
                   <button
                     type="button"
                     className="w-full sm:w-32 lg:w-40 bg-lime-400 hover:bg-lime-500 text-white font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg"
@@ -388,7 +396,7 @@ export default function FeedbackDetailPage() {
                   >
                     {t('feedbacks.edit')}
                   </button>
-                )}
+                ) : null}
               </div>
             </FeedbackDetailLayout>
           ) : null}

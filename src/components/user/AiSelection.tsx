@@ -28,7 +28,7 @@ export default function AiSelection({
 
         <div className="space-y-4 mb-6">
           <div className="text-left">
-            <p className="text-sm text-gray-600 mb-3">
+            <p className="text-sm text-gray-600 text-center mb-3">
               {t('aiSelection.description')}
             </p>
             <div className="space-y-3">

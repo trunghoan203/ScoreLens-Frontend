@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface SuccessMessageProps {
   onClose: () => void;
@@ -10,6 +11,7 @@ interface SuccessMessageProps {
 
 export default function SuccessMessage({ onClose, onConfirm }: SuccessMessageProps) {
   const router = useRouter();
+  const { t } = useI18n();
 
   const handleConfirm = () => {
     onConfirm();
@@ -28,14 +30,14 @@ export default function SuccessMessage({ onClose, onConfirm }: SuccessMessagePro
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg sm:text-xl font-bold text-[#000000]">
-          Cảm ơn quý khách đã sử dụng dịch vụ ScoreLens!
+          {t('shared.successMessage.title')}
         </h2>
         <Button
           onClick={handleConfirm}
           style={{ backgroundColor: '#8ADB10' }}
           className="hover:bg-lime-500 text-[#FFFFFF] font-semibold py-2 px-4 rounded-lg text-sm sm:text-base"
         >
-          Xác nhận
+          {t('shared.successMessage.confirm')}
         </Button>
       </div>
     </div>
