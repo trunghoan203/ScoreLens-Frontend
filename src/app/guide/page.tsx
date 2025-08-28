@@ -237,17 +237,25 @@ const getGuideContent = (role: string, t: any) => {
           </p>
           <ol className="list-decimal ml-4 sm:ml-6 space-y-2 text-sm sm:text-base md:text-lg text-[#000000]">
             <li>
-              <span className="font-semibold text-[#8ADB10]">{t('guide.member.part1.accessRegistration.title')}</span>
+              <span className="font-semibold text-[#8ADB10]">{t('guide.member.part1.step1.title')}</span>
               <ul className="list-disc ml-4 sm:ml-6">
-                {getTranslationArray(t, 'guide.member.part1.accessRegistration.items').map((item: string, index: number) => (
+                {getTranslationArray(t, 'guide.member.part1.step1.items').map((item: string, index: number) => (
                   <li key={index}>{item}</li>
                 ))}
               </ul>
             </li>
             <li>
-              <span className="font-semibold text-[#8ADB10]">{t('guide.member.part1.verifyEmail.title')}</span>
+              <span className="font-semibold text-[#8ADB10]">{t('guide.member.part1.step2.title')}</span>
               <ul className="list-disc ml-4 sm:ml-6">
-                {getTranslationArray(t, 'guide.member.part1.verifyEmail.items').map((item: string, index: number) => (
+                {getTranslationArray(t, 'guide.member.part1.step2.items').map((item: string, index: number) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </li>
+            <li>
+              <span className="font-semibold text-[#8ADB10]">{t('guide.member.part1.step3.title')}</span>
+              <ul className="list-disc ml-4 sm:ml-6">
+                {getTranslationArray(t, 'guide.member.part1.step3.items').map((item: string, index: number) => (
                   <li key={index}>{item}</li>
                 ))}
               </ul>
@@ -259,25 +267,33 @@ const getGuideContent = (role: string, t: any) => {
           <h2 className="text-base sm:text-lg md:text-xl font-bold text-[#000000] mb-2">{t('guide.member.part2.title')}</h2>
           <ol className="list-decimal ml-4 sm:ml-6 space-y-2 text-sm sm:text-base md:text-lg text-[#000000]">
             <li>
-              <span className="font-semibold text-[#8ADB10]">{t('guide.member.part2.login.title')}</span>
+              <span className="font-semibold text-[#8ADB10]">{t('guide.member.part2.realTimeScoring.title')}</span>
               <ul className="list-disc ml-4 sm:ml-6">
-                {getTranslationArray(t, 'guide.member.part2.login.items').map((item: string, index: number) => (
+                {getTranslationArray(t, 'guide.member.part2.realTimeScoring.items').map((item: string, index: number) => (
                   <li key={index}>{item}</li>
                 ))}
               </ul>
             </li>
             <li>
-              <span className="font-semibold text-[#8ADB10]">{t('guide.member.part2.viewMatchHistory.title')}</span>
+              <span className="font-semibold text-[#8ADB10]">{t('guide.member.part2.editScores.title')}</span>
               <ul className="list-disc ml-4 sm:ml-6">
-                {getTranslationArray(t, 'guide.member.part2.viewMatchHistory.items').map((item: string, index: number) => (
+                {getTranslationArray(t, 'guide.member.part2.editScores.items').map((item: string, index: number) => (
                   <li key={index}>{item}</li>
                 ))}
               </ul>
             </li>
             <li>
-              <span className="font-semibold text-[#8ADB10]">{t('guide.member.part2.receiveNotifications.title')}</span>
+              <span className="font-semibold text-[#8ADB10]">{t('guide.member.part2.memberManagement.title')}</span>
               <ul className="list-disc ml-4 sm:ml-6">
-                {getTranslationArray(t, 'guide.member.part2.receiveNotifications.items').map((item: string, index: number) => (
+                {getTranslationArray(t, 'guide.member.part2.memberManagement.items').map((item: string, index: number) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </li>
+            <li>
+              <span className="font-semibold text-[#8ADB10]">{t('guide.member.part2.joinMatch.title')}</span>
+              <ul className="list-disc ml-4 sm:ml-6">
+                {getTranslationArray(t, 'guide.member.part2.joinMatch.items').map((item: string, index: number) => (
                   <li key={index}>{item}</li>
                 ))}
               </ul>
@@ -287,8 +303,33 @@ const getGuideContent = (role: string, t: any) => {
 
         <section>
           <h2 className="text-base sm:text-lg md:text-xl font-bold text-[#000000] mb-2">{t('guide.member.part3.title')}</h2>
+          <ol className="list-decimal ml-4 sm:ml-6 space-y-4 text-sm sm:text-base md:text-lg text-[#000000]">
+            <li>
+              <span className="font-semibold text-[#8ADB10]">{t('guide.member.part3.endMatch.title')}</span>
+              <ul className="list-disc ml-4 sm:ml-6">
+                {getTranslationArray(t, 'guide.member.part3.endMatch.items').map((item: string, index: number) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </li>
+            <li>
+              <span className="font-semibold text-[#8ADB10]">{t('guide.member.part3.evaluateMatch.title')}</span>
+              <ul className="list-disc ml-4 sm:ml-6">
+                {getTranslationArray(t, 'guide.member.part3.evaluateMatch.items').map((item: string, index: number) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </li>
+          </ol>
+        </section>
+
+        <section>
+          <h2 className="text-base sm:text-lg md:text-xl font-bold text-[#000000] mb-2">{t('guide.member.part4.title')}</h2>
+          <p className="text-sm sm:text-base md:text-lg text-[#000000] mb-2">
+            <span className="font-semibold text-[#8ADB10]">{t('guide.member.part4.memberPrivileges')}</span>
+          </p>
           <ul className="list-disc ml-4 sm:ml-6 text-sm sm:text-base md:text-lg text-[#000000]">
-            {getTranslationArray(t, 'guide.member.part3.items').map((item: string, index: number) => (
+            {getTranslationArray(t, 'guide.member.part4.items').map((item: string, index: number) => (
               <li key={index}>{item}</li>
             ))}
           </ul>
@@ -308,17 +349,25 @@ const getGuideContent = (role: string, t: any) => {
           </p>
           <ol className="list-decimal ml-4 sm:ml-6 space-y-2 text-sm sm:text-base md:text-lg text-[#000000]">
             <li>
-              <span className="font-semibold text-[#8ADB10]">{t('guide.user.part1.accessSystem.title')}</span>
+              <span className="font-semibold text-[#8ADB10]">{t('guide.user.part1.step1.title')}</span>
               <ul className="list-disc ml-4 sm:ml-6">
-                {getTranslationArray(t, 'guide.user.part1.accessSystem.items').map((item: string, index: number) => (
+                {getTranslationArray(t, 'guide.user.part1.step1.items').map((item: string, index: number) => (
                   <li key={index}>{item}</li>
                 ))}
               </ul>
             </li>
             <li>
-              <span className="font-semibold text-[#8ADB10]">{t('guide.user.part1.viewMatches.title')}</span>
+              <span className="font-semibold text-[#8ADB10]">{t('guide.user.part1.step2.title')}</span>
               <ul className="list-disc ml-4 sm:ml-6">
-                {getTranslationArray(t, 'guide.user.part1.viewMatches.items').map((item: string, index: number) => (
+                {getTranslationArray(t, 'guide.user.part1.step2.items').map((item: string, index: number) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </li>
+            <li>
+              <span className="font-semibold text-[#8ADB10]">{t('guide.user.part1.step3.title')}</span>
+              <ul className="list-disc ml-4 sm:ml-6">
+                {getTranslationArray(t, 'guide.user.part1.step3.items').map((item: string, index: number) => (
                   <li key={index}>{item}</li>
                 ))}
               </ul>
@@ -328,8 +377,54 @@ const getGuideContent = (role: string, t: any) => {
 
         <section>
           <h2 className="text-base sm:text-lg md:text-xl font-bold text-[#000000] mb-2">{t('guide.user.part2.title')}</h2>
+          <ol className="list-decimal ml-4 sm:ml-6 space-y-4 text-sm sm:text-base md:text-lg text-[#000000]">
+            <li>
+              <span className="font-semibold text-[#8ADB10]">{t('guide.user.part2.initialInfo.title')}</span>
+              <ul className="list-disc ml-4 sm:ml-6">
+                {getTranslationArray(t, 'guide.user.part2.initialInfo.items').map((item: string, index: number) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </li>
+            <li>
+              <span className="font-semibold text-[#8ADB10]">{t('guide.user.part2.realTimeScoring.title')}</span>
+              <ul className="list-disc ml-4 sm:ml-6">
+                {getTranslationArray(t, 'guide.user.part2.realTimeScoring.items').map((item: string, index: number) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </li>
+            <li>
+              <span className="font-semibold text-[#8ADB10]">{t('guide.user.part2.editScores.title')}</span>
+              <ul className="list-disc ml-4 sm:ml-6">
+                {getTranslationArray(t, 'guide.user.part2.editScores.items').map((item: string, index: number) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </li>
+            <li>
+              <span className="font-semibold text-[#8ADB10]">{t('guide.user.part2.endMatch.title')}</span>
+              <ul className="list-disc ml-4 sm:ml-6">
+                {getTranslationArray(t, 'guide.user.part2.endMatch.items').map((item: string, index: number) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </li>
+          </ol>
+        </section>
+
+
+
+        <section>
+          <h2 className="text-base sm:text-lg md:text-xl font-bold text-[#000000] mb-2">{t('guide.user.part3.title')}</h2>
+          <p className="text-sm sm:text-base md:text-lg text-[#000000] mb-2">
+            {t('guide.user.part3.description')}
+          </p>
+          <p className="text-sm sm:text-base md:text-lg text-[#000000] mb-2">
+            <span className="font-semibold text-[#8ADB10]">{t('guide.user.part3.memberBenefits')}</span>
+          </p>
           <ul className="list-disc ml-4 sm:ml-6 text-sm sm:text-base md:text-lg text-[#000000]">
-            {getTranslationArray(t, 'guide.user.part2.items').map((item: string, index: number) => (
+            {getTranslationArray(t, 'guide.user.part3.items').map((item: string, index: number) => (
               <li key={index}>{item}</li>
             ))}
           </ul>

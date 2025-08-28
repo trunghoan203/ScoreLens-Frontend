@@ -60,6 +60,7 @@ export default {
         logoutSuccess: 'Đăng xuất thành công!',
         logoutFailed: 'Đăng xuất thất bại.',
         tryAgain: 'Thử lại',
+        backToHome: 'Quay lại trang chủ',
     },
 
     // Navigation
@@ -100,6 +101,12 @@ export default {
             canLoginNow: 'Bạn đã có thể đăng nhập!',
             backToLogin: 'Trở về Đăng nhập',
             rememberPassword: 'Đã nhớ mật khẩu?',
+            newPasswordLabel: 'Mật khẩu mới',
+            newPasswordPlaceholder: 'Nhập mật khẩu mới',
+            confirmPasswordLabel: 'Xác nhận mật khẩu',
+            confirmPasswordPlaceholder: 'Nhập lại mật khẩu mới',
+            resetting: 'Đang đặt lại...',
+            resetButton: 'Đặt lại mật khẩu',
         },
         logoutConfirm: 'Bạn có chắc chắn muốn đăng xuất không?',
         resetPassword: 'Đặt lại mật khẩu',
@@ -646,6 +653,9 @@ export default {
         save: 'Lưu',
         edit: 'Chỉnh sửa',
         back: 'Quay lại',
+        deletedClub: 'Không xác định',
+        deletedTable: 'Không xác định',
+        unknown: 'Không xác định',
     },
 
     // Cameras
@@ -1382,9 +1392,7 @@ export default {
                 items: [
                     'Lưu trữ vĩnh viễn tất cả trận đấu đã tham gia',
                     'Xem lịch sử trận đấu chi tiết',
-                    'Theo dõi thống kê cá nhân và tiến độ',
                     'Tạo trận đấu riêng mà không cần hỗ trợ',
-                    'Nhận thông báo về các sự kiện đặc biệt'
                 ]
             }
         },
@@ -1451,22 +1459,101 @@ export default {
                 }
             },
             part3: {
-                title: 'Phần 3: Lưu Ý Quan Trọng',
-                criticalNote: '⚠️ Lưu Ý Cực Kỳ Quan Trọng: Vì bạn đang sử dụng web app với tư cách khách, dữ liệu trận đấu này chỉ là tạm thời. Nếu bạn đóng tab trình duyệt hoặc thoát ra, thông tin về trận đấu này sẽ mất vĩnh viễn và bạn sẽ không thể xem lại được.',
-            },
-            part4: {
-                title: 'Phần 4: Nâng Cấp Lên Hội Viên',
+                title: 'Phần 3: Nâng Cấp Lên Hội Viên',
                 description: 'Bạn có muốn lưu lại mọi trận đấu để xem lại thành tích và sự tiến bộ của mình không? Hãy đăng ký làm Hội viên của câu lạc bộ!',
                 memberBenefits: '🎁 Lợi Ích Khi Trở Thành Hội Viên:',
                 items: [
                     'Lưu trữ vĩnh viễn tất cả trận đấu đã tham gia',
                     'Xem lịch sử trận đấu chi tiết',
-                    'Theo dõi thống kê cá nhân và tiến độ',
                     'Tạo trận đấu riêng mà không cần hỗ trợ',
-                    'Nhận thông báo về các sự kiện đặc biệt',
                     'Liên hệ Quản lý câu lạc bộ để đăng ký làm hội viên'
                 ]
+            },
+
+        }
+    },
+
+    // FAQ
+    faq: {
+        loading: 'Đang tải...',
+        title: 'Câu Hỏi Thường Gặp (FAQ)',
+        categories: {
+            general: 'Câu Hỏi Chung',
+            usage: 'Hướng Dẫn Sử Dụng',
+            membership: 'Hội Viên',
+            technical: 'Kỹ Thuật',
+        },
+        general: {
+            whatIsScoreLens: {
+                question: 'ScoreLens là gì?',
+                answer: 'ScoreLens là hệ thống tự động theo dõi điểm số billiards sử dụng công nghệ AI và camera. Hệ thống giúp ghi lại điểm số chính xác trong thời gian thực mà không cần can thiệp thủ công.'
+            },
+            needAccount: {
+                question: 'Tôi có cần đăng ký tài khoản không?',
+                answer: 'Không bắt buộc. Bạn có thể sử dụng như khách, nhưng đăng ký làm hội viên sẽ có nhiều lợi ích như lưu trữ lịch sử trận đấu, thống kê cá nhân và nhiều tính năng khác.'
+            },
+            isFree: {
+                question: 'Hệ thống có miễn phí không?',
+                answer: 'Có, bạn có thể sử dụng hệ thống hoàn toàn miễn phí với tư cách khách. Tuy nhiên, để có thêm nhiều tính năng và lưu trữ dữ liệu, bạn nên đăng ký làm hội viên.'
             }
+        },
+        usage: {
+            howToUse: {
+                question: 'Làm thế nào để sử dụng hệ thống ScoreLens?',
+                answer: 'Chỉ cần quét mã QR trên bàn billiards bằng camera điện thoại, sau đó nhập tên đội và bắt đầu trận đấu. Hệ thống sẽ tự động theo dõi điểm số.'
+            },
+            phoneCompatibility: {
+                question: 'Hệ thống có hoạt động trên tất cả điện thoại không?',
+                answer: 'Có, hệ thống hoạt động trên cả iPhone và Android. Chỉ cần có camera và trình duyệt web là có thể sử dụng được.'
+            },
+            editScores: {
+                question: 'Có thể chỉnh sửa điểm số không?',
+                answer: 'Có, chủ phòng có thể chỉnh sửa điểm số nếu AI nhận diện sai. Nhấn nút \'Edit\' để điều chỉnh điểm số chính xác.'
+            },
+            endMatch: {
+                question: 'Làm sao để kết thúc trận đấu?',
+                answer: 'Chủ phòng có thể nhấn nút \'End\' để kết thúc trận đấu. Sau đó có thể đánh giá trận đấu và gửi phản hồi.'
+            }
+        },
+        membership: {
+            howToBecome: {
+                question: 'Làm sao để trở thành hội viên?',
+                answer: 'Liên hệ với quản lý câu lạc bộ để đăng ký làm hội viên. Bạn sẽ nhận được mã hội viên để sử dụng hệ thống với đầy đủ tính năng.'
+            },
+            benefits: {
+                question: 'Lợi ích của việc trở thành hội viên là gì?',
+                answer: 'Hội viên có thể lưu trữ vĩnh viễn tất cả trận đấu, xem lịch sử chi tiết, theo dõi thống kê cá nhân, tạo trận đấu riêng và nhận thông báo về các sự kiện đặc biệt.'
+            },
+            viewHistory: {
+                question: 'Làm sao để xem lịch sử trận đấu?',
+                answer: 'Nếu bạn là hội viên, có thể xem lịch sử tại trang \'Match History\'. Nếu là khách, dữ liệu sẽ mất khi đóng trình duyệt.'
+            },
+            convertToMember: {
+                question: 'Có thể chuyển từ khách sang hội viên không?',
+                answer: 'Có, bạn có thể đăng ký làm hội viên bất cứ lúc nào. Tuy nhiên, các trận đấu đã chơi trước đó với tư cách khách sẽ không được lưu trữ.'
+            }
+        },
+        technical: {
+            technology: {
+                question: 'Hệ thống sử dụng công nghệ gì?',
+                answer: 'ScoreLens sử dụng công nghệ AI (Trí tuệ nhân tạo) và camera để tự động nhận diện và theo dõi điểm số trong thời gian thực.'
+            },
+            accuracy: {
+                question: 'Độ chính xác của hệ thống như thế nào?',
+                answer: 'Hệ thống có độ chính xác cao, tuy nhiên trong một số trường hợp có thể cần điều chỉnh thủ công nếu AI nhận diện sai.'
+            },
+            security: {
+                question: 'Dữ liệu có được bảo mật không?',
+                answer: 'Có, chúng tôi cam kết bảo vệ thông tin cá nhân của bạn theo chính sách bảo mật và tuân thủ các quy định pháp luật hiện hành.'
+            },
+            offline: {
+                question: 'Có thể sử dụng offline không?',
+                answer: 'Hiện tại hệ thống cần kết nối internet để hoạt động. Chúng tôi đang phát triển tính năng offline trong tương lai.'
+            }
+        },
+        notFound: {
+            title: 'Không tìm thấy câu trả lời bạn cần?',
+            button: 'Xem Hướng Dẫn Chi Tiết'
         }
     },
 
@@ -1699,6 +1786,19 @@ export default {
         endMatchSuccess: 'Kết thúc trận đấu thành công!',
         endMatchFailed: 'Kết thúc trận đấu thất bại!',
         updateMembersFailed: 'Cập nhật thành viên thất bại!',
+        createMatchSuccess: 'Tạo trận đấu thành công!',
+        createMatchFailed: 'Tạo trận đấu thất bại!',
+        cannotIdentifyMatchToStart: 'Không xác định được trận đấu để bắt đầu',
+        startMatchSuccess: 'Bắt đầu trận đấu thành công!',
+        startMatchFailed: 'Bắt đầu trận đấu thất bại!',
+        cannotIdentifyMatchToUpdate: 'Không xác định được trận đấu để cập nhật',
+        updateScoreSuccess: 'Cập nhật điểm số thành công!',
+        updateScoreFailed: 'Cập nhật điểm số thất bại!',
+        updateMembersSuccess: 'Cập nhật thành viên thành công!',
+        duplicatePlayerNames: 'Tên người chơi không được giống nhau.',
+        alreadyJoinedMatch: 'Bạn đã tham gia trận đấu này rồi.',
+        cannotLoadCameras: 'Không thể tải danh sách camera',
+        cannotLoadData: 'Không thể tải dữ liệu',
         team: 'Đội',
         unknown: 'Không xác định',
     },
@@ -1893,6 +1993,8 @@ export default {
         updateSuccess: 'Cập nhật thành công',
         updateFailed: 'Cập nhật thất bại',
         completed: 'Đã xử lý',
+        deletedClub: 'Không xác định',
+        deletedTable: 'Không xác định',
     },
 
     // Super Admin Home Page
@@ -1920,7 +2022,7 @@ export default {
         showingResults: 'Hiển thị {start}-{end} trong tổng số {total} admin',
         previous: 'Trước',
         next: 'Tiếp',
-        loadMore: 'Tải thêm',
+        loadMore: 'Xem thêm',
         noMoreAdmins: 'Không còn admin nào để tải',
         table: {
             name: 'TÊN',

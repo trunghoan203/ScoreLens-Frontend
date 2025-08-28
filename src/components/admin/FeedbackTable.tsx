@@ -33,7 +33,7 @@ export default function FeedbackTable({ feedbacks }: { feedbacks: Feedback[] }) 
       case 'managerP': return t('feedbacks.status.managerP');
       case 'adminP': return t('feedbacks.status.adminP');
       case 'superadminP': return t('feedbacks.status.superadminP');
-      default: return t('common.unknown');
+      default: return t('feedbacks.unknown');
     }
   };
 
@@ -102,14 +102,14 @@ export default function FeedbackTable({ feedbacks }: { feedbacks: Feedback[] }) 
               </div>
               {feedback.feedback && (
                 <div className="mt-2">
-                  <span className="text-gray-500 text-xs font-medium block mb-1">{t('feedbacks.content')}:</span>
+                  <span className="text-gray-500 text-xs font-medium block mb-1">{t('feedbacks.feedbackContent')}:</span>
                   <p className="text-gray-800 text-xs sm:text-sm line-clamp-2">{feedback.feedback}</p>
                 </div>
               )}
             </div>
             <div className="mt-3 pt-3 border-t border-gray-100">
               <div className="flex justify-end">
-                <span className="text-lime-600 text-xs font-medium">{t('common.clickToViewDetails')} →</span>
+                <span className="text-lime-600 text-xs font-medium">{t('feedbacks.clickToViewDetails')} →</span>
               </div>
             </div>
           </div>

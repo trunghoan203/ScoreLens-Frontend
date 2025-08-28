@@ -198,10 +198,10 @@ export function FeedbackTable() {
                     {fb.clubInfo?.brandName || t('superAdminHome.feedbackStatusUnknown')}
                   </div>
                   <div className="col-span-3 py-4 text-gray-700 text-sm xl:text-base px-2">
-                    {fb.clubInfo?.clubName || ''}
+                    {fb.clubInfo?.clubName || t('superAdminHome.feedbackNoBranch')}
                   </div>
                   <div className="col-span-3 py-4 text-gray-700 text-sm xl:text-base px-2">
-                    {fb.createdAt ? new Date(fb.createdAt).toLocaleString('vi-VN') : ''}
+                    {fb.createdAt ? new Date(fb.createdAt).toLocaleString('vi-VN') : t('superAdminHome.feedbackStatusUnknown')}
                   </div>
                   <div className="col-span-3 py-4 flex justify-center px-2">
                     <Badge
@@ -247,7 +247,7 @@ export function FeedbackTable() {
                   <div className="flex items-center">
                     <span className="text-gray-500 text-xs font-medium w-8">{t('superAdminHome.feedbackDateLabel')}</span>
                     <span className="text-gray-800 text-sm font-medium">
-                      {fb.createdAt ? new Date(fb.createdAt).toLocaleString('vi-VN') : ''}
+                      {fb.createdAt ? new Date(fb.createdAt).toLocaleString('vi-VN') : t('superAdminHome.feedbackStatusUnknown')}
                     </span>
                   </div>
                 </div>

@@ -94,15 +94,15 @@ export default function FeedbackDetailPage() {
             clubId: String(feedbackObj.clubId || ''),
             tableId: String(feedbackObj.tableId || ''),
             clubInfo: {
-              clubId: String(clubInfo?.clubId || ''),
-              clubName: String(clubInfo?.clubName || ''),
+              clubId: String(clubInfo?.clubId || feedbackObj.clubId || ''),
+              clubName: String(clubInfo?.clubName || t('feedbacks.deletedClub')),
               address: String(clubInfo?.address || '')
             },
             tableInfo: {
               tableId: String(feedbackObj.tableId || ''),
-              tableName: String(tableInfo?.name || t('common.unknown')),
+              tableName: String(tableInfo?.name || t('feedbacks.deletedTable')),
               tableNumber: String(tableInfo?.tableNumber || ''),
-              category: String(tableInfo?.category || t('common.unknown'))
+              category: String(tableInfo?.category || t('feedbacks.unknown'))
             },
             content: String(feedbackObj.content || ''),
             status: (feedbackObj.status as Feedback['status']) || 'pending',
@@ -136,7 +136,40 @@ export default function FeedbackDetailPage() {
         }
       } catch (error) {
         console.error('Error fetching feedback detail:', error);
-        setError(t('feedbacks.cannotLoadData'));
+
+        // Create a basic feedback structure even when there's an error
+        // This allows users to still view the feedback content if available
+        const errorFeedback: Feedback = {
+          feedbackId: String(feedbackId || ''),
+          createdBy: {
+            userId: '',
+            type: 'guest'
+          },
+          clubId: '',
+          tableId: '',
+          clubInfo: {
+            clubId: '',
+            clubName: t('feedbacks.deletedClub'),
+            address: ''
+          },
+          tableInfo: {
+            tableId: '',
+            tableName: t('feedbacks.deletedTable'),
+            tableNumber: '',
+            category: t('feedbacks.unknown')
+          },
+          content: t('feedbacks.cannotLoadData'),
+          status: 'managerP',
+          note: '',
+          history: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        setFeedback(errorFeedback);
+        setStatus('managerP');
+        setNotes('');
+        setError(null);
       } finally {
         setLoading(false);
       }
@@ -169,7 +202,7 @@ export default function FeedbackDetailPage() {
       case 'managerP': return t('feedbacks.status.managerP');
       case 'adminP': return t('feedbacks.status.adminP');
       case 'superadminP': return t('feedbacks.status.superadminP');
-      default: return t('common.unknown');
+      default: return t('feedbacks.unknown');
     }
   };
 
@@ -220,7 +253,7 @@ export default function FeedbackDetailPage() {
               title={error}
               description={t('feedbacks.loadErrorDescription')}
               primaryAction={{
-                label: t('messages.tryAgain'),
+                label: t('common.tryAgain'),
                 onClick: () => {
                   setError(null);
                   window.location.reload();
@@ -248,15 +281,15 @@ export default function FeedbackDetailPage() {
                 <div className="flex-1 space-y-4 sm:space-y-6 order-1 lg:order-none">
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.table.branch')}</label>
-                    <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black text-sm sm:text-base" value={feedback?.clubInfo?.clubName || feedback?.clubId || ''} disabled />
+                    <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black text-sm sm:text-base" value={feedback?.clubInfo?.clubName || feedback?.clubId || t('feedbacks.deletedClub')} disabled />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.table.table')}</label>
-                    <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black text-sm sm:text-base" value={feedback?.tableInfo?.tableName || feedback?.tableId || ''} disabled />
+                    <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black text-sm sm:text-base" value={feedback?.tableInfo?.tableName || feedback?.tableId || t('feedbacks.deletedTable')} disabled />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.tableType')}</label>
-                    <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black text-sm sm:text-base" value={feedback?.tableInfo?.category === 'pool-8' ? 'Pool - 8' : feedback?.tableInfo?.category === 'carom' ? 'Carom' : feedback?.tableInfo?.category || t('common.unknown')} disabled />
+                    <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black text-sm sm:text-base" value={feedback?.tableInfo?.category === 'pool-8' ? 'Pool - 8' : feedback?.tableInfo?.category === 'carom' ? 'Carom' : feedback?.tableInfo?.category || t('feedbacks.unknown')} disabled />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.creatorTypeLabel')}</label>
@@ -264,11 +297,11 @@ export default function FeedbackDetailPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.createdAt')}</label>
-                    <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black text-sm sm:text-base" value={feedback?.createdAt ? new Date(feedback.createdAt).toLocaleString('vi-VN') : ''} disabled />
+                    <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black text-sm sm:text-base" value={feedback?.createdAt ? new Date(feedback.createdAt).toLocaleString('vi-VN') : t('feedbacks.unknown')} disabled />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.updatedAt')}</label>
-                    <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black text-sm sm:text-base" value={feedback?.updatedAt ? new Date(feedback.updatedAt).toLocaleString('vi-VN') : ''} disabled />
+                    <input className="w-full bg-gray-100 rounded-lg px-3 sm:px-4 py-2 text-black text-sm sm:text-base" value={feedback?.updatedAt ? new Date(feedback.updatedAt).toLocaleString('vi-VN') : t('feedbacks.unknown')} disabled />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2 text-black">{t('feedbacks.feedbackStatus')}</label>
@@ -347,7 +380,7 @@ export default function FeedbackDetailPage() {
                                     <span className="text-xs bg-gray-200 px-2 py-1 rounded-full text-gray-600">{item.byRole}</span>
                                   </div>
                                   <span className="text-xs text-gray-500">
-                                    {item.date ? new Date(item.date).toLocaleString('vi-VN') : ''}
+                                    {item.date ? new Date(item.date).toLocaleString('vi-VN') : t('feedbacks.unknown')}
                                   </span>
                                 </div>
                                 {item.note && (

@@ -27,7 +27,6 @@ export default function HeaderAdminPage() {
     deleteNotification
   } = useAdminNotifications();
 
-  // Initialize translated text after component mounts
   useEffect(() => {
     setAdminName(t('common.notLoggedIn'));
     setBrandName(t('common.notLoggedIn'));
@@ -67,9 +66,7 @@ export default function HeaderAdminPage() {
     }
   }, []);
 
-  // Only update text when language changes if we don't have actual data
   useEffect(() => {
-    // Only reset to default values if we don't have actual user data
     if (adminName === 'Chưa đăng nhập' || adminName === 'Not logged in') {
       setAdminName(t('common.notLoggedIn'));
     }

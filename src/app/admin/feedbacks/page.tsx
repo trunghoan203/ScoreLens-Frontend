@@ -52,16 +52,16 @@ export default function AdminFeedbacksPage() {
           const tableInfo = obj.tableInfo as Record<string, unknown> | undefined;
           const clubInfo = obj.clubInfo as Record<string, unknown> | undefined;
 
-          let tableName = t('common.unknown');
+          let tableName = t('feedbacks.unknown');
           if (tableInfo?.name) {
             tableName = String(tableInfo.name);
           }
 
           return {
             id: String(obj.feedbackId || obj._id || ''),
-            branch: String(clubInfo?.clubName || t('common.unknown')),
+            branch: String(clubInfo?.clubName || t('feedbacks.deletedClub')),
             table: String(tableName),
-            time: String(obj.createdAt ? new Date(obj.createdAt as string).toLocaleString('vi-VN') : t('common.unknown')),
+            time: String(obj.createdAt ? new Date(obj.createdAt as string).toLocaleString('vi-VN') : t('feedbacks.unknown')),
             status: (obj.status as Feedback['status']) || 'adminP',
             feedback: String(obj.content || ''),
             notes: String(obj.note || ''),
@@ -78,8 +78,8 @@ export default function AdminFeedbacksPage() {
         setFeedbacks(sortedFeedbacks);
       } catch (error) {
         console.error('Error fetching data:', error);
-        setError(t('feedbacks.cannotLoadList'));
-        toast.error(t('feedbacks.cannotLoadList'));
+        setError(t('feedbacks.cannotLoadFeedbacks'));
+        toast.error(t('feedbacks.cannotLoadFeedbacks'));
       } finally {
         setLoading(false);
       }

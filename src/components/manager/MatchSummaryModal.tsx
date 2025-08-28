@@ -57,6 +57,16 @@ export const MatchSummaryModal: React.FC<MatchSummaryModalProps> = ({
   const winningTeam = matchData.teams.find(team => team.isWinner);
   const duration = formatDuration(matchData.startTime, matchData.endTime);
 
+  const translateTeamName = (teamName: string) => {
+    if (teamName === 'Đội A' || teamName === 'Team A') {
+      return t('manager.tableAvailable.teamA');
+    }
+    if (teamName === 'Đội B' || teamName === 'Team B') {
+      return t('manager.tableAvailable.teamB');
+    }
+    return teamName;
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
@@ -92,7 +102,7 @@ export const MatchSummaryModal: React.FC<MatchSummaryModalProps> = ({
             {matchData.teams.map((team, index) => (
               <div key={index} className="bg-gray-50 rounded-lg p-3">
                 <h3 className="font-semibold text-sm mb-2 text-[#000000]">
-                  {team.teamName}
+                  {translateTeamName(team.teamName)}
                   {team.isWinner && <span className="ml-1 text-lime-600">🏆</span>}
                 </h3>
                 <div className={`p-2 rounded-lg ${team.isWinner ? 'bg-lime-100 border-lime-300' : 'bg-gray-100'}`}>
@@ -118,7 +128,7 @@ export const MatchSummaryModal: React.FC<MatchSummaryModalProps> = ({
             <div className="text-center p-2 bg-lime-50 rounded-lg border border-lime-200">
               <div className="text-xl mb-1">🎉</div>
               <div className="text-lg font-bold text-[#000000] mb-1">
-                {winningTeam.teamName} {t('manager.matchSummary.wins')}
+                {translateTeamName(winningTeam.teamName)} {t('manager.matchSummary.wins')}
               </div>
             </div>
           )}
