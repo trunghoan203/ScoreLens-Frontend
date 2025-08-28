@@ -524,22 +524,50 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
       if (selectedClip) {
         toast.success(t('shared.videoAI.analyzingClip').replace('{name}', selectedClip.name));
 
-        const response = await axios.post('http://localhost:5000/process_video', {
-          clipId: selectedClip.id,
-          cameraId: selectedClip.tableId,
-          analysis_type: analysisType,
-          filePath: selectedClip.filePath
+        const formData = new FormData();
+        formData.append('analysis_type', analysisType);
+        if (selectedClip.filePath) {
+          try {
+            const videoUrl = `http://localhost:8000/api${selectedClip.url}`;
+            const response = await fetch(videoUrl);
+            
+            if (!response.ok) {
+              throw new Error('Failed to fetch video file');
+            }
+            
+            const videoBlob = await response.blob();
+            const fileName = selectedClip.fileName || 'video.mp4';
+            const videoFile = new File([videoBlob], fileName, {
+              type: 'video/mp4',
+              lastModified: new Date(selectedClip.createdAt).getTime()
+            });
+            
+            formData.append('video', videoFile);
+          } catch (error) {
+            console.error('Error fetching video file:', error);
+            toast.error('Không thể tải file video từ server');
+            return;
+          }
+        }
+
+        const res = await fetch('http://localhost:5000/process_video', {
+          method: 'POST',
+          body: formData
         });
 
-        const data = response.data as ProcessVideoResponse;
+        if (!res.ok) {
+          throw new Error(t('shared.videoAI.errorSendingVideo'));
+        }
+
+        const data = await res.json();
         setProcessResult(data);
 
         if (onVideoProcessed) {
-          onVideoProcessed(data);
+          onVideoProcessed(data as ProcessVideoResponse);
           toast.success(t('shared.videoAI.aiResultSent'));
         }
 
-        if (data.success) {
+        if (data?.success) {
           toast.success(t('shared.videoAI.processingScore'));
         } else {
           toast.error(t('shared.videoAI.videoAnalysisError'));
