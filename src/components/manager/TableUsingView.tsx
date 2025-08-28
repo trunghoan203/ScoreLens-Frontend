@@ -359,20 +359,14 @@ export default function TableUsingView({ table, onBack, onEndMatch, onCancelMatc
             onClick={() => setShowVideoAIModal(false)}
           />
           <div className="absolute inset-0 flex items-center justify-center p-4">
-            <div className="w-full max-w-5xl bg-white rounded-xl shadow-lg relative">
-              <div className="flex items-center justify-between px-4 py-3 border-b">
-                <div className="font-semibold text-[#000000]">{t('manager.tableUsing.videoAiAnalysis')}</div>
-                <button
-                  type="button"
-                  className="px-2 py-1 text-sm text-gray-500 hover:text-gray-700"
-                  onClick={() => setShowVideoAIModal(false)}
-                >
-                  {t('manager.tableUsing.close')}
-                </button>
+            <div className="w-full max-w-5xl bg-white rounded-xl shadow-lg relative max-h-[90vh] overflow-hidden">
+              <div className="text-center px-4 py-3 border-b border-gray-200">
+                <div className="font-semibold text-xl mt-4 text-[#000000]">{t('manager.tableUsing.videoAiAnalysis')}</div>
               </div>
-              <div className="p-4">
+              <div className="p-4 overflow-y-auto max-h-[calc(90vh-80px)]">
                 <VideoAI
                   onVideoProcessed={handleVideoProcessed}
+                  onClose={() => setShowVideoAIModal(false)}
                   analysisType={derivedAnalysisType}
                   tableId={table.id}
                   matchId={matchId}

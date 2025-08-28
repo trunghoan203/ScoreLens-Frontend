@@ -75,6 +75,7 @@ interface MatchData {
 
 interface VideoAIProps {
   onVideoProcessed?: (result: ProcessVideoResponse) => void;
+  onClose?: () => void;
   className?: string;
   analysisType: 'pool8' | 'carom';
   tableId?: string;
@@ -82,7 +83,7 @@ interface VideoAIProps {
   matchId?: string;
 }
 
-export default function VideoAI({ onVideoProcessed, className = '', analysisType, tableId, cameraId, matchId }: VideoAIProps) {
+export default function VideoAI({ onVideoProcessed, onClose, className = '', analysisType, tableId, cameraId, matchId }: VideoAIProps) {
   const { t } = useI18n();
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -704,16 +705,11 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
 
   return (
     <div className={`bg-white rounded-lg shadow p-4 sm:p-6 ${className}`}>
-      <h4 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6 text-center text-gray-800">
-        {t('shared.videoAI.title')}
-      </h4>
-
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <h5 className="text-base font-semibold text-gray-700">
               {t('shared.videoAI.recordedClips')} ({recordedClips.length})
-              {matchId && <span className="text-sm text-blue-600 ml-2">- {`${t('shared.videoAI.matchInfo').replace('{matchId}', matchId)}`}</span>}
               {tableId && !matchId && <span className="text-sm text-gray-500 ml-2">{t('shared.videoAI.tableInfo').replace('{tableId}', tableId)}</span>}
               {cameraId && !matchId && <span className="text-sm text-gray-500 ml-2">{t('shared.videoAI.cameraInfo').replace('{cameraId}', cameraId)}</span>}
             </h5>
@@ -1036,6 +1032,17 @@ export default function VideoAI({ onVideoProcessed, className = '', analysisType
         onChange={handleFileChange}
         className="hidden"
       />
+
+      {onClose && (
+        <div className="mt-6 flex justify-end">
+          <Button
+            onClick={onClose}
+            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors"
+          >
+            {t('common.close')}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
