@@ -2269,7 +2269,7 @@ export default {
         },
         cameraRecord: {
             recording: 'Đang ghi...',
-            recordWithAi: 'Record + AI',
+            recordWithAi: 'Record',
             aiAnalysis: 'AI Analysis:',
             analysisComplete: 'Phân tích hoàn tất',
             aiUploadFailed: 'AI upload thất bại:',
@@ -2473,6 +2473,8 @@ export default {
             recordedClips: 'Clip đã ghi',
             tableInfo: '- Bàn {tableId}',
             cameraInfo: '- Camera {cameraId}',
+            matchInfo: 'Trận đấu {matchId}',
+            lastUpdate: 'Cập nhật lúc',
             refresh: 'Tải lại',
             refreshing: 'Đang tải lại',
             showList: 'Xem danh sách',
