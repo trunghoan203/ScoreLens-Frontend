@@ -374,6 +374,9 @@ export default function TableUsingView({ table, onBack, onEndMatch, onCancelMatc
                 <VideoAI
                   onVideoProcessed={handleVideoProcessed}
                   analysisType={derivedAnalysisType}
+                  tableId={table.id}
+                  matchId={matchId}
+                  cameraId={cameras.find(c => c.isConnect)?.cameraId}
                 />
               </div>
             </div>

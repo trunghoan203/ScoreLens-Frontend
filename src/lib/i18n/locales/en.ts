@@ -2373,7 +2373,7 @@ export default {
         },
         cameraRecord: {
             recording: 'Recording...',
-            recordWithAi: 'Record + AI',
+            recordWithAi: 'Record',
             aiAnalysis: 'AI Analysis:',
             analysisComplete: 'Analysis complete',
             aiUploadFailed: 'AI upload failed:',
@@ -2577,6 +2577,8 @@ export default {
             recordedClips: 'Recorded Clips',
             tableInfo: '- Table {tableId}',
             cameraInfo: '- Camera {cameraId}',
+            matchInfo: 'Match {matchId}',
+            lastUpdate: 'Last update',
             refresh: 'Refresh',
             refreshing: 'Refreshing',
             showList: 'Show List',
