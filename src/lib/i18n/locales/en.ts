@@ -1803,6 +1803,8 @@ export default {
         cannotLoadData: 'Cannot load data',
         team: 'Team',
         unknown: 'Unknown',
+        autoRecordingStartFailed: 'Cannot start auto recording video',
+        noConnectedCamera: 'No camera is connected for this table',
     },
 
     // Team Members

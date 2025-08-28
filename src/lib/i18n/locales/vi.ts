@@ -570,6 +570,8 @@ export default {
         deleteConfirmTitle: 'Xác nhận xóa chi nhánh',
         deleteConfirmText: 'Xóa',
         deleteConfirmMessage: 'Bạn có chắc chắn muốn xóa chi nhánh này không?',
+        saveAndContinue: 'Lưu và tiếp tục',
+        updating: 'Đang cập nhật...',
     },
 
     // Feedbacks
@@ -1801,6 +1803,8 @@ export default {
         cannotLoadData: 'Không thể tải dữ liệu',
         team: 'Đội',
         unknown: 'Không xác định',
+        autoRecordingStartFailed: 'Không thể bắt đầu tự động record video',
+        noConnectedCamera: 'Không có camera nào đang kết nối cho bàn này',
     },
 
     // Team Members

@@ -472,10 +472,10 @@ export default function TableDetailPage() {
               setIsAutoRecording(true);
             } catch (recordingError) {
               console.error('Error starting auto recording:', recordingError);
-              toast.error('Không thể bắt đầu tự động record video');
+              toast.error(t('managerMatches.autoRecordingStartFailed'));
             }
           } else {
-            toast.error('Không có camera nào đang kết nối cho bàn này');
+            toast.error(t('managerMatches.noConnectedCamera'));
           }
         }
 
