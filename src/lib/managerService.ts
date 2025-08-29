@@ -119,18 +119,18 @@ class ManagerService {
       throw this.handleError(error);
     }
   }
-  private handleError(error: unknown): Error {
+  private handleError(error: unknown): any {
     if (typeof error === 'object' && error !== null && 'response' in error) {
-      const axiosError = error as { response?: { data?: { message?: string } } };
-      if (axiosError.response?.data?.message) {
-        return new Error(axiosError.response.data.message);
+      const axiosError = error as { response?: { data?: any } };
+      if (axiosError.response?.data) {
+        return axiosError.response.data;
       }
     }
     if (typeof error === 'object' && error !== null && 'message' in error) {
       const errorWithMessage = error as { message: string };
-      return new Error(errorWithMessage.message);
+      return { message: errorWithMessage.message };
     }
-    return new Error('Đã xảy ra lỗi không xác định');
+    return { message: 'Đã xảy ra lỗi không xác định' };
   }
 }
 
