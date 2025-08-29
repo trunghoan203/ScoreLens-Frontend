@@ -137,22 +137,40 @@ export default function AddManagerPage() {
     } catch (error: unknown) {
       console.error('Error creating manager:', error);
 
-      if (typeof error === 'object' && error !== null && 'response' in error) {
-        const axiosError = error as { response?: { data?: unknown } };
-        if (axiosError.response?.data) {
-          const responseData = axiosError.response.data as { message?: string; errors?: Record<string, string[]> };
+      if (typeof error === 'object' && error !== null) {
+        const errorData = error as { message?: string; errors?: Record<string, string[]> };
 
-          if (responseData.errors) {
-            const newErrors: Record<string, string> = {};
-            Object.keys(responseData.errors).forEach(key => {
-              if (responseData.errors![key] && Array.isArray(responseData.errors![key])) {
-                newErrors[key] = responseData.errors![key][0];
-              }
-            });
+        if (errorData.errors) {
+          const newErrors: Record<string, string> = {};
+          Object.keys(errorData.errors).forEach(key => {
+            if (errorData.errors![key] && Array.isArray(errorData.errors![key])) {
+              newErrors[key] = errorData.errors![key][0];
+            }
+          });
+          setErrors(newErrors);
+          toast.error(t('managers.pleaseCheckInfo'));
+        } else if (errorData.message) {
+          const newErrors: Record<string, string> = {};
+
+          if (errorData.message.includes('Email') && errorData.message.includes('đã được sử dụng')) {
+            newErrors.email = t('managers.emailDuplicate');
+          } else if (errorData.message.includes('Số điện thoại') && errorData.message.includes('đã được sử dụng')) {
+            newErrors.phone = t('managers.phoneDuplicate');
+          } else if (errorData.message.includes('CCCD') && errorData.message.includes('đã được sử dụng')) {
+            newErrors.citizenCode = t('managers.citizenCodeDuplicate');
+          } else if (errorData.message.includes('Club không tồn tại')) {
+            newErrors.clubId = t('managers.clubNotFound');
+          } else if (errorData.message.includes('Tên') || errorData.message.includes('fullName')) {
+            newErrors.name = errorData.message;
+          } else if (errorData.message.includes('Địa chỉ') || errorData.message.includes('address')) {
+            newErrors.address = errorData.message;
+          } else {
+            toast.error(errorData.message);
+          }
+
+          if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             toast.error(t('managers.pleaseCheckInfo'));
-          } else {
-            toast.error(responseData.message || t('managers.addFailed'));
           }
         } else {
           toast.error(t('managers.addFailed'));

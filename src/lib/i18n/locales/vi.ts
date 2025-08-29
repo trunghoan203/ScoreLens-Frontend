@@ -466,6 +466,13 @@ export default {
         clubIdRequired: 'Vui lòng chọn chi nhánh',
         dateOfBirthRequired: 'Ngày sinh là bắt buộc',
         citizenCodeRequired: 'CCCD là bắt buộc',
+        phoneRequired: 'Số điện thoại là bắt buộc',
+        emailRequired: 'Email là bắt buộc',
+        addressRequired: 'Địa chỉ là bắt buộc',
+        emailDuplicate: 'Email đã được sử dụng trong thương hiệu này',
+        phoneDuplicate: 'Số điện thoại đã được sử dụng trong thương hiệu này',
+        citizenCodeDuplicate: 'Số CCCD đã được sử dụng trong thương hiệu này',
+        clubNotFound: 'Chi nhánh không tồn tại',
         table: {
             managerName: 'TÊN QUẢN LÝ',
             branch: 'CHI NHÁNH',

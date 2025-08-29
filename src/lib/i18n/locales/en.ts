@@ -469,6 +469,10 @@ export default {
         clubIdRequired: 'Please select a club',
         dateOfBirthRequired: 'Date of birth is required',
         citizenCodeRequired: 'Citizen ID is required',
+        emailDuplicate: 'Email is already used in this brand',
+        phoneDuplicate: 'Phone number is already used in this brand',
+        citizenCodeDuplicate: 'Citizen ID is already used in this brand',
+        clubNotFound: 'Club does not exist',
         table: {
             managerName: 'MANAGER NAME',
             branch: 'CLUB',

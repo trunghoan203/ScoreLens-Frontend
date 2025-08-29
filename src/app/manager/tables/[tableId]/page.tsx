@@ -241,6 +241,7 @@ export default function TableDetailPage() {
                   value={status}
                   onChange={e => setStatus(e.target.value)}
                   required
+                  disabled={!isEditMode}
                 >
                   {statusOptions.map(s => (
                     <option className="text-black" key={s.value} value={s.value}>{s.label}</option>
