@@ -300,7 +300,7 @@ export default {
             tableNumber: 'Số bàn',
             noBranches: 'Chưa có chi nhánh nào.',
             editRegistrationInfo: 'Chỉnh sửa thông tin đăng ký',
-            deleteAccount: 'Xóa tài khoản',
+            deleteAccount: 'Xác nhận',
             confirmRegistrationInfo: 'Xác nhận thông tin đăng ký',
             brandInfoTitle: 'Thông tin thương hiệu',
             branchInfoTitle: 'Thông tin chi nhánh',
@@ -310,7 +310,7 @@ export default {
             deleteAccountConfirmText: 'Xóa tài khoản sẽ xóa vĩnh viễn tài khoản và tất cả dữ liệu liên quan bao gồm thông tin thương hiệu và chi nhánh.',
             deleteAccountConfirmQuestion: 'Bạn có chắc chắn muốn xóa tài khoản này không?',
             deleteAccountConfirmWarning: 'Hành động này không thể hoàn tác.',
-            deleting: 'Đang xóa...',
+            deleting: 'Xóa...',
         },
     },
 

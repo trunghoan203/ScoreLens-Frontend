@@ -129,7 +129,7 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
         }
 
         if (adminIdFromQuery) {
-          setWarning(t('reform.accountMismatchWarning'));
+          setWarning(t('auth.reform.accountMismatchWarning'));
         }
 
         const brandId: string | undefined = currentProfile.brandId || undefined;
@@ -146,7 +146,7 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
         }
       } catch (e) {
         const err = e as { response?: { data?: { message?: string } }, message?: string };
-        const msg = err?.response?.data?.message || err?.message || t('reform.cannotLoadData');
+        const msg = err?.response?.data?.message || err?.message || t('auth.reform.cannotLoadData');
         setError(msg);
       } finally {
         setIsLoading(false);
@@ -227,7 +227,7 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
     try {
       const token = localStorage.getItem('adminAccessToken');
       if (!token) {
-        toast.error(t('reform.noAuthToken'));
+        toast.error(t('auth.reform.noAuthToken'));
         return;
       }
 
@@ -237,12 +237,12 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
         }
       });
 
-      toast.success(t('reform.deleteAccountSuccess'));
+      toast.success(t('auth.reform.deleteAccountSuccess'));
       localStorage.removeItem('adminAccessToken');
       router.push('/admin/login');
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      const message = err.response?.data?.message || t('reform.deleteAccountFailed');
+      const message = err.response?.data?.message || t('auth.reform.deleteAccountFailed');
       toast.error(message);
     } finally {
       setIsDeletingAccount(false);
@@ -260,8 +260,8 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
       <div className="min-h-screen bg-white">
         <HeaderAdmin />
         <div className="pt-16 sm:pt-20">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center pt-8 sm:pt-12 pb-6 sm:pb-8 text-black px-4">{t('reform.title')}</h1>
-          <RegisterSteps currentStep={step} steps={[t('reform.steps.details'), t('reform.steps.brand'), t('reform.steps.branch'), t('reform.steps.confirm')]} />
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center pt-8 sm:pt-12 pb-6 sm:pb-8 text-black px-4">{t('auth.reform.title')}</h1>
+          <RegisterSteps currentStep={step} steps={[t('auth.reform.steps.details'), t('auth.reform.steps.brand'), t('auth.reform.steps.branch'), t('auth.reform.steps.confirm')]} />
 
           <div className="w-full max-w-5xl mx-auto px-4 pb-12">
             {error && (
@@ -277,16 +277,16 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
 
             {step === 4 && (
               <div className="w-full max-w-lg mx-auto flex flex-col gap-6 items-center px-0 pb-8 animate-success-fade-in mb-8">
-                <h2 className="text-2xl md:text-3xl font-bold text-center text-black mt-8 mb-2">{t('reform.successTitle')}</h2>
-                <p className="text-lg text-center text-gray-700 mb-2">{t('reform.successDescription')}</p>
+                <h2 className="text-2xl md:text-3xl font-bold text-center text-black mt-8 mb-2">{t('auth.reform.successTitle')}</h2>
+                <p className="text-lg text-center text-gray-700 mb-2">{t('auth.reform.successDescription')}</p>
                 <div className="flex justify-center my-6">
                   <div className="animate-success-bounce">
                     <CheckCircle size={110} strokeWidth={2} className="text-lime-400" fill="none" />
                   </div>
                 </div>
-                <div className="text-2xl font-bold text-black text-center mb-2 animate-success-pop">{t('reform.thankYou')}</div>
+                <div className="text-2xl font-bold text-black text-center mb-2 animate-success-pop">{t('auth.reform.thankYou')}</div>
                 <p className="text-sm text-gray-500 text-center">
-                  {t('reform.redirectMessage')}{" "}
+                  {t('auth.reform.redirectMessage')}{" "}
                   <AnimatePresence mode="wait">
                     <motion.span
                       key={countdown}
@@ -299,7 +299,7 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
                       {countdown}
                     </motion.span>
                   </AnimatePresence>{" "}
-                  {t('reform.seconds')}...
+                  {t('auth.reform.seconds')}...
                 </p>
               </div>
             )}
@@ -310,24 +310,24 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
 
                   <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
                     <h2 className="text-lg font-semibold text-gray-900 mb-5">
-                      Thông tin Admin
+                      {t('auth.reform.adminInfo')}
                     </h2>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
                       <div>
-                        <span className="block text-gray-500 mb-1">Họ và tên</span>
+                        <span className="block text-gray-500 mb-1">{t('auth.reform.fullName')}</span>
                         <span className="font-medium text-gray-900 break-words">
                           {adminProfileState.fullName || 'N/A'}
                         </span>
                       </div>
                       <div>
-                        <span className="block text-gray-500 mb-1">Email</span>
+                        <span className="block text-gray-500 mb-1">{t('common.email')}</span>
                         <span className="font-medium text-gray-900 break-words">
                           {adminProfileState.email || 'N/A'}
                         </span>
                       </div>
                       <div>
-                        <span className="block text-gray-500 mb-1">Trạng thái</span>
+                        <span className="block text-gray-500 mb-1">{t('auth.reform.status')}</span>
                         <span
                           className={`font-bold ${adminProfileState.status === 'rejected'
                             ? 'text-red-500'
@@ -335,13 +335,13 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
                             }`}
                         >
                           {adminProfileState.status === 'rejected'
-                            ? 'Đã bị từ chối'
-                            : 'Đang chờ duyệt'}
+                            ? t('auth.reform.rejected')
+                            : t('auth.reform.pending')}
                         </span>
                       </div>
                       {adminProfileState.rejectedReason && (
                         <div className="sm:col-span-2">
-                          <span className="block text-gray-500 mb-1">Lý do bị từ chối</span>
+                          <span className="block text-gray-500 mb-1">{t('auth.reform.rejectedReason')}</span>
                           <span className="font-bold text-red-500 break-words">
                             {adminProfileState.rejectedReason}
                           </span>
@@ -352,7 +352,7 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
 
                   <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
                     <h2 className="text-lg font-semibold text-gray-900 mb-5">
-                      Thông tin Thương hiệu
+                      {t('auth.reform.brandInfo')}
                     </h2>
                     {brand ? (
                       <div className="flex flex-col md:flex-row items-start gap-6">
@@ -372,31 +372,31 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 flex-1 text-sm">
                           <div>
-                            <span className="block text-gray-500 mb-1">Tên thương hiệu</span>
+                            <span className="block text-gray-500 mb-1">{t('auth.reform.brandName')}</span>
                             <span className="font-medium text-gray-900 break-words">{brand.brandName}</span>
                           </div>
                           <div>
-                            <span className="block text-gray-500 mb-1">Số điện thoại</span>
+                            <span className="block text-gray-500 mb-1">{t('auth.reform.phoneNumber')}</span>
                             <span className="font-medium text-gray-900 break-words">{brand.phoneNumber}</span>
                           </div>
                           <div>
-                            <span className="block text-gray-500 mb-1">Website</span>
+                            <span className="block text-gray-500 mb-1">{t('auth.reform.website')}</span>
                             <span className="font-medium text-gray-900 break-words">{brand.website || 'N/A'}</span>
                           </div>
                           <div>
-                            <span className="block text-gray-500 mb-1">CCCD</span>
+                            <span className="block text-gray-500 mb-1">{t('auth.reform.citizenCode')}</span>
                             <span className="font-medium text-gray-900 break-words">{brand.citizenCode}</span>
                           </div>
                         </div>
                       </div>
                     ) : (
-                      <div className="text-sm text-gray-600">Chưa có thông tin thương hiệu.</div>
+                      <div className="text-sm text-gray-600">{t('auth.reform.noBrandInfo')}</div>
                     )}
                   </div>
 
                   <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
                     <h2 className="text-lg font-semibold text-gray-900 mb-5">
-                      Danh sách Chi nhánh
+                      {t('auth.reform.branchList')}
                     </h2>
 
                     {clubs && clubs.length > 0 ? (
@@ -411,15 +411,15 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
                             </p>
                             <div className="space-y-2 text-sm">
                               <div>
-                                <span className="block text-gray-500 mb-0.5">Địa chỉ</span>
+                                <span className="block text-gray-500 mb-0.5">{t('auth.reform.address')}</span>
                                 <span className="font-medium text-gray-900 break-words">{club.address}</span>
                               </div>
                               <div>
-                                <span className="block text-gray-500 mb-0.5">Số điện thoại</span>
+                                <span className="block text-gray-500 mb-0.5">{t('auth.reform.phoneNumber')}</span>
                                 <span className="font-medium text-gray-900 break-words">{club.phoneNumber}</span>
                               </div>
                               <div>
-                                <span className="block text-gray-500 mb-0.5">Số bàn</span>
+                                <span className="block text-gray-500 mb-0.5">{t('auth.reform.tableNumber')}</span>
                                 <span className="font-medium text-gray-900">{club.tableNumber}</span>
                               </div>
                             </div>
@@ -427,7 +427,7 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
                         ))}
                       </div>
                     ) : (
-                      <div className="text-sm text-gray-600">Chưa có chi nhánh nào.</div>
+                      <div className="text-sm text-gray-600">{t('auth.reform.noBranches')}</div>
                     )}
                   </div>
                 </div>
@@ -437,13 +437,13 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
                     className="bg-lime-500 hover:bg-lime-600 text-white font-medium transition order-1 sm:order-2"
                     onClick={() => { setEditMode(true); setStep(2); }}
                   >
-                    Chỉnh sửa thông tin đăng ký
+                    {t('auth.reform.editRegistrationInfo')}
                   </Button>
                   <Button
                     onClick={handleDeleteAccountClick}
                     className="bg-red-500 hover:bg-red-600 text-white font-medium transition order-2 sm:order-1"
                   >
-                    Xóa tài khoản
+                    {t('auth.reform.deleteAccount')}
                   </Button>
                 </div>
               </>
@@ -518,7 +518,7 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
                     onClick={handleFinishClick}
                     className="px-8 py-3 text-lg"
                   >
-                    Xác nhận thông tin
+                    {t('auth.reform.confirmInfo')}
                   </Button>
                 </div>
               </>
@@ -531,14 +531,14 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
         open={showConfirmPopup}
         onConfirm={handleConfirmFinish}
         onCancel={handleCancelFinish}
-        title="Xác nhận thông tin đăng ký"
-        confirmText="Xác nhận"
-        cancelText="Hủy"
+        title={t('auth.reform.confirmRegistrationInfo')}
+        confirmText={t('common.confirm')}
+        cancelText={t('common.cancel')}
       >
         <div className="space-y-6 w-full overflow-x-hidden [&_*]:min-w-0">
           {editableBrand && (
             <div className="p-4 border rounded-lg bg-gray-50">
-              <h3 className="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Thông tin thương hiệu</h3>
+              <h3 className="text-lg font-bold mb-4 text-gray-800 border-b pb-2">{t('auth.reform.brandInfoTitle')}</h3>
               <div className="flex flex-col md:flex-row items-center gap-6">
                 <div className="w-32 h-32 bg-gray-200 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden border">
                   {editableBrand.logo_url ? (
@@ -554,26 +554,26 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
                   )}
                 </div>
                 <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
-                  <InfoRow label="Tên thương hiệu" value={editableBrand.brandName} />
-                  <InfoRow label="Số điện thoại" value={editableBrand.phoneNumber} />
-                  <InfoRow label="Website" value={editableBrand.website || 'N/A'} />
-                  <InfoRow label="CCCD" value={editableBrand.citizenCode} />
+                  <InfoRow label={t('auth.reform.brandName')} value={editableBrand.brandName} />
+                  <InfoRow label={t('auth.reform.phoneNumber')} value={editableBrand.phoneNumber} />
+                  <InfoRow label={t('auth.reform.website')} value={editableBrand.website || 'N/A'} />
+                  <InfoRow label={t('auth.reform.citizenCode')} value={editableBrand.citizenCode} />
                 </div>
               </div>
             </div>
           )}
 
           <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-800 border-b pb-2">Thông tin chi nhánh</h3>
+            <h3 className="text-lg font-bold text-gray-800 border-b pb-2">{t('auth.reform.branchInfoTitle')}</h3>
             {editableClubs.map((club, idx) => (
               <div key={idx} className="relative p-4 border rounded-lg bg-gray-50 text-sm mt-4">
                 <p className="font-bold text-base text-gray-900 mb-3 break-words">
-                  <span className="text-lime-600">●</span> Chi Nhánh {idx + 1}: {club.clubName}
+                  <span className="text-lime-600">●</span> {t('auth.reform.branch')} {idx + 1}: {club.clubName}
                 </p>
                 <div className="space-y-2">
-                  <InfoRow label="Địa chỉ" value={club.address} />
-                  <InfoRow label="Số bàn" value={club.tableNumber} />
-                  <InfoRow label="Số điện thoại" value={club.phoneNumber} />
+                  <InfoRow label={t('auth.reform.address')} value={club.address} />
+                  <InfoRow label={t('auth.reform.tableNumber')} value={club.tableNumber} />
+                  <InfoRow label={t('auth.reform.phoneNumber')} value={club.phoneNumber} />
                 </div>
               </div>
             ))}
@@ -585,18 +585,18 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
         open={showDeleteAccountPopup}
         onConfirm={handleConfirmDeleteAccount}
         onCancel={handleCancelDeleteAccount}
-        title="Xác nhận xóa tài khoản"
-        confirmText={isDeletingAccount ? "Đang xóa..." : "Xóa tài khoản"}
-        cancelText="Hủy"
+        title={t('auth.reform.deleteAccountConfirm')}
+        confirmText={isDeletingAccount ? t('auth.reform.deleting') : t('auth.reform.deleteAccount')}
+        cancelText={t('common.cancel')}
       >
         <div className="space-y-4">
           <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-sm text-red-700 font-medium text-center">
-              Xóa tài khoản sẽ xóa vĩnh viễn tài khoản và tất cả dữ liệu liên quan bao gồm thông tin thương hiệu và chi nhánh.
+              {t('auth.reform.deleteAccountConfirmText')}
               <br />
-              Bạn có chắc chắn muốn xóa tài khoản này không?
+              {t('auth.reform.deleteAccountConfirmQuestion')}
               <br />
-              Hành động này không thể hoàn tác.
+              {t('auth.reform.deleteAccountConfirmWarning')}
             </p>
           </div>
         </div>
