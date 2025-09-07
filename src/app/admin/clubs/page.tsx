@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from '@/components/admin/Sidebar';
 import HeaderAdminPage from '@/components/admin/HeaderAdminPage';
-import BranchSearchBar from '@/components/admin/BranchSearchBar';
-import BranchTable from '@/components/admin/BranchTable';
+import ClubSearchBar from '@/components/admin/ClubSearchBar';
+import ClubTable from '@/components/admin/ClubTable';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import EmptyState from '@/components/ui/EmptyState';
 import { useRouter } from 'next/navigation';
@@ -43,7 +43,7 @@ export default function BranchesPage() {
         }
       } catch (error) {
         console.error('Error loading clubs:', error);
-        toast.error(t('branches.cannotLoadBranches'));
+        toast.error(t('clubs.cannotLoadBranches'));
       } finally {
         setIsPageLoading(false);
       }
@@ -63,7 +63,7 @@ export default function BranchesPage() {
       setBranches(filtered);
     } catch (error) {
       console.error('Error searching:', error);
-      toast.error(t('branches.searchError'));
+      toast.error(t('clubs.searchError'));
     } finally {
       setIsSearching(false);
     }
@@ -73,7 +73,7 @@ export default function BranchesPage() {
     setIsAdding(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 500));
-      router.push('/admin/branches/add');
+      router.push('/admin/clubs/add');
     } catch (error) {
       console.error('Error navigating to add page:', error);
     } finally {
@@ -95,10 +95,10 @@ export default function BranchesPage() {
           <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
             <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
               <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
-                {t('branches.title')}
+                {t('clubs.title')}
               </span>
             </div>
-            <BranchSearchBar
+            <ClubSearchBar
               search={search}
               setSearch={handleSearch}
               onAddBranch={isAdding ? () => { } : handleAddBranch}
@@ -116,10 +116,10 @@ export default function BranchesPage() {
                 icon={
                   <Building2 className="w-14 h-14 text-white" strokeWidth={1.5} />
                 }
-                title={search ? t('branches.noSearchResults') : t('branches.noBranches')}
-                description={search ? t('branches.tryDifferentKeywords') : t('branches.useAddButton')}
+                title={search ? t('clubs.noSearchResults') : t('clubs.noBranches')}
+                description={search ? t('clubs.tryDifferentKeywords') : t('clubs.useAddButton')}
                 secondaryAction={search ? {
-                  label: t('branches.viewAll'),
+                  label: t('clubs.viewAll'),
                   onClick: () => setSearch(''),
                   icon: (
                     <Menu className="w-5 h-5" />
@@ -127,7 +127,7 @@ export default function BranchesPage() {
                 } : undefined}
               />
             ) : (
-              <BranchTable
+              <ClubTable
                 branches={branches.map(b => ({
                   _id: b._id,
                   clubId: b.clubId,

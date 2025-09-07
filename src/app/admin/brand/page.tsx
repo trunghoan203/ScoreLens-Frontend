@@ -24,7 +24,7 @@ interface BranchForm {
   tableCount: string;
 }
 
-export default function ClubInfoPage() {
+export default function BrandInfoPage() {
   const { t } = useI18n();
   const [brandName, setBrandName] = useState("");
   const [website, setWebsite] = useState("");
@@ -67,7 +67,7 @@ export default function ClubInfoPage() {
           }
         }
       } catch {
-        toast.error(t('club.cannotLoadInfo'));
+        toast.error(t('brand.cannotLoadInfo'));
       } finally {
         setLoading(false);
       }
@@ -77,33 +77,33 @@ export default function ClubInfoPage() {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!brandName) newErrors.brandName = t('club.validation.brandNameRequired');
-    else if (brandName.length < 2) newErrors.brandName = t('club.validation.brandNameMinLength');
+    if (!brandName) newErrors.brandName = t('brand.validation.brandNameRequired');
+    else if (brandName.length < 2) newErrors.brandName = t('brand.validation.brandNameMinLength');
     if (website) {
       if (!/^https:\/\/[^\s/$.?#].[^\s]*$/i.test(website)) {
-        newErrors.website = t('club.validation.invalidUrl');
+        newErrors.website = t('brand.validation.invalidUrl');
       }
     }
     if (!citizenCode) {
-      newErrors.citizenCode = t('club.validation.citizenCodeRequired');
+      newErrors.citizenCode = t('brand.validation.citizenCodeRequired');
     } else if (!/^\d{12}$/.test(citizenCode)) {
-      newErrors.citizenCode = t('club.validation.citizenCodeLength');
+      newErrors.citizenCode = t('brand.validation.citizenCodeLength');
     } else {
       const provinceCode = parseInt(citizenCode.slice(0, 3), 10);
       if (provinceCode < 1 || provinceCode > 96) {
-        newErrors.citizenCode = t('club.validation.invalidProvinceCode');
+        newErrors.citizenCode = t('brand.validation.invalidProvinceCode');
       }
       const genderCentury = parseInt(citizenCode[3], 10);
       if (genderCentury < 0 || genderCentury > 9) {
-        newErrors.citizenCode = t('club.validation.invalidGenderCode');
+        newErrors.citizenCode = t('brand.validation.invalidGenderCode');
       }
       const yearTwoDigits = parseInt(citizenCode.slice(4, 6), 10);
       if (yearTwoDigits < 0 || yearTwoDigits > 99) {
-        newErrors.citizenCode = t('club.validation.invalidYear');
+        newErrors.citizenCode = t('brand.validation.invalidYear');
       }
     }
-    if (!phone) newErrors.phone = t('club.validation.phoneRequired');
-    else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phone)) newErrors.phone = t('club.validation.invalidPhone');
+    if (!phone) newErrors.phone = t('brand.validation.phoneRequired');
+    else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phone)) newErrors.phone = t('brand.validation.invalidPhone');
     setErrors(newErrors);
     return newErrors;
   };
@@ -162,10 +162,10 @@ export default function ClubInfoPage() {
         setLogoChanged(true);
       }
 
-      toast.success(t('club.uploadSuccess'));
+      toast.success(t('brand.uploadSuccess'));
     } catch (err) {
       const error = err as { response?: { data?: { message?: string } } };
-      toast.error(t('club.uploadFailed') + ': ' + (error.response?.data?.message || (error as Error).message));
+      toast.error(t('brand.uploadFailed') + ': ' + (error.response?.data?.message || (error as Error).message));
     } finally {
       setUploading(false);
     }
@@ -194,16 +194,16 @@ export default function ClubInfoPage() {
         setSubmitLoading(true);
         try {
           await updateBrand(brandInfo.brandId, changedFields);
-          toast.success(t('club.updateSuccess'));
+          toast.success(t('brand.updateSuccess'));
           setIsEditing(false);
         } catch (error) {
           console.error('Error updating brand:', error);
-          toast.error(t('club.updateFailed'));
+          toast.error(t('brand.updateFailed'));
         } finally {
           setSubmitLoading(false);
         }
       } else {
-        toast.success(t('club.noChanges'));
+        toast.success(t('brand.noChanges'));
         setIsEditing(false);
       }
     }
@@ -237,7 +237,7 @@ export default function ClubInfoPage() {
           <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0 w-full">
             <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
               <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
-                {t('club.title')}
+                {t('brand.title')}
               </span>
             </div>
             <form
@@ -247,7 +247,7 @@ export default function ClubInfoPage() {
             >
               <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 items-start w-full max-w-6xl mx-auto">
                 <div className="flex flex-col items-center w-full lg:w-1/3">
-                  <label className="block text-sm text-gray-700 font-semibold mb-2 w-full text-left ml-0 sm:ml-12">{t('club.image')}</label>
+                  <label className="block text-sm text-gray-700 font-semibold mb-2 w-full text-left ml-0 sm:ml-12">{t('brand.image')}</label>
                   {brandInfo?.logo_url ? (
                     <div className="w-48 h-48 sm:w-60 sm:h-60 relative rounded-xl overflow-hidden border border-gray-200 shadow">
                       <Image
@@ -283,7 +283,7 @@ export default function ClubInfoPage() {
                             disabled={uploading}
                           />
                           <LucideImage className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
-                          <span className="text-xs text-gray-400 mt-1">{t('club.uploadImage')}</span>
+                          <span className="text-xs text-gray-400 mt-1">{t('brand.uploadImage')}</span>
                         </label>
                       ) : (
                         <LucideImage className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
@@ -291,29 +291,29 @@ export default function ClubInfoPage() {
                     </div>
                   )}
                   {uploading && (
-                    <div className="mt-2 text-sm text-gray-500">{t('club.uploading')}</div>
+                    <div className="mt-2 text-sm text-gray-500">{t('brand.uploading')}</div>
                   )}
                 </div>
                 <div className="flex-1 flex flex-col gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-1">{t('club.brandName')} <span className="text-red-500">*</span></label>
-                    <Input value={brandName} onChange={e => setBrandName(e.target.value)} placeholder={t('club.brandNamePlaceholder')} required disabled={!isEditing} className="py-2.5 sm:py-3 w-full" />
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-1">{t('brand.brandName')} <span className="text-red-500">*</span></label>
+                    <Input value={brandName} onChange={e => setBrandName(e.target.value)} placeholder={t('brand.brandNamePlaceholder')} required disabled={!isEditing} className="py-2.5 sm:py-3 w-full" />
                     {errors.brandName && <span className="text-red-500 text-xs sm:text-sm">{errors.brandName}</span>}
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-1">{t('club.website')}</label>
-                    <Input value={website} onChange={e => setWebsite(e.target.value)} placeholder={t('club.websitePlaceholder')} disabled={!isEditing} className="py-2.5 sm:py-3 w-full" />
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-1">{t('brand.website')}</label>
+                    <Input value={website} onChange={e => setWebsite(e.target.value)} placeholder={t('brand.websitePlaceholder')} disabled={!isEditing} className="py-2.5 sm:py-3 w-full" />
                     {errors.website && <span className="text-red-500 text-xs sm:text-sm">{errors.website}</span>}
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-1">{t('club.citizenCode')} <span className="text-red-500">*</span></label>
-                      <Input value={citizenCode} onChange={e => setCitizenCode(e.target.value)} placeholder={t('club.citizenCodePlaceholder')} required disabled={!isEditing} className="py-2.5 sm:py-3 w-full" />
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-1">{t('brand.citizenCode')} <span className="text-red-500">*</span></label>
+                      <Input value={citizenCode} onChange={e => setCitizenCode(e.target.value)} placeholder={t('brand.citizenCodePlaceholder')} required disabled={!isEditing} className="py-2.5 sm:py-3 w-full" />
                       {errors.citizenCode && <span className="text-red-500 text-xs sm:text-sm">{errors.citizenCode}</span>}
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-1">{t('club.phone')} <span className="text-red-500">*</span></label>
-                      <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder={t('club.phonePlaceholder')} disabled={!isEditing} className="py-2.5 sm:py-3 w-full" />
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5 sm:mb-1">{t('brand.phone')} <span className="text-red-500">*</span></label>
+                      <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder={t('brand.phonePlaceholder')} disabled={!isEditing} className="py-2.5 sm:py-3 w-full" />
                       {errors.phone && <span className="text-red-500 text-xs sm:text-sm">{errors.phone}</span>}
                     </div>
                   </div>
@@ -327,19 +327,19 @@ export default function ClubInfoPage() {
                     className="relative p-4 sm:p-6 border rounded-xl bg-white shadow-md mb-4 sm:mb-6 transition-shadow hover:shadow-lg"
                   >
                     <div className="mb-3 sm:mb-4">
-                      <span className="text-sm sm:text-base font-semibold text-lime-600">{t('club.branch')} {idx + 1}</span>
+                      <span className="text-sm sm:text-base font-semibold text-lime-600">{t('brand.branch')} {idx + 1}</span>
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4">
                       <div className="col-span-1 lg:col-span-5">
-                        <label className="block text-xs font-medium text-gray-500 mb-1">{t('club.branchName')} <span className="text-red-500">*</span></label>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">{t('brand.branchName')} <span className="text-red-500">*</span></label>
                         <Input value={branch.name} disabled className="disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200 disabled:cursor-not-allowed disabled:hover:border-gray-200 py-2.5 sm:py-3" />
                       </div>
                       <div className="col-span-1 lg:col-span-5">
-                        <label className="block text-xs font-medium text-gray-500 mb-1">{t('club.address')} <span className="text-red-500">*</span></label>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">{t('brand.address')} <span className="text-red-500">*</span></label>
                         <Input value={branch.address} disabled className="disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200 disabled:cursor-not-allowed disabled:hover:border-gray-200 py-2.5 sm:py-3" />
                       </div>
                       <div className="col-span-1 lg:col-span-2">
-                        <label className="block text-xs font-medium text-gray-500 mb-1">{t('club.currentTables')} <span className="text-red-500">*</span></label>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">{t('brand.currentTables')} <span className="text-red-500">*</span></label>
                         <Input value={branch.tableCount} disabled className="disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200 disabled:cursor-not-allowed disabled:hover:border-gray-200 py-2.5 sm:py-3" />
                       </div>
                     </div>
@@ -355,7 +355,7 @@ export default function ClubInfoPage() {
                       className="w-full sm:w-36 touch-manipulation order-1 sm:order-2"
                       disabled={submitLoading}
                     >
-                      {submitLoading ? <LoadingSpinner size="sm" color="white" text={t('club.saving')} /> : t('club.saveInfo')}
+                      {submitLoading ? <LoadingSpinner size="sm" color="white" text={t('brand.saving')} /> : t('brand.saveInfo')}
                     </Button>
                     <Button
                       type="button"
@@ -372,7 +372,7 @@ export default function ClubInfoPage() {
                     variant="lime"
                     className="w-full sm:w-48 touch-manipulation"
                   >
-                    {t('club.edit')}
+                    {t('brand.edit')}
                   </Button>
                 )}
               </div>
@@ -386,11 +386,11 @@ export default function ClubInfoPage() {
               open={showConfirm}
               onConfirm={handleConfirm}
               onCancel={handleCancel}
-              title={t('club.confirmUpdate')}
-              confirmText={t('club.update')}
+              title={t('brand.confirmUpdate')}
+              confirmText={t('brand.update')}
               cancelText={t('common.cancel')}
             >
-              <div className="text-center text-[#000000]">{t('club.confirmUpdateMessage')}</div>
+              <div className="text-center text-[#000000]">{t('brand.confirmUpdateMessage')}</div>
             </ConfirmPopup>
           </div>
         </main>

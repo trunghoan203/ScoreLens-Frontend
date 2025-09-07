@@ -315,7 +315,7 @@ export default {
     },
 
     // Branches
-    branches: {
+    clubs: {
         title: 'CHI NHÁNH',
         addBranch: 'Thêm chi nhánh',
         editBranch: 'Chỉnh sửa chi nhánh',
@@ -376,7 +376,7 @@ export default {
             cancel: 'Hủy',
             confirm: 'Xác nhận',
             branchName: 'Tên Chi Nhánh',
-            branchNameRequired: 'Tên chi nhánh là bắt buộc',
+            clubNameRequired: 'Tên chi nhánh là bắt buộc',
             address: 'Địa chỉ',
             addressRequired: 'Địa chỉ là bắt buộc',
             phoneNumber: 'Số điện thoại',
@@ -1051,8 +1051,8 @@ export default {
         },
     },
 
-    // Club
-    club: {
+    // Brand Info
+    brand: {
         title: 'THÔNG TIN THƯƠNG HIỆU',
         image: 'Hình ảnh',
         uploadImage: 'Tải ảnh',
@@ -2836,7 +2836,7 @@ export default {
         errorTitle: 'Lỗi tải bảng điều khiển',
         clearError: 'Xóa lỗi',
         tryAgain: 'Thử lại',
-        adminDashboardTitle: 'BẢNG ĐIỀU KHIỂN ADMIN',
+        adminDashboardTitle: 'BẢNG ĐIỀU KHIỂN',
         noDataTitle: 'Không có dữ liệu',
         noDataDesc: 'Hiện tại không có dữ liệu để hiển thị.',
         totalBranchesCard: 'Tổng chi nhánh',

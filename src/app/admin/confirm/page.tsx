@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BrandInfoForm } from "../register/BrandInfoForm";
-import { BranchInfoForm } from "../register/BranchInfoForm";
+import { ClubInfoForm } from "../register/ClubInfoForm";
 import { RegisterSteps } from "@/components/auth/RegisterSteps";
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { CheckCircle } from 'lucide-react';
@@ -130,12 +130,12 @@ export default function CompleteProfilePage() {
 
         {step === 2 && (
           <div className="px-4 sm:px-6 lg:px-8">
-            <BranchInfoForm
+            <ClubInfoForm
               onSuccess={handleBranchInfoSuccess}
               onChange={handleBranchInfoChange}
               brandInfo={brandInfo}
               onBack={handleBackToStep1}
-              initialBranches={branches}
+              initialClubs={branches}
             />
           </div>
         )}
