@@ -9,7 +9,7 @@ export default function StatusBadge({ status }: { status: 'open' | 'closed' | 'm
         (status === "open" ? "bg-green-500" : status === "closed" ? "bg-red-500" : "bg-yellow-500")
       }
     >
-      {status === "open" ? t('branches.status.open') : status === "closed" ? t('branches.status.closed') : t('branches.status.maintenance')}
+      {status === "open" ? t('clubs.status.open') : status === "closed" ? t('clubs.status.closed') : t('clubs.status.maintenance')}
     </span>
   );
 } 
