@@ -16,7 +16,7 @@ import { useI18n } from '@/lib/i18n/provider';
 export default function BranchDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const clubId = params?.branchId as string;
+  const clubId = params?.clubId as string;
   const { t } = useI18n();
 
   const [club, setClub] = useState<ClubResponse | null>(null);
@@ -67,7 +67,7 @@ export default function BranchDetailPage() {
     const loadClub = async () => {
       if (!clubId) {
         toast.error(t('branches.detailPage.invalidClubId'));
-        router.push('/admin/branches');
+        router.push('/admin/clubs');
         return;
       }
 
@@ -93,7 +93,7 @@ export default function BranchDetailPage() {
       } catch (error) {
         console.error('Error loading club:', error);
         toast.error(t('branches.detailPage.cannotLoadBranch'));
-        router.push('/admin/branches');
+        router.push('/admin/clubs');
       } finally {
         setIsLoading(false);
       }
@@ -163,7 +163,7 @@ export default function BranchDetailPage() {
       setIsDeleting(true);
       await clubsService.deleteClub(clubId);
       toast.success(t('branches.detailPage.deleteSuccess'));
-      router.push('/admin/branches');
+      router.push('/admin/clubs');
     } catch (error) {
       console.error('Error deleting club:', error);
       toast.error(t('branches.detailPage.deleteFailed'));
@@ -234,7 +234,7 @@ export default function BranchDetailPage() {
           </div>
           <AddFormLayout
             title={isEditMode ? t('branches.detailPage.editBranch') : t('branches.detailPage.branchDetails')}
-            onBack={() => router.push('/admin/branches')}
+            onBack={() => router.push('/admin/clubs')}
             backLabel={t('branches.detailPage.backToBranches')}
             submitLabel={isEditMode ? (isSaving ? t('branches.detailPage.saving') : t('branches.detailPage.save')) : t('branches.detailPage.edit')}
             extraActions={

@@ -82,7 +82,7 @@ export default function AddBranchPage() {
 
       await clubsService.createClub(clubData);
       toast.success(t('branches.addSuccess'));
-      router.push('/admin/branches');
+      router.push('/admin/clubs');
     } catch (error: any) {
       console.error('Error creating club:', error);
       const errorMessage = error.response?.data?.message || t('errors.general');
@@ -108,7 +108,7 @@ export default function AddBranchPage() {
           <AddFormLayout
             title={t('branches.addBranch').toUpperCase()}
             onSubmit={handleSubmit}
-            onBack={() => router.push('/admin/branches')}
+            onBack={() => router.push('/admin/clubs')}
             submitLabel={isSubmitting ? t('common.loading') : t('branches.addBranch')}
           >
             <div className="w-full mb-4 sm:mb-6">

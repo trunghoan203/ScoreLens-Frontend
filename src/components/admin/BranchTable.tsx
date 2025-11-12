@@ -28,7 +28,7 @@ export default function BranchTable({ branches }: { branches: Branch[] }) {
             <div
               key={idx}
               className="grid grid-cols-12 items-center text-center bg-gray-200 rounded-lg cursor-pointer hover:bg-lime-50 transition"
-              onClick={() => router.push(`/admin/branches/${b.clubId || b._id || idx}`)}
+              onClick={() => router.push(`/admin/clubs/${b.clubId || b._id || idx}`)}
             >
               <div className="col-span-3 py-4 font-semibold text-black text-sm xl:text-base px-2">{b.name}</div>
               <div className="col-span-4 py-4 text-gray-700 text-sm xl:text-base px-2 truncate">{b.address}</div>
@@ -47,7 +47,7 @@ export default function BranchTable({ branches }: { branches: Branch[] }) {
           <div
             key={idx}
             className="bg-white rounded-lg shadow-md border border-gray-200 p-4 cursor-pointer hover:shadow-lg transition-shadow touch-manipulation"
-            onClick={() => router.push(`/admin/branches/${b.clubId || b._id || idx}`)}
+            onClick={() => router.push(`/admin/clubs/${b.clubId || b._id || idx}`)}
           >
             <div className="flex justify-between items-start mb-3">
               <div className="flex-1">

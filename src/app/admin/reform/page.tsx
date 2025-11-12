@@ -121,7 +121,7 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
         setAdminProfileState(currentProfile);
 
         if (currentProfile.status == 'approved') {
-          router.push('/admin/branches')
+          router.push('/admin/clubs')
         }
 
         if (currentProfile.status == 'pending') {

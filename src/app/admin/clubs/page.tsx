@@ -73,7 +73,7 @@ export default function BranchesPage() {
     setIsAdding(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 500));
-      router.push('/admin/branches/add');
+      router.push('/admin/clubs/add');
     } catch (error) {
       console.error('Error navigating to add page:', error);
     } finally {
