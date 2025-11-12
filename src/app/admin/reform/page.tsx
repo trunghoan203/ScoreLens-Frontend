@@ -11,7 +11,7 @@ import clubsService, { ClubResponse } from "@/lib/clubsService";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
 import { BrandInfoForm } from "../register/BrandInfoForm";
-import { BranchInfoForm } from "../register/BranchInfoForm";
+import { ClubInfoForm } from "../register/ClubInfoForm";
 import { ConfirmPopup } from "@/components/ui/ConfirmPopup";
 import { ConfirmPopupDetail } from "@/components/admin/ConfirmPopupDetail";
 import Image from "next/image";
@@ -467,7 +467,7 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
 
             {editMode && step === 3 && (
               <>
-                <BranchInfoForm
+                <ClubInfoForm
                   brandInfo={editableBrand ? {
                     brandId: brand?.brandId || brand?._id || '',
                     brandName: editableBrand.brandName,
@@ -477,7 +477,7 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
                     citizenCode: editableBrand.citizenCode,
                   } : brandInitialMemo}
                   onBack={() => setStep(2)}
-                  initialBranches={branchesInitialMemo}
+                  initialClubs={branchesInitialMemo}
                   onChange={(data) => {
                     setEditableClubs(data.map(d => ({ clubId: d.id, clubName: d.name, address: d.address, phoneNumber: d.phone, tableNumber: parseInt(d.deviceCount) || 0, status: 'open' })));
                   }}

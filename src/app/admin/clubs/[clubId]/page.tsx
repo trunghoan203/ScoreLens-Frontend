@@ -13,7 +13,7 @@ import adminDashboardService from '@/lib/adminDashboardService';
 import Image from 'next/image';
 import { useI18n } from '@/lib/i18n/provider';
 
-export default function BranchDetailPage() {
+export default function ClubDetailPage() {
   const router = useRouter();
   const params = useParams();
   const clubId = params?.clubId as string;
@@ -38,26 +38,26 @@ export default function BranchDetailPage() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (!name || name.trim() === '') {
-      newErrors.name = t('branches.detailPage.branchNameRequired') || 'Tên chi nhánh là bắt buộc';
+      newErrors.name = t('clubs.detailPage.clubNameRequired') || 'Tên chi nhánh là bắt buộc';
     } else if (name.length < 2) {
-      newErrors.name = t('branches.detailPage.nameMinLength');
+      newErrors.name = t('clubs.detailPage.nameMinLength');
     } else if (name.length > 255) {
-      newErrors.name = t('branches.detailPage.nameMaxLength');
+      newErrors.name = t('clubs.detailPage.nameMaxLength');
     }
     if (!address || address.trim() === '') {
-      newErrors.address = t('branches.detailPage.addressRequired') || 'Địa chỉ là bắt buộc';
+      newErrors.address = t('clubs.detailPage.addressRequired') || 'Địa chỉ là bắt buộc';
     } else if (address.length < 5) {
-      newErrors.address = t('branches.detailPage.addressMinLength');
+      newErrors.address = t('clubs.detailPage.addressMinLength');
     } else if (address.length > 255) {
-      newErrors.address = t('branches.detailPage.addressMaxLength');
+      newErrors.address = t('clubs.detailPage.addressMaxLength');
     }
     if (!phoneNumber || phoneNumber.trim() === '') {
-      newErrors.phoneNumber = t('branches.detailPage.phoneNumberRequired') || 'Số điện thoại là bắt buộc';
+      newErrors.phoneNumber = t('clubs.detailPage.phoneNumberRequired') || 'Số điện thoại là bắt buộc';
     } else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phoneNumber)) {
-      newErrors.phoneNumber = t('branches.detailPage.phoneInvalid');
+      newErrors.phoneNumber = t('clubs.detailPage.phoneInvalid');
     }
     if (tableNumber <= 0) {
-      newErrors.tableNumber = t('branches.detailPage.tableNumberMin');
+      newErrors.tableNumber = t('clubs.detailPage.tableNumberMin');
     }
     setErrors(newErrors);
     return newErrors;
@@ -66,7 +66,7 @@ export default function BranchDetailPage() {
   useEffect(() => {
     const loadClub = async () => {
       if (!clubId) {
-        toast.error(t('branches.detailPage.invalidClubId'));
+        toast.error(t('clubs.detailPage.invalidClubId'));
         router.push('/admin/clubs');
         return;
       }
@@ -92,7 +92,7 @@ export default function BranchDetailPage() {
         setStatus(clubData.status);
       } catch (error) {
         console.error('Error loading club:', error);
-        toast.error(t('branches.detailPage.cannotLoadBranch'));
+        toast.error(t('clubs.detailPage.cannotLoadBranch'));
         router.push('/admin/clubs');
       } finally {
         setIsLoading(false);
@@ -132,7 +132,7 @@ export default function BranchDetailPage() {
           tableNumber,
           status
         });
-        toast.success(t('branches.detailPage.updateSuccess'));
+        toast.success(t('clubs.detailPage.updateSuccess'));
         setIsEditMode(false);
         setErrors({});
       } catch (error: unknown) {
@@ -146,9 +146,9 @@ export default function BranchDetailPage() {
             }
           });
           setErrors(newErrors);
-          toast.error(t('branches.detailPage.pleaseCheckInfo'));
+          toast.error(t('clubs.detailPage.pleaseCheckInfo'));
         } else {
-          toast.error(t('branches.detailPage.updateFailed'));
+          toast.error(t('clubs.detailPage.updateFailed'));
         }
       } finally {
         setIsSaving(false);
@@ -162,11 +162,11 @@ export default function BranchDetailPage() {
     try {
       setIsDeleting(true);
       await clubsService.deleteClub(clubId);
-      toast.success(t('branches.detailPage.deleteSuccess'));
+      toast.success(t('clubs.detailPage.deleteSuccess'));
       router.push('/admin/clubs');
     } catch (error) {
       console.error('Error deleting club:', error);
-      toast.error(t('branches.detailPage.deleteFailed'));
+      toast.error(t('clubs.detailPage.deleteFailed'));
     } finally {
       setIsDeleting(false);
       setShowConfirm(false);
@@ -184,7 +184,7 @@ export default function BranchDetailPage() {
           <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
             <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
               <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
-                {t('branches.detailPage.title')}
+                {t('clubs.detailPage.title')}
               </span>
             </div>
             <div className="py-8">
@@ -207,11 +207,11 @@ export default function BranchDetailPage() {
           <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
             <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
               <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
-                {t('branches.detailPage.title')}
+                {t('clubs.detailPage.title')}
               </span>
             </div>
             <div className="py-8 text-center">
-              <div className="text-gray-500">{t('branches.detailPage.branchNotFound')}</div>
+              <div className="text-gray-500">{t('clubs.detailPage.branchNotFound')}</div>
             </div>
           </div>
         </main>
@@ -229,14 +229,14 @@ export default function BranchDetailPage() {
         <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
           <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
             <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
-              {t('branches.detailPage.title')}
+              {t('clubs.detailPage.title')}
             </span>
           </div>
           <AddFormLayout
-            title={isEditMode ? t('branches.detailPage.editBranch') : t('branches.detailPage.branchDetails')}
+            title={isEditMode ? t('clubs.detailPage.editBranch') : t('clubs.detailPage.branchDetails')}
             onBack={() => router.push('/admin/clubs')}
-            backLabel={t('branches.detailPage.backToBranches')}
-            submitLabel={isEditMode ? (isSaving ? t('branches.detailPage.saving') : t('branches.detailPage.save')) : t('branches.detailPage.edit')}
+            backLabel={t('clubs.detailPage.backToBranches')}
+            submitLabel={isEditMode ? (isSaving ? t('clubs.detailPage.saving') : t('clubs.detailPage.save')) : t('clubs.detailPage.edit')}
             extraActions={
               !isEditMode && (
                 <button
@@ -245,7 +245,7 @@ export default function BranchDetailPage() {
                   onClick={() => setShowConfirm(true)}
                   disabled={isDeleting}
                 >
-                  {isDeleting ? t('branches.detailPage.deleting') : t('branches.detailPage.delete')}
+                  {isDeleting ? t('clubs.detailPage.deleting') : t('clubs.detailPage.delete')}
                 </button>
               )
             }
@@ -253,19 +253,19 @@ export default function BranchDetailPage() {
           >
             <ConfirmPopup
               open={showConfirm}
-              title={t('branches.detailPage.deleteConfirm')}
+              title={t('clubs.detailPage.deleteConfirm')}
               onCancel={() => setShowConfirm(false)}
               onConfirm={handleDelete}
-              confirmText={isDeleting ? t('branches.detailPage.deleting') : t('branches.detailPage.confirm')}
-              cancelText={t('branches.detailPage.cancel')}
+              confirmText={isDeleting ? t('clubs.detailPage.deleting') : t('clubs.detailPage.confirm')}
+              cancelText={t('clubs.detailPage.cancel')}
             >
               <div className="text-center text-black">
-                {t('branches.detailPage.deleteConfirmMessage').replace('{name}', club.clubName)}
+                {t('clubs.detailPage.deleteConfirmMessage').replace('{name}', club.clubName)}
               </div>
             </ConfirmPopup>
 
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('branches.detailPage.branchName')}<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('clubs.detailPage.branchName')}<span className="text-red-500">*</span></label>
               <Input
                 value={name}
                 onChange={e => setName(e.target.value)}
@@ -277,7 +277,7 @@ export default function BranchDetailPage() {
             </div>
 
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('branches.detailPage.address')}<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('clubs.detailPage.address')}<span className="text-red-500">*</span></label>
               <Input
                 value={address}
                 onChange={e => {
@@ -293,7 +293,7 @@ export default function BranchDetailPage() {
                       club.address.toLowerCase().trim() === address.toLowerCase().trim()
                     );
                     if (isDuplicateAddress) {
-                      setErrors(prev => ({ ...prev, address: t('branches.addressExists') }));
+                      setErrors(prev => ({ ...prev, address: t('clubs.addressExists') }));
                     }
                   }
                 }}
@@ -305,7 +305,7 @@ export default function BranchDetailPage() {
             </div>
 
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('branches.detailPage.phoneNumber')}<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('clubs.detailPage.phoneNumber')}<span className="text-red-500">*</span></label>
               <Input
                 value={phoneNumber}
                 onChange={e => setPhoneNumber(e.target.value)}
@@ -317,7 +317,7 @@ export default function BranchDetailPage() {
             </div>
 
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('branches.detailPage.registeredTables')}<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('clubs.detailPage.registeredTables')}<span className="text-red-500">*</span></label>
               <Input
                 type="number"
                 value={tableNumber}
@@ -330,7 +330,7 @@ export default function BranchDetailPage() {
             </div>
 
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('branches.detailPage.actualTables')}<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('clubs.detailPage.actualTables')}<span className="text-red-500">*</span></label>
               <Input
                 type="number"
                 value={actualTableCount}
@@ -339,13 +339,13 @@ export default function BranchDetailPage() {
               />
               {actualTableCount !== tableNumber && (
                 <p className="text-xs text-red-600 italic mt-1 font-medium">
-                  {t('branches.detailPage.tableMismatchWarning')}
+                  {t('clubs.detailPage.tableMismatchWarning')}
                 </p>
               )}
             </div>
 
             <div className="w-full mb-8 sm:mb-10">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('branches.detailPage.status')}</label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('clubs.detailPage.status')}</label>
               <div className="relative w-full">
                 <select
                   value={status}
@@ -353,9 +353,9 @@ export default function BranchDetailPage() {
                   disabled={!isEditMode}
                   className="flex w-full border border-gray-300 rounded-md bg-white px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-lime-500 hover:border-lime-400 transition-all appearance-none"
                 >
-                  <option value="open">{t('branches.detailPage.statusOpen')}</option>
-                  <option value="closed">{t('branches.detailPage.statusClosed')}</option>
-                  <option value="maintenance">{t('branches.detailPage.statusMaintenance')}</option>
+                  <option value="open">{t('clubs.detailPage.statusOpen')}</option>
+                  <option value="closed">{t('clubs.detailPage.statusClosed')}</option>
+                  <option value="maintenance">{t('clubs.detailPage.statusMaintenance')}</option>
                 </select>
                 {isEditMode && (
                   <Image

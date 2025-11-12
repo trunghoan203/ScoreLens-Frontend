@@ -315,7 +315,7 @@ export default {
     },
 
     // Clubs
-    branches: {
+    clubs: {
         title: 'CLUBS',
         addBranch: 'Add Club',
         editBranch: 'Edit Club',
@@ -376,7 +376,7 @@ export default {
             cancel: 'Cancel',
             confirm: 'Confirm',
             branchName: 'Club Name',
-            branchNameRequired: 'Club name is required',
+            clubNameRequired: 'Club name is required',
             address: 'Address',
             addressRequired: 'Address is required',
             phoneNumber: 'Phone Number',
@@ -1049,8 +1049,8 @@ export default {
         },
     },
 
-    // Club
-    club: {
+    // Brand Info
+    brand: {
         title: 'BRAND INFORMATION',
         image: 'Image',
         uploadImage: 'Upload Image',

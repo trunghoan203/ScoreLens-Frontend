@@ -11,7 +11,7 @@ interface Branch {
   status: 'open' | 'closed';
 }
 
-export default function BranchTable({ branches }: { branches: Branch[] }) {
+export default function ClubTable({ branches }: { branches: Branch[] }) {
   const router = useRouter();
   const { t } = useI18n();
   return (
@@ -19,10 +19,10 @@ export default function BranchTable({ branches }: { branches: Branch[] }) {
       <div className="hidden lg:block overflow-x-auto">
         <div className="space-y-2 rounded-lg min-w-[800px]">
           <div className="grid grid-cols-12 bg-black text-white font-semibold text-center">
-            <div className="col-span-3 py-3 text-sm xl:text-base">{t('branches.table.branchName')}</div>
-            <div className="col-span-4 py-3 text-sm xl:text-base">{t('branches.table.address')}</div>
-            <div className="col-span-2 py-3 text-sm xl:text-base">{t('branches.table.tableCount')}</div>
-            <div className="col-span-3 py-3 text-sm xl:text-base">{t('branches.table.status')}</div>
+            <div className="col-span-3 py-3 text-sm xl:text-base">{t('clubs.table.branchName')}</div>
+            <div className="col-span-4 py-3 text-sm xl:text-base">{t('clubs.table.address')}</div>
+            <div className="col-span-2 py-3 text-sm xl:text-base">{t('clubs.table.tableCount')}</div>
+            <div className="col-span-3 py-3 text-sm xl:text-base">{t('clubs.table.status')}</div>
           </div>
           {branches.map((b, idx) => (
             <div
@@ -60,13 +60,13 @@ export default function BranchTable({ branches }: { branches: Branch[] }) {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-gray-500 text-xs font-medium">{t('branches.table.tableCount')}:</span>
+                <span className="text-gray-500 text-xs font-medium">{t('clubs.table.tableCount')}:</span>
                 <span className="text-gray-800 text-sm font-medium">{b.actualTableCount || 0}</span>
               </div>
             </div>
             <div className="mt-3 pt-3 border-t border-gray-100">
               <div className="flex justify-end">
-                <span className="text-lime-600 text-xs font-medium">{t('branches.table.clickToViewDetails')} →</span>
+                <span className="text-lime-600 text-xs font-medium">{t('clubs.table.clickToViewDetails')} →</span>
               </div>
             </div>
           </div>

@@ -39,12 +39,10 @@ export default function Sidebar() {
     setIsMobileMenuOpen(false);
   };
 
-  // Close mobile menu when pathname changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [pathname, setIsMobileMenuOpen]);
 
-  // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = 'hidden';
