@@ -39,12 +39,10 @@ export default function Sidebar() {
     setIsMobileMenuOpen(false);
   };
 
-  // Close mobile menu when pathname changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [pathname, setIsMobileMenuOpen]);
 
-  // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = 'hidden';
@@ -68,7 +66,7 @@ export default function Sidebar() {
 
       <aside className="hidden lg:flex w-64 bg-[#181818] text-white flex-col py-8 px-4 min-h-screen sticky top-0 h-screen z-30">
         <div className="flex flex-col items-center mb-10">
-          <ScoreLensLogo href="/admin/branches" />
+          <ScoreLensLogo href="/admin/clubs" />
         </div>
         <nav className="flex-1 space-y-2">
           <Link
@@ -78,8 +76,8 @@ export default function Sidebar() {
             {t('nav.dashboard')}
           </Link>
           <Link
-            href="/admin/branches"
-            className={`block px-4 py-3 rounded-lg font-semibold transition text-sm xl:text-base ${pathname?.startsWith('/admin/branches') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
+            href="/admin/clubs"
+            className={`block px-4 py-3 rounded-lg font-semibold transition text-sm xl:text-base ${pathname?.startsWith('/admin/clubs') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
           >
             {t('nav.branches')}
           </Link>
@@ -90,8 +88,8 @@ export default function Sidebar() {
             {t('nav.managers')}
           </Link>
           <Link
-            href="/admin/club"
-            className={`block px-4 py-3 rounded-lg font-semibold transition text-sm xl:text-base ${pathname?.startsWith('/admin/club') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
+            href="/admin/brand"
+            className={`block px-4 py-3 rounded-lg font-semibold transition text-sm xl:text-base ${pathname?.startsWith('/admin/brand') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
           >
             {t('nav.brand')}
           </Link>
@@ -118,7 +116,7 @@ export default function Sidebar() {
       >
         <div className="flex justify-between items-center mb-8">
           <div className="flex-1 flex justify-center">
-            <ScoreLensLogo href="/admin/branches" />
+            <ScoreLensLogo href="/admin/clubs" />
           </div>
           <button
             onClick={() => setIsMobileMenuOpen(false)}
@@ -137,9 +135,9 @@ export default function Sidebar() {
             Trang chủ
           </Link>
           <Link
-            href="/admin/branches"
+            href="/admin/clubs"
             onClick={handleLinkClick}
-            className={`block px-4 py-4 rounded-lg font-semibold transition text-base touch-manipulation ${pathname?.startsWith('/admin/branches') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
+            className={`block px-4 py-4 rounded-lg font-semibold transition text-base touch-manipulation ${pathname?.startsWith('/admin/clubs') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
           >
             {t('nav.branches')}
           </Link>
@@ -151,9 +149,9 @@ export default function Sidebar() {
             {t('nav.managers')}
           </Link>
           <Link
-            href="/admin/club"
+            href="/admin/brand"
             onClick={handleLinkClick}
-            className={`block px-4 py-4 rounded-lg font-semibold transition text-base touch-manipulation ${pathname?.startsWith('/admin/club') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
+            className={`block px-4 py-4 rounded-lg font-semibold transition text-base touch-manipulation ${pathname?.startsWith('/admin/brand') ? 'bg-[#8ADB10] text-[#FFFFFF]' : 'hover:bg-lime-100 hover:text-black'}`}
           >
             {t('nav.brand')}
           </Link>

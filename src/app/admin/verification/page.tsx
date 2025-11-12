@@ -92,7 +92,7 @@ function AdminVerificationPageInner({ searchParams }: { searchParams: URLSearchP
     try {
       await new Promise(res => setTimeout(res, 1000));
       toast.success(t('auth.adminVerification.verificationSuccess'));
-      router.push(`/admin/branches?email=${encodeURIComponent(email)}&otp=${otpString}`);
+      router.push(`/admin/clubs?email=${encodeURIComponent(email)}&otp=${otpString}`);
     } catch {
       toast.error(t('auth.adminVerification.verificationFailed'));
     } finally {

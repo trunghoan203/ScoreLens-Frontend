@@ -19,7 +19,7 @@ interface BrandInfo {
   citizenCode: string;
 }
 
-interface Branch {
+interface Club {
   id?: string;
   name: string;
   address: string;
@@ -27,12 +27,12 @@ interface Branch {
   phone: string;
 }
 
-interface BranchInfoFormProps {
-  onSuccess: (data: Branch[]) => void;
-  onChange?: (data: Branch[]) => void;
+interface ClubInfoFormProps {
+  onSuccess: (data: Club[]) => void;
+  onChange?: (data: Club[]) => void;
   brandInfo: BrandInfo | null;
   onBack: () => void;
-  initialBranches?: Branch[];
+  initialClubs?: Club[];
   mode?: 'create' | 'edit';
   onSaveClub?: (clubId: string, clubData: { clubName: string; address: string; phoneNumber: string; tableNumber: number }) => Promise<void>;
   onCreateClub?: (clubData: { clubName: string; address: string; phoneNumber: string; tableNumber: number }) => Promise<string>;
@@ -48,51 +48,51 @@ const InfoRow = ({ label, value }: { label: string; value: React.ReactNode }) =>
   </div>
 );
 
-export function BranchInfoForm({
-  onSuccess, onChange, brandInfo, onBack, initialBranches, mode = 'create',
+export function ClubInfoForm({
+  onSuccess, onChange, brandInfo, onBack, initialClubs, mode = 'create',
   onSaveClub, onCreateClub, onDeleteClub
-}: BranchInfoFormProps) {
+}: ClubInfoFormProps) {
   const { t } = useI18n();
-  const [branches, setBranches] = useState<Branch[]>(
-    initialBranches && initialBranches.length > 0
-      ? initialBranches
+  const [clubs, setClubs] = useState<Club[]>(
+    initialClubs && initialClubs.length > 0
+      ? initialClubs
       : [{ name: '', address: '', deviceCount: '', phone: '' }]
   );
   const [showConfirm, setShowConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [savingClubs, setSavingClubs] = useState<Set<string>>(new Set());
-  const [editingBranches, setEditingBranches] = useState<Set<string>>(new Set());
+  const [editingClubs, setEditingClubs] = useState<Set<string>>(new Set());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletingClubId, setDeletingClubId] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (initialBranches && initialBranches.length > 0) {
-      setBranches(initialBranches);
+    if (initialClubs && initialClubs.length > 0) {
+      setClubs(initialClubs);
     }
-  }, [initialBranches]);
+  }, [initialClubs]);
 
-  const handleBranchChange = (idx: number, field: keyof Branch, value: string) => {
-    const updatedBranches = branches.map((b, i) => i === idx ? { ...b, [field]: value } : b);
-    setBranches(updatedBranches);
-    onChange?.(updatedBranches);
+  const handleClubChange = (idx: number, field: keyof Club, value: string) => {
+    const updatedClubs = clubs.map((b, i) => i === idx ? { ...b, [field]: value } : b);
+    setClubs(updatedClubs);
+    onChange?.(updatedClubs);
   };
 
-  const handleAddBranch = () => {
-    const updatedBranches = [...branches, { id: undefined, name: '', address: '', deviceCount: '', phone: '' }];
-    setBranches(updatedBranches);
-    onChange?.(updatedBranches);
+  const handleAddClub = () => {
+    const updatedClubs = [...clubs, { id: undefined, name: '', address: '', deviceCount: '', phone: '' }];
+    setClubs(updatedClubs);
+    onChange?.(updatedClubs);
   };
 
-  const handleRemoveBranch = (idx: number) => {
-    const branch = branches[idx];
-    if (branch.id && onDeleteClub) {
-      setDeletingClubId(branch.id);
+  const handleRemoveClub = (idx: number) => {
+    const club = clubs[idx];
+    if (club.id && onDeleteClub) {
+      setDeletingClubId(club.id);
       setShowDeleteConfirm(true);
     } else {
-      const updatedBranches = branches.filter((_, i) => i !== idx);
-      setBranches(updatedBranches);
-      onChange?.(updatedBranches);
+      const updatedClubs = clubs.filter((_, i) => i !== idx);
+      setClubs(updatedClubs);
+      onChange?.(updatedClubs);
     }
   };
 
@@ -102,13 +102,13 @@ export function BranchInfoForm({
     setShowDeleteConfirm(false);
     try {
       await onDeleteClub(deletingClubId);
-      const updatedBranches = branches.filter(b => b.id !== deletingClubId);
-      setBranches(updatedBranches);
-      onChange?.(updatedBranches);
-      toast.success(t('branchInfoForm.deleteSuccess'));
+      const updatedClubs = clubs.filter(b => b.id !== deletingClubId);
+      setClubs(updatedClubs);
+      onChange?.(updatedClubs);
+      toast.success(t('clubInfoForm.deleteSuccess'));
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      const message = err.response?.data?.message || t('branchInfoForm.deleteFailed');
+      const message = err.response?.data?.message || t('clubInfoForm.deleteFailed');
       toast.error(message);
     } finally {
       setDeletingClubId(null);
@@ -122,12 +122,12 @@ export function BranchInfoForm({
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    branches.forEach((branch, idx) => {
-      if (!branch.name) newErrors[`name-${idx}`] = t('branchInfoForm.clubNameRequired');
-      if (!branch.address) newErrors[`address-${idx}`] = t('branchInfoForm.addressRequired');
-      if (!branch.deviceCount) newErrors[`deviceCount-${idx}`] = t('branchInfoForm.tableCountRequired');
-      if (!branch.phone) newErrors[`phone-${idx}`] = t('branchInfoForm.phoneRequired');
-      else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(branch.phone)) newErrors[`phone-${idx}`] = t('branchInfoForm.phoneInvalid');
+    clubs.forEach((club, idx) => {
+      if (!club.name) newErrors[`name-${idx}`] = t('clubInfoForm.clubNameRequired');
+      if (!club.address) newErrors[`address-${idx}`] = t('clubInfoForm.addressRequired');
+      if (!club.deviceCount) newErrors[`deviceCount-${idx}`] = t('clubInfoForm.tableCountRequired');
+      if (!club.phone) newErrors[`phone-${idx}`] = t('clubInfoForm.phoneRequired');
+      else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(club.phone)) newErrors[`phone-${idx}`] = t('clubInfoForm.phoneInvalid');
     });
     setErrors(newErrors);
     return newErrors;
@@ -150,7 +150,7 @@ export function BranchInfoForm({
 
     try {
       if (mode === 'edit') {
-        onSuccess(branches);
+        onSuccess(clubs);
         setIsLoading(false);
         return;
       }
@@ -170,30 +170,30 @@ export function BranchInfoForm({
         if (brandInfo) brandInfo.brandId = brandId;
       }
 
-      const clubsData = branches.map(branch => ({
-        clubName: branch.name,
-        address: branch.address,
-        phoneNumber: branch.phone,
-        tableNumber: parseInt(branch.deviceCount) || 0,
+      const clubsData = clubs.map(club => ({
+        clubName: club.name,
+        address: club.address,
+        phoneNumber: club.phone,
+        tableNumber: parseInt(club.deviceCount) || 0,
         status: 'open'
       }));
 
       await axios.post('/admin/clubs', clubsData);
-      toast.success(t('branchInfoForm.createBrandAndClubSuccess'));
+      toast.success(t('clubInfoForm.createBrandAndClubSuccess'));
       try {
         await adminService.updateStatus();
       } catch {
-        toast.error(t('branchInfoForm.cannotUpdateStatus'));
+        toast.error(t('clubInfoForm.cannotUpdateStatus'));
       }
 
       if (brandId && brandId !== brandInfo?.brandId) {
         if (brandInfo) brandInfo.brandId = brandId;
       }
 
-      onSuccess(branches);
+      onSuccess(clubs);
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      const message = err.response?.data?.message || t('branchInfoForm.operationFailed');
+      const message = err.response?.data?.message || t('clubInfoForm.operationFailed');
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -205,62 +205,62 @@ export function BranchInfoForm({
   };
 
   const handleSaveClub = async (idx: number) => {
-    const branch = branches[idx];
+    const club = clubs[idx];
     if (!onSaveClub && !onCreateClub) return;
 
     const clubData = {
-      clubName: branch.name,
-      address: branch.address,
-      phoneNumber: branch.phone,
-      tableNumber: parseInt(branch.deviceCount) || 0,
+      clubName: club.name,
+      address: club.address,
+      phoneNumber: club.phone,
+      tableNumber: parseInt(club.deviceCount) || 0,
     };
 
-    const branchId = branch.id || `new-${idx}`;
-    setSavingClubs(prev => new Set(prev).add(branchId));
+    const clubId = club.id || `new-${idx}`;
+    setSavingClubs(prev => new Set(prev).add(clubId));
 
     try {
-      if (branch.id && onSaveClub) {
-        await onSaveClub(branch.id, clubData);
-        toast.success(t('branchInfoForm.updateSuccess'));
-      } else if (!branch.id && onCreateClub) {
+      if (club.id && onSaveClub) {
+        await onSaveClub(club.id, clubData);
+        toast.success(t('clubInfoForm.updateSuccess'));
+      } else if (!club.id && onCreateClub) {
         const newClubId = await onCreateClub(clubData);
-        const updatedBranches = branches.map((b, i) => i === idx ? { ...b, id: newClubId } : b);
-        setBranches(updatedBranches);
-        onChange?.(updatedBranches);
-        toast.success(t('branchInfoForm.createSuccess'));
+        const updatedClubs = clubs.map((b, i) => i === idx ? { ...b, id: newClubId } : b);
+        setClubs(updatedClubs);
+        onChange?.(updatedClubs);
+        toast.success(t('clubInfoForm.createSuccess'));
       }
 
-      setEditingBranches(prev => {
+      setEditingClubs(prev => {
         const newSet = new Set(prev);
-        newSet.delete(branchId);
+        newSet.delete(clubId);
         return newSet;
       });
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      const message = err.response?.data?.message || (branch.id ? t('branchInfoForm.updateFailed') : t('branchInfoForm.createFailed'));
+      const message = err.response?.data?.message || (club.id ? t('clubInfoForm.updateFailed') : t('clubInfoForm.createFailed'));
       toast.error(message);
     } finally {
       setSavingClubs(prev => {
         const newSet = new Set(prev);
-        newSet.delete(branchId);
+        newSet.delete(clubId);
         return newSet;
       });
     }
   };
 
   const handleEditToggle = (idx: number) => {
-    const branch = branches[idx];
-    const branchId = branch.id || `new-${idx}`;
+    const club = clubs[idx];
+    const clubId = club.id || `new-${idx}`;
 
-    if (editingBranches.has(branchId)) {
+    if (editingClubs.has(clubId)) {
       handleSaveClub(idx);
     } else {
-      setEditingBranches(prev => new Set(prev).add(branchId));
+      setEditingClubs(prev => new Set(prev).add(clubId));
     }
   };
 
-  const isFormValid = branches.every(branch =>
-    branch.name && branch.address && branch.deviceCount && branch.phone
+  const isFormValid = clubs.every(club =>
+    club.name && club.address && club.deviceCount && club.phone
   );
 
   return (
@@ -291,35 +291,35 @@ export function BranchInfoForm({
               }}
               onClick={onBack}
             >
-              {t('branchInfoForm.backToPrevious')}
+              {t('clubInfoForm.backToPrevious')}
             </Button>
           </div>
 
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center text-gray-900 mb-6 sm:mb-8">{t('branchInfoForm.title')}</h2>
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center text-gray-900 mb-6 sm:mb-8">{t('clubInfoForm.title')}</h2>
 
           <div className="space-y-4 sm:space-y-6">
-            {branches.map((branch, idx) => (
+            {clubs.map((club, idx) => (
               <div
                 key={idx}
                 className="relative p-4 sm:p-6 border rounded-xl bg-white shadow-md transition-shadow hover:shadow-lg w-full"
               >
                 <div className="absolute top-3 sm:top-4 right-3 sm:right-4 flex gap-1 sm:gap-2">
-                  {branches.length > 1 && (
+                  {clubs.length > 1 && (
                     <button
                       type="button"
-                      onClick={() => handleRemoveBranch(idx)}
+                      onClick={() => handleRemoveClub(idx)}
                       className="p-1.5 sm:p-2 rounded-full bg-red-50 hover:bg-red-200 text-red-500 border border-red-200 shadow-sm transition touch-manipulation"
-                      aria-label={t('branchInfoForm.removeBranch')}
+                      aria-label={t('clubInfoForm.removeClub')}
                     >
                       <X className="w-3 h-3 sm:w-4 sm:h-4" />
                     </button>
                   )}
-                  {idx === branches.length - 1 && (
+                  {idx === clubs.length - 1 && (
                     <button
                       type="button"
-                      onClick={handleAddBranch}
+                      onClick={handleAddClub}
                       className="p-1.5 sm:p-2 rounded-full bg-lime-50 hover:bg-lime-200 text-lime-600 border border-lime-200 shadow-sm transition touch-manipulation"
-                      aria-label={t('branchInfoForm.addBranch')}
+                      aria-label={t('clubInfoForm.addClub')}
                     >
                       <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
                     </button>
@@ -327,22 +327,22 @@ export function BranchInfoForm({
                 </div>
 
                 <div className="mb-4 pr-16 sm:pr-20">
-                  <span className="text-sm sm:text-base font-semibold text-lime-600">{t('branchInfoForm.branch')} {idx + 1}</span>
+                  <span className="text-sm sm:text-base font-semibold text-lime-600">{t('clubInfoForm.club')} {idx + 1}</span>
                 </div>
 
                 <div className="space-y-4">
                   {/* Tên chi nhánh - full width */}
                   <div className="w-full">
                     <label className="block text-xs sm:text-sm font-medium text-gray-500 mb-1 sm:mb-2">
-                      {t('branchInfoForm.clubNameLabel')} <span className="text-red-500">*</span>
+                      {t('clubInfoForm.clubNameLabel')} <span className="text-red-500">*</span>
                     </label>
                     <Input
-                      value={branch.name}
-                      onChange={e => handleBranchChange(idx, 'name', e.target.value)}
-                      placeholder={t('branchInfoForm.clubNamePlaceholder')}
+                      value={club.name}
+                      onChange={e => handleClubChange(idx, 'name', e.target.value)}
+                      placeholder={t('clubInfoForm.clubNamePlaceholder')}
                       required
-                      disabled={branch.id ? !editingBranches.has(branch.id) : false}
-                      className={`${branch.id ? (editingBranches.has(branch.id) ? '' : '!bg-gray-100 text-gray-500') : ''} w-full text-sm sm:text-base`}
+                      disabled={club.id ? !editingClubs.has(club.id) : false}
+                      className={`${club.id ? (editingClubs.has(club.id) ? '' : '!bg-gray-100 text-gray-500') : ''} w-full text-sm sm:text-base`}
                     />
                     {errors[`name-${idx}`] && <div className="text-red-500 text-xs mt-1">{errors[`name-${idx}`]}</div>}
                   </div>
@@ -350,52 +350,52 @@ export function BranchInfoForm({
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div className="w-full">
                       <label className="block text-xs sm:text-sm font-medium text-gray-500 mb-1 sm:mb-2">
-                        {t('branchInfoForm.tableCountLabel')} <span className="text-red-500">*</span>
+                        {t('clubInfoForm.tableCountLabel')} <span className="text-red-500">*</span>
                       </label>
                       <Input
                         type="text"
                         inputMode="numeric"
                         pattern="[0-9]*"
-                        value={branch.deviceCount}
+                        value={club.deviceCount}
                         onChange={e => {
                           const val = e.target.value.replace(/\D/g, '');
-                          handleBranchChange(idx, 'deviceCount', val);
+                          handleClubChange(idx, 'deviceCount', val);
                         }}
-                        placeholder={t('branchInfoForm.tableCountPlaceholder')}
+                        placeholder={t('clubInfoForm.tableCountPlaceholder')}
                         required
                         min="1"
-                        disabled={branch.id ? !editingBranches.has(branch.id) : false}
-                        className={`${branch.id ? (editingBranches.has(branch.id) ? '' : '!bg-gray-100 text-gray-500') : ''} w-full text-sm sm:text-base`}
+                        disabled={club.id ? !editingClubs.has(club.id) : false}
+                        className={`${club.id ? (editingClubs.has(club.id) ? '' : '!bg-gray-100 text-gray-500') : ''} w-full text-sm sm:text-base`}
                       />
                       {errors[`deviceCount-${idx}`] && <div className="text-red-500 text-xs mt-1">{errors[`deviceCount-${idx}`]}</div>}
                     </div>
 
                     <div className="w-full sm:col-span-1 lg:col-span-1">
                       <label className="block text-xs sm:text-sm font-medium text-gray-500 mb-1 sm:mb-2">
-                        {t('branchInfoForm.addressLabel')} <span className="text-red-500">*</span>
+                        {t('clubInfoForm.addressLabel')} <span className="text-red-500">*</span>
                       </label>
                       <Input
-                        value={branch.address}
-                        onChange={e => handleBranchChange(idx, 'address', e.target.value)}
-                        placeholder={t('branchInfoForm.addressPlaceholder')}
+                        value={club.address}
+                        onChange={e => handleClubChange(idx, 'address', e.target.value)}
+                        placeholder={t('clubInfoForm.addressPlaceholder')}
                         required
-                        disabled={branch.id ? !editingBranches.has(branch.id) : false}
-                        className={`${branch.id ? (editingBranches.has(branch.id) ? '' : '!bg-gray-100 text-gray-500') : ''} w-full text-sm sm:text-base`}
+                        disabled={club.id ? !editingClubs.has(club.id) : false}
+                        className={`${club.id ? (editingClubs.has(club.id) ? '' : '!bg-gray-100 text-gray-500') : ''} w-full text-sm sm:text-base`}
                       />
                       {errors[`address-${idx}`] && <div className="text-red-500 text-xs mt-1">{errors[`address-${idx}`]}</div>}
                     </div>
 
                     <div className="w-full sm:col-span-2 lg:col-span-1">
                       <label className="block text-xs sm:text-sm font-medium text-gray-500 mb-1 sm:mb-2">
-                        {t('branchInfoForm.phoneLabel')} <span className="text-red-500">*</span>
+                        {t('clubInfoForm.phoneLabel')} <span className="text-red-500">*</span>
                       </label>
                       <Input
-                        value={branch.phone}
-                        onChange={e => handleBranchChange(idx, 'phone', e.target.value)}
-                        placeholder={t('branchInfoForm.phonePlaceholder')}
+                        value={club.phone}
+                        onChange={e => handleClubChange(idx, 'phone', e.target.value)}
+                        placeholder={t('clubInfoForm.phonePlaceholder')}
                         required
-                        disabled={branch.id ? !editingBranches.has(branch.id) : false}
-                        className={`${branch.id ? (editingBranches.has(branch.id) ? '' : '!bg-gray-100 text-gray-500') : ''} w-full text-sm sm:text-base`}
+                        disabled={club.id ? !editingClubs.has(club.id) : false}
+                        className={`${club.id ? (editingClubs.has(club.id) ? '' : '!bg-gray-100 text-gray-500') : ''} w-full text-sm sm:text-base`}
                       />
                       {errors[`phone-${idx}`] && <div className="text-red-500 text-xs mt-1">{errors[`phone-${idx}`]}</div>}
                     </div>
@@ -407,41 +407,41 @@ export function BranchInfoForm({
                     <button
                       type="button"
                       onClick={() => handleEditToggle(idx)}
-                      disabled={savingClubs.has(branch.id || `new-${idx}`)}
+                      disabled={savingClubs.has(club.id || `new-${idx}`)}
                       className="w-full sm:w-auto px-4 py-2 sm:py-2.5 rounded-md bg-lime-500 hover:bg-lime-600 text-white text-sm sm:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed transition touch-manipulation order-1 sm:order-2"
                     >
-                      {savingClubs.has(branch.id || `new-${idx}`)
-                        ? t('branchInfoForm.saving')
-                        : branch.id
-                          ? (editingBranches.has(branch.id) ? t('branchInfoForm.save') : t('branchInfoForm.edit'))
-                          : t('branchInfoForm.createNew')
+                      {savingClubs.has(club.id || `new-${idx}`)
+                        ? t('clubInfoForm.saving')
+                        : club.id
+                          ? (editingClubs.has(club.id) ? t('clubInfoForm.save') : t('clubInfoForm.edit'))
+                          : t('clubInfoForm.createNew')
                       }
                     </button>
-                    {branch.id && editingBranches.has(branch.id) && (
+                    {club.id && editingClubs.has(club.id) && (
                       <button
                         type="button"
                         onClick={() => {
-                          const branchId = branch.id;
-                          if (!branchId) return;
-                          setEditingBranches(prev => {
+                          const clubId = club.id;
+                          if (!clubId) return;
+                          setEditingClubs(prev => {
                             const newSet = new Set(prev);
-                            newSet.delete(branchId);
+                            newSet.delete(clubId);
                             return newSet;
                           });
-                          if (initialBranches) {
-                            const originalBranch = initialBranches.find(b => b.id === branch.id);
-                            if (originalBranch) {
-                              const updatedBranches = branches.map((b, i) =>
-                                i === idx ? originalBranch : b
+                          if (initialClubs) {
+                            const originalClub = initialClubs.find(b => b.id === club.id);
+                            if (originalClub) {
+                              const updatedClubs = clubs.map((b, i) =>
+                                i === idx ? originalClub : b
                               );
-                              setBranches(updatedBranches);
-                              onChange?.(updatedBranches);
+                              setClubs(updatedClubs);
+                              onChange?.(updatedClubs);
                             }
                           }
                         }}
                         className="w-full sm:w-auto px-4 py-2 sm:py-2.5 rounded-md bg-red-500 hover:bg-red-600 text-white text-sm sm:text-base font-medium transition touch-manipulation order-2 sm:order-1"
                       >
-                        {t('branchInfoForm.cancel')}
+                        {t('clubInfoForm.cancel')}
                       </button>
                     )}
                   </div>
@@ -459,8 +459,8 @@ export function BranchInfoForm({
                 disabled={!isFormValid || isLoading}
               >
                 {isLoading
-                  ? (initialBranches && initialBranches.length > 0 ? t('branchInfoForm.updating') : t('branchInfoForm.preparing'))
-                  : (initialBranches && initialBranches.length > 0 ? t('branchInfoForm.updateAndContinue') : t('branchInfoForm.confirmInfo'))
+                  ? (initialClubs && initialClubs.length > 0 ? t('clubInfoForm.updating') : t('clubInfoForm.preparing'))
+                  : (initialClubs && initialClubs.length > 0 ? t('clubInfoForm.updateAndContinue') : t('clubInfoForm.confirmInfo'))
                 }
               </Button>
             </div>
@@ -472,14 +472,14 @@ export function BranchInfoForm({
         open={showConfirm}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
-        title={t('branchInfoForm.confirmTitle')}
-        confirmText={isLoading ? t('branchInfoForm.creating') : t('branchInfoForm.confirmText')}
-        cancelText={t('branchInfoForm.cancelText')}
+        title={t('clubInfoForm.confirmTitle')}
+        confirmText={isLoading ? t('clubInfoForm.creating') : t('clubInfoForm.confirmText')}
+        cancelText={t('clubInfoForm.cancelText')}
       >
         <div className="space-y-6 w-full overflow-x-hidden [&_*]:min-w-0">
           {brandInfo && (
             <div className="p-4 border rounded-lg bg-gray-50">
-              <h3 className="text-lg font-bold mb-4 text-gray-800 border-b pb-2">{t('branchInfoForm.brandInfoTitle')}</h3>
+              <h3 className="text-lg font-bold mb-4 text-gray-800 border-b pb-2">{t('clubInfoForm.brandInfoTitle')}</h3>
               <div className="flex flex-col md:flex-row items-center gap-6">
                 <div className="w-32 h-32 bg-gray-200 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden border">
                   {brandInfo.logo_url ? (
@@ -495,26 +495,26 @@ export function BranchInfoForm({
                   )}
                 </div>
                 <div className="w-full space-y-2 text-sm">
-                  <InfoRow label={t('branchInfoForm.brandName')} value={brandInfo.brandName} />
-                  <InfoRow label={t('branchInfoForm.phoneNumber')} value={brandInfo.phoneNumber} />
-                  <InfoRow label={t('branchInfoForm.website')} value={brandInfo.website || t('branchInfoForm.noWebsite')} />
-                  <InfoRow label={t('branchInfoForm.citizenCode')} value={brandInfo.citizenCode} />
+                  <InfoRow label={t('clubInfoForm.brandName')} value={brandInfo.brandName} />
+                  <InfoRow label={t('clubInfoForm.phoneNumber')} value={brandInfo.phoneNumber} />
+                  <InfoRow label={t('clubInfoForm.website')} value={brandInfo.website || t('clubInfoForm.noWebsite')} />
+                  <InfoRow label={t('clubInfoForm.citizenCode')} value={brandInfo.citizenCode} />
                 </div>
               </div>
             </div>
           )}
 
           <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-800 border-b pb-2">{t('branchInfoForm.branchInfoTitle')}</h3>
-            {branches.map((branch: Branch, idx: number) => (
+            <h3 className="text-lg font-bold text-gray-800 border-b pb-2">{t('clubInfoForm.clubInfoTitle')}</h3>
+            {clubs.map((club: Club, idx: number) => (
               <div key={idx} className="relative p-4 border rounded-lg bg-gray-50 text-sm mt-4">
                 <p className="font-bold text-base text-gray-900 mb-3">
-                  <span className="text-lime-600">●</span> {t('branchInfoForm.branch')} {idx + 1}: {branch.name}
+                  <span className="text-lime-600">●</span> {t('clubInfoForm.club')} {idx + 1}: {club.name}
                 </p>
                 <div className="space-y-2">
-                  <InfoRow label={t('branchInfoForm.address')} value={branch.address} />
-                  <InfoRow label={t('branchInfoForm.tableCount')} value={branch.deviceCount} />
-                  <InfoRow label={t('branchInfoForm.phone')} value={branch.phone} />
+                  <InfoRow label={t('clubInfoForm.address')} value={club.address} />
+                  <InfoRow label={t('clubInfoForm.tableCount')} value={club.deviceCount} />
+                  <InfoRow label={t('clubInfoForm.phone')} value={club.phone} />
                 </div>
               </div>
             ))}
@@ -526,11 +526,11 @@ export function BranchInfoForm({
         open={showDeleteConfirm}
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
-        title={t('branchInfoForm.deleteConfirmTitle')}
-        confirmText={t('branchInfoForm.deleteConfirmText')}
-        cancelText={t('branchInfoForm.cancelText')}
+        title={t('clubInfoForm.deleteConfirmTitle')}
+        confirmText={t('clubInfoForm.deleteConfirmText')}
+        cancelText={t('clubInfoForm.cancelText')}
       >
-        <p className="text-sm text-gray-800 text-center">{t('branchInfoForm.deleteConfirmMessage')}</p>
+        <p className="text-sm text-gray-800 text-center">{t('clubInfoForm.deleteConfirmMessage')}</p>
       </ConfirmPopup>
     </>
   );

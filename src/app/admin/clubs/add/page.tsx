@@ -81,8 +81,8 @@ export default function AddBranchPage() {
       };
 
       await clubsService.createClub(clubData);
-      toast.success(t('branches.addSuccess'));
-      router.push('/admin/branches');
+      toast.success(t('clubs.addSuccess'));
+      router.push('/admin/clubs');
     } catch (error: any) {
       console.error('Error creating club:', error);
       const errorMessage = error.response?.data?.message || t('errors.general');
@@ -102,22 +102,22 @@ export default function AddBranchPage() {
         <div className="px-4 sm:px-6 lg:px-10 pb-10 pt-16 lg:pt-0">
           <div className="w-full rounded-xl bg-lime-400 shadow-lg py-4 sm:py-6 flex items-center justify-center mb-6 sm:mb-8">
             <span className="text-xl sm:text-2xl font-extrabold text-white tracking-widest flex items-center gap-2 sm:gap-3">
-              {t('branches.title')}
+              {t('clubs.title')}
             </span>
           </div>
           <AddFormLayout
-            title={t('branches.addBranch').toUpperCase()}
+            title={t('clubs.addBranch').toUpperCase()}
             onSubmit={handleSubmit}
-            onBack={() => router.push('/admin/branches')}
-            submitLabel={isSubmitting ? t('common.loading') : t('branches.addBranch')}
+            onBack={() => router.push('/admin/clubs')}
+            submitLabel={isSubmitting ? t('common.loading') : t('clubs.addBranch')}
           >
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('branches.branchName')}<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('clubs.branchName')}<span className="text-red-500">*</span></label>
               <Input
                 value={clubName}
                 onChange={e => setClubName(e.target.value)}
                 required
-                placeholder={t('branches.branchNamePlaceholder')}
+                placeholder={t('clubs.branchNamePlaceholder')}
                 className="py-2.5 sm:py-3"
               />
               {errors.clubName && <span className="text-red-500 text-xs sm:text-sm">{errors.clubName}</span>}
@@ -138,12 +138,12 @@ export default function AddBranchPage() {
                       club.address.toLowerCase().trim() === address.toLowerCase().trim()
                     );
                     if (isDuplicateAddress) {
-                      setErrors(prev => ({ ...prev, address: t('branches.addressExists') }));
+                      setErrors(prev => ({ ...prev, address: t('clubs.addressExists') }));
                     }
                   }
                 }}
                 required
-                placeholder={t('branches.addressPlaceholder')}
+                placeholder={t('clubs.addressPlaceholder')}
                 className="py-2.5 sm:py-3"
               />
               {errors.address && <span className="text-red-500 text-xs sm:text-sm">{errors.address}</span>}
@@ -154,13 +154,13 @@ export default function AddBranchPage() {
                 value={phoneNumber}
                 onChange={e => setPhoneNumber(e.target.value)}
                 required
-                placeholder={t('branches.phonePlaceholder')}
+                placeholder={t('clubs.phonePlaceholder')}
                 className="py-2.5 sm:py-3"
               />
               {errors.phoneNumber && <span className="text-red-500 text-xs sm:text-sm">{errors.phoneNumber}</span>}
             </div>
             <div className="w-full mb-8 sm:mb-10">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('branches.tableNumber')}<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('clubs.tableNumber')}<span className="text-red-500">*</span></label>
               <Input
                 type="text"
                 value={tableNumber}
@@ -171,7 +171,7 @@ export default function AddBranchPage() {
                   }
                 }}
                 required
-                placeholder={t('branches.tableNumberPlaceholder')}
+                placeholder={t('clubs.tableNumberPlaceholder')}
                 min="1"
                 className="py-2.5 sm:py-3"
               />
