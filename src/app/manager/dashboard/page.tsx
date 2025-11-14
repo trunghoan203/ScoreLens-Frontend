@@ -5,7 +5,6 @@ import HeaderManager from '@/components/manager/HeaderManager';
 import DashboardSummary from '@/components/manager/DashboardSummary';
 import TableFilterBar from '@/components/manager/TableFilterBar';
 import TableCardList from '@/components/manager/TableCardList';
-import ButtonViewMore from '@/components/manager/ButtonViewMore';
 import { useRouter } from 'next/navigation';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
@@ -60,7 +59,8 @@ export default function ManagerDashboardPage() {
   const [search, setSearch] = useState('');
   const [type, setType] = useState('');
   const [status, setStatus] = useState('');
-
+  const [visibleCount, setVisibleCount] = useState(9);
+  const [isExpanded, setIsExpanded] = useState(false);
   const router = useRouter();
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -220,9 +220,17 @@ export default function ManagerDashboardPage() {
   const handleXemThem = () => {
     setActionLoading(true);
     setTimeout(() => {
+      if (isExpanded) {
+        setVisibleCount(9);
+        setIsExpanded(false);
+      } else {
+        setVisibleCount(filteredTables.length);
+        setIsExpanded(true);
+      }
       setActionLoading(false);
-    }, 1000);
+    }, 600);
   };
+
 
   const filteredTables = tables.map(table => {
     const matchData = activeMatches.get(table.id);
@@ -330,7 +338,7 @@ export default function ManagerDashboardPage() {
                   />
                 ) : (
                   <TableCardList
-                    tables={filteredTables}
+                    tables={filteredTables.slice(0, visibleCount)}
                     onDetail={async (id) => {
                       try {
                         await managerMatchService.getMatchesByTable(id, 'ongoing', 1, 1);
@@ -344,14 +352,32 @@ export default function ManagerDashboardPage() {
                 )}
                 {filteredTables.length > 9 && (
                   <div className="flex justify-center mt-6">
-                    <ButtonViewMore
-                      onClick={handleXemThem}
-                      primaryText={t('dashboard.viewMore')}
-                    >
-                      {actionLoading ? <LoadingSpinner size="sm" /> : t('dashboard.viewMore')}
-                    </ButtonViewMore>
+                    <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+                      <button
+                        type="button"
+                        onClick={handleXemThem}
+                        className="relative w-full sm:w-32 lg:w-40 bg-[#8ADB10] hover:bg-lime-500 text-[#FFFFFF] font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg shadow focus:outline-none"
+                        aria-live="polite"
+                      >
+                        <span
+                          className={`inline-block w-full text-center transition-opacity duration-150 ${actionLoading ? 'opacity-0' : 'opacity-100'
+                            }`}
+                        >
+                          {isExpanded ? t('dashboard.collapse') : t('dashboard.viewMore')}
+                        </span>
+
+                        {actionLoading && (
+                          <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div className="flex items-center justify-center">
+                              <LoadingSpinner size="sm" color="white" />
+                            </div>
+                          </span>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 )}
+
               </div>
             </div>
           </div>
