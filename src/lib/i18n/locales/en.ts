@@ -641,7 +641,7 @@ export default {
         },
 
     // Admin Add Branch
-        adminAddBranch: {
+        adminAddClub: {
             branchNameRequired: 'Club name is required',
             branchNameMinLength: 'Club name must be at least 2 characters',
             branchNameMaxLength: 'Club name cannot exceed 255 characters',
@@ -2702,6 +2702,7 @@ export default {
     auth: {
         logoutConfirm: 'Are you sure you want to logout?',
         logoutSuccess: 'Logout successful!',
+        logoutFailed: 'Logout failed. Please try again.',
         roleSelection: {
             title: 'What role would you like to login with?',
             businessOwner: 'Admin',

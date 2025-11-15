@@ -59,7 +59,7 @@ export default function MembersPage() {
         toast.error(t('managerMembers.loadMembersError'));
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   const filteredMembers = members.filter(m =>
     m.fullName.toLowerCase().includes(search.toLowerCase()) ||

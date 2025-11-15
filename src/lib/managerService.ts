@@ -1,5 +1,17 @@
 import axios from './axios';
 
+interface ApiErrorResponse {
+  message?: string;
+  [key: string]: unknown;
+}
+
+interface ApiError {
+  response?: {
+    data?: ApiErrorResponse;
+  };
+  message?: string;
+}
+
 class ManagerService {
   async login(email: string) {
     try {
@@ -93,16 +105,19 @@ class ManagerService {
     }
   }
 
-  async updateManager(managerId: string, data: {
-    fullName: string;
-    email: string;
-    phoneNumber: string;
-    dateOfBirth: string;
-    citizenCode: string;
-    address: string;
-    clubId: string;
-    isActive: boolean;
-  }) {
+  async updateManager(
+    managerId: string,
+    data: {
+      fullName: string;
+      email: string;
+      phoneNumber: string;
+      dateOfBirth: string;
+      citizenCode: string;
+      address: string;
+      clubId: string;
+      isActive: boolean;
+    }
+  ) {
     try {
       const res = await axios.put(`/admin/managers/${managerId}`, data);
       return res.data;
@@ -119,20 +134,21 @@ class ManagerService {
       throw this.handleError(error);
     }
   }
-  private handleError(error: unknown): any {
-    if (typeof error === 'object' && error !== null && 'response' in error) {
-      const axiosError = error as { response?: { data?: any } };
-      if (axiosError.response?.data) {
-        return axiosError.response.data;
-      }
+
+  private handleError(error: unknown): ApiErrorResponse {
+    const err = error as ApiError;
+
+    if (err.response?.data) {
+      return err.response.data;
     }
-    if (typeof error === 'object' && error !== null && 'message' in error) {
-      const errorWithMessage = error as { message: string };
-      return { message: errorWithMessage.message };
+
+    if (err.message) {
+      return { message: err.message };
     }
+
     return { message: 'Đã xảy ra lỗi không xác định' };
   }
 }
 
 export const managerService = new ManagerService();
-export default managerService; 
+export default managerService;

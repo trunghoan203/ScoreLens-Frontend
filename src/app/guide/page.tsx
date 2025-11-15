@@ -14,12 +14,14 @@ const ROLES = [
   { key: 'user', label: 'guide.roles.user' },
 ];
 
-const getTranslationArray = (t: any, key: string): string[] => {
+type TransFn = (key: string, vars?: Record<string, unknown>) => string | string[];
+
+const getTranslationArray = (t: TransFn, key: string): string[] => {
   const translation = t(key);
   return Array.isArray(translation) ? translation : [];
 };
 
-const getGuideContent = (role: string, t: any) => {
+const getGuideContent = (role: string, t: TransFn) => {
   const content = {
     business: (
       <div className="space-y-6 sm:space-y-8">

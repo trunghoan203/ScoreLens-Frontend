@@ -21,13 +21,42 @@ export default function MemberHistoryPage() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [dateFilter, setDateFilter] = useState('');
-    const [matches, setMatches] = useState<any[]>([]);
+    const [matches, setMatches] = useState<MatchData[]>([]);
     const [error, setError] = useState<string | null>(null);
-    const [membershipInfo, setMembershipInfo] = useState<any>(null);
+    const [membershipInfo, setMembershipInfo] = useState<{ phoneNumber?: string } | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalMatches, setTotalMatches] = useState(0);
-    const [selectedMatch, setSelectedMatch] = useState<any>(null);
+    interface MatchDetail {
+        id?: string;
+        matchId?: string;
+        time?: string;
+        startTime?: string;
+        endTime?: string;
+        playTime?: string;
+        type: string;
+        winningTeam: string;
+        winningTeamMembers: string[];
+        score: string;
+        videoUrl: string;
+        status?: string;
+        clubName?: string;
+        address?: string;
+        isAIAssisted?: boolean;
+        teams?: Array<{
+            teamName: string;
+            score: number;
+            isWinner: boolean;
+            members: Array<{
+                membershipId?: string;
+                membershipName?: string;
+                guestName?: string;
+                role: string;
+            }>;
+        }>;
+    }
+
+    const [selectedMatch, setSelectedMatch] = useState<MatchDetail | null>(null);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const itemPage = 10;
 
@@ -100,22 +129,22 @@ export default function MemberHistoryPage() {
                     }
 
                     if (response && typeof response === 'object' && 'pagination' in response && response.pagination) {
-                        const pagination = response.pagination as any;
-                        setTotalPages(pagination.pages || 1);
-                        setTotalMatches(pagination.total || 0);
+                        const pagination = response.pagination as { pages?: number; total?: number };
+                        setTotalPages(pagination?.pages || 1);
+                        setTotalMatches(pagination?.total || 0);
                     }
                 } else {
                     setError(t('history.detailPage.cannotLoadHistory'));
                     toast.error(t('history.detailPage.cannotLoadHistory'));
                 }
-            } catch (error: any) {
+            } catch (error: unknown) {
                 console.error('Error fetching match history:', error);
                 setError(t('history.detailPage.cannotLoadHistory'));
             }
         };
 
         fetchMatchHistory();
-    }, [phoneNumber, currentPage]);
+    }, [phoneNumber, currentPage, t]);
 
     const transformMatches = (apiMatches: MatchData[]) => {
         return apiMatches.map(match => {
@@ -184,7 +213,7 @@ export default function MemberHistoryPage() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handleViewDetail = (match: any) => {
+    const handleViewDetail = (match: MatchDetail) => {
         setSelectedMatch(match);
         setIsPopupOpen(true);
     };

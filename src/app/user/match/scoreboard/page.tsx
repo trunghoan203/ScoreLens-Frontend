@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense, useRef } from 'react';
+import { useState, useEffect, Suspense, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import ScoreEditor from '@/components/user/ScoreEditor';
@@ -27,6 +27,14 @@ interface CameraInfo {
   isConnect?: boolean;
   hasCamera?: boolean;
   rtspUrl?: string;
+}
+
+interface SessionTokenResponse {
+  success?: boolean;
+  data?: {
+    sessionToken?: string;
+  };
+  [key: string]: unknown;
 }
 
 interface MatchData {
@@ -64,7 +72,6 @@ function ScoreboardPage() {
   const [matchId, setMatchId] = useState<string>('');
   const [matchCode, setMatchCode] = useState<string | null>(null);
   const [actorGuestToken, setActorGuestToken] = useState<string | null>(null);
-  const [actorMembershipId, setActorMembershipId] = useState<string | null>(null);
   const [tableId, setTableId] = useState<string | null>(null);
   const [sessionToken, setSessionToken] = useState<string>('');
 
@@ -90,8 +97,6 @@ function ScoreboardPage() {
   const [isCameraLoading, setIsCameraLoading] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [viewerCount, setViewerCount] = useState(0);
-  const [streamInfo, setStreamInfo] = useState<any>(null);
   const videoRef = useRef<HTMLCanvasElement>(null);
 
   const {
@@ -103,7 +108,7 @@ function ScoreboardPage() {
     error: authError
   } = useMatchRole(matchId);
 
-  const handleStartCamera = async () => {
+  const handleStartCamera = useCallback(async () => {
     if (!matchInfo?.camera?.cameraId) {
       toast.error(t('scoreboard.error.noCameraInfo'));
       return;
@@ -131,8 +136,6 @@ function ScoreboardPage() {
 
       if (result.success) {
         setIsStreaming(true);
-        setViewerCount(result.streamInfo?.viewerCount || 0);
-        setStreamInfo(result.streamInfo);
 
         const message = result.streamInfo?.isNewStream
           ? t('scoreboard.success.streamStarted')
@@ -165,7 +168,7 @@ function ScoreboardPage() {
     } finally {
       setIsCameraLoading(false);
     }
-  };
+  }, [matchInfo, t, sessionToken, showCamera, isStreaming]);
 
   const handleToggleCamera = () => {
     if (!showCamera) {
@@ -192,8 +195,6 @@ function ScoreboardPage() {
     setIsStreaming(false);
     setIsCameraLoading(false);
     setCameraError(null);
-    setViewerCount(0);
-    setStreamInfo(null);
   };
 
   const { isConnected } = useWebSocket({
@@ -310,7 +311,7 @@ function ScoreboardPage() {
           try {
             await authenticateMatch(matchId, session.sessionToken);
             setSessionToken(session.sessionToken);
-          } catch (error) {
+          } catch {
           }
           return;
         }
@@ -318,7 +319,7 @@ function ScoreboardPage() {
         if (sessionToken && sessionToken.trim() !== '') {
           try {
             await authenticateMatch(matchId, sessionToken);
-          } catch (error) {
+          } catch {
           }
           return;
         }
@@ -335,7 +336,7 @@ function ScoreboardPage() {
 
           if (Object.keys(sessionTokenPayload).length > 0) {
             const sessionResponse = await userMatchService.getSessionToken(matchId, sessionTokenPayload);
-            const responseData = sessionResponse as any;
+            const responseData = sessionResponse as SessionTokenResponse;
 
             if (responseData.success && responseData.data?.sessionToken) {
               const userSessionToken = responseData.data.sessionToken;
@@ -349,7 +350,7 @@ function ScoreboardPage() {
 
               try {
                 await authenticateMatch(matchId, userSessionToken);
-              } catch (error) {
+              } catch {
               }
             } else {
               toast.error(t('scoreboard.error.cannotAuthenticateJoin'));
@@ -359,12 +360,12 @@ function ScoreboardPage() {
           }
         } else {
         }
-      } catch (error) {
+      } catch {
       }
     };
 
     performAuth();
-  }, [matchId, sessionToken, t]);
+  }, [matchId, sessionToken, authenticateMatch, t]);
 
   useEffect(() => {
     if (authError) {
@@ -420,13 +421,13 @@ function ScoreboardPage() {
               }, 100);
             }
           }
-        } catch (error) {
+        } catch {
         }
       };
 
       restoreCameraInfo();
     }
-  }, [matchInfo]);
+  }, [handleStartCamera, matchInfo, showCamera]);
 
   useEffect(() => {
     if (matchId && matchId.trim() !== '' && isConnected) {
@@ -528,7 +529,7 @@ function ScoreboardPage() {
                   isAiAssisted: prev.isAiAssisted
                 } : null);
               }
-            } catch (error) {
+            } catch {
 
             }
           }
@@ -571,7 +572,7 @@ function ScoreboardPage() {
           setScoreA(sA);
           setScoreB(sB);
         }
-      } catch (error) {
+      } catch {
         toast.error(t('scoreboard.error.cannotLoadMatch'));
       } finally {
         timer = setTimeout(() => setLoading(false), 800);
@@ -583,7 +584,7 @@ function ScoreboardPage() {
       if (timer) clearTimeout(timer);
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [searchParams, actorGuestToken]);
+  }, [searchParams, actorGuestToken, t]);
 
   useEffect(() => {
     const verifyTableInfo = async () => {
@@ -601,7 +602,7 @@ function ScoreboardPage() {
     };
 
     verifyTableInfo();
-  }, [tableId, matchInfo?.tableId]);
+  }, [tableId, matchInfo?.tableId, t]);
 
   useEffect(() => {
     return () => {
@@ -619,7 +620,7 @@ function ScoreboardPage() {
 
       return () => clearTimeout(timer);
     }
-  }, [matchInfo?.camera?.cameraId, showCamera, isStreaming, isCameraLoading]);
+  }, [matchInfo?.camera?.cameraId, showCamera, isStreaming, isCameraLoading, handleStartCamera]);
 
   useEffect(() => {
     if (showCamera && matchInfo?.camera?.cameraId && !isStreaming && !isCameraLoading) {
@@ -637,7 +638,7 @@ function ScoreboardPage() {
 
       return () => clearTimeout(timer);
     }
-  }, [matchInfo]);
+  }, [handleStartCamera, isCameraLoading, isStreaming, matchInfo, showCamera]);
 
   useEffect(() => {
     if (!matchStartTime) return;
@@ -714,7 +715,7 @@ function ScoreboardPage() {
 
           return await persistScores(newA, newB);
 
-        } catch (syncError) {
+        } catch {
         }
       }
 
@@ -725,15 +726,7 @@ function ScoreboardPage() {
     }
   };
 
-  useEffect(() => {
-    if (matchId && matchInfo?.createdByMembershipId) {
-      syncSessionTokenWithBackend();
-    }
-  }, [matchId, matchInfo?.createdByMembershipId]);
-
-
-
-  const syncSessionTokenWithBackend = async () => {
+  const syncSessionTokenWithBackend = useCallback(async () => {
     if (matchId) {
       try {
 
@@ -744,19 +737,19 @@ function ScoreboardPage() {
         }
         else if (actorGuestToken) {
           const currentTeams = matchInfo?.teams || [];
-          const allMembers = currentTeams.flatMap((t: any) => t.members);
-          const currentMember = allMembers.find((m: any) =>
-            m.guestName && m.guestName.includes(actorGuestToken.slice(-6))
+          const allMembers = currentTeams.flatMap((t: Record<string, unknown>) => (t.members as Array<{ guestName?: string }>) || []);
+          const currentMember = allMembers.find((m: Record<string, unknown>) =>
+            typeof m.guestName === 'string' && m.guestName.includes(actorGuestToken.slice(-6))
           );
-          if (currentMember?.guestName) {
-            sessionTokenPayload.guestName = currentMember.guestName;
+          if ((currentMember as Record<string, unknown>)?.guestName) {
+            sessionTokenPayload.guestName = (currentMember as Record<string, unknown>).guestName as string;
           }
         }
 
         if (Object.keys(sessionTokenPayload).length > 0) {
           const sessionResponse = await userMatchService.getSessionToken(matchId, sessionTokenPayload);
 
-          const responseData = sessionResponse as any;
+          const responseData = sessionResponse as SessionTokenResponse;
           if (responseData.success && responseData.data?.sessionToken) {
             const newSessionToken = responseData.data.sessionToken;
 
@@ -772,13 +765,19 @@ function ScoreboardPage() {
           toast.error(t('scoreboard.error.cannotDetermineUser'));
         }
 
-      } catch (error) {
+      } catch {
         toast.error(t('scoreboard.error.cannotSyncSession'));
       }
     } else {
       toast.error(t('scoreboard.error.noMatchIdToSync'));
     }
-  };
+  }, [matchId, matchInfo?.createdByMembershipId, matchInfo?.teams, actorGuestToken, sessionToken, t]);
+
+  useEffect(() => {
+    if (matchId && matchInfo?.createdByMembershipId) {
+      syncSessionTokenWithBackend();
+    }
+  }, [matchId, matchInfo?.createdByMembershipId, syncSessionTokenWithBackend]);
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -990,7 +989,7 @@ function ScoreboardPage() {
 
                               socketService.emitScoreUpdate(matchId, 0, newScore);
                               return;
-                            } catch (retryError) {
+                            } catch {
 
                             }
                           }
@@ -1024,7 +1023,7 @@ function ScoreboardPage() {
                           });
 
                           socketService.emitScoreUpdate(matchId, 1, newScore);
-                        } catch (error) {
+                        } catch {
                           toast.error('Cập nhật điểm Đội B thất bại');
                           setScoreB(scoreB);
                         }
@@ -1054,7 +1053,7 @@ function ScoreboardPage() {
                           });
 
                           socketService.emitScoreUpdate(matchId, 0, newScore);
-                        } catch (error) {
+                        } catch {
                           toast.error('Cập nhật điểm Đội A thất bại');
                           setScoreA(scoreA);
                         }
@@ -1084,7 +1083,7 @@ function ScoreboardPage() {
                           });
 
                           socketService.emitScoreUpdate(matchId, 1, newScore);
-                        } catch (error) {
+                        } catch {
                           toast.error('Cập nhật điểm Đội B thất bại');
                           setScoreB(scoreB);
                         }
@@ -1215,7 +1214,7 @@ function ScoreboardPage() {
                         setTeamA(teamAMembers);
                         setTeamB(teamBMembers);
                       }
-                    } catch (error) {
+                    } catch {
                     }
                   }, 500);
                 }
@@ -1271,7 +1270,7 @@ function ScoreboardPage() {
                   if (elapsedTime) params.set('elapsedTime', elapsedTime);
 
                   router.push(`/user/match/end?${params.toString()}`);
-                } catch (error) {
+                } catch {
                   toast.error(t('scoreboard.error.cannotEndMatch'));
                 }
               }}

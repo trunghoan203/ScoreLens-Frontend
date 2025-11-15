@@ -134,7 +134,7 @@ function StartSessionContent() {
 
     initializePageFromUrl();
 
-  }, [searchParams, tableCategory, tableName]);
+  }, [searchParams, t, tableCategory, tableName]);
 
   const handleJoin = () => {
     const safeName = fullName.trim() || t('common.guest');
@@ -187,7 +187,20 @@ function StartSessionContent() {
 
       const response = await userMatchService.createMatch(payload);
 
-      const responseData = response as any;
+      type CreateMatchResponse = {
+        success?: boolean;
+        data?: {
+          matchId?: string;
+          id?: string;
+          matchCode?: string;
+          code?: string;
+        };
+        hostSessionToken?: string;
+        creatorGuestToken?: string;
+        [key: string]: unknown;
+      };
+
+      const responseData = response as CreateMatchResponse;
 
       let matchId = '';
       let code = '';

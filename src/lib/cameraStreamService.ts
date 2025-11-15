@@ -24,10 +24,26 @@ export interface StreamStatus {
   wsUrl: string;
 }
 
+interface CameraStreamResponse {
+  success: boolean;
+  message: string;
+  streamInfo?: {
+    isNewStream: boolean;
+    viewerCount: number;
+    startTime: Date;
+  };
+  cameraInfo?: {
+    cameraId: string;
+    IPAddress: string;
+    tableId: string;
+  };
+  wsUrl: string;
+}
+
 export class CameraStreamService {
-  private player: any = null;
+  private player: { destroy: () => void } | null = null;
   private currentCameraId: string | null = null;
-  private streamInfo: any = null;
+  private streamInfo: { isNewStream: boolean; viewerCount: number; startTime: Date } | null = null;
 
   constructor() {
   }
@@ -92,7 +108,7 @@ export class CameraStreamService {
       this.createPlayer(canvasElement, cameraId, response.wsUrl);
 
       this.currentCameraId = cameraId;
-      this.streamInfo = response.streamInfo;
+      this.streamInfo = response.streamInfo || null;
 
       return {
         success: true,
@@ -110,7 +126,7 @@ export class CameraStreamService {
     }
   }
 
-  private async connectCamera(cameraId: string, managerToken?: string | null, sessionToken?: string | null) {
+  private async connectCamera(cameraId: string, managerToken?: string | null, sessionToken?: string | null): Promise<CameraStreamResponse> {
     try {
       const headers: Record<string, string> = {
         'Content-Type': 'application/json'
@@ -126,11 +142,11 @@ export class CameraStreamService {
         headers
       });
 
-      return response.data as any;
+      return response.data as CameraStreamResponse;
 
     } catch (error) {
       console.error('Error connecting camera:', error);
-      const axiosError = error as any;
+      const axiosError = error as { response?: { data?: { message?: string } } };
       if (axiosError.response?.data?.message) {
         throw new Error(axiosError.response.data.message);
       }
@@ -154,7 +170,7 @@ export class CameraStreamService {
         autoplay: true,
         onPlay: () => {
         },
-        onError: (err: any) => {
+        onError: (err: { message?: string }) => {
           console.error('JSMpeg error:', err);
           throw new Error('Failed to connect to camera stream: ' + (err.message || 'Unknown error'));
         },
@@ -192,7 +208,7 @@ export class CameraStreamService {
         headers
       });
 
-      const data = response.data as any;
+      const data = response.data as CameraStreamResponse;
 
       if (this.player) {
         this.player.destroy();
@@ -225,7 +241,7 @@ export class CameraStreamService {
     return this.currentCameraId;
   }
 
-  getStreamInfo(): any {
+  getStreamInfo(): { isNewStream: boolean; viewerCount: number; startTime: Date } | null {
     return this.streamInfo;
   }
 

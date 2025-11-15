@@ -641,7 +641,7 @@ export default {
         },
 
     // Admin Add Branch
-        adminAddBranch: {
+        adminAddClub: {
             branchNameRequired: 'Tên chi nhánh là bắt buộc',
             branchNameMinLength: 'Tên chi nhánh phải có ít nhất 2 ký tự',
             branchNameMaxLength: 'Tên chi nhánh không được vượt quá 255 ký tự',
@@ -2702,6 +2702,7 @@ export default {
     auth: {
         logoutConfirm: 'Bạn có chắc chắn muốn đăng xuất không?',
         logoutSuccess: 'Đăng xuất thành công!',
+        logoutFailed: 'Đăng xuất thất bại. Vui lòng thử lại.',
         roleSelection: {
             title: 'Bạn muốn đăng nhập với vai trò nào?',
             businessOwner: 'Chủ doanh nghiệp',

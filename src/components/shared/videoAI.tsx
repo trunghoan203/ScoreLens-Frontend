@@ -69,7 +69,9 @@ interface MatchData {
   success: boolean;
   match?: {
     startedAt: string;
-    [key: string]: any;
+    createdAt?: string;
+    startTime?: string;
+    [key: string]: unknown;
   };
 }
 
@@ -97,8 +99,6 @@ export default function VideoAI({ onVideoProcessed, onClose, className = '', ana
   const [loadingClips, setLoadingClips] = useState(false);
   const [selectedClip, setSelectedClip] = useState<RecordedClip | null>(null);
   const [showClipsList, setShowClipsList] = useState(false);
-  const [cameras, setCameras] = useState<CameraData[]>([]);
-  const [tables, setTables] = useState<TableData[]>([]);
   const [lastRefreshTime, setLastRefreshTime] = useState<Date>(new Date());
   const [nextRefreshTime, setNextRefreshTime] = useState<Date>(new Date(Date.now() + 20000));
 
@@ -123,7 +123,6 @@ export default function VideoAI({ onVideoProcessed, onClose, className = '', ana
         };
       });
 
-      setTables(transformedTables);
       return transformedTables;
     } catch (error) {
       console.error('Error fetching tables:', error);
@@ -131,7 +130,7 @@ export default function VideoAI({ onVideoProcessed, onClose, className = '', ana
     return [];
   };
 
-  const fetchCamerasForTable = async () => {
+    const fetchCamerasForTable = useCallback(async () => {
     try {
       const response = await axios.get('/manager/camera');
       const data = response.data as unknown;
@@ -140,14 +139,13 @@ export default function VideoAI({ onVideoProcessed, onClose, className = '', ana
         const tableCameras = (data as ApiResponse<CameraData>).cameras?.filter((cam: CameraData) =>
           !tableId || cam.tableId === tableId
         ) || [];
-        setCameras(tableCameras);
         return tableCameras;
       }
     } catch (error) {
       console.error('Error fetching cameras:', error);
     }
     return [];
-  };
+  }, [tableId]);
 
   const fetchRecordedClips = useCallback(async () => {
     try {
@@ -198,10 +196,10 @@ export default function VideoAI({ onVideoProcessed, onClose, className = '', ana
             try {
               const matchData = await managerMatchService.getMatchById(matchId) as MatchData;
 
-              const match = (matchData as any).data || matchData.match;
+              const match = matchData.match;
 
-              if (matchData.success && (match?.startedAt || match?.createdAt || match?.startTime)) {
-                const startTime = match?.startedAt || match?.createdAt || match?.startTime;
+              if (matchData.success && match && (match.startedAt || match.createdAt || match.startTime)) {
+             const startTime = (match.startedAt || match.createdAt || match.startTime) as string;
                 const matchStartTime = new Date(startTime);
 
                 const tableCameras = await fetchCamerasForTable();
@@ -261,10 +259,10 @@ export default function VideoAI({ onVideoProcessed, onClose, className = '', ana
           try {
             const matchData = await managerMatchService.getMatchById(matchId) as MatchData;
 
-            const match = (matchData as any).data || matchData.match;
+            const match = matchData.match;
 
-            if (matchData.success && (match?.startedAt || match?.createdAt || match?.startTime)) {
-              const startTime = match?.startedAt || match?.createdAt || match?.startTime;
+            if (matchData.success && match && (match.startedAt || match.createdAt || match.startTime)) {
+              const startTime = (match.startedAt || match.createdAt || match.startTime) as string;
               const matchStartTime = new Date(startTime);
 
 
@@ -415,7 +413,7 @@ export default function VideoAI({ onVideoProcessed, onClose, className = '', ana
     } finally {
       setLoadingClips(false);
     }
-  }, [tableId, cameraId, matchId]);
+    }, [tableId, cameraId, matchId, fetchCamerasForTable, t]);
 
   useEffect(() => {
     fetchRecordedClips();

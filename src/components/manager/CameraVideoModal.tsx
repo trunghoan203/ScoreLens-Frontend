@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { cameraStreamService } from '@/lib/cameraStreamService';
 import { CameraRecordButton } from './CameraRecordButton';
 import toast from 'react-hot-toast';
@@ -36,7 +36,7 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
   const [recordStatus, setRecordStatus] = useState<RecordStatus>({ isRecording: false });
   const [recordStatusInterval, setRecordStatusInterval] = useState<NodeJS.Timeout | null>(null);
 
-  const fetchRecordStatus = async () => {
+  const fetchRecordStatus = useCallback(async () => {
     if (!cameraId) return;
 
     try {
@@ -75,12 +75,12 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
 
         setRecordStatus(newStatus);
       }
-    } catch (error) {
+    } catch {
       setRecordStatus({ isRecording: false });
     }
-  };
+  }, [cameraId]);
 
-  const startRecordStatusPolling = () => {
+  const startRecordStatusPolling = useCallback(() => {
     if (recordStatusInterval) {
       clearInterval(recordStatusInterval);
     }
@@ -90,14 +90,14 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
     }, 5000);
 
     setRecordStatusInterval(interval);
-  };
+  }, [recordStatusInterval, fetchRecordStatus]);
 
-  const stopRecordStatusPolling = () => {
+  const stopRecordStatusPolling = useCallback(() => {
     if (recordStatusInterval) {
       clearInterval(recordStatusInterval);
       setRecordStatusInterval(null);
     }
-  };
+  }, [recordStatusInterval]);
 
   useEffect(() => {
     if (isOpen && cameraId) {
@@ -108,7 +108,7 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
     return () => {
       stopRecordStatusPolling();
     };
-  }, [isOpen, cameraId]);
+  }, [isOpen, cameraId, fetchRecordStatus, startRecordStatusPolling, stopRecordStatusPolling]);
 
   useEffect(() => {
     if (isOpen && cameraId && videoRef.current) {
@@ -146,22 +146,11 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
       if (cameraId && isStreaming) {
         try {
           cameraStreamService.stopVideoStream(cameraId);
-        } catch (error) {
+        } catch {
         }
       }
     };
-  }, [isOpen, cameraId, t]);
-
-  const handleClose = () => {
-    if (cameraId && isStreaming) {
-      cameraStreamService.stopVideoStream(cameraId);
-    }
-    stopRecordStatusPolling();
-    setIsStreaming(false);
-    setIsLoading(false);
-    setError(null);
-    onClose();
-  };
+  }, [isOpen, cameraId, isStreaming, t]);
 
   const handleConfirm = () => {
     if (cameraId && isStreaming) {
@@ -171,14 +160,11 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
     setIsStreaming(false);
     setIsLoading(false);
     setError(null);
-    onConfirm();
-  };
-
-  const formatTime = (seconds?: number): string => {
-    if (!seconds) return '00:00';
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    if (isDetailView) {
+      onClose();
+    } else {
+      onConfirm();
+    }
   };
 
   if (!isOpen) return null;
@@ -254,7 +240,7 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
             <CameraRecordButton
               cameraId={cameraId}
               duration={20}
-              onSuccess={(result) => {
+              onSuccess={() => {
                 fetchRecordStatus();
               }}
             />

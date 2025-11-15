@@ -56,7 +56,7 @@ export default function MemberDetailPage() {
       .catch(() => {
         toast.error(t('members.cannotLoadMemberData'));
       });
-  }, [memberId]);
+  }, [memberId, t]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};

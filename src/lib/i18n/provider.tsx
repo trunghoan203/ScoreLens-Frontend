@@ -7,30 +7,31 @@ import vi from './locales/vi';
 export type Locale = 'en' | 'vi';
 
 interface I18nContextType {
-    t: (key: string) => any;
+    t: (key: string) => string;
     currentLanguage: Locale;
     changeLanguage: (language: Locale) => void;
 }
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
-const translations: Record<Locale, any> = {
+const translations: Record<Locale, Record<string, unknown>> = {
     en,
     vi,
 };
 
-const getNestedValue = (obj: any, path: string): any => {
+const getNestedValue = (obj: Record<string, unknown>, path: string): string => {
     return path.split('.').reduce((current, key) => {
-        return current && current[key] !== undefined ? current[key] : path;
-    }, obj);
+        if (typeof current === 'object' && current !== null && key in current) {
+            return (current as Record<string, unknown>)[key];
+        }
+        return path;
+    }, obj as unknown) as string;
 };
 
 export const I18nProvider = ({ children }: { children: ReactNode }) => {
     const [currentLanguage, setCurrentLanguage] = useState<Locale>('vi');
-    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
-        setIsClient(true);
         if (typeof window !== 'undefined') {
             const savedLanguage = localStorage.getItem('scorelens-language') as Locale;
             if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'vi')) {
@@ -46,7 +47,7 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    const t = (key: string): any => {
+    const t = (key: string): string => {
         const translation = getNestedValue(translations[currentLanguage], key);
         return translation !== key ? translation : key;
     };
