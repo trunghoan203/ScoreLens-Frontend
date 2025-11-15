@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import toast from 'react-hot-toast';
+
 import { useI18n } from '@/lib/i18n/provider';
 import axios from '@/lib/axios';
 import { managerTableService } from '@/lib/managerTableService';
 import { managerMatchService } from '@/lib/managerMatchService';
+import { config } from '@/lib/config';
 
 interface ProcessVideoResponse {
   success: boolean;
@@ -478,7 +480,7 @@ export default function VideoAI({ onVideoProcessed, onClose, className = '', ana
         lastModified: new Date(clip.createdAt).getTime()
       });
 
-      const videoUrl = `http://localhost:8000/api${clip.url}`;
+      const videoUrl = `${config.apiUrl}${clip.url}`;
 
       setVideoFile(mockFile);
       setVideoUrl(videoUrl);
@@ -527,7 +529,7 @@ export default function VideoAI({ onVideoProcessed, onClose, className = '', ana
         formData.append('analysis_type', analysisType);
         if (selectedClip.filePath) {
           try {
-            const videoUrl = `http://localhost:8000/api${selectedClip.url}`;
+            const videoUrl = `${config.apiUrl}${selectedClip.url}`;
             const response = await fetch(videoUrl);
             
             if (!response.ok) {
@@ -549,7 +551,7 @@ export default function VideoAI({ onVideoProcessed, onClose, className = '', ana
           }
         }
 
-        const res = await fetch('http://localhost:5000/process_video', {
+        const res = await fetch('/process_video', {
           method: 'POST',
           body: formData
         });
@@ -576,7 +578,7 @@ export default function VideoAI({ onVideoProcessed, onClose, className = '', ana
         formData.append('video', videoFile!);
         formData.append('analysis_type', analysisType);
 
-        const res = await fetch('http://localhost:5000/process_video', {
+        const res = await fetch('/process_video', {
           method: 'POST',
           body: formData
         });
