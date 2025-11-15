@@ -917,6 +917,7 @@ export default {
             tryChangingSearch: 'Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy bàn phù hợp',
             viewAll: 'Xem tất cả',
             viewMore: 'Xem thêm',
+            collapse: 'Thu gọn',
             minutes: 'phút',
             hours: 'giờ',
             hour: 'giờ',
