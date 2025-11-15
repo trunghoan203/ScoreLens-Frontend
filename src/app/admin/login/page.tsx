@@ -44,16 +44,16 @@ export default function AdminLoginPage() {
     const newErrors: typeof errors = {};
 
     if (!formData.email) {
-      newErrors.email = t('auth.adminLogin.emailRequired');
+      newErrors.email = t('adminLogin.emailRequired');
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = t('auth.adminLogin.emailInvalid');
+      newErrors.email = t('adminLogin.emailInvalid');
     }
 
     if (!formData.password) {
-      newErrors.password = t('auth.adminLogin.passwordRequired');
-    } else if (formData.password.length < 8) newErrors.password = t('auth.adminLogin.passwordMinLength');
+      newErrors.password = t('adminLogin.passwordRequired');
+    } else if (formData.password.length < 8) newErrors.password = t('adminLogin.passwordMinLength');
     else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])/.test(formData.password))
-      newErrors.password = t('auth.adminLogin.passwordComplexity');
+      newErrors.password = t('adminLogin.passwordComplexity');
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -90,7 +90,7 @@ export default function AdminLoginPage() {
           rememberMe: rememberMe
         });
 
-        toast.success(t('auth.adminLogin.loginSuccess'));
+        toast.success(t('adminLogin.loginSuccess'));
         const redirectUrl = searchParams?.get('redirect');
         if (redirectUrl) {
           router.push(redirectUrl);
@@ -129,7 +129,7 @@ export default function AdminLoginPage() {
           router.push('/admin/confirm');
         }
       } else {
-        const errorMessage = (response.data as { message?: string })?.message || t('auth.adminLogin.loginFailed');
+        const errorMessage = (response.data as { message?: string })?.message || t('adminLogin.loginFailed');
         toast.error(errorMessage);
       }
     } catch (error: unknown) {
@@ -147,10 +147,10 @@ export default function AdminLoginPage() {
         } else if (message) {
           toast.error(message);
         } else {
-          toast.error(t('auth.adminLogin.loginFailed'));
+          toast.error(t('adminLogin.loginFailed'));
         }
       } else {
-        toast.error(message || t('auth.adminLogin.loginFailed'));
+        toast.error(message || t('adminLogin.loginFailed'));
       }
     } finally {
       setIsLoading(false);
@@ -172,15 +172,15 @@ export default function AdminLoginPage() {
 
   return (
     <AuthLayout
-      title={t('auth.adminLogin.title')}
-      description={t('auth.adminLogin.description')}
+      title={t('adminLogin.title')}
+      description={t('adminLogin.description')}
     >
       <SearchParamsWrapper>
         {(searchParams) => (
           <form onSubmit={(e) => handleSubmit(e, searchParams)} className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]" noValidate>
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                {t('auth.adminLogin.emailLabel')}
+                {t('adminLogin.emailLabel')}
               </label>
               <Input
                 type="email"
@@ -190,7 +190,7 @@ export default function AdminLoginPage() {
                 onChange={handleInputChange}
                 className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${errors.email ? 'border-red-500' : 'border-gray-300'
                   }`}
-                placeholder={t('auth.adminLogin.emailPlaceholder')}
+                placeholder={t('adminLogin.emailPlaceholder')}
                 required
                 disabled={isLoading}
               />
@@ -201,7 +201,7 @@ export default function AdminLoginPage() {
 
             <div>
               <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                {t('auth.adminLogin.passwordLabel')}
+                {t('adminLogin.passwordLabel')}
               </label>
               <PasswordInput
                 id="password"
@@ -210,7 +210,7 @@ export default function AdminLoginPage() {
                 onChange={handleInputChange}
                 className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${errors.password ? 'border-red-500' : 'border-gray-300'
                   }`}
-                placeholder={t('auth.adminLogin.passwordPlaceholder')}
+                placeholder={t('adminLogin.passwordPlaceholder')}
                 required
                 disabled={isLoading}
               />
@@ -229,14 +229,14 @@ export default function AdminLoginPage() {
                     className="h-4 w-4 text-lime-500 focus:ring-lime-400 border-gray-300 rounded"
                     disabled={isLoading}
                   />
-                  <span className="text-gray-700">{t('auth.adminLogin.rememberMe')}</span>
+                  <span className="text-gray-700">{t('adminLogin.rememberMe')}</span>
                 </label>
               </div>
               <Link
                 href="/admin/forgotPassword"
                 className="font-medium text-gray-800 hover:text-lime-500 transition-colors"
               >
-                {t('auth.adminLogin.forgotPassword')}
+                {t('adminLogin.forgotPassword')}
               </Link>
             </div>
 
@@ -249,23 +249,23 @@ export default function AdminLoginPage() {
               {isLoading ? (
                 <div className="flex items-center justify-center">
                   <Loader2 className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-900" />
-                  {t('auth.adminLogin.loggingIn')}
+                  {t('adminLogin.loggingIn')}
                 </div>
               ) : (
                 <div className="flex items-center justify-center">
                   <LogIn className="w-5 h-5 mr-2" />
-                  {t('auth.adminLogin.loginButton')}
+                  {t('adminLogin.loginButton')}
                 </div>
               )}
             </Button>
 
             <div className="text-center w-full mt-4">
-              <span className="text-gray-800 text-sm">{t('auth.adminLogin.noAccount')} </span>
+              <span className="text-gray-800 text-sm">{t('adminLogin.noAccount')} </span>
               <Link
                 href="/admin/register"
                 className="text-lime-600 font-semibold hover:underline text-sm transition-colors"
               >
-                {t('auth.adminLogin.register')}
+                {t('adminLogin.register')}
               </Link>
             </div>
 
@@ -275,7 +275,7 @@ export default function AdminLoginPage() {
                 className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1"
               >
                 <ArrowLeft className="w-4 h-4" />
-                {t('auth.adminLogin.backToHome')}
+                {t('adminLogin.backToHome')}
               </Link>
             </div>
           </form>

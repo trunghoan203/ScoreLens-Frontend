@@ -25,7 +25,7 @@ export default function MemberSearchBar({ search, setSearch, onAddMember }: Memb
       </div>
       <button
         onClick={onAddMember}
-        className="w-full sm:w-32 lg:w-40 bg-[#8ADB10] hover:bg-lime-500 text-[#FFFFFF] font-bold px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base"
+        className="w-full sm:w-32 lg:w-48 bg-[#8ADB10] hover:bg-lime-500 text-[#FFFFFF] font-bold px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base"
       >
         {t('manager.memberSearch.addMember')}
       </button>

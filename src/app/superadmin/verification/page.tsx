@@ -97,8 +97,19 @@ function SuperAdminVerificationPageInner() {
       }
       toast.success(t('superAdminVerification.verificationSuccess'));
       router.push(`/superadmin/home`);
-    } catch {
-      toast.error(t('superAdminVerification.verificationFailed'));
+    } catch (error) {
+      const err = error as { message?: string };
+      const serverMessage = err?.message;
+      let errorMessage = t('superAdminVerification.verificationFailed');
+      if (serverMessage) {
+        const lower = serverMessage.toLowerCase();
+        if (lower.includes('mã xác thực') || lower.includes('mã xác') || lower.includes('invalid verification')) {
+          errorMessage = t('superAdminVerification.verificationInvalid') || t('superAdminVerification.verificationFailed');
+        } else {
+          errorMessage = serverMessage;
+        }
+      }
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -114,7 +125,17 @@ function SuperAdminVerificationPageInner() {
       setCanResend(false);
     } catch (error) {
       const err = error as { message?: string };
-      toast.error(err.message || t('superAdminVerification.resendFailed'));
+      const serverMessage = err?.message;
+      let errorMessage = t('superAdminVerification.resendFailed');
+      if (serverMessage) {
+        const lower = serverMessage.toLowerCase();
+        if (lower.includes('mã xác thực') || lower.includes('mã xác') || lower.includes('invalid verification')) {
+          errorMessage = t('superAdminVerification.verificationInvalid') || t('superAdminVerification.resendFailed');
+        } else {
+          errorMessage = serverMessage;
+        }
+      }
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

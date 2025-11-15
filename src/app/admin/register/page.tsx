@@ -62,20 +62,20 @@ export default function AdminRegisterPage() {
 
   const validateStep1 = () => {
     const newErrors: typeof errors = {};
-    if (!formData.fullName) newErrors.fullName = t('auth.adminRegister.fullNameRequired');
-    if (!formData.email) newErrors.email = t('auth.adminRegister.emailRequired');
+    if (!formData.fullName) newErrors.fullName = t('adminRegister.fullNameRequired');
+    if (!formData.email) newErrors.email = t('adminRegister.emailRequired');
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
   const validateStep2 = () => {
     const newErrors: typeof errors = {};
-    if (!formData.password) newErrors.password = t('auth.adminRegister.passwordRequired');
-    else if (formData.password.length < 8) newErrors.password = t('auth.adminRegister.passwordMinLength');
-    else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])/.test(formData.password)) newErrors.password = t('auth.adminRegister.passwordComplexity');
-    if (!formData.confirmPassword) newErrors.confirmPassword = t('auth.adminRegister.confirmPasswordRequired');
-    else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = t('auth.adminRegister.confirmPasswordMismatch');
+    if (!formData.password) newErrors.password = t('adminRegister.passwordRequired');
+    else if (formData.password.length < 8) newErrors.password = t('adminRegister.passwordMinLength');
+    else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])/.test(formData.password)) newErrors.password = t('adminRegister.passwordComplexity');
+    if (!formData.confirmPassword) newErrors.confirmPassword = t('adminRegister.confirmPasswordRequired');
+    else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = t('adminRegister.confirmPasswordMismatch');
     if (!formData.agree) {
-      toast.error(t('auth.adminRegister.agreeRequired'));
+      toast.error(t('adminRegister.agreeRequired'));
       return false;
     }
     setErrors(newErrors);
@@ -108,7 +108,7 @@ export default function AdminRegisterPage() {
         password: formData.password,
       });
 
-      toast.success(t('auth.adminRegister.registerSuccess'));
+      toast.success(t('adminRegister.registerSuccess'));
       setStep(3);
     } catch (error: unknown) {
       const err = error as {
@@ -125,10 +125,10 @@ export default function AdminRegisterPage() {
         } else if (message) {
           toast.error(message);
         } else {
-          toast.error(t('auth.adminRegister.registerFailed'));
+          toast.error(t('adminRegister.registerFailed'));
         }
       } else {
-        toast.error(message || t('auth.adminRegister.registerFailed'));
+        toast.error(message || t('adminRegister.registerFailed'));
       }
     } finally {
       setIsLoading(false);
@@ -176,11 +176,22 @@ export default function AdminRegisterPage() {
         email: formData.email,
         activationCode: otpString,
       });
-      toast.success(t('auth.adminRegister.registerSuccess'));
+      toast.success(t('adminRegister.registerSuccess'));
       router.push("/admin/login");
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      const errorMessage = err.response?.data?.message || t('auth.adminRegister.registerFailed');
+      const serverMessage = err.response?.data?.message;
+      let errorMessage = t('adminRegister.registerFailed');
+      if (serverMessage) {
+        const lower = serverMessage.toLowerCase();
+        if (lower.includes('mã xác thực') || lower.includes('mã xác') || lower.includes('mã xác minh') || lower.includes('mã xác nhận')) {
+          errorMessage = t('adminRegister.verificationInvalid') || t('adminRegister.registerFailed');
+        } else if (lower.includes('invalid verification') || (lower.includes('verification') && lower.includes('invalid'))) {
+          errorMessage = t('adminRegister.verificationInvalid') || t('adminRegister.registerFailed');
+        } else {
+          errorMessage = serverMessage;
+        }
+      }
       toast.error(errorMessage);
     } finally {
       setIsVerifying(false);
@@ -198,7 +209,16 @@ export default function AdminRegisterPage() {
       setCanResend(false);
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      const errorMessage = err.response?.data?.message || t('auth.adminRegister.registerFailed');
+      const serverMessage = err.response?.data?.message;
+      let errorMessage = t('adminRegister.registerFailed');
+      if (serverMessage) {
+        const lower = serverMessage.toLowerCase();
+        if (lower.includes('mã xác thực') || lower.includes('mã xác') || lower.includes('mã xác minh') || lower.includes('mã xác nhận') || lower.includes('invalid verification')) {
+          errorMessage = t('adminRegister.verificationInvalid') || t('adminRegister.registerFailed');
+        } else {
+          errorMessage = serverMessage;
+        }
+      }
       toast.error(errorMessage);
     } finally {
       setIsVerifying(false);
@@ -209,14 +229,14 @@ export default function AdminRegisterPage() {
 
   return (
     <AuthLayout
-      title={t('auth.adminRegister.title')}
-      description={t('auth.adminRegister.description')}
+      title={t('adminRegister.title')}
+      description={t('adminRegister.description')}
     >
       {step === 1 && (
         <form className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]" onSubmit={e => { e.preventDefault(); if (validateStep1()) setStep(2); }} noValidate>
           <div>
             <label htmlFor="fullName" className="block text-sm font-semibold text-gray-700 mb-2">
-              {t('auth.adminRegister.fullNameLabel')}
+              {t('adminRegister.fullNameLabel')}
             </label>
             <Input
               type="text"
@@ -225,7 +245,7 @@ export default function AdminRegisterPage() {
               value={formData.fullName}
               onChange={handleInputChange}
               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${errors.fullName ? "border-red-500" : "border-gray-300"}`}
-              placeholder={t('auth.adminRegister.fullNamePlaceholder')}
+              placeholder={t('adminRegister.fullNamePlaceholder')}
               required
               disabled={isLoading}
             />
@@ -233,7 +253,7 @@ export default function AdminRegisterPage() {
           </div>
           <div>
             <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-              {t('auth.adminRegister.emailLabel')}
+              {t('adminRegister.emailLabel')}
             </label>
             <Input
               type="email"
@@ -242,17 +262,17 @@ export default function AdminRegisterPage() {
               value={formData.email}
               onChange={handleInputChange}
               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${errors.email ? "border-red-500" : "border-gray-300"}`}
-              placeholder={t('auth.adminRegister.emailPlaceholder')}
+              placeholder={t('adminRegister.emailPlaceholder')}
               required
               disabled={isLoading}
             />
             {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
           </div>
-          <Button type="submit" variant="lime" fullWidth disabled={isLoading}>{t('auth.adminRegister.continueButton')}</Button>
+          <Button type="submit" variant="lime" fullWidth disabled={isLoading}>{t('adminRegister.continueButton')}</Button>
           <div className="text-center w-full mt-4">
-            <span className="text-gray-800 text-sm">{t('auth.adminRegister.hasAccount')} </span>
+            <span className="text-gray-800 text-sm">{t('adminRegister.hasAccount')} </span>
             <Link href="/admin/login" className="text-lime-600 font-semibold hover:underline text-sm transition-colors">
-              {t('auth.adminRegister.login')}
+              {t('adminRegister.login')}
             </Link>
           </div>
           <div className="text-center mt-6">
@@ -261,7 +281,7 @@ export default function AdminRegisterPage() {
               className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1"
             >
               <ArrowLeft className="w-4 h-4" />
-              {t('auth.adminRegister.backToHome')}
+              {t('adminRegister.backToHome')}
             </Link>
           </div>
         </form>
@@ -270,7 +290,7 @@ export default function AdminRegisterPage() {
         <form className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]" onSubmit={handleSubmit} noValidate>
           <div>
             <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-              {t('auth.adminRegister.passwordLabel')}
+              {t('adminRegister.passwordLabel')}
             </label>
             <PasswordInput
               id="password"
@@ -278,18 +298,18 @@ export default function AdminRegisterPage() {
               value={formData.password}
               onChange={handleInputChange}
               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${errors.password ? "border-red-500" : "border-gray-300"}`}
-              placeholder={t('auth.adminRegister.passwordPlaceholder')}
+              placeholder={t('adminRegister.passwordPlaceholder')}
               required
               disabled={isLoading}
             />
             <p className="text-gray-500 text-xs mt-1">
-              {t('auth.adminRegister.passwordHint')}
+              {t('adminRegister.passwordHint')}
             </p>
             {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
           </div>
           <div>
             <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
-              {t('auth.adminRegister.confirmPasswordLabel')}
+              {t('adminRegister.confirmPasswordLabel')}
             </label>
             <PasswordInput
               id="confirmPassword"
@@ -297,7 +317,7 @@ export default function AdminRegisterPage() {
               value={formData.confirmPassword}
               onChange={handleInputChange}
               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all ${errors.confirmPassword ? "border-red-500" : "border-gray-300"}`}
-              placeholder={t('auth.adminRegister.confirmPasswordPlaceholder')}
+              placeholder={t('adminRegister.confirmPasswordPlaceholder')}
               required
               disabled={isLoading}
             />
@@ -314,12 +334,12 @@ export default function AdminRegisterPage() {
               disabled={isLoading}
             />
             <label htmlFor="agree" className="text-gray-700 text-sm">
-              {t('auth.adminRegister.agreeTerms')} <Link href="/terms" className="text-lime-600 font-semibold hover:underline">{t('auth.adminRegister.termsOfService')}</Link>
+              {t('adminRegister.agreeTerms')} <Link href="/terms" className="text-lime-600 font-semibold hover:underline">{t('adminRegister.termsOfService')}</Link>
             </label>
           </div>
           <div className="flex gap-2">
             <Button type="submit" variant="lime" fullWidth disabled={isLoading}>
-              {isLoading ? t('auth.adminRegister.registering') : t('auth.adminRegister.registerButton')}
+              {isLoading ? t('adminRegister.registering') : t('adminRegister.registerButton')}
             </Button>
           </div>
           <div className="text-center mt-6">
@@ -329,7 +349,7 @@ export default function AdminRegisterPage() {
               className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1 cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
-              {t('auth.adminRegister.backButton')}
+              {t('adminRegister.backButton')}
             </Link>
           </div>
         </form>
@@ -338,10 +358,10 @@ export default function AdminRegisterPage() {
         <form className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]" onSubmit={handleVerifySubmit} noValidate>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-4">
-              {t('auth.adminRegister.verificationTitle')}
+              {t('adminRegister.verificationTitle')}
             </label>
             <p className="text-gray-600 text-sm mb-4">
-              {t('auth.adminRegister.verificationDescription')} {formData.email}
+              {t('adminRegister.verificationDescription')} {formData.email}
             </p>
             <div className="flex gap-3 justify-center mb-4" onPaste={handlePaste}>
               {otp.map((digit, index) => (
@@ -387,12 +407,12 @@ export default function AdminRegisterPage() {
             className="w-full bg-lime-400 text-gray-900 font-bold py-3 px-6 rounded-lg hover:bg-lime-500 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={!isOtpValid}
           >
-            {isVerifying ? t('auth.adminRegister.verifying') : t('auth.adminRegister.verificationButton')}
+            {isVerifying ? t('adminRegister.verifying') : t('adminRegister.verificationButton')}
           </Button>
 
           <div className="text-center space-y-4">
             <div>
-              <span className="text-gray-600 text-sm">Không nhận được mã? </span>
+              <span className="text-gray-600 text-sm">{t('adminRegister.notReceivedCode')} </span>
               {canResend ? (
                 <button
                   type="button"
@@ -400,11 +420,11 @@ export default function AdminRegisterPage() {
                   disabled={isVerifying}
                   className="text-lime-600 font-semibold hover:underline text-sm transition-colors disabled:opacity-50"
                 >
-                  {t('auth.adminRegister.resendCode')}
+                  {t('adminRegister.resendCode')}
                 </button>
               ) : (
                 <span className="text-gray-500 text-sm">
-                  {t('auth.adminRegister.resendTimer')} {resendTimer}s
+                  {t('adminRegister.resendTimer')} {resendTimer}s
                 </span>
               )}
             </div>
@@ -415,7 +435,7 @@ export default function AdminRegisterPage() {
                 className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1 cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
-                {t('auth.adminRegister.backButton')}
+                {t('adminRegister.backButton')}
               </Link>
             </div>
           </div>

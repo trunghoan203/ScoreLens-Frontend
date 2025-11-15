@@ -34,11 +34,11 @@ export default function AdminForgotPasswordPage() {
     setIsLoading(true);
     try {
       await axios.post('/admin/forgotPassword', { email });
-      toast.success(t('auth.forgotPassword.emailSentSuccess'));
+      toast.success(t('forgotPassword.emailSentSuccess'));
       setStep(2);
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
-      const errorMessage = error.response?.data?.message || t('auth.forgotPassword.generalError');
+      const errorMessage = error.response?.data?.message || t('forgotPassword.generalError');
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -49,24 +49,24 @@ export default function AdminForgotPasswordPage() {
     e.preventDefault();
     setIsLoading(true);
     if (newPassword.length < 8) {
-      const errorMessage = t('auth.forgotPassword.passwordMinLength');
+      const errorMessage = t('forgotPassword.passwordMinLength');
       toast.error(errorMessage);
       setIsLoading(false);
       return;
     }
     if (newPassword !== confirmPassword) {
-      const errorMessage = t('auth.forgotPassword.passwordMismatch');
+      const errorMessage = t('forgotPassword.passwordMismatch');
       toast.error(errorMessage);
       setIsLoading(false);
       return;
     }
     try {
       await axios.post('/admin/set-newPassword', { email, newPassword });
-      toast.success(t('auth.forgotPassword.resetSuccess'));
+      toast.success(t('forgotPassword.resetSuccess'));
       setStep(4);
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
-      const errorMessage = error.response?.data?.message || t('auth.forgotPassword.resetFailed');
+      const errorMessage = error.response?.data?.message || t('forgotPassword.resetFailed');
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -90,16 +90,16 @@ export default function AdminForgotPasswordPage() {
                     className="mb-4"
                   />
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-center text-black mb-2">{t('auth.forgotPassword.successTitle')}</h2>
-                <p className="text-base sm:text-lg text-center text-gray-700 mb-2">{t('auth.forgotPassword.successDescription')}</p>
+                <h2 className="text-2xl sm:text-3xl font-bold text-center text-black mb-2">{t('forgotPassword.successTitle')}</h2>
+                <p className="text-base sm:text-lg text-center text-gray-700 mb-2">{t('forgotPassword.successDescription')}</p>
                 <div className="flex justify-center my-4 sm:my-6">
                   <div className="animate-success-bounce">
                     <CheckCircle size={80} strokeWidth={2} className="sm:w-[110px] sm:h-[110px] text-lime-400" fill="none" />
                   </div>
                 </div>
-                <div className="text-lg sm:text-xl font-bold text-black text-center mb-2 animate-success-pop">{t('auth.forgotPassword.canLoginNow')}</div>
+                <div className="text-lg sm:text-xl font-bold text-black text-center mb-2 animate-success-pop">{t('forgotPassword.canLoginNow')}</div>
                 <Link href="/admin/login" className="bg-lime-400 text-white hover:bg-lime-500 rounded-lg py-3 sm:py-4 text-sm sm:text-base font-semibold transition-transform w-full flex justify-center items-center touch-manipulation">
-                  {t('auth.forgotPassword.backToLogin')}
+                  {t('forgotPassword.backToLogin')}
                 </Link>
               </div>
             </div>
@@ -116,8 +116,8 @@ export default function AdminForgotPasswordPage() {
         </div>
       ) : (
         <AuthLayout
-          title={t('auth.forgotPassword.title')}
-          description={t('auth.forgotPassword.description')}
+          title={t('forgotPassword.title')}
+          description={t('forgotPassword.description')}
         >
 
           {step === 1 && (
@@ -133,7 +133,7 @@ export default function AdminForgotPasswordPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all border-gray-300 text-sm sm:text-base"
-                  placeholder={t('auth.forgotPassword.emailPlaceholder')}
+                  placeholder={t('forgotPassword.emailPlaceholder')}
                   required
                   disabled={isLoading}
                 />
@@ -148,22 +148,22 @@ export default function AdminForgotPasswordPage() {
                 {isLoading ? (
                   <div className="flex items-center justify-center">
                     <Loader2 className="animate-spin -ml-1 mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5 text-gray-900" />
-                    <span className="text-sm sm:text-base">{t('auth.forgotPassword.sending')}</span>
+                    <span className="text-sm sm:text-base">{t('forgotPassword.sending')}</span>
                   </div>
                 ) : (
                   <div className="flex items-center justify-center">
                     <Mail className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                    <span className="text-sm sm:text-base">{t('auth.forgotPassword.sendButton')}</span>
+                    <span className="text-sm sm:text-base">{t('forgotPassword.sendButton')}</span>
                   </div>
                 )}
               </Button>
               <div className="text-center w-full mt-4">
-                <span className="text-gray-800 text-xs sm:text-sm">{t('auth.forgotPassword.rememberPassword')} </span>
+                <span className="text-gray-800 text-xs sm:text-sm">{t('forgotPassword.rememberPassword')} </span>
                 <Link
                   href="/admin/login"
                   className="text-lime-600 font-semibold hover:underline text-xs sm:text-sm transition-colors touch-manipulation"
                 >
-                  {t('auth.forgotPassword.backToLogin')}
+                  {t('forgotPassword.backToLogin')}
                 </Link>
               </div>
               <div className="text-center mt-4 sm:mt-6">
@@ -192,7 +192,7 @@ export default function AdminForgotPasswordPage() {
             <form onSubmit={handleSubmitNewPassword} className="space-y-4 sm:space-y-6 p-4 sm:p-6 overflow-hidden" noValidate>
               <div>
                 <label htmlFor="newPassword" className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t('auth.forgotPassword.newPasswordLabel')}
+                  {t('forgotPassword.newPasswordLabel')}
                 </label>
                 <PasswordInput
                   id="newPassword"
@@ -200,14 +200,14 @@ export default function AdminForgotPasswordPage() {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all border-gray-300 text-sm sm:text-base"
-                  placeholder={t('auth.forgotPassword.newPasswordPlaceholder')}
+                  placeholder={t('forgotPassword.newPasswordPlaceholder')}
                   required
                   disabled={isLoading}
                 />
               </div>
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t('auth.forgotPassword.confirmPasswordLabel')}
+                  {t('forgotPassword.confirmPasswordLabel')}
                 </label>
                 <PasswordInput
                   id="confirmPassword"
@@ -215,7 +215,7 @@ export default function AdminForgotPasswordPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all border-gray-300 text-sm sm:text-base"
-                  placeholder={t('auth.forgotPassword.confirmPasswordPlaceholder')}
+                  placeholder={t('forgotPassword.confirmPasswordPlaceholder')}
                   required
                   disabled={isLoading}
                 />
@@ -227,7 +227,7 @@ export default function AdminForgotPasswordPage() {
                 disabled={isLoading || !newPassword || !confirmPassword}
                 className="w-full py-3 sm:py-4 text-base sm:text-lg font-semibold"
               >
-                {isLoading ? t('auth.forgotPassword.resetting') : t('auth.forgotPassword.resetButton')}
+                {isLoading ? t('forgotPassword.resetting') : t('forgotPassword.resetButton')}
               </Button>
             </form>
           )}
