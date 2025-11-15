@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import TableStatusBadge from './TableStatusBadge';
@@ -7,6 +7,24 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import axios from '@/lib/axios';
 import { useI18n } from '@/lib/i18n/provider';
+
+interface Member {
+  membershipId?: string;
+  membershipName?: string;
+  [key: string]: unknown;
+}
+
+interface MatchResponse {
+  success?: boolean;
+  data?: {
+    teams?: Array<{
+      members?: Member[];
+      [key: string]: unknown;
+    }>;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
 
 interface TableAvailableViewProps {
   table: { id: string; name: string; category?: string };
@@ -42,7 +60,7 @@ export default function TableAvailableView({ table, onReady, loading = false, te
       if (isEditing && activeMatchId) {
         try {
           const matchResponse = await axios.get(`/manager/matches/${activeMatchId}`);
-          const matchData = matchResponse.data as any;
+          const matchData = matchResponse.data as MatchResponse;
 
           if (matchData.success && matchData.data?.teams) {
             const newTeamAMembershipInfo = new Map();
@@ -50,7 +68,7 @@ export default function TableAvailableView({ table, onReady, loading = false, te
 
             // Process Team A
             if (matchData.data.teams[0]?.members) {
-              matchData.data.teams[0].members.forEach((member: any) => {
+              matchData.data.teams[0].members.forEach((member: Member) => {
                 if (member.membershipId && member.membershipName) {
                   newTeamAMembershipInfo.set(member.membershipName.trim().toLowerCase(), {
                     membershipId: member.membershipId,
@@ -62,7 +80,7 @@ export default function TableAvailableView({ table, onReady, loading = false, te
 
             // Process Team B
             if (matchData.data.teams[1]?.members) {
-              matchData.data.teams[1].members.forEach((member: any) => {
+              matchData.data.teams[1].members.forEach((member: Member) => {
                 if (member.membershipId && member.membershipName) {
                   newTeamBMembershipInfo.set(member.membershipName.trim().toLowerCase(), {
                     membershipId: member.membershipId,

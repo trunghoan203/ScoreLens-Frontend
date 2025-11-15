@@ -511,7 +511,7 @@ export default function FeedbackDetailPage() {
                     {t('superAdminFeedbackDetail.save')}
                   </button>
                 </>
-              ) : feedback?.status === 'superadminP' ? (
+              ) : canShowEditButton ? (
                 <>
                   <button
                     type="button"

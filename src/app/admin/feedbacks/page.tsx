@@ -88,7 +88,7 @@ export default function AdminFeedbacksPage() {
     if (!isChecking) {
       fetchData();
     }
-  }, [isChecking]);
+  }, [isChecking, t]);
 
   const filteredFeedbacks = feedbacks.filter(f => {
     const branch = (f.branch || '').toString().toLowerCase();

@@ -16,6 +16,12 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
   const [teamAMembershipInfo, setTeamAMembershipInfo] = useState<Map<string, { membershipId: string; membershipName: string }>>(new Map());
   const [teamBMembershipInfo, setTeamBMembershipInfo] = useState<Map<string, { membershipId: string; membershipName: string }>>(new Map());
 
+  interface TeamMember {
+    membershipId?: string;
+    membershipName?: string;
+    [key: string]: unknown;
+  }
+
   useEffect(() => {
     const cleanupDuplicates = (team: string[]) => {
       const seen = new Set<string>();
@@ -49,12 +55,12 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
           const responseData = (matchData as { data?: { teams?: Array<{ members?: Array<{ membershipId?: string; membershipName?: string }> }> } })?.data || matchData;
           const matchInfoData = responseData as { teams?: Array<{ members?: Array<{ membershipId?: string; membershipName?: string }> }> };
 
-          if (matchInfoData?.teams) {
-            const newTeamAMembershipInfo = new Map();
-            const newTeamBMembershipInfo = new Map();
+            if (matchInfoData?.teams) {
+            const newTeamAMembershipInfo = new Map<string, { membershipId: string; membershipName: string }>();
+            const newTeamBMembershipInfo = new Map<string, { membershipId: string; membershipName: string }>();
 
             if (matchInfoData.teams[0]?.members) {
-              matchInfoData.teams[0].members.forEach((member: any) => {
+              matchInfoData.teams[0].members.forEach((member: TeamMember) => {
                 if (member.membershipId && member.membershipName) {
                   newTeamAMembershipInfo.set(member.membershipName.trim().toLowerCase(), {
                     membershipId: member.membershipId,
@@ -68,7 +74,7 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
             }
 
             if (matchInfoData.teams[1]?.members) {
-              matchInfoData.teams[1].members.forEach((member: any) => {
+              matchInfoData.teams[1].members.forEach((member: TeamMember) => {
                 if (member.membershipId && member.membershipName) {
                   newTeamBMembershipInfo.set(member.membershipName.trim().toLowerCase(), {
                     membershipId: member.membershipId,
@@ -83,8 +89,8 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
 
             setTeamAMembershipInfo(newTeamAMembershipInfo);
             setTeamBMembershipInfo(newTeamBMembershipInfo);
-          }
-        } catch (error) {
+            }
+        } catch {
         }
       }
     };
@@ -206,7 +212,7 @@ export default function TeamMembers({ onClose, onSave, initialTeamA, initialTeam
                 });
               }
 
-            } catch (error) {
+            } catch {
               guestUpdates.push({
                 teamIndex,
                 memberIndex,

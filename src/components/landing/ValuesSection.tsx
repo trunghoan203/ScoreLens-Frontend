@@ -7,6 +7,11 @@ interface ValueCardProps {
   description: string;
 }
 
+interface ValueItem {
+  title: string;
+  description: string;
+}
+
 const ValueCard: React.FC<ValueCardProps> = ({ num, title, description }) => (
   <div className="bg-[#000000] p-6 sm:p-8 rounded-xl">
     <div className="text-lime-400 text-xl sm:text-2xl font-bold">{num}</div>
@@ -18,7 +23,10 @@ const ValueCard: React.FC<ValueCardProps> = ({ num, title, description }) => (
 export const ValuesSection = () => {
   const { t } = useI18n();
 
-  const values: ValueCardProps[] = t('home.values.items').map((item: any, index: number) => ({
+  const rawValues = t('home.values.items') as unknown;
+  const items = Array.isArray(rawValues) ? (rawValues as ValueItem[]) : [];
+
+  const values: ValueCardProps[] = items.map((item: ValueItem, index: number) => ({
     num: `0${index + 1}`,
     title: item.title,
     description: item.description,

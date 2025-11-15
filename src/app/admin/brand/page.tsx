@@ -73,7 +73,7 @@ export default function BrandInfoPage() {
       }
     };
     fetchData();
-  }, []);
+  }, [t]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};

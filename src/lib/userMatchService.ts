@@ -280,10 +280,17 @@ class UserMatchService {
   async updateTeamMembersV2(matchId: string, teams: Array<Array<{ guestName?: string; phoneNumber?: string }>>, sessionToken: string, actorGuestToken?: string, actorMembershipId?: string) {
     try {
 
-      const payload = {
+      const payload: UpdateTeamMembersRequestV2 & { actorGuestToken?: string; actorMembershipId?: string } = {
         teams,
         sessionToken
       };
+
+      if (actorGuestToken) {
+        payload.actorGuestToken = actorGuestToken;
+      }
+      if (actorMembershipId) {
+        payload.actorMembershipId = actorMembershipId;
+      }
 
 
       const res = await axios.put(`/membership/matches/${matchId}/teams`, payload);
@@ -329,7 +336,7 @@ class UserMatchService {
     try {
       const res = await axios.delete(`/membership/matches/${matchId}`, {
         data: payload
-      } as any);
+      } as unknown as Parameters<typeof axios.delete>[1]);
       return res.data;
     } catch (error) {
       throw this.handleError(error);

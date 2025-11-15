@@ -25,7 +25,7 @@ function HomeRandomContent() {
   const creatorName = searchParams!.get('name') || searchParams!.get('fullName') || '';
   const sessionToken = searchParams!.get('sessionToken') || '';
 
-  const [roomCode, setRoomCode] = useState(existingCode);
+  const [roomCode, ] = useState(existingCode);
   const [loading, setLoading] = useState(true);
   const [matchId, setMatchId] = useState(existingMatchId);
   const [tableInfo, setTableInfo] = useState<{
@@ -42,14 +42,17 @@ function HomeRandomContent() {
   const socketRef = useRef<Socket | null>(null);
 
   const {
-    role: matchRole,
     isHost,
     authenticateMatch,
     isLoading: authLoading,
     error: authError
   } = useMatchRole(matchId || undefined, socketRef.current);
 
-
+  type SessionTokenResponse = {
+    success?: boolean;
+    data?: { sessionToken?: string };
+    [key: string]: unknown;
+  };
 
   useEffect(() => {
     const loadMatchData = async () => {
@@ -81,9 +84,9 @@ function HomeRandomContent() {
             }
 
             setTableInfo(tableInfoData);
-          } catch (error) {
-            if (error instanceof Error) {
-              toast.error(`Lỗi tải thông tin bàn: ${error.message}`);
+          } catch (err: unknown) {
+            if (err instanceof Error) {
+              toast.error(`Lỗi tải thông tin bàn: ${err.message}`);
             } else {
               toast.error(t('userMatch.lobby.error.cannotLoadTableInfo'));
             }
@@ -117,7 +120,7 @@ function HomeRandomContent() {
                 setTeamB(teamBMembers.length > 0 ? teamBMembers : ['']);
               }
             }
-          } catch (error) {
+          } catch {
             toast.error(t('userMatch.lobby.error.cannotLoadMatchInfo'));
           }
         }
@@ -149,16 +152,16 @@ function HomeRandomContent() {
                 setTeamB(teamBMembers.length > 0 ? teamBMembers : ['']);
               }
             }
-          } catch (error) {
+          } catch {
             toast.error(t('userMatch.lobby.error.cannotLoadMatchByCode'));
           }
         }
 
-        if (creatorName && (teamA.length === 0 || teamA[0] === '')) {
-          setTeamA([creatorName]);
+        if (creatorName) {
+          setTeamA(prev => (prev.length === 0 || prev[0] === '') ? [creatorName] : prev);
         }
 
-      } catch (error) {
+      } catch {
         toast.error(t('userMatch.lobby.error.errorLoadingData'));
       } finally {
         setLoading(false);
@@ -166,7 +169,7 @@ function HomeRandomContent() {
     };
 
     loadMatchData();
-  }, [tableId, matchId, existingCode, creatorName, t]);
+  }, [tableId, matchId, existingCode, creatorName, t, tableNumber]);
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -199,10 +202,10 @@ function HomeRandomContent() {
           }
 
           const sessionResponse = await userMatchService.getSessionToken(matchId, sessionTokenPayload);
-          const responseData = sessionResponse as any;
+          const responseData = sessionResponse as SessionTokenResponse;
 
           if (responseData.success && responseData.data?.sessionToken) {
-            const userSessionToken = responseData.data.sessionToken;
+            const userSessionToken = responseData.data.sessionToken as string;
 
             setSession(matchId, {
               sessionToken: userSessionToken,
@@ -214,13 +217,13 @@ function HomeRandomContent() {
           }
         } else {
         }
-      } catch (error) {
+      } catch {
         toast.error(t('userMatch.lobby.error.sessionRestoreError'));
       }
     };
 
     bootstrapAuth();
-  }, [matchId, t]);
+  }, [authenticateMatch, matchId, t]);
 
   useEffect(() => {
     const performAuth = async () => {
@@ -242,27 +245,27 @@ function HomeRandomContent() {
             }
           }
 
-          if (Object.keys(sessionTokenPayload).length > 0) {
+            if (Object.keys(sessionTokenPayload).length > 0) {
             const sessionResponse = await userMatchService.getSessionToken(matchId, sessionTokenPayload);
-            const responseData = sessionResponse as any;
+            const responseData = sessionResponse as SessionTokenResponse;
 
             if (responseData.success && responseData.data?.sessionToken) {
-              const participantSessionToken = responseData.data.sessionToken;
+              const participantSessionToken = responseData.data.sessionToken as string;
 
               await authenticateMatch(matchId, participantSessionToken);
             } else {
               toast.error(t('userMatch.lobby.error.cannotAuthenticateJoin'));
             }
-          } else {
-            toast.error(t('userMatch.lobby.error.missingAuthInfo'));
+            } else {
+              toast.error(t('userMatch.lobby.error.missingAuthInfo'));
+            }
+          } catch {
           }
-        } catch (error) {
-        }
       }
     };
 
     performAuth();
-  }, [matchId, sessionToken, t]);
+  }, [authenticateMatch, matchId, searchParams, sessionToken, t]);
 
   useEffect(() => {
     if (authError) {
@@ -310,23 +313,25 @@ function HomeRandomContent() {
           }
         });
 
-        socket.on('guest_joined', (data) => {
+        socket.on('guest_joined', () => {
           toast.success(t('userMatch.lobby.success.newPlayerJoined'));
         });
 
-        socket.on('guest_left', (data) => {
+        socket.on('guest_left', () => {
           toast(t('userMatch.lobby.error.playerLeft'));
         });
 
-        socket.on('match_updated', (data) => {
-          if (data.teams && Array.isArray(data.teams)) {
+        socket.on('match_updated', (data: unknown) => {
+          const payload = data as { teams?: Array<{ members?: Array<Record<string, unknown>> }> };
+          if (payload.teams && Array.isArray(payload.teams)) {
             const guests: Array<{ id: string, name: string, team: 'A' | 'B', joinedAt: Date }> = [];
 
-            if (data.teams[0]?.members && Array.isArray(data.teams[0].members)) {
+            if (payload.teams[0]?.members && Array.isArray(payload.teams[0].members)) {
               const teamAMembers: string[] = [];
-              data.teams[0].members.forEach((member: { guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }, index: number) => {
-                const memberName =
-                  member.guestName || member.membershipName || member.fullName || member.name || member.userName || member.displayName || t('userMatch.lobby.playerPlaceholder').replace('{index}', (index + 1).toString());
+              payload.teams[0].members.forEach((member, index: number) => {
+                const mObj = (member as Record<string, unknown>) || {};
+                const getStr = (k: string) => (typeof mObj[k] === 'string' ? (mObj[k] as string) : '');
+                const memberName = getStr('guestName') || getStr('membershipName') || getStr('fullName') || getStr('name') || getStr('userName') || getStr('displayName') || t('userMatch.lobby.playerPlaceholder').replace('{index}', (index + 1).toString());
                 teamAMembers.push(memberName);
                 guests.push({
                   id: `teamA-${index}`,
@@ -338,11 +343,12 @@ function HomeRandomContent() {
               setTeamA(teamAMembers.length > 0 ? teamAMembers : ['']);
             }
 
-            if (data.teams[1]?.members && Array.isArray(data.teams[1].members)) {
+            if (payload.teams[1]?.members && Array.isArray(payload.teams[1].members)) {
               const teamBMembers: string[] = [];
-              data.teams[1].members.forEach((member: { guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }, index: number) => {
-                const memberName =
-                  member.guestName || member.membershipName || member.fullName || member.name || member.userName || member.displayName || t('userMatch.lobby.playerPlaceholder').replace('{index}', (index + 1).toString());
+              payload.teams[1].members.forEach((member, index: number) => {
+                const mObj = (member as Record<string, unknown>) || {};
+                const getStr = (k: string) => (typeof mObj[k] === 'string' ? (mObj[k] as string) : '');
+                const memberName = getStr('guestName') || getStr('membershipName') || getStr('fullName') || getStr('name') || getStr('userName') || getStr('displayName') || t('userMatch.lobby.playerPlaceholder').replace('{index}', (index + 1).toString());
                 teamBMembers.push(memberName);
                 guests.push({
                   id: `teamB-${index}`,
@@ -354,12 +360,11 @@ function HomeRandomContent() {
               setTeamB(teamBMembers.length > 0 ? teamBMembers : ['']);
             }
 
-
           }
         });
 
         socket.connect();
-      } catch (error) {
+      } catch {
         setIsWebSocketConnected(false);
       }
     };
@@ -461,7 +466,7 @@ function HomeRandomContent() {
           toast.error(t('userMatch.lobby.error.cannotAuthenticateStart'));
           return;
         }
-      } catch (matchError) {
+      } catch {
         toast.error(t('userMatch.lobby.error.cannotStartMatch'));
         return;
       }
@@ -486,7 +491,7 @@ function HomeRandomContent() {
       } else {
         toast.error(t('userMatch.lobby.error.cannotStartMatch'));
       }
-    } catch (error) {
+    } catch {
       toast.error(t('userMatch.lobby.error.errorStartingMatch'));
     }
   };

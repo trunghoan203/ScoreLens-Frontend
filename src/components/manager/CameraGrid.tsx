@@ -49,7 +49,7 @@ export default function CameraGrid({ cameras, onCameraClick, onViewCamera }: Cam
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onViewCamera && onViewCamera(camera.id);
+                    onViewCamera?.(camera.id);
                   }}
                   disabled={camera.status !== 'active'}
                   className={`px-3 py-1 rounded-full text-white font-semibold text-xs xl:text-sm ${camera.status === 'active'
@@ -99,7 +99,7 @@ export default function CameraGrid({ cameras, onCameraClick, onViewCamera }: Cam
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onViewCamera && onViewCamera(camera.id);
+                    onViewCamera?.(camera.id);
                   }}
                   disabled={camera.status !== 'active'}
                   className={`px-3 py-1 rounded-full text-white font-semibold text-xs ${camera.status === 'active'

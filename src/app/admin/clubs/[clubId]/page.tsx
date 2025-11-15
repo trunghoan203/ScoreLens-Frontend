@@ -32,7 +32,7 @@ export default function ClubDetailPage() {
   const [tableNumber, setTableNumber] = useState(0);
   const [actualTableCount, setActualTableCount] = useState(0);
   const [status, setStatus] = useState<'open' | 'closed' | 'maintenance'>('open');
-  const [existingClubs, setExistingClubs] = useState<any[]>([]);
+  const [existingClubs, setExistingClubs] = useState<ClubResponse[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
@@ -100,7 +100,7 @@ export default function ClubDetailPage() {
     };
 
     loadClub();
-  }, [clubId, router]);
+  }, [clubId, router, t]);
 
   useEffect(() => {
     const fetchExistingClubs = async () => {

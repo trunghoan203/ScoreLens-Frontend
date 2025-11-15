@@ -29,6 +29,24 @@ interface UpdateTeamMembersData {
   teams: MatchTeamMember[][];
 }
 
+interface MatchData {
+  id?: string;
+  tableId?: string;
+  gameType?: 'carom' | 'pool-8';
+  teams?: MatchTeam[];
+  [key: string]: unknown;
+}
+
+interface RecordingInfo {
+  jobId: string;
+  fileName?: string;
+  size?: number;
+  createdAt: string;
+  filePath?: string;
+  modifiedAt?: string;
+  [key: string]: unknown;
+}
+
 class ManagerMatchService {
   async createMatch(matchData: CreateMatchData) {
     try {
@@ -51,7 +69,7 @@ class ManagerMatchService {
   async getMatchById(matchId: string) {
     try {
       const res = await axios.get(`/manager/matches/${matchId}`);
-      return res.data as { success: boolean; match?: any };
+      return res.data as { success: boolean; match?: MatchData };
     } catch (error) {
       throw this.handleError(error);
     }
@@ -154,13 +172,13 @@ class ManagerMatchService {
        async getMatchRecordings(matchId: string, cameraId?: string) {
          try {
            const res = await axios.get(`/manager/matches/${matchId}/recordings`);
-           return res.data as { success: boolean; recordings?: any[] };
+           return res.data as { success: boolean; recordings?: RecordingInfo[] };
          } catch (error) {
            if (cameraId) {
              const res = await axios.get(`/manager/camera/${cameraId}/recordings`, {
                params: { matchId }
              });
-             return res.data as { success: boolean; recordings?: any[] };
+             return res.data as { success: boolean; recordings?: RecordingInfo[] };
            }
            throw this.handleError(error);
          }

@@ -49,7 +49,7 @@ export default function BranchesPage() {
       }
     };
     loadClubs();
-  }, [isChecking]);
+  }, [isChecking, t]);
 
   const handleSearch = async (searchTerm: string) => {
     setSearch(searchTerm);

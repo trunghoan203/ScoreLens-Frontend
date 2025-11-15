@@ -87,7 +87,7 @@ export default function ManagersPage() {
       }
     };
     fetchManagers();
-  }, [isChecking]);
+  }, [isChecking, t]);
 
   const filteredManagers = managers.filter((m) =>
     m.name?.toLowerCase().includes(search.toLowerCase()) ||

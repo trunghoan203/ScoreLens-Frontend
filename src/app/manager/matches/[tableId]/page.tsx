@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import SidebarManager from '@/components/manager/SidebarManager';
 import HeaderManager from '@/components/manager/HeaderManager';
@@ -149,7 +149,7 @@ export default function TableDetailPage() {
     }
   };
 
-  const fetchCamerasForTable = async () => {
+  const fetchCamerasForTable = useCallback(async () => {
     try {
       setCameraLoading(true);
       const cameraData = await managerCameraService.getAllCameras();
@@ -181,7 +181,7 @@ export default function TableDetailPage() {
     } finally {
       setCameraLoading(false);
     }
-  };
+  }, [tableId, t]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -303,7 +303,7 @@ export default function TableDetailPage() {
     if (!isChecking) {
       fetchData();
     }
-  }, [isChecking, tableId, router]);
+  }, [isChecking, tableId, router, t, fetchCamerasForTable]);
 
   const { } = useWebSocket({
     matchId: activeMatchId,

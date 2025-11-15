@@ -28,7 +28,7 @@ export interface RecordResponse {
     success: boolean;
     result?: string;
     score?: number;
-    detections?: any[];
+    detections?: Array<{ [key: string]: unknown }>;
     error?: string;
   };
   duration: number;
@@ -119,16 +119,17 @@ class ManagerCameraService {
       });
 
       return res.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating camera:', error);
-      console.error('Error response:', error.response?.data);
-      console.error('Error status:', error.response?.status);
-      console.error('Error headers:', error.response?.headers);
+      const axiosError = error as { response?: { data?: unknown; status?: number; headers?: unknown }; message?: string };
+      console.error('Error response:', axiosError.response?.data);
+      console.error('Error status:', axiosError.response?.status);
+      console.error('Error headers:', axiosError.response?.headers);
 
       return {
         success: false,
-        message: error.response?.data?.message || error.message || this.getTranslation('shared.services.managerCamera.failedToCreateCamera'),
-        error: error.response?.data || error.message
+        message: (axiosError.response?.data as { message?: string } | undefined)?.message || axiosError.message || this.getTranslation('shared.services.managerCamera.failedToCreateCamera'),
+        error: axiosError.response?.data || axiosError.message
       };
     }
   }
@@ -175,14 +176,15 @@ class ManagerCameraService {
       });
 
       return res.data as TestConnectionResponse;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error testing camera connection:', error);
-      console.error('Error response:', error.response?.data);
+      const axiosError = error as { response?: { data?: unknown }; message?: string };
+      console.error('Error response:', axiosError.response?.data);
 
       return {
         success: false,
-        message: error.response?.data?.message || error.message || this.getTranslation('shared.services.managerCamera.failedToTestConnection'),
-        error: error.response?.data || error.message
+        message: (axiosError.response?.data as { message?: string } | undefined)?.message || axiosError.message || this.getTranslation('shared.services.managerCamera.failedToTestConnection'),
+        error: typeof axiosError.message === 'string' ? axiosError.message : this.getTranslation('shared.services.managerCamera.unknownError')
       };
     }
   }

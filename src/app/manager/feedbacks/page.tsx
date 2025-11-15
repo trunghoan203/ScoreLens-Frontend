@@ -102,7 +102,7 @@ export default function FeedbacksPage() {
     };
 
     fetchData();
-  }, [managerClubId]);
+  }, [managerClubId, t]);
 
   const filteredFeedbacks = feedbacks.filter(f => {
     const branch = (f.branch || '').toString().toLowerCase();

@@ -30,7 +30,7 @@ export default function HeaderAdminPage() {
   useEffect(() => {
     setAdminName(t('common.notLoggedIn'));
     setBrandName(t('common.notLoggedIn'));
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('adminAccessToken') : null;
@@ -64,7 +64,7 @@ export default function HeaderAdminPage() {
           setBrandName(t('common.unknownBrand'));
         });
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (adminName === 'Chưa đăng nhập' || adminName === 'Not logged in') {

@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import clubsService, { Club } from '@/lib/clubsService';
+import clubsService, { Club, ClubResponse } from '@/lib/clubsService';
 import { useI18n } from '@/lib/i18n/provider';
 
 export default function AddBranchPage() {
@@ -16,7 +16,7 @@ export default function AddBranchPage() {
   const [tableNumber, setTableNumber] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [existingClubs, setExistingClubs] = useState<any[]>([]);
+  const [existingClubs, setExistingClubs] = useState<ClubResponse[]>([]);
   const router = useRouter();
   const { t } = useI18n();
 
@@ -35,26 +35,26 @@ export default function AddBranchPage() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (!clubName) {
-      newErrors.clubName = t('adminAddBranch.branchNameRequired');
+      newErrors.clubName = t('adminAddClub.branchNameRequired');
     } else if (clubName.length < 2) {
-      newErrors.clubName = t('adminAddBranch.branchNameMinLength');
+      newErrors.clubName = t('adminAddClub.branchNameMinLength');
     } else if (clubName.length > 255) {
-      newErrors.clubName = t('adminAddBranch.branchNameMaxLength');
+      newErrors.clubName = t('adminAddClub.branchNameMaxLength');
     }
     if (!address) {
-      newErrors.address = t('adminAddBranch.addressRequired');
+      newErrors.address = t('adminAddClub.addressRequired');
     } else if (address.length < 5) {
-      newErrors.address = t('adminAddBranch.addressMinLength');
+      newErrors.address = t('adminAddClub.addressMinLength');
     } else if (address.length > 255) {
-      newErrors.address = t('adminAddBranch.addressMaxLength');
+      newErrors.address = t('adminAddClub.addressMaxLength');
     }
     if (!phoneNumber) {
-      newErrors.phoneNumber = t('adminAddBranch.phoneRequired');
+      newErrors.phoneNumber = t('adminAddClub.phoneRequired');
     } else if (!/^(\+84|84|0)(3|5|7|8|9)[0-9]{8}$/.test(phoneNumber)) {
-      newErrors.phoneNumber = t('adminAddBranch.phoneInvalid');
+      newErrors.phoneNumber = t('adminAddClub.phoneInvalid');
     }
     if (tableNumber <= 0) {
-      newErrors.tableNumber = t('adminAddBranch.tableNumberMin');
+      newErrors.tableNumber = t('adminAddClub.tableNumberMin');
     }
 
     setErrors(newErrors);
@@ -83,9 +83,11 @@ export default function AddBranchPage() {
       await clubsService.createClub(clubData);
       toast.success(t('clubs.addSuccess'));
       router.push('/admin/clubs');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating club:', error);
-      const errorMessage = error.response?.data?.message || t('errors.general');
+      type ErrorWithResponse = { response?: { data?: { message?: string } } };
+      const err = error as ErrorWithResponse;
+      const errorMessage = err?.response?.data?.message || t('errors.general');
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);

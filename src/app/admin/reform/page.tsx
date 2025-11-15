@@ -154,7 +154,7 @@ function ReformPageInner({ searchParams }: { searchParams: URLSearchParams | nul
     };
 
     fetchData();
-  }, [isCheckingAuth, adminIdFromQuery, router]);
+  }, [isCheckingAuth, adminIdFromQuery, router, t]);
 
   useEffect(() => {
     if (step === 4) {

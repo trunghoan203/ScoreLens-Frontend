@@ -100,7 +100,7 @@ export default function CameraDetailPage() {
       .catch(() => {
         toast.error(t('cameras.cannotLoadData'));
       });
-  }, [cameraId]);
+  }, [cameraId, t]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};

@@ -173,7 +173,7 @@ export default function AdminFeedbackDetailPage() {
     };
 
     fetchData();
-  }, [feedbackId, isEditMode]);
+  }, [feedbackId, isEditMode, t]);
 
   const statusOptions = [
     { value: 'managerP', label: t('feedbacks.status.managerP') },

@@ -51,7 +51,7 @@ export default function AddCameraPage() {
       .catch(() => {
         toast.error(t('cameras.cannotLoadTables'));
       });
-  }, []);
+  }, [t]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -83,13 +83,14 @@ export default function AddCameraPage() {
       setIsChecking(true);
 
       if (testResult.success) {
+        type CreateCameraResult = { success?: boolean; message?: string };
         const createResult = await managerCameraService.createCamera({
           tableId,
           IPAddress: ip,
           username,
           password,
           isConnect: true
-        }) as any;
+        }) as CreateCameraResult;
         if (createResult.success) {
           toast.success(t('cameras.cameraAddedSuccess'));
           router.push('/manager/camera');

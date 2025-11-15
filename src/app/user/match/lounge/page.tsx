@@ -36,11 +36,27 @@ function GuestJoinContent() {
   const [teamA, setTeamA] = useState(['']);
   const [teamB, setTeamB] = useState(['']);
 
-  const [connectedGuests, setConnectedGuests] = useState<Array<{ id: string, name: string, team: 'A' | 'B', joinedAt: Date }>>([]);
-  const [isWebSocketConnected, setIsWebSocketConnected] = useState(false);
+  const [, setConnectedGuests] = useState<Array<{ id: string, name: string, team: 'A' | 'B', joinedAt: Date }>>([]);
+  const [, setIsWebSocketConnected] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const socketRef = useRef<Socket | null>(null);
+
+  type MatchDataResponse = {
+    data?: {
+      matchCode?: string;
+      code?: string;
+      joinCode?: string;
+      roomCode?: string;
+      tableId?: string;
+      table?: { id?: string };
+    };
+    matchCode?: string;
+    code?: string;
+    joinCode?: string;
+    roomCode?: string;
+    [key: string]: unknown;
+  };
 
   const handleChange = (team: 'A' | 'B', index: number, value: string) => {
     const setter = team === 'A' ? setTeamA : setTeamB;
@@ -93,8 +109,7 @@ function GuestJoinContent() {
           }
         });
 
-        socket.on('connect_error', (error) => {
-
+        socket.on('connect_error', () => {
           isConnecting = false;
           setIsWebSocketConnected(false);
 
@@ -105,17 +120,16 @@ function GuestJoinContent() {
         });
 
         socket.on('guest_joined', () => {
-
           toast.success(t('userMatch.lounge.success.newPlayerJoined'));
         });
 
         socket.on('guest_left', () => {
-
           toast(t('userMatch.lounge.success.playerLeft'));
         });
 
-        socket.on('match_updated', (data) => {
-          if (data.status === 'ongoing') {
+        socket.on('match_updated', (data: unknown) => {
+          const payload = data as { status?: string; teams?: Array<{ members?: Array<Record<string, unknown>> }> };
+          if (payload.status === 'ongoing') {
             const params = new URLSearchParams({
               table: tableNumber,
               room: roomCode,
@@ -132,14 +146,15 @@ function GuestJoinContent() {
             return;
           }
 
-          if (data.teams && Array.isArray(data.teams)) {
+          if (payload.teams && Array.isArray(payload.teams)) {
             const guests: Array<{ id: string, name: string, team: 'A' | 'B', joinedAt: Date }> = [];
 
-            if (data.teams[0]?.members && Array.isArray(data.teams[0].members)) {
+            if (payload.teams[0]?.members && Array.isArray(payload.teams[0].members)) {
               const teamAMembers: string[] = [];
-              data.teams[0].members.forEach((member: { guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }, index: number) => {
-                const memberName =
-                  member.guestName || member.membershipName || member.fullName || member.name || member.userName || member.displayName || t('userMatch.lounge.playerPlaceholder').replace('{index}', (index + 1).toString());
+              payload.teams[0].members.forEach((member, index: number) => {
+                const mObj = (member as Record<string, unknown>) || {};
+                const getStr = (k: string) => (typeof mObj[k] === 'string' ? (mObj[k] as string) : '');
+                const memberName = getStr('guestName') || getStr('membershipName') || getStr('fullName') || getStr('name') || getStr('userName') || getStr('displayName') || t('userMatch.lounge.playerPlaceholder').replace('{index}', (index + 1).toString());
                 teamAMembers.push(memberName);
                 guests.push({
                   id: `teamA-${index}`,
@@ -151,11 +166,12 @@ function GuestJoinContent() {
               setTeamA(teamAMembers.length > 0 ? teamAMembers : ['']);
             }
 
-            if (data.teams[1]?.members && Array.isArray(data.teams[1].members)) {
+            if (payload.teams[1]?.members && Array.isArray(payload.teams[1].members)) {
               const teamBMembers: string[] = [];
-              data.teams[1].members.forEach((member: { guestName?: string; membershipName?: string; fullName?: string; name?: string; userName?: string; displayName?: string }, index: number) => {
-                const memberName =
-                  member.guestName || member.membershipName || member.fullName || member.name || member.userName || member.displayName || t('userMatch.lounge.playerPlaceholder').replace('{index}', (index + 1).toString());
+              payload.teams[1].members.forEach((member, index: number) => {
+                const mObj = (member as Record<string, unknown>) || {};
+                const getStr = (k: string) => (typeof mObj[k] === 'string' ? (mObj[k] as string) : '');
+                const memberName = getStr('guestName') || getStr('membershipName') || getStr('fullName') || getStr('name') || getStr('userName') || getStr('displayName') || t('userMatch.lounge.playerPlaceholder').replace('{index}', (index + 1).toString());
                 teamBMembers.push(memberName);
                 guests.push({
                   id: `teamB-${index}`,
@@ -172,7 +188,6 @@ function GuestJoinContent() {
         });
 
         socket.on('match_started', () => {
-
           const params = new URLSearchParams({
             table: tableNumber,
             room: roomCode,
@@ -187,8 +202,7 @@ function GuestJoinContent() {
         });
 
         socket.connect();
-      } catch (error) {
-
+      } catch {
         setIsWebSocketConnected(false);
       }
     };
@@ -252,23 +266,25 @@ function GuestJoinContent() {
             setTeamB(teamBMembers.length > 0 ? teamBMembers : ['']);
           }
         }
-      } catch (error) {
-
+      } catch {
         if (guestName) {
           setTeamA([guestName]);
         }
 
         if (membershipName && membershipName !== guestName) {
-          const currentTeamA = teamA.filter(name => name !== '');
-          if (currentTeamA.length === 0 || !currentTeamA.includes(membershipName)) {
-            setTeamA([...currentTeamA, membershipName].filter(name => name !== ''));
-          }
+          setTeamA(prev => {
+            const currentTeamA = prev.filter(name => name !== '');
+            if (currentTeamA.length === 0 || !currentTeamA.includes(membershipName)) {
+              return [...currentTeamA, membershipName].filter(name => name !== '');
+            }
+            return prev;
+          });
         }
       }
     };
 
     loadMatchData();
-  }, [matchId, guestName, teamA]);
+  }, [matchId, guestName, membershipName]);
 
   useEffect(() => {
     if (matchId && !tableId) {
@@ -297,7 +313,6 @@ function GuestJoinContent() {
     let timer: ReturnType<typeof setTimeout> | undefined;
     const init = async () => {
       try {
-
         if (existingMatchId) {
           setMatchId(existingMatchId);
 
@@ -305,7 +320,7 @@ function GuestJoinContent() {
             setRoomCode(existingCode);
           } else {
             try {
-              const data = (await userMatchService.getMatchById(existingMatchId)) as { data?: { matchCode?: string; code?: string; joinCode?: string; roomCode?: string } };
+              const data = (await userMatchService.getMatchById(existingMatchId)) as MatchDataResponse;
               const responseData = data?.data || data;
               const matchInfo = responseData as { matchCode?: string; code?: string; joinCode?: string; roomCode?: string };
               const codeCandidate =
@@ -343,7 +358,7 @@ function GuestJoinContent() {
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [tableId, existingCode, existingMatchId]);
+  }, [existingCode, existingMatchId]);
 
   const handleLeaveRoom = () => {
     setShowLeaveConfirm(true);

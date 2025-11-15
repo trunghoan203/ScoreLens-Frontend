@@ -41,11 +41,15 @@ export default function AddTablePage() {
       await managerTableService.createTable({ name: name, category: type });
       toast.success(t('managerTable.addSuccess'));
       router.push('/manager/tables');
-    } catch (error: any) {
-      if (error?.response?.status !== 400) {
-        console.error(error);
+    } catch (error: unknown) {
+      type ErrorWithResponse = {
+        response?: { status?: number; data?: { message?: string } };
+      };
+      const err = error as ErrorWithResponse;
+      if (err?.response?.status !== 400) {
+        console.error(err);
       }
-      const errorMessage = error?.response?.data?.message || t('managerTable.addFailed');
+      const errorMessage = err?.response?.data?.message || t('managerTable.addFailed');
       toast.error(errorMessage);
     }
   };

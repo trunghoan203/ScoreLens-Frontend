@@ -32,8 +32,6 @@ export default function TableCardList({ tables, onDetail }: TableCardListProps) 
           name={table.name}
           type={table.type}
           status={table.status}
-          teamA={table.teamA}
-          teamB={table.teamB}
           time={table.time}
           matchStatus={table.matchStatus}
           elapsedTime={table.elapsedTime}

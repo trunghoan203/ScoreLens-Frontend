@@ -93,11 +93,13 @@ export default function TableDetailPage() {
       await managerTableService.updateTable(tableId, { name: name, category: type, status });
       toast.success(t('managerTable.saveSuccess'));
       setIsEditMode(false);
-    } catch (error: any) {
-      if (error?.response?.status !== 400) {
-        console.error(error);
+    } catch (error: unknown) {
+      type ErrorWithResponse = { response?: { status?: number; data?: { message?: string } } };
+      const err = error as ErrorWithResponse;
+      if (err?.response?.status !== 400) {
+        console.error(err);
       }
-      const errorMessage = error?.response?.data?.message || t('managerTable.saveFailed');
+      const errorMessage = err?.response?.data?.message || t('managerTable.saveFailed');
       toast.error(errorMessage);
     }
   };

@@ -134,7 +134,7 @@ export default function ManagerDetailPage() {
       }
     };
     if (managerId) fetchManager();
-  }, [managerId]);
+  }, [managerId, t]);
 
   React.useEffect(() => {
     const fetchClubs = async () => {

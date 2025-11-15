@@ -30,7 +30,7 @@ export default function HeaderManager() {
   useEffect(() => {
     setManagerName(t('common.notLoggedIn'));
     setClubName(t('common.loading'));
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('managerAccessToken') : null;
@@ -62,7 +62,7 @@ export default function HeaderManager() {
           setClubName(t('common.unknown'));
         });
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
