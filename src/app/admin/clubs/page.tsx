@@ -43,7 +43,7 @@ export default function BranchesPage() {
         }
       } catch (error) {
         console.error('Error loading clubs:', error);
-        toast.error(t('clubs.cannotLoadBranches'));
+        toast.error(t('clubs.cannotLoadClubs'));
       } finally {
         setIsPageLoading(false);
       }
@@ -116,7 +116,7 @@ export default function BranchesPage() {
                 icon={
                   <Building2 className="w-14 h-14 text-white" strokeWidth={1.5} />
                 }
-                title={search ? t('clubs.noSearchResults') : t('clubs.noBranches')}
+                title={search ? t('clubs.noSearchResults') : t('clubs.noClubs')}
                 description={search ? t('clubs.tryDifferentKeywords') : t('clubs.useAddButton')}
                 secondaryAction={search ? {
                   label: t('clubs.viewAll'),

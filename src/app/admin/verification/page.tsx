@@ -84,17 +84,17 @@ function AdminVerificationPageInner({ searchParams }: { searchParams: URLSearchP
     e.preventDefault();
     const otpString = otp.join('');
     if (otpString.length !== 6) {
-      toast.error(t('auth.adminVerification.otpRequired'));
+      toast.error(t('adminVerification.otpRequired'));
       return;
     }
 
     setIsLoading(true);
     try {
       await new Promise(res => setTimeout(res, 1000));
-      toast.success(t('auth.adminVerification.verificationSuccess'));
+      toast.success(t('adminVerification.verificationSuccess'));
       router.push(`/admin/clubs?email=${encodeURIComponent(email)}&otp=${otpString}`);
     } catch {
-      toast.error(t('auth.adminVerification.verificationFailed'));
+      toast.error(t('adminVerification.verificationFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -117,13 +117,13 @@ function AdminVerificationPageInner({ searchParams }: { searchParams: URLSearchP
 
   return (
     <AuthLayout
-      title={t('auth.adminVerification.title')}
-      description={`${t('auth.adminVerification.description')} ${email}`}
+      title={t('adminVerification.title')}
+      description={`${t('adminVerification.description')} ${email}`}
     >
       <form onSubmit={handleSubmit} className="space-y-6" noValidate>
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-4">
-            {t('auth.adminVerification.verificationTitle')}
+            {t('adminVerification.verificationTitle')}
           </label>
           <div className="flex gap-3 justify-center mb-4" onPaste={handlePaste}>
             {otp.map((digit, index) => (
@@ -169,12 +169,12 @@ function AdminVerificationPageInner({ searchParams }: { searchParams: URLSearchP
           className="w-full bg-lime-400 text-gray-900 font-bold py-3 px-6 rounded-lg hover:bg-lime-500 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={!isFormValid}
         >
-          {isLoading ? t('auth.adminVerification.verifying') : t('auth.adminVerification.verificationButton')}
+          {isLoading ? t('adminVerification.verifying') : t('adminVerification.verificationButton')}
         </Button>
 
         <div className="text-center space-y-4">
           <div>
-            <span className="text-gray-600 text-sm">{t('auth.adminVerification.notReceivedCode')} </span>
+            <span className="text-gray-600 text-sm">{t('adminVerification.notReceivedCode')} </span>
             {canResend ? (
               <button
                 type="button"
@@ -182,11 +182,11 @@ function AdminVerificationPageInner({ searchParams }: { searchParams: URLSearchP
                 disabled={isLoading}
                 className="text-lime-600 font-semibold hover:underline text-sm transition-colors disabled:opacity-50"
               >
-                {t('auth.adminVerification.resendCode')}
+                {t('adminVerification.resendCode')}
               </button>
             ) : (
               <span className="text-gray-500 text-sm">
-                {t('auth.adminVerification.resendTimer')} {resendTimer}s
+                {t('adminVerification.resendTimer')} {resendTimer}s
               </span>
             )}
           </div>
@@ -196,7 +196,7 @@ function AdminVerificationPageInner({ searchParams }: { searchParams: URLSearchP
               className="text-sm font-medium text-gray-800 hover:text-lime-500 transition-colors inline-flex items-center gap-1"
             >
               <ArrowLeft className="w-4 h-4" />
-              {t('auth.adminVerification.backToLogin')}
+              {t('adminVerification.backToLogin')}
             </Link>
           </div>
         </div>

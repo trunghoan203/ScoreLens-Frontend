@@ -18,7 +18,7 @@ export default function ManagerLoginPage() {
   const validateForm = () => {
     const newErrors: typeof errors = {};
     if (!email) {
-      newErrors.email = t('auth.managerLogin.emailRequired');
+      newErrors.email = t('managerLogin.emailRequired');
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -34,10 +34,20 @@ export default function ManagerLoginPage() {
     try {
       await managerService.login(email);
       window.location.href = `/manager/verification?email=${encodeURIComponent(email)}`;
-      toast.success(t('auth.managerLogin.verificationSent'));
+      toast.success(t('managerLogin.verificationSent'));
     } catch (error) {
       const err = error as { message?: string };
-      toast.error(err.message || t('auth.managerLogin.errorMessage'));
+      const serverMessage = err?.message;
+      let errorMessage = t('managerLogin.errorMessage');
+      if (serverMessage) {
+        const lower = serverMessage.toLowerCase();
+        if (lower.includes('quản lý không') || lower.includes('manager not') || lower.includes('not found')) {
+          errorMessage = t('managerLogin.managerNotFound') || t('managerLogin.errorMessage');
+        } else {
+          errorMessage = serverMessage;
+        }
+      }
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -45,13 +55,13 @@ export default function ManagerLoginPage() {
 
   return (
     <AuthLayout
-      title={t('auth.managerLogin.title')}
-      description={t('auth.managerLogin.description')}
+      title={t('managerLogin.title')}
+      description={t('managerLogin.description')}
     >
       <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 p-3 sm:p-4 md:p-6 overflow-hidden" noValidate>
         <div>
           <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-            {t('auth.managerLogin.emailLabel')}
+            {t('managerLogin.emailLabel')}
           </label>
           <Input
             id="email"
@@ -60,7 +70,7 @@ export default function ManagerLoginPage() {
             onChange={(e) => setemail(e.target.value)}
             className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all text-sm sm:text-base ${errors.email ? 'border-red-500' : 'border-gray-300'
               }`}
-            placeholder={t('auth.managerLogin.emailPlaceholder')}
+            placeholder={t('managerLogin.emailPlaceholder')}
             required
             disabled={isLoading}
           />
@@ -76,7 +86,7 @@ export default function ManagerLoginPage() {
           disabled={isLoading}
           className="py-2 sm:py-3 text-sm sm:text-base"
         >
-          {isLoading ? t('auth.managerLogin.loggingIn') : t('auth.managerLogin.loginButton')}
+          {isLoading ? t('managerLogin.loggingIn') : t('managerLogin.loginButton')}
         </Button>
 
         <div className="text-center mt-4 sm:mt-6">
@@ -87,7 +97,7 @@ export default function ManagerLoginPage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            {t('auth.managerLogin.backToHome')}
+            {t('managerLogin.backToHome')}
           </Link>
         </div>
       </form>

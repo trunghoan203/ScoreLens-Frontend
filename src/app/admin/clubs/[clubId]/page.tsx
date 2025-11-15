@@ -92,7 +92,7 @@ export default function ClubDetailPage() {
         setStatus(clubData.status);
       } catch (error) {
         console.error('Error loading club:', error);
-        toast.error(t('clubs.detailPage.cannotLoadBranch'));
+        toast.error(t('clubs.detailPage.cannotLoadClub'));
         router.push('/admin/clubs');
       } finally {
         setIsLoading(false);
@@ -211,7 +211,7 @@ export default function ClubDetailPage() {
               </span>
             </div>
             <div className="py-8 text-center">
-              <div className="text-gray-500">{t('clubs.detailPage.branchNotFound')}</div>
+              <div className="text-gray-500">{t('clubs.detailPage.clubNotFound')}</div>
             </div>
           </div>
         </main>
@@ -233,9 +233,9 @@ export default function ClubDetailPage() {
             </span>
           </div>
           <AddFormLayout
-            title={isEditMode ? t('clubs.detailPage.editBranch') : t('clubs.detailPage.branchDetails')}
+            title={isEditMode ? t('clubs.detailPage.editClub') : t('clubs.detailPage.clubDetails')}
             onBack={() => router.push('/admin/clubs')}
-            backLabel={t('clubs.detailPage.backToBranches')}
+            backLabel={t('clubs.detailPage.backToClubs')}
             submitLabel={isEditMode ? (isSaving ? t('clubs.detailPage.saving') : t('clubs.detailPage.save')) : t('clubs.detailPage.edit')}
             extraActions={
               !isEditMode && (
@@ -265,7 +265,7 @@ export default function ClubDetailPage() {
             </ConfirmPopup>
 
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('clubs.detailPage.branchName')}<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('clubs.detailPage.clubName')}<span className="text-red-500">*</span></label>
               <Input
                 value={name}
                 onChange={e => setName(e.target.value)}

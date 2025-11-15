@@ -112,12 +112,12 @@ export default function AddBranchPage() {
             submitLabel={isSubmitting ? t('common.loading') : t('clubs.addBranch')}
           >
             <div className="w-full mb-4 sm:mb-6">
-              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('clubs.branchName')}<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-1.5 sm:mb-2 text-black">{t('clubs.clubName')}<span className="text-red-500">*</span></label>
               <Input
                 value={clubName}
                 onChange={e => setClubName(e.target.value)}
                 required
-                placeholder={t('clubs.branchNamePlaceholder')}
+                placeholder={t('clubs.clubNamePlaceholder')}
                 className="py-2.5 sm:py-3"
               />
               {errors.clubName && <span className="text-red-500 text-xs sm:text-sm">{errors.clubName}</span>}

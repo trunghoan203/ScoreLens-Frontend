@@ -19,7 +19,7 @@ export default function ClubTable({ branches }: { branches: Branch[] }) {
       <div className="hidden lg:block overflow-x-auto">
         <div className="space-y-2 rounded-lg min-w-[800px]">
           <div className="grid grid-cols-12 bg-black text-white font-semibold text-center">
-            <div className="col-span-3 py-3 text-sm xl:text-base">{t('clubs.table.branchName')}</div>
+            <div className="col-span-3 py-3 text-sm xl:text-base">{t('clubs.table.clubName')}</div>
             <div className="col-span-4 py-3 text-sm xl:text-base">{t('clubs.table.address')}</div>
             <div className="col-span-2 py-3 text-sm xl:text-base">{t('clubs.table.tableCount')}</div>
             <div className="col-span-3 py-3 text-sm xl:text-base">{t('clubs.table.status')}</div>

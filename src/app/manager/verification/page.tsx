@@ -83,7 +83,7 @@ function ManagerVerificationPageInner() {
     e.preventDefault();
     const otpString = otp.join('');
     if (otpString.length !== 6) {
-      toast.error(t('auth.managerVerification.otpRequired'));
+      toast.error(t('managerVerification.otpRequired'));
       return;
     }
 
@@ -96,12 +96,26 @@ function ManagerVerificationPageInner() {
       if (data && typeof data === 'object' && 'accessToken' in data && typeof data.accessToken === 'string') {
         localStorage.setItem('managerAccessToken', data.accessToken);
       }
-      toast.success(t('auth.managerVerification.verificationSuccess'));
+      toast.success(t('managerVerification.verificationSuccess'));
       window.location.href = `/manager/dashboard`;
     } catch (error) {
       console.error('Verification error:', error);
       const err = error as { message?: string };
-      toast.error(err.message || t('auth.managerVerification.verificationFailed'));
+      const serverMessage = err?.message;
+      let errorMessage = t('managerVerification.verificationFailed');
+      if (serverMessage) {
+        const lower = serverMessage.toLowerCase();
+        if (lower.includes('mã xác thực') || lower.includes('mã xác') || lower.includes('mã xác minh') || lower.includes('mã xác nhận')) {
+          errorMessage = t('managerVerification.verificationInvalid') || t('managerVerification.verificationFailed');
+        } else if (lower.includes('invalid verification') || (lower.includes('verification') && lower.includes('invalid'))) {
+          errorMessage = t('managerVerification.verificationInvalid') || t('managerVerification.verificationFailed');
+        } else if (lower.includes('quản lý không') || lower.includes('manager not') || lower.includes('not found')) {
+          errorMessage = t('managerVerification.managerNotFound') || t('managerVerification.verificationFailed');
+        } else {
+          errorMessage = serverMessage;
+        }
+      }
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -112,12 +126,24 @@ function ManagerVerificationPageInner() {
     setIsLoading(true);
     try {
       await managerService.resendLoginCode(email);
-      toast.success(t('auth.managerVerification.codeResent'));
+      toast.success(t('managerVerification.codeResent'));
       setResendTimer(60);
       setCanResend(false);
     } catch (error) {
       const err = error as { message?: string };
-      toast.error(err.message || t('auth.managerVerification.resendFailed'));
+      const serverMessage = err?.message;
+      let errorMessage = t('managerVerification.resendFailed');
+      if (serverMessage) {
+        const lower = serverMessage.toLowerCase();
+        if (lower.includes('mã xác thực') || lower.includes('mã xác') || lower.includes('mã xác minh') || lower.includes('mã xác nhận')) {
+          errorMessage = t('managerVerification.verificationInvalid') || t('managerVerification.resendFailed');
+        } else if (lower.includes('quản lý không') || lower.includes('manager not') || lower.includes('not found')) {
+          errorMessage = t('managerVerification.managerNotFound') || t('managerVerification.resendFailed');
+        } else {
+          errorMessage = serverMessage;
+        }
+      }
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -127,13 +153,13 @@ function ManagerVerificationPageInner() {
 
   return (
     <AuthLayout
-      title={t('auth.managerVerification.title')}
-      description={`${t('auth.managerVerification.description')} ${email}`}
+      title={t('managerVerification.title')}
+      description={`${t('managerVerification.description')} ${email}`}
     >
       <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6" noValidate>
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-3 sm:mb-4">
-            {t('auth.managerVerification.verificationTitle')}
+            {t('managerVerification.verificationTitle')}
           </label>
           <div className="flex gap-2 sm:gap-3 justify-center mb-3 sm:mb-4" onPaste={handlePaste}>
             {otp.map((digit, index) => (
@@ -181,12 +207,12 @@ function ManagerVerificationPageInner() {
           disabled={!isFormValid}
           className="py-2 sm:py-3 text-sm sm:text-base"
         >
-          {isLoading ? t('auth.managerVerification.verifying') : t('auth.managerVerification.verificationButton')}
+          {isLoading ? t('managerVerification.verifying') : t('managerVerification.verificationButton')}
         </Button>
 
         <div className="text-center space-y-3 sm:space-y-4">
           <div>
-            <span className="text-gray-600 text-sm">{t('auth.managerVerification.notReceivedCode')} </span>
+            <span className="text-gray-600 text-sm">{t('managerVerification.notReceivedCode')} </span>
             {canResend ? (
               <button
                 type="button"
@@ -194,11 +220,11 @@ function ManagerVerificationPageInner() {
                 disabled={isLoading}
                 className="text-lime-600 font-semibold hover:underline text-sm transition-colors disabled:opacity-50"
               >
-                {t('auth.managerVerification.resendCode')}
+                {t('managerVerification.resendCode')}
               </button>
             ) : (
               <span className="text-gray-500 text-sm">
-                {t('auth.managerVerification.resendTimer')} {resendTimer}s
+                {t('managerVerification.resendTimer')} {resendTimer}s
               </span>
             )}
           </div>
@@ -210,7 +236,7 @@ function ManagerVerificationPageInner() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
-              {t('auth.managerVerification.backToLogin')}
+              {t('managerVerification.backToLogin')}
             </Link>
           </div>
         </div>
