@@ -217,7 +217,7 @@ export default function ManagerDashboardPage() {
 
 
 
-  const handleXemThem = () => {
+  const handleViewMore = () => {
     setActionLoading(true);
     setTimeout(() => {
       if (isExpanded) {
@@ -355,7 +355,7 @@ export default function ManagerDashboardPage() {
                     <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
                       <button
                         type="button"
-                        onClick={handleXemThem}
+                        onClick={handleViewMore}
                         className="relative w-full sm:w-32 lg:w-40 bg-[#8ADB10] hover:bg-lime-500 text-[#FFFFFF] font-bold py-2 sm:py-2.5 rounded-lg transition text-sm sm:text-base lg:text-lg shadow focus:outline-none"
                         aria-live="polite"
                       >
