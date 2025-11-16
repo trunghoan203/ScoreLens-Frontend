@@ -13,6 +13,7 @@ import { managerTableService } from '@/lib/managerTableService';
 import toast from 'react-hot-toast';
 import { useManagerAuthGuard } from '@/lib/hooks/useManagerAuthGuard';
 import { useI18n } from '@/lib/i18n/provider';
+import Image from 'next/image';
 
 export interface Table {
   tableId: string;
@@ -33,6 +34,8 @@ export default function TablesPage() {
   const [tables, setTables] = useState<Table[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemPage = 10;
   const router = useRouter();
 
   useEffect(() => {
@@ -71,6 +74,16 @@ export default function TablesPage() {
     const matchesCategory = categoryFilter === "" || t.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
+
+  const totalPages = Math.ceil(filteredTables.length / itemPage);
+  const startIndex = (currentPage - 1) * itemPage;
+  const endIndex = startIndex + itemPage;
+  const currentTables = filteredTables.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleAddTable = async () => {
     setIsAdding(true);
@@ -137,15 +150,76 @@ export default function TablesPage() {
                 showAdditionalInfo={false}
               />
             ) : (
-              <TableGrid
-                tables={filteredTables.map(t => ({
-                  id: t.tableId,
-                  name: t.name,
-                  type: t.category,
-                  status: t.status,
-                }))}
-                onTableClick={handleTableClick}
-              />
+              <>
+                <TableGrid
+                  tables={currentTables.map(t => ({
+                    id: t.tableId,
+                    name: t.name,
+                    type: t.category,
+                    status: t.status,
+                  }))}
+                  onTableClick={handleTableClick}
+                />
+
+                {totalPages > 1 && (
+                  <div className="mt-6 sm:mt-10 flex items-center justify-center gap-1 sm:gap-2">
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className={`px-2 sm:px-3 py-2 sm:py-3 w-12 sm:w-16 rounded-lg font-medium transition flex items-center justify-center text-xs sm:text-sm ${currentPage === 1
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        : 'bg-lime-400 hover:bg-lime-500 text-white'
+                        }`}
+                    >
+                      <Image
+                        src="/icon/chevron-left.svg"
+                        alt="Previous"
+                        width={20}
+                        height={20}
+                        className="w-4 h-4 sm:w-5 sm:h-5"
+                      />
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={`px-2 sm:px-3 py-2 w-8 sm:w-10 rounded-lg font-medium transition flex items-center justify-center text-xs sm:text-sm ${currentPage === page
+                          ? 'bg-lime-500 text-white'
+                          : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                          }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className={`px-2 sm:px-3 py-2 sm:py-3 w-12 sm:w-16 rounded-lg font-medium transition flex items-center justify-center text-xs sm:text-sm ${currentPage === totalPages
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        : 'bg-lime-400 hover:bg-lime-500 text-white'
+                        }`}
+                    >
+                      <Image
+                        src="/icon/chevron-right.svg"
+                        alt="Next"
+                        width={20}
+                        height={20}
+                        className="w-4 h-4 sm:w-5 sm:h-5"
+                      />
+                    </button>
+                  </div>
+                )}
+
+                <div className="mt-4 text-center text-gray-400 italic text-xs sm:text-sm">
+                  {t('managerTable.showingTables')
+                    .replace('{start}', String(startIndex + 1))
+                    .replace('{end}', String(Math.min(endIndex, filteredTables.length)))
+                    .replace('{total}', String(filteredTables.length))
+                  }
+                </div>
+              </>
             )}
           </div>
         </main>
