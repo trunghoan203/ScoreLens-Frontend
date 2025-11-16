@@ -22,11 +22,49 @@ export default function FeedbackSearchBar({
 }: FeedbackSearchBarProps) {
   const { t } = useI18n();
 
+  const today = new Date().toISOString().split('T')[0];
+  const currentYear = new Date().getFullYear();
+
   const statusOptions = [
     { value: 'all', label: t('feedbacks.filterOptions.all') },
     { value: 'pending', label: t('feedbacks.filterOptions.pending') },
     { value: 'resolved', label: t('feedbacks.filterOptions.resolved') },
   ];
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    
+    if (!inputValue) {
+      setDateFilter('');
+      return;
+    }
+
+    const inputDate = new Date(inputValue);
+    const todayDate = new Date(today);
+    
+    if (isNaN(inputDate.getTime())) {
+      return;
+    }
+
+    if (inputDate.getFullYear() > currentYear) {
+      const correctedDate = new Date(inputDate);
+      correctedDate.setFullYear(currentYear);
+      
+      if (correctedDate > todayDate) {
+        setDateFilter(today);
+      } else {
+        setDateFilter(correctedDate.toISOString().split('T')[0]);
+      }
+      return;
+    }
+
+    if (inputDate > todayDate) {
+      setDateFilter(today);
+      return;
+    }
+
+    setDateFilter(inputValue);
+  };
 
   return (
     <div className="mb-6 backdrop-blur-md bg-white/60 rounded-2xl shadow-l flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 transition-all duration-300">
@@ -67,7 +105,8 @@ export default function FeedbackSearchBar({
           <input
             type="date"
             value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
+            onChange={handleDateChange}
+            max={today}
             className="w-full bg-white/80 border border-gray-200 rounded-xl py-2 sm:py-2.5 pl-3 sm:pl-4 pr-3 sm:pr-4 text-sm sm:text-base font-medium text-black placeholder-gray-400 shadow-sm focus:border-lime-400 focus:ring-2 focus:ring-lime-100 outline-none"
           />
         </div>
