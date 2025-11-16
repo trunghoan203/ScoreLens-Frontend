@@ -1153,6 +1153,7 @@ export default {
             statusLabel: 'Trạng thái:',
             clickToViewDetails: 'Nhấn để xem chi tiết →',
             cameraNotConnected: 'Camera chưa được kết nối. Vui lòng kiểm tra trạng thái kết nối.',
+            showingCameras: 'Hiển thị {start}-{end} trong tổng số {total} camera',
         },
 
     // Manager Members Page
@@ -1203,6 +1204,7 @@ export default {
             tryDifferentSearch: 'Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy bàn phù hợp',
             viewAll: 'Xem tất cả',
             loading: 'Đang tải...',
+            showingTables: 'Hiển thị {start}-{end} trong tổng số {total} bàn',
         },
 
     // Manager Matches

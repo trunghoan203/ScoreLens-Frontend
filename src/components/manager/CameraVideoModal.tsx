@@ -1,10 +1,13 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { cameraStreamService } from '@/lib/cameraStreamService';
-import { CameraRecordButton } from './CameraRecordButton';
+import { Button } from '@/components/ui/button';
+import { managerCameraService } from '@/lib/managerCameraService';
 import toast from 'react-hot-toast';
 import { useI18n } from '@/lib/i18n/provider';
+import { Video, Loader2 } from 'lucide-react';
 import axios from '@/lib/axios';
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 interface CameraVideoModalProps {
   isOpen: boolean;
   cameraId: string | null;
@@ -35,6 +38,9 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [recordStatus, setRecordStatus] = useState<RecordStatus>({ isRecording: false });
   const [recordStatusInterval, setRecordStatusInterval] = useState<NodeJS.Timeout | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [countdown, setCountdown] = useState(20);
+  const [countdownInterval, setCountdownInterval] = useState<NodeJS.Timeout | null>(null);
 
   const fetchRecordStatus = useCallback(async () => {
     if (!cameraId) return;
@@ -80,6 +86,13 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
     }
   }, [cameraId]);
 
+  const stopRecordStatusPolling = useCallback(() => {
+    if (recordStatusInterval) {
+      clearInterval(recordStatusInterval);
+      setRecordStatusInterval(null);
+    }
+  }, [recordStatusInterval]);
+
   const startRecordStatusPolling = useCallback(() => {
     if (recordStatusInterval) {
       clearInterval(recordStatusInterval);
@@ -90,14 +103,7 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
     }, 5000);
 
     setRecordStatusInterval(interval);
-  }, [recordStatusInterval, fetchRecordStatus]);
-
-  const stopRecordStatusPolling = useCallback(() => {
-    if (recordStatusInterval) {
-      clearInterval(recordStatusInterval);
-      setRecordStatusInterval(null);
-    }
-  }, [recordStatusInterval]);
+  }, [fetchRecordStatus, recordStatusInterval]);
 
   useEffect(() => {
     if (isOpen && cameraId) {
@@ -107,8 +113,11 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
 
     return () => {
       stopRecordStatusPolling();
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+      }
     };
-  }, [isOpen, cameraId, fetchRecordStatus, startRecordStatusPolling, stopRecordStatusPolling]);
+  }, [isOpen, cameraId, fetchRecordStatus, startRecordStatusPolling, stopRecordStatusPolling, countdownInterval]);
 
   useEffect(() => {
     if (isOpen && cameraId && videoRef.current) {
@@ -147,10 +156,12 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
         try {
           cameraStreamService.stopVideoStream(cameraId);
         } catch {
+          // Ignore errors on cleanup
         }
       }
     };
-  }, [isOpen, cameraId, isStreaming, t]);
+  }, [isOpen, cameraId, t, isStreaming]);
+
 
   const handleConfirm = () => {
     if (cameraId && isStreaming) {
@@ -160,12 +171,53 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
     setIsStreaming(false);
     setIsLoading(false);
     setError(null);
-    if (isDetailView) {
-      onClose();
-    } else {
-      onConfirm();
+    onConfirm();
+  };
+
+  const handleRecord = async () => {
+    if (!cameraId || isRecording) return;
+
+    setIsRecording(true);
+    setCountdown(20);
+
+    const interval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    setCountdownInterval(interval);
+
+    try {
+      const result = await managerCameraService.recordCamera(cameraId, 20);
+
+      if (result.success) {
+        fetchRecordStatus();
+        if (result.ai?.success) {
+          toast.success(`${t('manager.cameraRecord.aiAnalysis')} ${result.ai.result || t('manager.cameraRecord.analysisComplete')}`);
+        } else if (result.ai?.error) {
+          toast.error(`${t('manager.cameraRecord.aiUploadFailed')} ${result.ai.error}`);
+        }
+      } else {
+        toast.error(result.message || t('manager.cameraRecord.recordFailed'));
+      }
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : t('manager.cameraRecord.unknownError');
+      toast.error(`Lỗi: ${errorMessage}`);
+    } finally {
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+      }
+      setIsRecording(false);
+      setCountdown(20);
+      setCountdownInterval(null);
     }
   };
+
 
   if (!isOpen) return null;
 
@@ -237,13 +289,25 @@ export const CameraVideoModal: React.FC<CameraVideoModalProps> = ({
 
         <div className="flex justify-between items-center">
           {isStreaming && !isLoading && !error && cameraId && (
-            <CameraRecordButton
-              cameraId={cameraId}
-              duration={20}
-              onSuccess={() => {
-                fetchRecordStatus();
-              }}
-            />
+            <Button
+              onClick={handleRecord}
+              disabled={isRecording}
+              variant={isRecording ? "destructive" : "default"}
+              className={`record-button ${isRecording ? 'recording' : ''}`}
+              size="lg"
+            >
+              {isRecording ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  {t('manager.cameraRecord.recording')} ({countdown}s)
+                </>
+              ) : (
+                <>
+                  <Video className="w-4 h-4 mr-2" />
+                  {t('manager.cameraRecord.recordWithAi')} (20s)
+                </>
+              )}
+            </Button>
           )}
 
           <button

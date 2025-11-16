@@ -1153,6 +1153,7 @@ export default {
             statusLabel: 'Status:',
             clickToViewDetails: 'Click to view details →',
             cameraNotConnected: 'Camera is not connected. Please check connection status.',
+            showingCameras: 'Showing {start}-{end} of {total} cameras',
         },
 
     // Manager Members Page
@@ -1203,6 +1204,7 @@ export default {
             tryDifferentSearch: 'Try changing search keywords or filters to find suitable tables',
             viewAll: 'View all',
             loading: 'Loading...',
+            showingTables: 'Showing {start}-{end} of {total} tables',
         },
 
     // Manager Matches

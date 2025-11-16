@@ -15,6 +15,7 @@ import { managerTableService } from '@/lib/managerTableService';
 import toast from 'react-hot-toast';
 import { useManagerAuthGuard } from '@/lib/hooks/useManagerAuthGuard';
 import { useI18n } from '@/lib/i18n/provider';
+import Image from 'next/image';
 
 export interface Camera {
   cameraId: string;
@@ -45,6 +46,8 @@ export default function CameraPage() {
   const [isAdding, setIsAdding] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [selectedCameraId, setSelectedCameraId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemPage = 10;
   const router = useRouter();
 
   useEffect(() => {
@@ -94,6 +97,10 @@ export default function CameraPage() {
       .finally(() => setLoading(false));
   }, [t]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
   if (isChecking) return null;
 
   const formatCategory = (category: string) => {
@@ -116,6 +123,16 @@ export default function CameraPage() {
   const filteredCameras = cameras.filter(
     c => getTableDisplay(c.tableId).toLowerCase().includes(search.toLowerCase())
   );
+
+  const totalPages = Math.ceil(filteredCameras.length / itemPage);
+  const startIndex = (currentPage - 1) * itemPage;
+  const endIndex = startIndex + itemPage;
+  const currentCameras = filteredCameras.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleAddCamera = async () => {
     setIsAdding(true);
@@ -199,18 +216,79 @@ export default function CameraPage() {
                 showAdditionalInfo={!search}
               />
             ) : (
-              <CameraGrid
-                cameras={filteredCameras.map(c => ({
-                  id: c.cameraId,
-                  table: getTableDisplay(c.tableId),
-                  ip: c.IPAddress,
-                  username: c.username,
-                  password: c.password,
-                  status: c.isConnect ? 'active' : 'inactive',
-                }))}
-                onCameraClick={handleCameraClick}
-                onViewCamera={handleViewCamera}
-              />
+              <>
+                <CameraGrid
+                  cameras={currentCameras.map(c => ({
+                    id: c.cameraId,
+                    table: getTableDisplay(c.tableId),
+                    ip: c.IPAddress,
+                    username: c.username,
+                    password: c.password,
+                    status: c.isConnect ? 'active' : 'inactive',
+                  }))}
+                  onCameraClick={handleCameraClick}
+                  onViewCamera={handleViewCamera}
+                />
+
+                {totalPages > 1 && (
+                  <div className="mt-6 sm:mt-10 flex items-center justify-center gap-1 sm:gap-2">
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className={`px-2 sm:px-3 py-2 sm:py-3 w-12 sm:w-16 rounded-lg font-medium transition flex items-center justify-center text-xs sm:text-sm ${currentPage === 1
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        : 'bg-lime-400 hover:bg-lime-500 text-white'
+                        }`}
+                    >
+                      <Image
+                        src="/icon/chevron-left.svg"
+                        alt="Previous"
+                        width={20}
+                        height={20}
+                        className="w-4 h-4 sm:w-5 sm:h-5"
+                      />
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={`px-2 sm:px-3 py-2 w-8 sm:w-10 rounded-lg font-medium transition flex items-center justify-center text-xs sm:text-sm ${currentPage === page
+                          ? 'bg-lime-500 text-white'
+                          : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                          }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className={`px-2 sm:px-3 py-2 sm:py-3 w-12 sm:w-16 rounded-lg font-medium transition flex items-center justify-center text-xs sm:text-sm ${currentPage === totalPages
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        : 'bg-lime-400 hover:bg-lime-500 text-white'
+                        }`}
+                    >
+                      <Image
+                        src="/icon/chevron-right.svg"
+                        alt="Next"
+                        width={20}
+                        height={20}
+                        className="w-4 h-4 sm:w-5 sm:h-5"
+                      />
+                    </button>
+                  </div>
+                )}
+
+                <div className="mt-4 text-center text-gray-400 italic text-xs sm:text-sm">
+                  {t('cameras.showingCameras')
+                    .replace('{start}', String(startIndex + 1))
+                    .replace('{end}', String(Math.min(endIndex, filteredCameras.length)))
+                    .replace('{total}', String(filteredCameras.length))
+                  }
+                </div>
+              </>
             )}
           </div>
         </main>
