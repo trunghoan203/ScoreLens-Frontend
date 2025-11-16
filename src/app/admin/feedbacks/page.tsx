@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "@/components/admin/Sidebar";
 import HeaderAdminPage from "@/components/admin/HeaderAdminPage";
-import FeedbackTable from "@/components/admin/FeedbackTable";
+import FeedbackTable from "@/components/admin/AdminFeedbackTable";
 import FeedbackSearchBar from "@/components/admin/FeedbackSearchBar";
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import EmptyState from '@/components/ui/EmptyState';

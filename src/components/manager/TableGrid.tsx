@@ -1,5 +1,5 @@
 import React from 'react';
-import StatusBadge from './StatusBadge';
+import StatusBadge from './StatusBadgeManager';
 import { useI18n } from '@/lib/i18n/provider';
 
 interface Table {

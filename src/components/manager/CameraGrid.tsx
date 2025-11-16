@@ -34,7 +34,7 @@ export default function CameraGrid({ cameras, onCameraClick, onViewCamera }: Cam
             <div
               key={camera.id}
               className="grid grid-cols-12 items-center text-center bg-gray-200 rounded-lg cursor-pointer hover:bg-lime-50 transition"
-              onClick={() => onCameraClick && onCameraClick(camera.id)}
+              onClick={() => onCameraClick?.(camera.id)}
             >
               <div className="col-span-4 py-4 font-semibold text-black text-sm xl:text-base px-2">{camera.table}</div>
               <div className="col-span-3 py-4 text-gray-700 text-sm xl:text-base px-2">{camera.ip}</div>
@@ -70,7 +70,7 @@ export default function CameraGrid({ cameras, onCameraClick, onViewCamera }: Cam
           <div
             key={camera.id}
             className="bg-white rounded-lg shadow-md border border-gray-200 p-4 cursor-pointer hover:shadow-lg transition-shadow touch-manipulation"
-            onClick={() => onCameraClick && onCameraClick(camera.id)}
+            onClick={() => onCameraClick?.(camera.id)}
           >
             <div className="flex justify-between items-start mb-3">
               <div className="flex-1">
