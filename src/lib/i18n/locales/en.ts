@@ -916,7 +916,7 @@ export default {
             noTablesFoundWithSearch: 'No matching tables found',
             tryChangingSearch: 'Try changing search keywords or filters to find suitable tables',
             viewAll: 'View all',
-            viewMore: 'View more',
+            viewMore: 'Expand',
             collapse: 'Collapse',
             minutes: 'minutes',
             hours: 'hours',
