@@ -146,7 +146,7 @@ function SuperAdminVerificationPageInner() {
       title={t('superAdminVerification.pageTitle')}
       description={t('superAdminVerification.description')}
     >
-      <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6" onPaste={handlePaste}>
+      <form onSubmit={handleSubmit} className="space-y-6" onPaste={handlePaste}>
         <div className="flex gap-3 justify-center mb-4">
           {otp.map((digit, index) => (
             <div

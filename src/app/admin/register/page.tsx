@@ -355,19 +355,19 @@ export default function AdminRegisterPage() {
         </form>
       )}
       {step === 3 && (
-        <form className="space-y-6 p-4 md:p-6 overflow-hidden min-h-[420px]" onSubmit={handleVerifySubmit} noValidate>
+        <form className="space-y-6 overflow-hidden min-h-[420px]" onSubmit={handleVerifySubmit} noValidate>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-4">
+            <label className="block text-sm font-semibold text-gray-700 mb-3 sm:mb-4">
               {t('adminRegister.verificationTitle')}
             </label>
             <p className="text-gray-600 text-sm mb-4">
               {t('adminRegister.verificationDescription')} {formData.email}
             </p>
-            <div className="flex gap-3 justify-center mb-4" onPaste={handlePaste}>
+            <div className="flex gap-2 sm:gap-3 justify-center mb-3 sm:mb-4" onPaste={handlePaste}>
               {otp.map((digit, index) => (
                 <div
                   key={index}
-                  className={`relative w-12 h-12 flex items-center justify-center rounded-full border-2 transition-all duration-200 bg-white shadow-md cursor-pointer
+                  className={`relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full border-2 transition-all duration-200 bg-white shadow-md cursor-pointer
                     ${inputRefs.current[index] && document.activeElement === inputRefs.current[index] ? 'border-lime-500 shadow-lg' : digit ? 'border-lime-400' : 'border-gray-300'}
                   `}
                   onClick={() => inputRefs.current[index]?.focus()}
@@ -404,7 +404,9 @@ export default function AdminRegisterPage() {
 
           <Button
             type="submit"
-            className="w-full bg-lime-400 text-gray-900 font-bold py-3 px-6 rounded-lg hover:bg-lime-500 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+            variant="lime"
+            fullWidth
+            className="py-2 sm:py-3 text-sm sm:text-base"
             disabled={!isOtpValid}
           >
             {isVerifying ? t('adminRegister.verifying') : t('adminRegister.verificationButton')}
