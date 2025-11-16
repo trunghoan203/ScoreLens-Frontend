@@ -67,10 +67,12 @@ export default function HistoryPage() {
                     toast.error(errorMessage);
                     setLoading(false);
                 }
-            } catch (error: any) {
+            } catch (error: unknown) {
                 console.error('Error checking membership:', error);
-                if (error.message) {
-                    toast.error(error.message);
+                type ErrorWithMessage = { message?: string };
+                const err = error as ErrorWithMessage;
+                if (err && typeof err === 'object' && err.message) {
+                    toast.error(err.message);
                 } else {
                     toast.error(t('history.errorMessage'));
                 }

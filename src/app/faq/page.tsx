@@ -6,7 +6,7 @@ import { Footer } from '@/components/landing/Footer';
 import { ScoreLensLoading } from '@/components/ui/ScoreLensLoading';
 import { useI18n } from '@/lib/i18n/provider';
 
-const getFAQContent = (category: string, t: any) => {
+const getFAQContent = (category: string, t: (key: string, vars?: Record<string, unknown>) => string) => {
     const content = {
         general: [
             {

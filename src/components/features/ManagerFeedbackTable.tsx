@@ -59,7 +59,8 @@ export function ManagerFeedbackTable() {
     useEffect(() => {
         setLoading(true);
         managerFeedbackService.getAllFeedbacks()
-            .then((data: any) => {
+            .then((res: unknown) => {
+                const data = res as { feedbacks: ApiFeedback[] };
                 setFeedbacks(data.feedbacks);
                 setLoading(false);
             })

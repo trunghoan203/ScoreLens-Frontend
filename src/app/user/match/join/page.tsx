@@ -146,7 +146,14 @@ function GuestJoinContent() {
             },
           });
 
-          const joinData = joinResult as any;
+          type JoinMatchResponse = {
+            success?: boolean;
+            userSessionToken?: string;
+            data?: { matchId?: string; id?: string };
+            [key: string]: unknown;
+          };
+
+          const joinData = joinResult as JoinMatchResponse;
 
           let newSessionToken = '';
 

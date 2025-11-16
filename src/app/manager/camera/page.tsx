@@ -92,7 +92,7 @@ export default function CameraPage() {
         toast.error(t('cameras.cannotLoadCameras'));
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   if (isChecking) return null;
 

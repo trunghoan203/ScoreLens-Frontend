@@ -9,8 +9,33 @@ interface SessionTokenSyncProps {
   matchId: string;
   currentSessionToken: string | null;
   onTokenUpdate: (newToken: string) => void;
-  matchInfo?: any;
+  matchInfo?: MatchInfo;
   actorGuestToken?: string | null;
+}
+
+interface Member {
+  guestName?: string;
+  [key: string]: unknown;
+}
+
+interface Team {
+  members?: Member[];
+  [key: string]: unknown;
+}
+
+interface MatchInfo {
+  createdByMembershipId?: string;
+  teams?: Team[];
+  [key: string]: unknown;
+}
+
+interface SessionTokenResponse {
+  success: boolean;
+  data?: {
+    sessionToken?: string;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
 }
 
 export default function SessionTokenSync({
@@ -22,7 +47,7 @@ export default function SessionTokenSync({
 }: SessionTokenSyncProps) {
   const { t } = useI18n();
   const [syncing, setSyncing] = useState(false);
-  const [lastSyncResult, setLastSyncResult] = useState<any>(null);
+  const [lastSyncResult, setLastSyncResult] = useState<SessionTokenResponse | null>(null);
 
   const syncSessionToken = async () => {
     if (!matchId) {
@@ -37,23 +62,21 @@ export default function SessionTokenSync({
 
       }
       else if (actorGuestToken) {
-        const currentTeams = matchInfo?.teams || [];
-        const allMembers = currentTeams.flatMap((t: any) => t.members);
-        const currentMember = allMembers.find((m: any) =>
-          m.guestName && m.guestName.includes(actorGuestToken.slice(-6))
-        );
+        const currentTeams: Team[] = matchInfo?.teams ?? [];
+        const allMembers: Member[] = currentTeams.flatMap((t) => t.members ?? []);
+        const tokenSuffix = actorGuestToken.slice(-6);
+        const currentMember = allMembers.find((m) => m.guestName && m.guestName.includes(tokenSuffix));
         if (currentMember?.guestName) {
           sessionTokenPayload.guestName = currentMember.guestName;
-
         }
       }
       if (Object.keys(sessionTokenPayload).length === 0) {
         toast.error(t('shared.sessionTokenSync.cannotDetermineUser'));
         return;
       }
-      const sessionResponse = await userMatchService.getSessionToken(matchId, sessionTokenPayload);
-      const responseData = sessionResponse as any;
-      setLastSyncResult(responseData);
+  const sessionResponse = await userMatchService.getSessionToken(matchId, sessionTokenPayload);
+  const responseData = sessionResponse as SessionTokenResponse;
+  setLastSyncResult(responseData);
 
       if (responseData.success && responseData.data?.sessionToken) {
         const newSessionToken = responseData.data.sessionToken;
@@ -70,8 +93,7 @@ export default function SessionTokenSync({
         toast.error(t('shared.sessionTokenSync.cannotGetNewSession'));
       }
 
-    } catch (error) {
-
+    } catch {
       toast.error(t('shared.sessionTokenSync.cannotSyncSession'));
     } finally {
       setSyncing(false);

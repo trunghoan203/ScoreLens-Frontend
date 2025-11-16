@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
 import { userMatchService } from '../userMatchService';
 
 export interface MatchRole {
@@ -24,8 +24,22 @@ export const useMatchRole = (matchId?: string, existingSocket?: Socket | null): 
   const [role, setRole] = useState<MatchRole | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [socket, setSocket] = useState<Socket | null>(existingSocket || null);
+  const socket: Socket | null = existingSocket || null;
   const [forceUpdate, setForceUpdate] = useState(0);
+
+  interface Member {
+    sessionToken?: string;
+    role?: 'host' | 'participant' | 'manager' | string;
+    [key: string]: unknown;
+  }
+
+  interface MatchDataShape {
+    teams?: Array<{
+      members?: Member[];
+      [key: string]: unknown;
+    }>;
+    [key: string]: unknown;
+  }
 
   const isHost = role?.role === 'host';
   const isManager = role?.role === 'manager';
@@ -51,25 +65,19 @@ export const useMatchRole = (matchId?: string, existingSocket?: Socket | null): 
         setIsLoading(false);
         return;
       }
-
-      const match = matchData.data as any;
+      const match = ((matchData as { data?: MatchDataShape }).data || (matchData as MatchDataShape)) as MatchDataShape;
       if (!match || !match.teams || !Array.isArray(match.teams)) {
         setError('Dữ liệu match không hợp lệ');
         setIsLoading(false);
         return;
       }
       let userRole: 'host' | 'participant' | 'manager' | null = null;
-      let foundMember = null;
+      let foundMember: Member | undefined = undefined;
 
       for (const team of match.teams) {
         if (team.members && Array.isArray(team.members)) {
 
-          foundMember = team.members.find((member: any) => {
-            const tokenMatch = member.sessionToken === sessionToken;
-
-
-            return tokenMatch;
-          });
+          foundMember = team.members.find((member: Member) => member.sessionToken === sessionToken);
           if (foundMember) {
             userRole = foundMember.role as 'host' | 'participant' | 'manager';
 

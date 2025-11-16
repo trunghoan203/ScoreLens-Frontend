@@ -641,7 +641,7 @@ export default {
         },
 
     // Admin Add Branch
-        adminAddBranch: {
+        adminAddClub: {
             branchNameRequired: 'Club name is required',
             branchNameMinLength: 'Club name must be at least 2 characters',
             branchNameMaxLength: 'Club name cannot exceed 255 characters',
@@ -917,6 +917,7 @@ export default {
             tryChangingSearch: 'Try changing search keywords or filters to find suitable tables',
             viewAll: 'View all',
             viewMore: 'View more',
+            collapse: 'Collapse',
             minutes: 'minutes',
             hours: 'hours',
             hour: 'hour',
@@ -2658,6 +2659,7 @@ export default {
         address: 'Address',
         register: 'Register',
         logout: 'Logout',
+        login: 'Login',
         profile: 'Profile',
         english: 'English',
         vietnamese: 'Tiếng Việt',
@@ -2702,6 +2704,7 @@ export default {
     auth: {
         logoutConfirm: 'Are you sure you want to logout?',
         logoutSuccess: 'Logout successful!',
+        logoutFailed: 'Logout failed. Please try again.',
         roleSelection: {
             title: 'What role would you like to login with?',
             businessOwner: 'Admin',

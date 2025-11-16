@@ -206,7 +206,7 @@ export default function ManagerDashboardPage() {
     if (!isChecking) {
       fetchDashboardData();
     }
-  }, [isChecking]);
+  }, [isChecking, t]);
 
   useEffect(() => {
     const interval = setInterval(() => {

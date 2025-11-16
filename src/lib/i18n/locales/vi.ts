@@ -641,7 +641,7 @@ export default {
         },
 
     // Admin Add Branch
-        adminAddBranch: {
+        adminAddClub: {
             branchNameRequired: 'Tên chi nhánh là bắt buộc',
             branchNameMinLength: 'Tên chi nhánh phải có ít nhất 2 ký tự',
             branchNameMaxLength: 'Tên chi nhánh không được vượt quá 255 ký tự',
@@ -917,6 +917,7 @@ export default {
             tryChangingSearch: 'Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thấy bàn phù hợp',
             viewAll: 'Xem tất cả',
             viewMore: 'Xem thêm',
+            collapse: 'Thu gọn',
             minutes: 'phút',
             hours: 'giờ',
             hour: 'giờ',
@@ -2658,6 +2659,7 @@ export default {
         address: 'Địa chỉ',
         register: 'Đăng ký',
         logout: 'Đăng xuất',
+        login: 'Đăng nhập',
         profile: 'Hồ sơ',
         english: 'English',
         vietnamese: 'Tiếng Việt',
@@ -2702,6 +2704,7 @@ export default {
     auth: {
         logoutConfirm: 'Bạn có chắc chắn muốn đăng xuất không?',
         logoutSuccess: 'Đăng xuất thành công!',
+        logoutFailed: 'Đăng xuất thất bại. Vui lòng thử lại.',
         roleSelection: {
             title: 'Bạn muốn đăng nhập với vai trò nào?',
             businessOwner: 'Chủ doanh nghiệp',

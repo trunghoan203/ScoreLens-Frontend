@@ -59,8 +59,9 @@ export function AdminFeedbackTable() {
     useEffect(() => {
         setLoading(true);
         adminFeedbackService.getAllFeedbacks()
-            .then((data: any) => {
-                setFeedbacks(data.feedbacks);
+            .then((data) => {
+                const parsed = data as { feedbacks: ApiFeedback[] };
+                setFeedbacks(parsed.feedbacks);
                 setLoading(false);
             })
             .catch(() => {

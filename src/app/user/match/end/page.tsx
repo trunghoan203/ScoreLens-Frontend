@@ -182,7 +182,7 @@ function EndMatchPageContent() {
     };
 
     loadMatchData();
-  }, [matchId, actualScoreA, actualScoreB]);
+  }, [matchId, actualScoreA, actualScoreB, elapsedTimeFromURL]);
 
   const handleRate = () => {
     setShowFeedback(true);
