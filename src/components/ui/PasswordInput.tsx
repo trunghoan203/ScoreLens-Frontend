@@ -50,6 +50,7 @@ export const PasswordInput = React.forwardRef<
       <button
         type="button"
         className="absolute inset-y-0 right-0 flex items-center pr-4"
+        tabIndex={-1}
         onClick={togglePasswordVisibility}
       >
         <EyeIcon closed={!showPassword} />
