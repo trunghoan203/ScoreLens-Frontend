@@ -2659,6 +2659,7 @@ export default {
         address: 'Address',
         register: 'Register',
         logout: 'Logout',
+        login: 'Login',
         profile: 'Profile',
         english: 'English',
         vietnamese: 'Tiếng Việt',

@@ -2659,6 +2659,7 @@ export default {
         address: 'Địa chỉ',
         register: 'Đăng ký',
         logout: 'Đăng xuất',
+        login: 'Đăng nhập',
         profile: 'Hồ sơ',
         english: 'English',
         vietnamese: 'Tiếng Việt',
